@@ -1,0 +1,5 @@
+# Board   DAC     Channel       Command       Value
+  f333    0       0             3             0x3450
+  f333    0       1             3             0x1230
+  f333    1       0             3             0x6780
+  f333    2       0             3             0x345
