@@ -61,10 +61,10 @@ while (my $a = <$fh>) {
     
     #Write memory address $board  registers 0xd400 - 0xd410 with @values...
     foreach my $i (0..15) {
-      trb_register_write($board,0xd100+$i,$values[$i]);
+      trb_register_write($board,0xd400+$i,$values[$i]);
       }
-    trb_register_write($board,0xd110,16);  #"16" workaround until length of chain is known
+    trb_register_write($board,0xd410,16);  #"16" workaround until length of chain is known
     }
-    usleep(100);
+    usleep(80);
 
   }
