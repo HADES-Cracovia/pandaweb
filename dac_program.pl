@@ -42,7 +42,7 @@ while (my $a = <$fh>) {
     $o |= $val;
     
     my @values;
-    foreach my $i (0..($chain-1)) {
+    foreach my $i (0..15) {
       $values[$i] = 0x00F00000;
       }
     $values[16] = $chain;
