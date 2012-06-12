@@ -48,7 +48,7 @@ while (my $a = <$fh>) {
     $values[16] = $chain;
     $values[$chain-1-$dac] = $o;
 #     print Dumper @values;
-    trb_register_write_mem($board,0xd400,0,\@values,$chain) or die "trb_register_write_mem: ", trb_strerror(); 
+    trb_register_write_mem($board,0xd400,0,\@values,17) or die "trb_register_write_mem: ", trb_strerror(); 
     usleep(5*$chain);
     }
   }
