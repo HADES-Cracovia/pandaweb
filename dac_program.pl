@@ -14,21 +14,27 @@ if(!$ARGV[0]) {
   print "usage: dac_program.pl <filename of configuration file>\n\n";
   print "Example config file:\n";
   print "# Board   Chain     ChainLen    DAC     Channel       Command       Value\n";
-  print "  f300    1         1           0       0             3             0x3450\n";
-  print "  f300    1         1           0       1             3             0x1230\n";
-  print "  f300    1         1           0       2             3             0x6780\n";
-  print "  f300    1         1           0       3             3             0x0345\n";
+  print "!Reference 2500\n";
+  print "  f300    1         1           0       0             3             1450\n";
+  print "  f300    1         1           0       1             3             1230\n";
+  print "  f300    1         1           0       2             3             2280\n";
+  print "  f300    1         1           0       3             3             345\n";
   exit;
   }
 
 open $fh, "$ARGV[0]" or die $!."\nFile '$ARGV[0]' not found.";
 
+my $reference = 2**16;
+
 while (my $a = <$fh>) {
   next if($a=~/^\s*#/);
-  next if($a=~/^\s*\!/);
 
   $a=~s/#.*//;
-  
+  if(my ($ref) = $a =~ /^\s*!Reference\s+(\w+)/i) {
+    $ref = hex(substr($ref,2)) if (substr($ref,0,2) eq "0x");
+    $reference = $ref * 1.;
+    print $reference."\n";
+    }
  
   if(my ($board,$chain,$chainlen,$dac,$chan,$cmd,$val) = $a =~ /^\s*(\w\w\w\w)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d)\s+(\w)\s+(\w+)/) {
     $val = hex(substr($val,2)) if (substr($val,0,2) eq "0x");
@@ -36,9 +42,14 @@ while (my $a = <$fh>) {
     $cmd = hex($cmd);
     $board = hex($board);
     
+    if ($val > $reference) {
+      printf("Error, value %i is higher than reference %i\n",$val,$reference);
+      next;
+      }
+    
     $o = $cmd << 20;
     $o |= $chan << 16;
-    $o |= $val;
+    $o |= (($val*1.)/$reference*65536.) & 0xFFFF;
     
     my @values;
     foreach my $i (0..15) {
