@@ -14,11 +14,11 @@ if(!$ARGV[0]) {
   print "usage: dac_program.pl <filename of configuration file>\n\n";
   print "Example config file:\n";
   print "# Board   Chain     ChainLen    DAC     Channel       Command       Value\n";
+  print "  f300    1         1           0       0             3             0x3456\n";
+  print "  f300    1         1           0       1             3             12300\n";
+  print "  f300    1         1           0       2             3             0xa123\n";
   print "!Reference 2500\n";
-  print "  f300    1         1           0       0             3             1450\n";
-  print "  f300    1         1           0       1             3             1230\n";
-  print "  f300    1         1           0       2             3             2280\n";
-  print "  f300    1         1           0       3             3             345\n";
+  print "  f300    1         1           0       3             3             1345 #=0x89ba\n";
   exit;
   }
 
