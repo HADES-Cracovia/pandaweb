@@ -33,17 +33,17 @@ while (my $a = <$fh>) {
   if(my ($ref) = $a =~ /^\s*!Reference\s+(\w+)/i) {
     $ref = hex(substr($ref,2)) if (substr($ref,0,2) eq "0x");
     $reference = $ref * 1.;
-    print $reference."\n";
+#     print $reference."\n";
     }
  
   if(my ($board,$chain,$chainlen,$dac,$chan,$cmd,$val) = $a =~ /^\s*(\w\w\w\w)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d)\s+(\w)\s+(\w+)/) {
-    $val = hex(substr($val,2)) if (substr($val,0,2) eq "0x");
+    $val   = hex(substr($val,2)) if (substr($val,0,2) eq "0x");
     $chain = hex(substr($chain,2)) if (substr($chain,0,2) eq "0x");
-    $cmd = hex($cmd);
+    $cmd   = hex($cmd);
     $board = hex($board);
     
-    if ($val > $reference) {
-      printf("Error, value %i is higher than reference %i\n",$val,$reference);
+    if ($val >= $reference) {
+      printf(STDERR "Error, value %i is higher than reference %i\n",$val,$reference);
       next;
       }
     
