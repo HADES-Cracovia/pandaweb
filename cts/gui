@@ -1,0 +1,11 @@
+#!/bin/bash
+host=`hostname`
+port="1234"
+
+./httpi $host $port &
+echo "Started webserver at http://$host:$port"
+
+until ./cts m htdocs/monitor > /dev/null; do
+    echo "Cts monitor crashed with exit code $?.  Respawning.." >&2
+    sleep 1
+done
