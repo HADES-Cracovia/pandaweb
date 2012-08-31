@@ -1,0 +1,184 @@
+/* Page layout */   
+   html, body {
+      padding:0;
+      margin: 0;
+      text-align: center;
+      background: 0 40px url(gradient.png) repeat-x #F4F5F5;
+      
+      font-family: arial, sans-serif;
+      font-size: 10pt;
+   }
+
+   #data-update {
+      font-size: 90%;
+      float: right;
+   }
+
+   #data-update.error {color: red}
+
+   #header .content {
+      width: 1000px;
+      margin: 0 auto 0 auto;
+      padding-top: 12px;
+      text-align: left;
+   }
+
+   #header {
+      border-bottom: 1px solid #DDDDDD;
+      background: #F9F9F9;
+      height: 40px;
+   }
+
+   #header h1 {
+      margin: 0;
+      font-size: 1.5em;
+   }
+
+   h3 {
+      text-align: center;
+      font-weight: bold;
+      font-size: 100%;
+      margin: 0 0 3px 0;
+      border-bottom: 1px dotted #cccccc;
+   }
+
+   #content-area {
+      width: 1000px;
+      margin: 20px auto 20px auto;
+      text-align: left;
+   }
+
+/* Expandable handling */
+   .expandable {
+      margin: 1em 0 1em 0;
+   }
+
+   .expandable .header {
+      border-bottom: 1px solid #dddddd;
+      font-size: 120%;
+      font-weight: bold;
+      color: #6B7B95;
+   }
+
+   .expandable .header .indicator {
+      display: block;
+      width: 15px;
+      float: left;
+   }
+
+   .expandable .content {
+      margin-left: 15px;
+      background: #ffffff;
+      overflow: hidden;
+      padding: 5px;
+   }
+
+   .expanded .content {
+      border-bottom: 1px solid #dddddd;
+   }
+   
+/* Table Generics */
+   table {
+      border-collapse: collapse;
+      width: 450px;
+   }
+
+   table td, table tr {
+      border-bottom: 1px solid #eeeeee;
+      padding: 0px;
+   }
+
+   input.unsaved {
+      background: #e0e0ff;
+   }
+
+   table tr.alt:hover td, table tr:hover td {
+      background: #ffffd0;
+   }
+
+   table td {
+      vertical-align: top;
+      width: 20%;
+   }
+
+   .alt td {
+      background: #f6f6f6;
+      border-bottom: 1px solid #e0e0e0;
+   }
+
+   table pre {display: inline;}
+
+   input {text-align: right;}
+   input.text {width: 7em;}
+   input.uncommitted {font-style: italic; color: #0000ff;}
+
+/* Overview */
+   #overview-tab .rate,
+   #overview-tab .value {text-align: right;} 
+   
+   #rate-plot {
+      float: right;
+      width: 450px;
+      height: 170px;
+      margin-right: 20px;
+   }
+   
+/* Trigger Inputs */
+   #inputs-tab {width: 100%;}
+   #inputs-tab input {width: 4em;}
+   #inputs-tab .num {width: 2%;  text-align: center;}
+   #inputs-tab .invert {text-align: center;}
+
+/* Internal Trigger Channel */
+   #itc-tab0, .left {
+      float: left;
+      width: 470px;
+   }
+
+   #itc-tab1, .right {
+      margin-left: 490px;
+   }
+
+   #itc-mask-form {
+      padding: 10px 0 0 0;
+      text-align: right;
+   }
+
+   #itc-mask {
+      width: 8em;
+   }
+
+   .itc .enable {
+      width: 8%;
+      text-align: center;
+      
+   }
+
+   .itc .channel {width: 5%; text-align: center;}
+   .itc .assign {width: 45%}
+   .itc .type {width: 20%;}
+   .itc .type select {width: 6em;}
+   .itc .rate {width: 20%; text-align: right;}
+
+/* Coincidence Detection */
+   #coin-tab {
+      width: 100%;
+   }
+
+   #coin-tab .num {
+      width: 4%;
+   }
+
+   #coin-tab .window {width: 32%;}
+   #coin-tab .window input {width: 4em; text-align: right}
+   #coin-tab .coin   {width: 32%;}
+   #coin-tab .inhibt {width: 32%;}
+
+/* Pulser */
+   #pulser-tab {width: 100%;}
+   #pulser-tab .num    {width: 4%; text-align: center}
+   #pulser-tab .period {text-align: right}
+   #pulser-tab .freq   {width: 30%; text-align: right}
+   #pulser-tab .period input {text-align: right; width: 8em;}
+
+      
