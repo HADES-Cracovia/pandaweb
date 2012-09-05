@@ -14,8 +14,8 @@ my $fh;
 
 if(!$ARGV[0]) {
   print "usage: padiwa.pl \$FPGA \$chain \$command \$options\n\n";
-  print "\t uid \t\t reads unique ID, no options\n";
-  print "\t temp \t\t reads temperature, no options\n";
+  print "\t uid \t\t read unique ID, no options\n";
+  print "\t temp \t\t read temperature, no options\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
   print "\t pwm \t\t read PWM value. options: \$channel\n";
   print "\t disable \t set input diable. options: \$mask\n";
@@ -25,7 +25,7 @@ if(!$ARGV[0]) {
   print "\t led \t\t read LED status. no options\n";
   print "\t monitor \t set input for monitor output. options: mask (4 bit)\n";
   print "\t monitor \t read monitor selection. no options\n";
-  print "\t time \t\t reads compile time. no options\n";
+  print "\t time \t\t read compile time. no options\n";
   exit;
   }
 my $board, my $value, my $mask;
