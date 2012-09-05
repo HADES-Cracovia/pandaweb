@@ -16,6 +16,13 @@ if(!$ARGV[0]) {
   print "\t temp \t\t reads temperature, no options\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
   print "\t pwm \t\t read PWM value. options: \$channel\n";
+  print "\t disable \t set input diable. options: \$mask\n";
+  print "\t disable \t read input disable. no options\n";
+  print "\t input \t\t read input status. no options\n";
+  print "\t led \t\t set led status. options: mask (5 bit, highest bit is override enable)\n";
+  print "\t led \t\t read LED status. no options\n";
+  print "\t monitor \t set input for monitor output. options: mask (4 bit)\n";
+  print "\t monitor \t read monitor selection. no options\n";
   exit;
   }
 my $board, my $value;
@@ -23,14 +30,19 @@ my $board, my $value;
 ($board) = $ARGV[0] =~ /^0?x?(\w+)/;
 $board = hex($board);
 
+my $chain = hex($ARGV[1]);  
+
+if (defined $ARGV[3]) {  
+  ($mask) = $ARGV[3] =~ /^0?x?(\w+)/;
+  $mask = hex($mask);
+  }
+
 if (defined $ARGV[4]) {  
   ($value) = $ARGV[4] =~ /^0?x?(\w+)/;
   $value = hex($value);
   }
     
   
-# my $board = hex($ARGV[0]);  
-my $chain = hex($ARGV[1]);  
   
   
 sub sendcmd {
@@ -66,7 +78,8 @@ if($ARGV[2] eq "uid") {
   }
   
 if($ARGV[2] eq "pwm" && defined $ARGV[4]) {
-  my $b = sendcmd(0x00800000+$ARGV[3]*0x10000+(hex($ARGV[4])&0xffff));
+  my $b = sendcmd(0x00800000+$ARGV[3]*0x10000+($value&0xffff));
+  print "Wrote PWM settings.\n";
   }    
   
 if($ARGV[2] eq "pwm") {
@@ -75,3 +88,50 @@ if($ARGV[2] eq "pwm") {
     printf("0x%04x\t%d\t%d\t0x%04x\t%4.2f\n",$e,$chain,$ARGV[3],$b->{$e}&0xffff,($b->{$e}&0xffff)*3300/65536);
     }
   }  
+  
+  
+if($ARGV[2] eq "disable" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20800000+($mask&0xffff));
+  print "Wrote Input Disable settings.\n";
+  }    
+  
+if($ARGV[2] eq "disable") {
+  my $b = sendcmd(0x20000000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }    
+  
+  
+if($ARGV[2] eq "input") {
+  my $b = sendcmd(0x20010000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }    
+
+if($ARGV[2] eq "led" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20820000+($mask&0xffff));
+  print "Wrote LED settings.\n";
+  }    
+  
+if($ARGV[2] eq "led") {
+  my $b = sendcmd(0x20020000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
+    }
+  }     
+
+  
+if($ARGV[2] eq "monitor" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20830000+($mask&0xf));
+  print "Wrote LED settings.\n";
+  }    
+  
+if($ARGV[2] eq "monitor") {
+  my $b = sendcmd(0x20030000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xf);
+    }
+  }     
+    
