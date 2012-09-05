@@ -4,6 +4,8 @@ use FileHandle;
 use Time::HiRes qw( usleep );
 use Data::Dumper;
 use HADES::TrbNet;
+use Date::Format;
+
 
 if (!defined &trb_init_ports()) {
   die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
@@ -23,9 +25,10 @@ if(!$ARGV[0]) {
   print "\t led \t\t read LED status. no options\n";
   print "\t monitor \t set input for monitor output. options: mask (4 bit)\n";
   print "\t monitor \t read monitor selection. no options\n";
+  print "\t time \t\t reads compile time. no options\n";
   exit;
   }
-my $board, my $value;
+my $board, my $value, my $mask;
   
 ($board) = $ARGV[0] =~ /^0?x?(\w+)/;
 $board = hex($board);
@@ -134,4 +137,17 @@ if($ARGV[2] eq "monitor") {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xf);
     }
   }     
-    
+
+if($ARGV[2] eq "time") {
+  my $ids;
+  for(my $i = 0; $i <= 1; $i++) {
+    my $b = sendcmd(0x21000000 + $i*0x10000);
+    foreach my $e (sort keys $b) {
+      $ids->{$e}->{$i} = $b->{$e}&0xffff;
+      }
+    }
+  foreach my $e (sort keys $ids) {
+    printf("0x%04x\t%d\t0x%04x%04x\t%s\n",$e,$chain,$ids->{$e}->{1},$ids->{$e}->{0},time2str('%Y-%m-%d %H:%M',($ids->{$e}->{1}*2**16+$ids->{$e}->{0})));
+    }
+  } 
+  
