@@ -21,6 +21,8 @@ if(!$ARGV[0]) {
   print "\t disable \t set input diable. options: \$mask\n";
   print "\t disable \t read input disable. no options\n";
   print "\t input \t\t read input status. no options\n";
+  print "\t invert \t\t set invert status. options: \$mask\n";
+  print "\t invert \t\t read invert status. no options\n";
   print "\t led \t\t set led status. options: mask (5 bit, highest bit is override enable)\n";
   print "\t led \t\t read LED status. no options\n";
   print "\t monitor \t set input for monitor output. options: mask (4 bit)\n";
@@ -100,6 +102,19 @@ if($ARGV[2] eq "disable" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "disable") {
   my $b = sendcmd(0x20000000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }    
+
+  
+if($ARGV[2] eq "invert" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20840000+($mask&0xffff));
+  print "Wrote Input Invert settings.\n";
+  }    
+  
+if($ARGV[2] eq "invert") {
+  my $b = sendcmd(0x20040000);
   foreach my $e (sort keys $b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
