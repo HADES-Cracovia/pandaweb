@@ -157,7 +157,7 @@ if($ARGV[2] eq "led") {
   
 if($ARGV[2] eq "monitor" && defined $ARGV[3]) {
   my $b = sendcmd(0x20830000+($mask&0x1f));
-  print "Wrote LED settings.\n";
+  print "Wrote monitor settings.\n";
   }    
   
 if($ARGV[2] eq "monitor") {
