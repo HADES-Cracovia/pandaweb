@@ -21,12 +21,14 @@ if(!$ARGV[0]) {
   print "\t disable \t set input diable. options: \$mask\n";
   print "\t disable \t read input disable. no options\n";
   print "\t input \t\t read input status. no options\n";
-  print "\t invert \t\t set invert status. options: \$mask\n";
-  print "\t invert \t\t read invert status. no options\n";
+  print "\t invert \t set invert status. options: \$mask\n";
+  print "\t invert \t read invert status. no options\n";
   print "\t led \t\t set led status. options: mask (5 bit, highest bit is override enable)\n";
   print "\t led \t\t read LED status. no options\n";
-  print "\t monitor \t set input for monitor output. options: mask (4 bit)\n";
+  print "\t monitor \t set input for monitor output. options: mask (4 bit). \n\t\t\t0x10: OR of all channels, 0x18: or of all channels, extended to  16ns\n";
   print "\t monitor \t read monitor selection. no options\n";
+  print "\t stretch \t\t set stretcher status.\n";
+  print "\t stretch \t\t read stretcher status. no options\n";
   print "\t time \t\t read compile time. no options\n";
   exit;
   }
@@ -120,6 +122,18 @@ if($ARGV[2] eq "invert") {
     }
   }    
   
+
+if($ARGV[2] eq "stretch" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20850000+($mask&0xffff));
+  print "Wrote Input Stretcher settings.\n";
+  }    
+  
+if($ARGV[2] eq "stretch") {
+  my $b = sendcmd(0x20050000);
+  foreach my $e (sort keys $b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }      
   
 if($ARGV[2] eq "input") {
   my $b = sendcmd(0x20010000);
@@ -142,14 +156,14 @@ if($ARGV[2] eq "led") {
 
   
 if($ARGV[2] eq "monitor" && defined $ARGV[3]) {
-  my $b = sendcmd(0x20830000+($mask&0xf));
+  my $b = sendcmd(0x20830000+($mask&0x1f));
   print "Wrote LED settings.\n";
   }    
   
 if($ARGV[2] eq "monitor") {
   my $b = sendcmd(0x20030000);
   foreach my $e (sort keys $b) {
-    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xf);
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
     }
   }     
 
