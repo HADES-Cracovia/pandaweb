@@ -83,6 +83,7 @@ $VERSION = "1.7 (Demonic/Linux)";
 $logfile = "./htdocs/access.log";
 $path = "./htdocs";
 $sockaddr = 'S n a4 x8';
+
 $server_host = $ARGV[0];
 $server_port = $ARGV[1];
 
@@ -109,7 +110,7 @@ EOF
 %content_types = (%system_content_types, %content_types);
 undef %system_content_types;
 
-if ($pid = fork()) { exit; }
+#if ($pid = fork()) { exit; }
 $0 = "dhttpi: binding port ...";
 $bindthis = pack($sockaddr, 2, 1234, pack('C4', 0, 0, 0, 0));
 socket(S, 2, 1, 6);

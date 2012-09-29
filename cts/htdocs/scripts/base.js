@@ -1,4 +1,11 @@
+/** 
+ * Similiarly to parseInt/parseFloat, but can also handle binary
+ *  numbers indicated by the "0b" prefix. If no prefix in combination
+ *  with a decimal point "." is used, the number is interpret as float.
+ */
 function parseNum(str) {
+   if(typeof(str) == 'number') return str;
+   
    str = str.trim().toLowerCase();
    var result = 0;
    if (str.substr(0,2) == "0b") {
@@ -17,6 +24,41 @@ function parseNum(str) {
    return str.match(/\./) ? parseFloat(str) : parseInt(str, str.match(/^\s*0x/) ? 16 : 10);
 }
 
+/**
+ * Takes a slice expresion in the following formats:
+ *  - register
+ *  - register.slice
+ *  - register.slice[bit]
+ * and returns an hash with the keys
+ *  'reg', 'slice', 'bit', 'exp'.
+ * If a property is not given by the expression, the
+ * corresponding value in the hash is set to undefined */
+function parseSlice(slice) {
+   var m = slice.match(/^(.+)\.([^\[]+)(\[\d+\]|)$/);
+   if (!m) return {
+      'reg': slice,
+      'slice': undefined,
+      'bit': undefined,
+      'exp': slice
+   };
+   return {
+      'reg': m[1],
+      'slice': m[2],
+      'bit': m[3] ? parseInt(m[3].substr(1, m[3].length - 2)) : undefined,
+      'exp': slice
+   };
+}
+
+function parseCallback(elem, func, fallback) {
+   if (elem[func])
+      return elem[func];
+   
+   if (elem.get(func))
+      return elem[func] = eval(elem.get(func));
+   
+   return fallback ? fallback : id;
+}
+   
 var CTS = new Class({
    Implements: [Events],
    defs: null,
@@ -34,6 +76,7 @@ var CTS = new Class({
       this.renderTriggerInputs();
       this.renderCoins();
       this.renderRegularPulsers();
+      this.renderRandPulsers();
       this.renderCTSDetails();
       
       this.initAutoRates();
@@ -41,11 +84,14 @@ var CTS = new Class({
       this.dataUpdate();
       
       this.addEvent('dataUpdate', function() {
-         $('rate-plot').set('src', $('rate-plot').get('src').split('?')[0] + "?" + new Date());
+         $('rate-plot').set('src', $('rate-plot').get('src').split('?')[0] + "?" + new Date().getTime());
       });
       
+      this.addEvent('dataUpdate', this.updateStatusIndicator.bind(this));
       
       this.initAutoCommit();
+      
+      this.initSliceTitle();
    },
    
    readRegisters: function(regs, callback, formated) {
@@ -101,10 +147,14 @@ var CTS = new Class({
       var dup = $('data-update');
       dup.removeClass('error').set('text', 'Update').setStyle('display', 'block');
       
+      // hard-reset. if request's timeout fails, this is the last resort ...
+      var manualTimeout = window.location.reload.delay(10000);
+      
       new Request.JSON({
-         url: 'monitor.js',
+         url: 'monitor/dump.js',
          timeout: 200,
          onSuccess: function(data) {
+            window.clearTimeout(manualTimeout);
             if (parseInt(data.interval)) 
                this.dataUpdate.delay(parseInt(data.interval) + 200, this);
             else   
@@ -114,14 +164,19 @@ var CTS = new Class({
 
             if (this.currentData.time == data.time) {
                this.dataUpdateConstantFor += 1;
-               if (this.dataUpdateConstantFor > 2) 
+               if (this.dataUpdateConstantFor > 2) {
                   dup.set('html', 'No change of timestamp since ' + this.dataUpdateConstantFor + ' fetches.<br />Server-Timestamp: ' + data.servertime).setStyle('display', 'block');
+                  $('status-indicator').set('class', 'error');
+                  return;
+               }
+                  
             } else {
                this.dataUpdateConstantFor = 0;
             }
             
             if (this.defs.properties.trb_endpoint != data.endpoint) {
                dup.set('text', 'Data from incompatible endpoint: 0x' + parseInt(data.endpoint).toString(16)).addClass('error').setStyle('display', 'block');
+               $('status-indicator').set('class', 'error');
                return;
             }
 
@@ -132,8 +187,10 @@ var CTS = new Class({
          }.bind(this),
             
          onFailure:    function() {
+            window.clearTimeout(manualTimeout);
             this.dataUpdate.delay(1000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
+            $('status-indicator').set('class', 'error');
          }.bind(this)
       }).send();
    },
@@ -152,9 +209,7 @@ var CTS = new Class({
             if (e.hasClass('autoratevalue')) {
                var count = data.rates[ e.get('slice') ].value;
                
-               if (e.get('format')) {
-                  count = eval(e.get('format'))(count);
-               }
+               count = parseCallback(e, 'format')(count);
                
                var prefix = e.get('prefix');
                if (prefix == null) prefix = "";
@@ -165,11 +220,7 @@ var CTS = new Class({
             } else {
                var rate = data.rates[ e.get('slice') ].rate;
                
-               if (e.get('format')) {
-                  rate = eval(e.get('format'))(rate);
-               } else if (!e.get('suffix')) {
-                  rate = formatFreq(rate);
-               }
+               rate = parseCallback(e, 'format', formatFreq)(rate);
                
                var prefix = e.get('prefix');
                if (prefix == null) prefix = "";
@@ -198,28 +249,21 @@ var CTS = new Class({
                return;
             }
             if (e.focussed) return;
-            var s = e.get('slice');
-            var reg = s.split('.')[0];
-            var slice = s.split('.')[1];
-            if (!slice) slice = "_compact";
+            var s = parseSlice(e.get('slice'));
+            if (!s.slice) s.slice = "_compact";
          
+            var value = data.monitor[s.reg][e.get('type') == 'checkbox' || s.bit != undefined || e.hasClass('autoupdate-value') ? 'v' : 'f'][s.slice];
+            if (s.bit != undefined) value = (parseInt(value) >> s.bit) & 1;
+                                 
+            if (e.format || e.get('format')) {
+               value = parseCallback(e, 'format')(value, data.monitor[s.reg], e)
+            } else if (value.replace) {
+               value = value.replace(/, /g, ',<br />')
+            }
+                                   
             if (e.get('type') == 'checkbox') {
-               var m = slice.match(/^(.+)\[(\d+)\]$/);
-               if (m) {
-                  e.set('checked', data.monitor[reg].v[m[1]] & (1 << parseInt(m[2])) ? 'checked' : '');
-               } else {
-                  e.set('checked', data.monitor[reg].v[slice] ? 'checked' : '');
-               }
+               e.set('checked', value ? 'checked' : '');
             } else {
-               var value = data.monitor[reg][e.hasClass('autoupdate-value') ? 'v' : 'f'][slice];
-
-               
-               if (e.get('format')) {
-                  value = eval(e.get('format'))(value, data.monitor[reg], e)
-               } else if (value.replace) {
-                  value = value.replace(/, /g, ',<br />')
-               }
-               
                var prefix = e.get('prefix');
                if (prefix == null) prefix = "";
                var suffix = e.get('suffix');
@@ -233,7 +277,7 @@ var CTS = new Class({
 
 /**
  * This method handles all "autocommit"-elements. It is registered
- * as an event listener to the 'dataUpdate' event and hence is automatically
+ * as an event listener to all those elements and hence is automatically
  * invoked as soon as new data is available
  *
  * You dont need to call this method manually.
@@ -246,38 +290,25 @@ var CTS = new Class({
          var tmp = {};
          if (!e.hasClass('autocommit')) alert('Value cannot be commited');
    
-         if (e.get('type') == 'checkbox') {
-            var m = e.get('slice').match(/^(.+)\.(.+)\[(\d+)\]$/);
-            if (m) {
-               var val = 0;
-               var reg = m[1];
-               var slice = m[2];
-               
-               $$('.autocommit').each(function(e) {
-                  var m = e.get('slice').match(/^(.+)\[(\d+)\]$/);
-                  if (!m || m[1] != reg + "." + slice) return;
-                  val |= e.get('checked') != "" ? 1 << parseInt(m[2]) : 0;
-               });
-               
-               tmp[m[1]+'.'+m[2]] = val;
-            } else {
-               tmp[e.get('slice')] = (e.get('checked') != "" ? '1' : '0');
-            }
-         } else {
-            var splitSlice = e.get('slice').split(/./);
-            var reg = splitSlice[0], slice = splitSlice[1];
+         var s = parseSlice(e.get('slice'));
+
+         var value = e.get('value');
+         if (e.get('type') == 'checkbox')
+            value = (e.get('checked') != "" ? '1' : '0');
             
-            var value = e.get('value');
-            if (e.get('interpret')) {
-               value = eval( e.get('interpret') )(value, e)
-              
-               if (e.get('format'))
-                  e.set('value', eval(e.get('format'))(value, e));
-            }
+         if (e.interpret || e.get('interpret')) {
+            value = parseCallback(e, 'interpret')(value, e);
             
-            tmp[e.get('slice')] = value;
-            e.valueOnEnter = e.get('value');
+            if (e.format || e.get('format')) {
+               if (e.get('type') == 'checkbox') 
+                  e.set('checked', parseNum(parseCallback(e, 'format')(value, undefined, e)) ? 'checked' : '');
+               else
+                  e.set('value', parseCallback(e, 'format')(value, undefined, e));
+            }
          }
+         
+         tmp[s.exp] = value;
+         e.valueOnEnter = e.get('value');
          
          this.writeRegisters(tmp);
          e.removeClass('uncommitted');
@@ -297,6 +328,29 @@ var CTS = new Class({
          }
       });
    },
+
+/**
+ * Adds address information to the title of all elements with slice
+ * attribute
+ */
+   initSliceTitle: function() {
+      $$('*[slice]').each(function(e) {
+         var s = parseSlice(e.get('slice'));
+         var reg = this.defs.registers[s.reg];
+         var bits = "";
+         
+         if (s.bit != undefined) {
+            bits = ' Bit ' + (parseInt(reg._defs[s.slice].lower) + s.bit);
+         } else if (s.slice) {
+            bits = ' Bits ' + (parseInt(reg._defs[s.slice].lower) + parseInt(reg._defs[s.slice].len) - 1) + ':' + reg._defs[s.slice].lower;
+         }
+
+         e.set('title',
+            s.exp + ': Address ' + formatAddress(reg._address) + bits
+            + (e.get('title') ? ' ' + e.get('title') : '')
+         );
+      }.bind(this));
+   },
    
 /**
  * Creates all active elements of the Trigger Input Configuration
@@ -308,9 +362,11 @@ var CTS = new Class({
          var reg = 'trg_input_config' + i;
          $('inputs-tab')
          .adopt(
-            new Element('tr')
+            new Element('tr', {'class': i%2?'':'alt'})
             .adopt(
                new Element('td', {'class': 'num', 'text': i})
+            ).adopt(
+               new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i})
             ).adopt(
                new Element('td', {'class': 'invert'})
                .adopt(
@@ -342,8 +398,6 @@ var CTS = new Class({
                      new Element('option', {'value': 'to_high', 'text': '-> 1'})
                   )
                )
-            ).adopt(
-               new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i})
             )
          );
       }
@@ -356,10 +410,11 @@ var CTS = new Class({
  */
    renderTriggerChannels: function() {
       for(var i=0; i < 16; i++) {
-         var ddType;
-         $('itc-tab' + (i / 8).toInt())
+         if ("unconnected" == this.defs.properties.itc_assignments[i]) continue;
+         var ddType, edgeType, assertedRate, edgeRate;
+         $('itc-tab') // + (i / 8).toInt())
          .adopt(
-            new Element('tr')
+            new Element('tr', {'class': i%2?'':'alt'})
             .adopt(
                new Element('td', {'text': i, 'class': 'channel'})
             ).adopt(
@@ -368,18 +423,41 @@ var CTS = new Class({
                   new Element('input', {'type': 'checkbox', 'id': 'itc-enable'+i, 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.mask[' + i + ']'})
                )
             ).adopt(
+               new Element('td', {'class': 'edge'})
+               .adopt(
+                  edgeType = new Element('select', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.edge[' + i + ']'})
+                  .adopt(
+                     new Element('option', {'value': '0', 'text': 'H. Level'})
+                   ).adopt(
+                     new Element('option', {'value': '1', 'text': 'R. Edge'})
+                   )
+               )
+            ).adopt(
                new Element('td', {'class': 'assign', 'text': this.defs.properties.itc_assignments[i]})
             ).adopt (
                new Element('td', {'class': 'type'})
                .adopt(
                      ddType = new Element('select', {'class': 'autocommit autoupdate autoupdate-value', 'slice': '_trg_trigger_types' + (i < 8 ? '0' : '1') + '.type' + i})
                )
-            ).adopt(
-               new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-rate' + i})
-         ));
+            ).adopt (
+               assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i})
+            ).adopt (
+               edgeRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-edge-rate' + i})
+            )
+         );
          
          for(var j=0; j < 16; j++)
             ddType.adopt(new Element('option', {'value': j, 'text': this.defs.registers['_trg_trigger_types' + (i < 8 ? '0' : '1')]._defs['type' + i].enum[j]}));
+         
+         edgeType.format = edgeType.interpret = function(x, y, t) {
+            if (!t) t = y;
+            x = x ? 1 : 0;
+            var tds = t.getParent().getParent().getElements('td.rate');
+            tds[x].addClass('active');
+            tds[(x+1)%2].removeClass('active');
+            
+            return x;
+         };
       };
    },
 
@@ -389,7 +467,7 @@ var CTS = new Class({
  * should not by called manually.
  */
    renderCoins: function() {
-      $$("#coin-tab th.coin, #coin-tab th.inhibit").each(function(e){
+      $$("#coin-tab th.coin abbr, #coin-tab th.inhibit abbr").each(function(e){
          e.set("text", e.get('text').match(/^(.*)(\(.*\))?/)[1] 
             + " (" + (this.defs.properties.trg_input_count-1) + ":0)");
       }.bind(this));
@@ -428,7 +506,7 @@ var CTS = new Class({
    renderRegularPulsers: function() {
       var cnt = this.defs.properties.trg_pulser_count;
       if (!cnt) {
-         $$('#pulser-expander .content').set('text', "This specific CTS design does not support regular pulsers");
+         $$('#pulser-expander .pulser-content').set('text', "This specific CTS design does not support regular pulsers");
          return;
       }
       
@@ -478,7 +556,7 @@ var CTS = new Class({
             if (m[1] == 'k') val *= 1e3;
             if (m[1] == 'm') val *= 1e6;
                     
-            val = Math.round ( 1e6 * (1/ val - 1/this.defs.properties.cts_clock_frq)  );
+            val = Math.round ( 1e8 * (1/ val - 1/this.defs.properties.cts_clock_frq)  );
             if (store) elem.set('value', val);
          }
          
@@ -495,13 +573,64 @@ var CTS = new Class({
          }
          
          elem[changed ? 'addClass' : 'removeClass']('unsaved');
-         $('pulser-freq'+i).set('text', (changed ? "(CTS not updated) " : "") + formatFreq(1 / (val / 1e6 + 1 / this.defs.properties.cts_clock_frq)));
+         $('pulser-freq'+i).set('text', (changed ? "(CTS not updated) " : "") + formatFreq(1 / (val / 1e8 + 1 / this.defs.properties.cts_clock_frq)));
+      }
+   },
+
+/**
+ * Creates all active elements of the Pseudorandom Pulser
+ * section. It is called by the class' constructor and hence
+ * should not by called manually.
+ */
+   renderRandPulsers: function() {
+      var cnt = this.defs.properties.trg_random_pulser_count;
+      if (!cnt) {
+         $$('#pulser-expander .content .pulser-content').set('text', "This specific CTS design does not support pseudorandom pulsers");
+         return;
+      }
+      
+      for(var i=0; i < cnt; i++) {
+         var inp;
+         $('rand-pulser-tab').adopt(
+            new Element('tr', {'class': i%2?'':'alt'})
+            .adopt(
+               new Element('td', {'class': 'num', 'text': i})
+            ).adopt(
+               new Element('td', {'class': 'freq'}).adopt(
+                  inp = new Element('input', {
+                     'slice': 'trg_random_pulser_config'+i+'.threshold',
+                     'value': 'n/a',
+                     'class': 'autocommit autoupdate',
+                     'interpret': 'InterpretToRandPulserThreshold',
+                     'format': 'FormatRandPulserThreshold'
+                  })
+               )
+            )
+         );
       }
    },
    
    renderCTSDetails: function() {
       $('trb_compiletime').set('text', new Date(this.defs.properties.trb_compiletime * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', ''));
       $('trb_endpoint').set('text', "0x" + this.defs.properties.trb_endpoint.toString(16));
+   },
+   
+   updateStatusIndicator: function(data) {
+      var elem = $('status-indicator'), cls = 'error';
+      var fullstop = $('fullstop').get('checked');
+      
+      if (data.rates['cts_cnt_trg_accepted.value'].rate > 0) {
+         cls = 'okay';
+      } else if (data.rates['cts_cnt_trg_asserted.value'].rate < 1 || fullstop) {
+         if (data.monitor.cts_td_fsm_state.f.state == 'TD_FSM_IDLE') cls = 'warning';
+      }
+      
+      elem.set('class', cls);
+      
+      if (cls == 'okay') {elem.set('title', 'CTS currently accepts triggers. Everything seems alright');}
+      else if (cls=='warning') {elem.set('title', 'No events were accepted, but CTS seems ready.' + (fullstop ? ' Full Stop active!' : 'Maybe no events occured?'));}
+      else {elem.set('title', 'CTS is neither idle, nor did it accept any events. Stuck at ' + 
+         data.monitor.cts_td_fsm_state.f.state + ' and ' + data.monitor.cts_ro_fsm_state.f.state);}
    }
 });
 
@@ -526,7 +655,28 @@ function formatFreq(val, sigDigits) {
    
    return val.replace(',', '.');
 }
-                   
+
+function InterpretToRandPulserThreshold(v) {
+   var freq = parseNum(v);
+   
+   if (v.match(/khz/i)) freq *= 1e3;
+   else if (v.match(/mhz/i)) freq *= 1e6;
+   
+   freq = Math.min(cts.defs.properties.cts_clock_frq, Math.max(freq, 0));
+   
+   return Math.round(freq / cts.defs.properties.cts_clock_frq * 0x7FFFFFFF); 
+};
+
+function FormatRandPulserThreshold(v) {
+   return formatFreq(Math.round(cts.defs.properties.cts_clock_frq * v / 0x7FFFFFFF), 0);
+};      
+  
+function formatAddress(x) {
+   var hex = parseNum(x).toString(16);
+   while(hex.length < 4) hex = "0" + hex;
+   return "0x" + hex;
+}
+
 var GuiExpander = new Class({
    boxes: null,
    states: {},
@@ -599,3 +749,5 @@ var GuiExpander = new Class({
 });
 var guiExpander;
 window.addEvent('domready', function() {guiExpander = new GuiExpander();});
+
+function id(x) {return x;}

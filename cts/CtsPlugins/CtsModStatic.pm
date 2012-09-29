@@ -143,6 +143,17 @@ sub init {
       'monitor' => 1
    });
  
+   $regs->{'cts_throttle'} = TrbRegister->new(0x0c + $debug_block, $trb, {
+      'threshold'     => {'lower' =>  0, 'len' => 10},
+      'enable'        => {'lower' => 10, 'len' => 1, 'type' => 'bool'},
+      'stop'          => {'lower' => 31, 'len' => 1, 'type' => 'bool'}
+   }, {
+      'accessmode' => "rw",
+      'label' => "Trigger Throttle",
+      'monitor' => 1,
+      'export' => 1
+   });
+
    $prop->{'cts_clock_frq'} = 1e8;
    $prop->{'trb_endpoint'} = $trb->getEndpoint;
    $prop->{'trb_compiletime'} = $trb->read(0x40);

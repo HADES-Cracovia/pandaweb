@@ -1,0 +1,29 @@
+#!/bin/bash
+if [ $2 > 0 ]; then
+   host=`hostname`
+   port="1234"
+   
+   echo "Trying to kill processes 'cts' and 'dhttpi'"
+      pkill "^(cts|dhttpi)$"
+
+   echo "Try to map monitoring files to shared memory (if it failes, no harm is"
+   echo " done. Only the HDD has to work a little bit more)"
+
+      rm -rf /dev/shm/cts-monitor
+      mkdir -p /dev/shm/cts-monitor
+#      chmod 666 /dev/shm/cts-monitor
+      ln -s /dev/shm/cts-monitor htdocs/monitor
+      mkdir -p htdocs/monitor
+
+   echo "Start webserver at http://$host:$port"
+      ./httpi $host $port &
+
+   echo "Start monitoring script"
+      until ./cts m htdocs/monitor ; do
+         echo " - Monitor crashed with exit code $?.  Respawning.." >&2
+         sleep 1
+      done
+else
+   xterm -fn "-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15" \
+      +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e ./cts_gui 1 1
+fi;

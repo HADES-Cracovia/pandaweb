@@ -1,6 +1,7 @@
-# Module: Channel Masking (Type 0x00)
+# Module: Channel Configuration (Type 0x00)
 # This block contains only one control register that holds
-# the bitmask (bits 15:0) for the internal channel selection.
+#  - the bitmask (bits 15:0) for the internal channel selection (0 = off, 1 = on)
+#  - the bitmask (bits 31:16) enable rising edge operation (0 = level, 1 = edge).
 # A trigger event is detected, if any of the masked channels is asserted.
 
 package CtsMod00;
@@ -11,7 +12,7 @@ use warnings;
 use strict;
 use TrbRegister;
 
-sub moduleName {"Channel Masking"}
+sub moduleName {"Channel Configuration"}
 
 sub init {
    my $self    = $_[0];
@@ -24,7 +25,8 @@ sub init {
 
 # registers
    $regs->{"trg_channel_mask"} = TrbRegister->new($address + 1, $trb, {
-      'mask'     => {'lower' =>  0, 'len' => 16, 'type' => 'mask'}
+      'mask'     => {'lower' =>   0, 'len' => 16, 'type' => 'mask'},
+      'edge'     => {'lower' =>  16, 'len' => 16, 'type' => 'mask'}
    }, {
       'accessmode' =>"rw",
       'monitor' => '1',

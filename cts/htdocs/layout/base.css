@@ -3,7 +3,7 @@
       padding:0;
       margin: 0;
       text-align: center;
-      background: 0 40px url(gradient.png) repeat-x #F4F5F5;
+      background: #F4F5F5;
       
       font-family: arial, sans-serif;
       font-size: 10pt;
@@ -19,7 +19,7 @@
    #header .content {
       width: 1000px;
       margin: 0 auto 0 auto;
-      padding-top: 12px;
+      padding-top: 8px;
       text-align: left;
    }
 
@@ -27,11 +27,15 @@
       border-bottom: 1px solid #DDDDDD;
       background: #F9F9F9;
       height: 40px;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%;
    }
 
    #header h1 {
       margin: 0;
       font-size: 1.5em;
+      float: left;
    }
 
    h3 {
@@ -44,7 +48,7 @@
 
    #content-area {
       width: 1000px;
-      margin: 20px auto 20px auto;
+      margin: 60px auto 20px auto;
       text-align: left;
    }
 
@@ -77,10 +81,32 @@
       border-bottom: 1px solid #dddddd;
    }
    
+   #status-indicator {
+      height: 30px;
+      width: 30px;
+      margin: -3px 10px 0 0;
+      
+      float: left;
+      
+      -moz-border-radius: 15px;
+      border-radius: 15px;
+
+      background-color: #30ff30;
+   }
+   
+   #status-indicator.warning {background-color: #ffe823;}
+   #status-indicator.error   {background-color: #ff8080;}
+   
+   div.content > div.left {
+      padding-right: 9px;
+      border-right: 2px solid #6060ff;
+   }
+   
+   
 /* Table Generics */
    table {
       border-collapse: collapse;
-      width: 450px;
+      width: 100%;
    }
 
    table td, table tr {
@@ -96,11 +122,6 @@
       background: #ffffd0;
    }
 
-   table td {
-      vertical-align: top;
-      width: 20%;
-   }
-
    .alt td {
       background: #f6f6f6;
       border-bottom: 1px solid #e0e0e0;
@@ -113,29 +134,33 @@
    input.uncommitted {font-style: italic; color: #0000ff;}
 
 /* Overview */
+   #overview-tab {width: 470px}
    #overview-tab .rate,
    #overview-tab .value {text-align: right;} 
+   
+   #overview-tab .fullstop {background: #ffd0d0; color: #ff0000; font-weight: bold;}
    
    #rate-plot {
       float: right;
       width: 450px;
-      height: 170px;
+      height: 185px;
       margin-right: 20px;
    }
    
 /* Trigger Inputs */
-   #inputs-tab {width: 100%;}
    #inputs-tab input {width: 4em;}
    #inputs-tab .num {width: 2%;  text-align: center;}
    #inputs-tab .invert {text-align: center;}
+   
+   #inputs-tab .rate {text-align: right;}
 
 /* Internal Trigger Channel */
-   #itc-tab0, .left {
+   .content div.left {
       float: left;
       width: 470px;
    }
 
-   #itc-tab1, .right {
+   .content div.right {
       margin-left: 490px;
    }
 
@@ -148,34 +173,23 @@
       width: 8em;
    }
 
-   .itc .enable {
-      width: 8%;
-      text-align: center;
-      
-   }
-
-   .itc .channel {width: 5%; text-align: center;}
-   .itc .assign {width: 45%}
-   .itc .type {width: 20%;}
-   .itc .type select {width: 6em;}
-   .itc .rate {width: 20%; text-align: right;}
+   .itc .channel {width: 2%; text-align: center;} 
+   .itc .enable {width: 6%; text-align: center;} 
+   .itc .edge {width: 10%; text-align: center;} 
+/*    .itc .assign {width: 20%} */
+   .itc .rate {width: 10%; text-align: right;}
+   
+   .itc td.rate {color: #909090;}
+   .itc td.active {color: #000; font-weight: bold;}
 
 /* Coincidence Detection */
-   #coin-tab {
-      width: 100%;
-   }
-
-   #coin-tab .num {
-      width: 4%;
-   }
-
+   #coin-tab .num {width: 4%;}
    #coin-tab .window {width: 32%;}
    #coin-tab .window input {width: 4em; text-align: right}
    #coin-tab .coin   {width: 32%;}
    #coin-tab .inhibt {width: 32%;}
 
 /* Pulser */
-   #pulser-tab {width: 100%;}
    #pulser-tab .num    {width: 4%; text-align: center}
    #pulser-tab .period {text-align: right}
    #pulser-tab .freq   {width: 30%; text-align: right}

@@ -11,8 +11,9 @@ use lib "./include";
    
 # Trb/Cts IO
  #  use TrbSim;    included in connectToCTS if required
-   use TrbNet;    #included in connectToCTS if required
+#   use TrbNet;    #included in connectToCTS if required
    use Cts;
+   use CtsConfig;
    
 # Misc
    use POSIX qw[ceil];
@@ -458,7 +459,9 @@ sub commandMonitor {
                $rate , $value];
          }
       }
-
+      
+      printTable $tab;
+      
       if ($filename) {
       # store json
          my $json = JSON::PP->new->encode({
@@ -470,7 +473,7 @@ sub commandMonitor {
             'monitor' => $monData
          });
          
-         open FH, ">$filename.js";
+         open FH, ">$filename/dump.js";
          print FH $json;
          close FH;
       
@@ -485,7 +488,7 @@ sub commandMonitor {
          
          
          if ($#{ $plotData } > 4) {
-            open FH, ">$filename.gpdata";
+            open FH, ">$filename/plot.data";
             foreach (@{$plotData}) {
                my @row = (@{ $_ });
                $row[0] -= $plotData->[-1][0];
@@ -494,60 +497,51 @@ sub commandMonitor {
             close FH;
 
             my $fh = new FileHandle ("|gnuplot");
-            $fh->autoflush(1);
-            
-            print $fh <<"EOF";
-set terminal png font "monospace,8" size 450,170
+            if ($fh) {
+               $fh->autoflush(1);
+               
+               print $fh <<"EOF";
+set terminal svg font "monospace,8" size 450,185
 set font 
-set output "$filename.png"
+set output "$filename/plot.svg"
 set grid
 set key 
 set autoscale xfixmin
 #set yrange [* : *<1000000]
-set xlabel "Time [s]"
-set ylabel "Rate [1/s]"
+set xlabel "Time since last update [s]"
+set ylabel "Rate [Hz]"
 plot \\
-   "$filename.gpdata" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-   "$filename.gpdata" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+   "$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
+   "$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 EOF
-            ;
-            close $fh;
+               ;
+               close $fh;
+               
+               print "Plot produced\n";
+            } else {
+               print "error while executing gnuplot\n";
+            }
          }
       }
       
-      printTable $tab;
-      
       $lastRead = $read;
       usleep($interval*1e3);
-      
    }
 }
 
 sub connectToCTS {
-   my $mode = shift;
    my $endpoint = shift;
    
    my $trb;
-   if ($mode eq 'sim') {
-      eval {require "TrbSim.pm"};
-      $trb = TrbSim->new($endpoint);
-      my $fp;
-      open $fp, "<memory.dump";
-      $trb->loadDump($fp);
-      close $fp;
-
-   } else{
-      eval {require "TrbNet.pm"};
-      $trb = TrbNet->new($endpoint);
-   }
+   eval {require "TrbNet.pm"};
+   $trb = TrbNet->new($endpoint);
       
    return Cts->new($trb);
 }
 
 ####################################################################################
-my $trbMode = 'net';
-my $endpoint = 0xf3c0;
+my $endpoint = CtsConfig->getDefaultEndpoint;
 
 my $updateInterval = 1000;
 my $rateNumber     = 30;
@@ -560,8 +554,6 @@ for(my $i=0; $i < @ARGV; $i++) {
    if ($arg eq "-h" or $arg eq "--help") {
       help();
       exit();
-   } elsif ($arg eq "-s" or $arg eq "--sim") {
-      $trbMode = 'sim';
       
    } elsif ($arg eq "-e" or $arg eq "--endpoint") {
       unless ($i < @ARGV) {
@@ -595,11 +587,11 @@ for(my $i=0; $i < @ARGV; $i++) {
       $rateNumber = $ARGV[++$i];
    
    } elsif ($arg eq "l" or $arg eq "list") {
-      printTable commandList connectToCTS($trbMode, $endpoint);
+      printTable commandList connectToCTS($endpoint);
       exit();
       
    } elsif ($arg eq "d" or $arg eq "dump") {
-      print commandDump connectToCTS($trbMode, $endpoint);
+      print commandDump connectToCTS($endpoint);
       exit();
    
    } elsif ($arg eq "r" or $arg eq "read") {
@@ -609,7 +601,7 @@ for(my $i=0; $i < @ARGV; $i++) {
       }
       
       my @list  = @ARGV[$i+1 .. $#ARGV];
-      printTable commandRead(connectToCTS($trbMode, $endpoint), \@list);
+      printTable commandRead(connectToCTS($endpoint), \@list);
       exit();
    
    } elsif ($arg eq "w" or $arg eq "write") {
@@ -618,12 +610,12 @@ for(my $i=0; $i < @ARGV; $i++) {
          exit();
       }
       
-      my $cts = connectToCTS($trbMode, $endpoint);
+      my $cts = connectToCTS($endpoint);
       commandWrite($cts, lc join(" ", @ARGV[$i+1 .. $#ARGV]));
       exit();
    
    } elsif ($arg eq "m" or $arg eq "monitor") {
-      my $cts = connectToCTS($trbMode, $endpoint);
+      my $cts = connectToCTS($endpoint);
       commandMonitor($cts, $ARGV[++$i], $updateInterval, $rateNumber);
       
    } else {

@@ -12,6 +12,7 @@
       <div id="header">
          <div class="content">
             <div id="data-update">Update</div>
+            <div id="status-indicator" class="warning"></div>
             <h1>Central Trigger System</h1>
          </div>
       </div>
@@ -21,7 +22,7 @@
             <div class="header"><span class="indicator"></span> Status overview</div>
             
             <div class="content">
-               <img src="monitor.png" id="rate-plot" />
+               <img src="monitor/plot.svg" id="rate-plot" />
                <table id="overview-tab">
                   <tr>
                      <th class="label">Counter</th>
@@ -29,7 +30,7 @@
                      <th class="rate">Rate</th>
                   </tr>
                
-                  <tr>
+                  <tr class="alt">
                      <td class="label">Trigger asserted</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_asserted.value" suffix=" clks.">n/a</td>
                      <td class="rate  autorate"               slice="cts_cnt_trg_asserted.value" suffix=" s<sup>-1</sup>">n/a</td>
@@ -41,7 +42,7 @@
                      <td class="rate  autorate"               slice="cts_cnt_trg_edges.value" suffix=" Hz">n/a</td>
                   <tr>
                   
-                  <tr>
+                  <tr class="alt">
                      <td class="label">Trigger accepted</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_accepted.value" suffix=" events">n/a</td>
                      <td class="rate  autorate"               slice="cts_cnt_trg_accepted.value" suffix=" Hz">n/a</td>
@@ -51,7 +52,7 @@
                      <td colspan="3">&nbsp;</td>
                   </tr>
                   
-                  <tr>
+                  <tr class="alt">
                      <td class="label">Last Idle Time</td>
                      <td class="value autoupdate" slice="cts_cnt_idle_time.value" format="countToTime" suffix=" ns">n/a</td>
                      <td class="rate "></td>
@@ -62,6 +63,28 @@
                      <td class="value autoupdate" slice="cts_cnt_dead_time.value" format="countToTime" suffix=" ns">n/a</td>
                      <td class="rate  autoupdate" slice="cts_cnt_dead_time.value" format="countToFreq">n/a</td>
                   <tr>
+
+                  <tr>
+                     <td colspan="3">&nbsp;</td>
+                  </tr>
+
+                  <tr class="alt">
+                     <td class="label">Throttle</td>
+                     <td colspan="2" class="rate">
+                        <input type="checkbox" class="autoupdate autocommit" slice="cts_throttle.enable" /> Limit Trigger Rate to
+                        <input class="autocommit autoupdate" slice="cts_throttle.threshold" style="width: 4em;"
+                           format="var f=function(x){return parseNum(x)+1}; f" interpret="var f=function(x){return parseNum(x)-1;}; f" /> KHz
+                     </td>
+                  </tr>
+                  
+                  <tr>
+                     <td class="label">Full Stop</td>
+                     <td colspan="2" class="rate">
+                        <input type="checkbox" class="autoupdate autocommit" slice="cts_throttle.stop" id="fullstop"
+                           format="var f=function(x, y, e){e.getParent().getParent()[x == true ? 'addClass' : 'removeClass']('fullstop'); return x}; f"
+                           interpret="id" /> Ignore all events
+                     </td>
+                  </tr>
                </table>
             </div>
          </div>
@@ -70,68 +93,73 @@
             <div class="header"><span class="indicator"></span> Trigger Channels</div>
             
             <div class="content">
-               <table id="itc-tab0" class="itc">
-                  <tr>
-                     <th class="channel">#</th>
-                     <th class="enable">Ena</th>
-                     <th class="assign">Assignment</th>
-                     <th class="type">Trigger Type</th>
-                     <th class="rate">Current Rate</th>
-                  </tr>
-              </table>
-            
-               <table id="itc-tab1" class="itc">
-                  <tr>
-                     <th class="channel">#</th>
-                     <th class="enable">Ena</th>
-                     <th class="assign">Assignment</th>
-                     <th class="type">Trigger Type</th>
-                     <th class="rate">Current Rate</th>
-                  </tr>
-               </table>
+                  <table id="itc-tab" class="itc">
+                     <tr>
+                        <th class="channel">#</th>
+                        <th class="enable">Enable</th>
+                        <th class="edge"><abbr title="Trigger Condition: Either sensitive to the rising edge or a high level">Trg. Cond.</abbr></th>
+                        <th class="assign">Assignment</th>
+                        <th class="type">TrbNet Type</th>
+                        <th class="rate">Asserted</th>
+                        <th class="rate">Edges</th>
+                     </tr>
+                  </table>
             </div>
          </div>
 
          <div class="expandable expanded" id="inputs-expander">
-            <div class="header"><span class="indicator"></span> Trigger Input Configuration</div>
-            
-            <div class="content">
-               <table id="inputs-tab">
-                  <tr>
-                     <th class="num">#</th>
-                     <th class="invert">Invert</th>
-                     <th class="delay">Delay</th>
-                     <th class="spike">Spike Rejection</th>
-                     <th class="override">Override</th>
-                     <th class="rate">Current Rate</th>
-                  </tr>
-               </table>
-            </div>
-         </div>
-
-         <div class="expandable expanded" id="coin-expander">
-            <div class="header"><span class="indicator"></span> Coincidence Detectors and Regular Pulsers</div>
+            <div class="header"><span class="indicator"></span> Trigger Input Configuration and Coincidence Detectors</div>
             
             <div class="content">
                <div class="left">
-                  <h3>Coincidence Detectors</h3>
-                  <table id="coin-tab">
+                  <h3>Input Modules</h3>
+                  <table id="inputs-tab">
                      <tr>
                         <th class="num">#</th>
-                        <th class="window">Window</th>
-                        <th class="coin">Coin Mask</th>
-                        <th class="inhibit">Inhibit Mask</th>
+                        <th class="rate">Inp. Rate</th>
+                        <th class="invert">Invert</th>
+                        <th class="delay">Delay</th>
+                        <th class="spike"><abbr title="Noise reducing. High pulses shorter than this values are rejeted">Spike Rej.</abbr></th>
+                        <th class="override">Override</th>
                      </tr>
                   </table>
                </div>
                
                <div class="right">
-                  <h3>Periodical Pulser</h3>
+                  <h3>Coincidence Detectors</h3>
+                  <table id="coin-tab">
+                     <tr>
+                        <th class="num">#</th>
+                        <th class="window">Window</th>
+                        <th class="coin"><abbr title="Inputs that are required to rise within the specified window of time (edge sensitive)">Coin Mask</acronym></th>
+                        <th class="inhibit"><abbr title="Additionally to the Coin Mask, this input have to be asserted (level sensitive)">Inhibit Mask</abbr></th>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+         </div>
+
+         <div class="expandable expanded" id="coin-expander">
+            <div class="header"><span class="indicator"></span> Pulsers</div>
+            
+            <div class="content">
+               <div class="left pulser-content">
+                  <h3>Periodical Pulsers</h3>
                   <table id="pulser-tab">
                      <tr>
                         <th class="num">#</th>
                         <th class="period">Low-Period</th>
                         <th class="freq">Frequency</th>
+                     </tr>
+                  </table>
+               </div>
+               
+               <div class="right rand-pulser-content">
+                  <h3>Random Pulsers</h3>
+                  <table id="rand-pulser-tab">
+                     <tr>
+                        <th class="num">#</th>
+                        <th class="freq">Mean Frequency</th>
                      </tr>
                   </table>
                </div>
@@ -165,13 +193,8 @@
                         <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.trg_cnt" /> Trigger statistics</td>
                      </tr>
                      
-                     <tr>
-                        <td> </td>
-                        <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.wasa" /> WASA data</td>
-                     </tr>
-                     
                      <tr class="alt">
-                        <td class="label">TD FSM Limit:</td>
+                        <td class="label">TD FSM Limit (debug only):</td>
                         <td class="value">
                            <input class="autocommit autoupdate text" slice="cts_fsm_limits.td" 
                                   format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"
@@ -180,7 +203,7 @@
                      </tr>
 
                      <tr>
-                        <td class="label">RO FSM Limit:</td>
+                        <td class="label">RO FSM Limit (debug only):</td>
                         <td class="value">
                            <input class="autocommit autoupdate text" slice="cts_fsm_limits.ro" 
                                   format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"

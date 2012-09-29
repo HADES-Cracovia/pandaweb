@@ -14,7 +14,9 @@ sub new {
    my $self = {
       '_endpoint' => $endpoint,
       '_known_registers' => {},
-      '_prefetch' => {}
+      '_prefetch' => {},
+      '_write_cache' => {},
+      '_cached_writes' => 0
    };
    
    bless($self, $type);
@@ -39,11 +41,19 @@ sub read {
    my $withTime = shift;
 
    if (1 == $len) {
+   # In write cache ?
+      my $write = $self->{'_write_cache'}{$address};
+      if (defined $write) {
+         return $withTime ? {'time' => -1, 'value' => $write} : $write;
+      }
+   
+   # In prefetch cache ?
       my $pre = $self->{'_prefetch'}{$address};
       if (ref $pre and (not $withTime or exists $pre->{'time'})) {
          return $withTime ? $pre : $pre->{'value'};
       }
-      
+
+   # Need to read directly from device
       my $read = $withTime ?
          trb_registertime_read($self->getEndpoint, $address) :
          trb_register_read($self->getEndpoint, $address);
@@ -52,6 +62,7 @@ sub read {
       return $read->{$self->getEndpoint};
       
    } else {
+   # TODO: Add write cache !!!
       my $read = trb_register_read_mem($self->getEndpoint, $address, 0, $len);
       defined $read or die(trb_strerror());
       return $read->{$self->getEndpoint};
@@ -73,6 +84,30 @@ sub addPrefetchRegister {
    my $reg = shift;
    
    $self->{'_prefetch'}{ref $reg ? $reg->getAddress : $reg} = 1;
+}
+
+sub startCachedWrites {
+   my $self = shift;
+   $self->{'_cached_writes'} = 1;
+}
+
+sub stopCachedWrites { 
+   my $self = shift;
+   $self->flushWriteCache();
+   $self->{'_cached_writes'} = 1;
+}
+
+sub flushWriteCache {
+   my $self = shift;
+   my $cache = $self->{'_write_cache'};
+   
+   if ($cache) {
+      foreach my $address (keys $cache) {
+         trb_register_write($self->getEndpoint, $address, $cache->{$address}) or die(trb_strerror);
+      }
+   }
+   
+   $self->{'_write_cache'} = {};
 }
 
 sub prefetch {
@@ -146,7 +181,11 @@ sub write {
    
    if (not ref $data) {
       printf "// w 0x%04x 0x%04x 0x%08x\n", $self->getEndpoint, $address, $data;
-      trb_register_write($self->getEndpoint, $address, $data) or die(trb_strerror);
+      if ($self->{'_cached_writes'}) {
+         $self->{'_write_cache'}{$address} = $data;
+      } else {
+         trb_register_write($self->getEndpoint, $address, $data) or die(trb_strerror);
+      }
    } elsif (ref $data eq "ARRAY") {
       for(my $i=0; $i < @$data; $i++) {
          $self->write($address + $i, $data->[$i]);
