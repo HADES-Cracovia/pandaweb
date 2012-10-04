@@ -66,7 +66,7 @@ if ($query eq "init") {
 
    $cts->getTrb->stopCachedWrites();
    
-   print "1";
+   print "1;";
 }
    
 1;

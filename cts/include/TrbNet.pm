@@ -180,7 +180,7 @@ sub write {
    my $data = $_[2];
    
    if (not ref $data) {
-      printf "// w 0x%04x 0x%04x 0x%08x\n", $self->getEndpoint, $address, $data;
+#      printf "// w 0x%04x 0x%04x 0x%08x\n", $self->getEndpoint, $address, $data;
       if ($self->{'_cached_writes'}) {
          $self->{'_write_cache'}{$address} = $data;
       } else {

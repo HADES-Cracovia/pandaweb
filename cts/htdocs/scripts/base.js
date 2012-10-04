@@ -306,7 +306,7 @@ var CTS = new Class({
                   e.set('value', parseCallback(e, 'format')(value, undefined, e));
             }
          }
-         
+
          tmp[s.exp] = value;
          e.valueOnEnter = e.get('value');
          
@@ -451,7 +451,7 @@ var CTS = new Class({
          
          edgeType.format = edgeType.interpret = function(x, y, t) {
             if (!t) t = y;
-            x = x ? 1 : 0;
+            x = parseInt(x) ? 1 : 0;
             var tds = t.getParent().getParent().getElements('td.rate');
             tds[x].addClass('active');
             tds[(x+1)%2].removeClass('active');

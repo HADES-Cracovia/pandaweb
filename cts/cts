@@ -54,11 +54,11 @@ Commands:
    write VALUES     sepearated list in the following format: {key}={value}
                     Example: cts.pl w reg0=0x12, trg_coin_config0.window=10
                      
-   m [file] |       Rate Monitor. Periodically fetch counters and calculate 
-   monitor [file]   rates. Results are send to STDOUT in an human readable form.
-                    If [file] is provided the data is additionally dumped into
-                    [file].js in the JSON format. Further a trigger rate plot
-                    is stored in [file].jpg
+   m [dir] |        Rate Monitor. Periodically fetch counters and calculate 
+   monitor [dir]    rates. Results are send to STDOUT in an human readable form.
+                    If [dir] is provided the data is additionally dumped into
+                    in the JSON format. Further a trigger rate plot
+                    is stored in [file].svg
 
 END_MSG
 }
