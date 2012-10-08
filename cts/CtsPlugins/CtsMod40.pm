@@ -59,7 +59,7 @@ sub init {
          'type' . (8*$i + 7) => {'lower' => 28, 'len' => 4, 'type' => 'enum', 'enum' => $enumDef}
       }, {
          'accessmode' => "rw",
-         'label' => "Trigger Event Tpye $i",
+         'label' => "Trigger Event Type $i",
          'monitor' => '1',
          'export' => 1
       });
