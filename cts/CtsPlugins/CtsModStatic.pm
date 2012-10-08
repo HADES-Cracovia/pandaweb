@@ -123,7 +123,7 @@ sub init {
       'channel_cnt'   => {'lower' => 1, 'len' => 1, 'type' => 'bool'},
       'idle_dead_cnt' => {'lower' => 2, 'len' => 1, 'type' => 'bool'},
       'trg_cnt'       => {'lower' => 3, 'len' => 1, 'type' => 'bool'},
-      'wasa'          => {'lower' => 4, 'len' => 1, 'type' => 'bool'},
+      'timestamp'     => {'lower' => 4, 'len' => 1, 'type' => 'bool'}
    }, {
       'accessmode' => "rw",
       'label' => "Readout configuration",
