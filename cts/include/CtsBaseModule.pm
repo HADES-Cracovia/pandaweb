@@ -31,7 +31,7 @@ sub register {
    my $cts = $self->{'_cts'};
 
    foreach my $hash ('_properties', '_registers') {
-      foreach my $key (keys $self->{$hash}) {
+      foreach my $key (keys %{$self->{$hash}}) {
          #unless (substr($key,0,1) eq "_") {
             $cts->{$hash}{$key} = $self->{$hash}{$key}
          #}

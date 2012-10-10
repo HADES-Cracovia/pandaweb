@@ -99,11 +99,15 @@ sub _loadModule {
   
    my $mod = eval {
       (my $file = $module) =~ s|::|/|g;
+      #print "require: CtsPlugins/$file.pm\n";
       require  "CtsPlugins/$file.pm";
-      
-      return $module->new($self, $address);
+      #print "require: CtsPlugins/$file.pm worked: module: $module\n";
+      my $ret = $module->new($self, $address);
+      #print "return of module -> new (self, address: $address => $ret\n";
+      return $ret;
    };
    
+   #print "return of eval module -> new (self, address: $address: $@\n";
    $self->{'_modules'}{$modKey} = $mod if $mod;
    return $mod;
 }

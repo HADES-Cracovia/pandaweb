@@ -33,6 +33,8 @@ use POSIX;
 
 use Data::Dumper;
 
+use TrbNet;
+
 sub new {
    # TrbRegister->new( $address, $trb, [$defs], [$accessmode] )
    #  Creates a new TrbRegister description. If $defs is not provided,
@@ -59,7 +61,7 @@ sub new {
    $options = $options ? { %{$def_options}, %{$options} } : $def_options;
    
    # default values
-   $defs       = {'value' => {'lower' => 0, 'len' => 32}} unless keys $defs;
+   $defs       = {'value' => {'lower' => 0, 'len' => 32}} unless keys %$defs;
    
    my $self = {
       '_trb'     => $trb,
@@ -72,7 +74,7 @@ sub new {
    };
 
    # check values passed
-   foreach my $key (keys $defs) {
+   foreach my $key (keys %$defs) {
       my $def = $defs->{$key};
    
       # optional values
@@ -122,7 +124,7 @@ sub read {
    
    my $sliced_result = {'_raw' => $unsliced};
    
-   foreach my $key (keys $self->{'_defs'}) {
+   foreach my $key (keys %{$self->{'_defs'}}) {
       $sliced_result->{$key} = ($unsliced >> $self->{'_defs'}{$key}{'lower'}) # shift
                                & ((1 << $self->{'_defs'}{$key}{'len'}) - 1);  # and mask
    }
@@ -249,7 +251,7 @@ sub format {
 
 sub getAddress    {return $_[0]->{'_address'}}
 sub getAccessMode {return $_[0]->{'_accessmode'}}
-sub getSliceNames {return [sort keys $_[0]->{'_defs'}]}
+sub getSliceNames {return [sort keys %{$_[0]->{'_defs'}}]}
 sub getDefinitions{return $_[0]->{'_defs'}}
 
 sub getOptions    {return $_[0]->{'_options'}}

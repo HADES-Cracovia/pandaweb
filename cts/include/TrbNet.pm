@@ -102,7 +102,7 @@ sub flushWriteCache {
    my $cache = $self->{'_write_cache'};
    
    if ($cache) {
-      foreach my $address (keys $cache) {
+      foreach my $address (keys %$cache) {
          trb_register_write($self->getEndpoint, $address, $cache->{$address}) or die(trb_strerror);
       }
    }
@@ -113,7 +113,7 @@ sub flushWriteCache {
 sub prefetch {
    my $self = shift;
    my $withTime = shift;
-   my @addresses = sort keys $self->{'_prefetch'};
+   my @addresses = sort keys %{$self->{'_prefetch'}};
    $self->{'_prefetch'}{$_} = 0 for (@addresses);
   
    my $maxUnneededAddresses = 3;

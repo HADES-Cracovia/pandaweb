@@ -24,7 +24,8 @@ use lib "./include";
    
    use Time::HiRes qw(usleep gettimeofday tv_interval);
    
-   use JSON::PP;
+   #use JSON::PP;
+   use JSON;
 
    use FileHandle;
    
@@ -171,15 +172,15 @@ sub commandList {
    # commandList ($cts);
    #  returns a two-dimensional array compatible to the printTable-format
    my $cts = shift;
-   
-   my @keys = sort keys $cts->getRegisters;
+
+   my @keys = sort keys %{$cts->getRegisters};
 
    my $data = [
       ['Key', 'R/W', 'Module', 'Address', 'Slices'],
       '-'
    ];
    
-   my @mods = sort keys $cts->getModules;
+   my @mods = sort keys %{$cts->getModules};
 
    my $index = 0;
    $index++ until $mods[$index] eq 'Static';
@@ -189,21 +190,20 @@ sub commandList {
       unshift @mods, "Static"
    }
 
-   
    foreach my $modType (@mods) {
       my $mod = $cts->getModules->{$modType};
       my $modName = "";
-      
+
       $modName = sprintf("0x%02x - ", $modType) if looks_like_number($modType);
       $modName .= $mod->moduleName;
-      
-      foreach my $reg (sort keys $mod->getRegisters) {
+
+      foreach my $reg (sort keys %{$mod->getRegisters}) {
          next if substr($reg, 0, 1) eq "_";
-         
+
          my $slices = join(", ",  @{$cts->getRegisters->{$reg}->getSliceNames});
          $slices = substr($slices, 0, 40) . "..." if length($slices) > 43;
-         
-         push $data, [
+
+         push @$data, [
             $reg,
             $cts->getRegisters->{$reg}->getAccessMode(),
             $modName,
@@ -253,18 +253,18 @@ sub commandRead {
             sprintf("0x%08x", $values->{'_raw'})
          ];
          
-         foreach my $sliceKey (sort keys $values) {
+         foreach my $sliceKey (sort keys %$values) {
             next if substr($sliceKey, 0, 1) eq "_";
             
-            push $columns, $sliceKey;
-            push $columns, $values->{$sliceKey};
-            push $data, $columns;
+            push @$columns, $sliceKey;
+            push @$columns, $values->{$sliceKey};
+            push @$data, $columns;
             
             $columns = ['', '', ''];
 
          }
       } else {
-         push $data, [$key, 'Key not found'];
+         push @$data, [$key, 'Key not found'];
       }
    }
 
@@ -314,7 +314,7 @@ sub commandWrite {
       }
    }
    
-   foreach my $key (keys $values) {
+   foreach my $key (keys %$values) {
       $cts->getRegisters->{$key}->write( $values->{$key} );
    }
    
@@ -341,7 +341,7 @@ sub commandMonitor {
       if ($reg->getOptions->{'monitorrate'}) {
          $trb->addPrefetchRegister($reg);
          
-         if ( scalar keys $reg->getDefinitions == 1 ) {
+         if ( scalar keys %{$reg->getDefinitions} == 1 ) {
             push @rateRegs, $key;
             push @slices, @{$reg->getSliceNames()}[0];
          } else {
@@ -406,10 +406,10 @@ sub commandMonitor {
             }
          }
          
-         push $tab, [$label, $regKey, sprintf("0x%04x", $reg->getAddress), shift @dispValues];
+         push @$tab, [$label, $regKey, sprintf("0x%04x", $reg->getAddress), shift @dispValues];
          
          while (my $val = shift @dispValues) {
-            push $tab, [' ', ' ', ' ', $val];
+            push @$tab, [' ', ' ', ' ', $val];
          }
       }
 
@@ -453,8 +453,8 @@ sub commandMonitor {
             $rate = " " x (12 - length($rate)) . $rate;
             
             my $value = " " x (12 - length($cur->{'value'}{$slice})) . $cur->{'value'}{$slice};
-            
-            push $tab, [$label, $regKey, 
+
+            push @$tab, [$label, $regKey, 
                sprintf("0x%04x", $cts->getRegisters->{$regKey}->getAddress),
                $rate , $value];
          }
@@ -464,7 +464,7 @@ sub commandMonitor {
       
       if ($filename) {
       # store json
-         my $json = JSON::PP->new->encode({
+         my $json = JSON::XS->new->encode({
             'time' => $time,
             'servertime' => time2str('%Y-%m-%d %H:%M', time),
             'interval' => $interval,
@@ -472,21 +472,20 @@ sub commandMonitor {
             'rates' => $rates,
             'monitor' => $monData
          });
-         
+
          open FH, ">$filename/dump.js";
          print FH $json;
          close FH;
-      
+
       # generate plot
-         shift $plotData if $#{ $plotData } > 30;
-         push $plotData, [
+         shift @$plotData if $#{ $plotData } > 30;
+         push @$plotData, [
             $time,
             $rates->{'cts_cnt_trg_asserted.value'}{'rate'},
             $rates->{'cts_cnt_trg_edges.value'}{'rate'},
             $rates->{'cts_cnt_trg_accepted.value'}{'rate'}
          ] if $rates->{'cts_cnt_trg_asserted.value'};
-         
-         
+
          if ($#{ $plotData } > 4) {
             open FH, ">$filename/plot.data";
             foreach (@{$plotData}) {
@@ -536,7 +535,7 @@ sub connectToCTS {
    my $trb;
    eval {require "TrbNet.pm"};
    $trb = TrbNet->new($endpoint);
-      
+
    return Cts->new($trb);
 }
 
