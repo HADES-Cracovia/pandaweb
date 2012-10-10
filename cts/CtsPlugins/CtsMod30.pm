@@ -44,6 +44,8 @@ sub init {
    
 # properties
    $prop->{"trg_pulser_count"} = $header->{'len'};
+   $prop->{"trg_pulser_itc_base"} = $header->{'itc_base'};
+
 }
 
 1;

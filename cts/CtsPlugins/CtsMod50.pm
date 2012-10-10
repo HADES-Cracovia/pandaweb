@@ -44,6 +44,8 @@ sub init {
    
 # registers
    $prop->{"trg_random_pulser_count"} = $header->{'len'};
+   $prop->{"trg_random_pulser_itc_base"} = $header->{'itc_base'};
+
 }
 
 1;

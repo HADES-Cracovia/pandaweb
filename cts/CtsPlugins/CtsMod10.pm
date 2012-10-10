@@ -45,6 +45,8 @@ sub init {
 
 # properties
    $prop->{"trg_input_count"} = $header->{'len'};
+   $prop->{"trg_input_itc_base"} = $header->{'itc_base'};
+
 }
 
 1;

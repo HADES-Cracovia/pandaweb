@@ -42,6 +42,7 @@ sub init {
 
 # properties
    $prop->{"trg_coin_count"} = $header->{'len'};
+   $prop->{"trg_coin_itc_base"} = $header->{'itc_base'};
 }
 
 1;
