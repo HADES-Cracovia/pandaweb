@@ -33,7 +33,7 @@
                   <tr class="alt">
                      <td class="label">Trigger asserted</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_asserted.value" suffix=" clks.">n/a</td>
-                     <td class="rate  autorate"               slice="cts_cnt_trg_asserted.value">n/a</td>
+                     <td class="rate  autorate"               slice="cts_cnt_trg_asserted.value" format="rateToFrac">n/a</td>
                   <tr>
 
                   <tr>
@@ -72,7 +72,7 @@
                      <td class="label">Throttle</td>
                      <td colspan="2" class="rate">
                         <input type="checkbox" class="autoupdate autocommit" slice="cts_throttle.enable" /> Limit Trigger Rate to
-                        <input class="autocommit autoupdate" slice="cts_throttle.threshold" style="width: 4em;"
+                        <input class="autocommit autoupdate" slice="cts_throttle.threshold" style="width: 4em;" inputhint="Allow at most &lt;emph&gt;X&lt;/emph&gt; events in 1 ms"
                            format="var f=function(x){return parseNum(x)+1}; f" interpret="var f=function(x){return parseNum(x)-1;}; f" /> KHz
                      </td>
                   </tr>
@@ -191,6 +191,11 @@
                      <tr class="alt">
                         <td> </td>
                         <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.trg_cnt" /> Trigger statistics</td>
+                     </tr>
+
+                     <tr class="alt">
+                        <td> </td>
+                        <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.timestamp" /> Timestamp</td>
                      </tr>
                      
                      <tr class="alt">
