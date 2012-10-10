@@ -139,6 +139,7 @@ var CTS = new Class({
     * 
     * DO NOT CALL THIS METHOD MANUALLY !!! */
    dataUpdate: function() {
+//       return;
       if (!this.dataUpdateActive) {
          this.dataUpdate.delay(1000, this);
          return;
@@ -362,7 +363,7 @@ var CTS = new Class({
          var reg = 'trg_input_config' + i;
          $('inputs-tab')
          .adopt(
-            new Element('tr', {'class': i%2?'':'alt'})
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
             .adopt(
                new Element('td', {'class': 'num', 'text': i})
             ).adopt(
@@ -414,7 +415,7 @@ var CTS = new Class({
          var ddType, edgeType, assertedRate, edgeRate;
          $('itc-tab') // + (i / 8).toInt())
          .adopt(
-            new Element('tr', {'class': i%2?'':'alt'})
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + i})
             .adopt(
                new Element('td', {'text': i, 'class': 'channel'})
             ).adopt(
@@ -458,6 +459,8 @@ var CTS = new Class({
             
             return x;
          };
+         
+         assertedRate.format = rateToFrac;
       };
    },
 
@@ -476,7 +479,7 @@ var CTS = new Class({
          var reg = 'trg_coin_config' + i;
          var coin, inhibit;
          $('coin-tab').adopt(
-            new Element('tr', {'class': i%2?'':'alt'})
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup':  'itc-' +  (i + parseInt(this.defs.properties.trg_coin_itc_base))})
             .adopt(
                new Element('td', {'class': 'num', 'text': i})
             ).adopt(
@@ -510,70 +513,98 @@ var CTS = new Class({
          return;
       }
       
-      var regs = [];
+      var freqTD, durInp;
+      
+      var parsedInput = new Element('div', {'class': 'hint'}).inject($('content-area'), 'after');
+      parsedInput.linkedTo = null;
+      parsedInput.reposition = function() {
+         if (!parsedInput.linkedTo) return;
+         var refPos = parsedInput.linkedTo.getCoordinates();
+         var piSize = parsedInput.getScrollSize();
+         parsedInput.setStyles({'left': refPos.left + refPos.width + 5, 'top': refPos.top + refPos.height/2 - piSize.y/2});
+         
+         return this;
+      };
+      window.addEvent('resize', parsedInput.reposition);
       
       for(var i=0; i < cnt; i++) {
          $('pulser-tab').adopt(
-            new Element('tr', {'class': i%2?'':'alt'})
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup':  'itc-' + (i + parseInt(this.defs.properties.trg_pulser_itc_base))})
             .adopt(
                new Element('td', {'class': 'num', 'text': i})
             ).adopt(
                new Element('td', {'class': 'period'}).adopt(
-                  new Element('input', {'id': 'pulser-period'+i, 'value': 'n/a'})
-               ).adopt(new Element('span', {'text': ' us'}))
+                  durInp = new Element('input', {
+                     'slice': 'trg_pulser_config' + i + '.low_duration',
+                     'class': 'autoupdate autocommit',
+                      'inputhint': 'Three input formats are supported:<br />' + 
+                        '1.) Enter the <strong>duration of the low-period</strong> in clock cycles by <strong>omitting a unit</strong><br />' + 
+                        '2.) Enter the <strong>duration of the low-period</strong> in seconds by adding "<pre>s</pre>"<br />'+
+                        '3.) Enter the <strong>frequency</strong> by appending "<pre>Hz</pre>"<br /><br/>' + 
+                        'Optional unit prefixes: <pre>n</pre>, <pre>u</pre>, <pre>m</pre>, <pre>k</pre>/<pre>K</pre>, <pre>M</pre>, <pre>g</pre>/<pre>G</pre>. Example 1ms = 1e-3s, 1 Ms = 1e3s<br />' +
+                        'Press enter or leave input do apply values. This might take a few moments <br/>and is completed as soon as the left column has changed'
+                  })
+               )
             ).adopt(
-               new Element('td', {'class': 'freq', 'id': 'pulser-freq'+i, 'text': 'n/a'})
+               freqTd = new Element('td', {'class': 'freq autoupdate', 'slice': 'trg_pulser_config' + i + '.low_duration'})
             )
          );
          
-         regs.push('trg_pulser_config' + i);
-      }
-      
-      this.readRegisters(regs, function(data) {
-         this.pulser_values = data;
+         durInp.format = function(val) {
+            val /= cts.defs.properties.cts_clock_frq;
+            return appendScalingPrefix(val, val > 1e-6 ? 2 : 0) + 's';
+         }.bind(this);
          
-         for(var i=0; i < cnt; i++) {
-            $('pulser-period'+i).set('value', data['trg_pulser_config' + i].low_duration + 1);
-            $('pulser-period'+i).addEvents({
-               'change': this.updatePulser.bind(this, true),
-               'blur': this.updatePulser.bind(this, true),
-               'keyup': this.updatePulser.bind(this, false),
-            });
-         }
-         
-         this.updatePulser();
-         
-      }.bind(this));
-   },
-   
-   updatePulser: function(store) {
-      for(var i=0; i <  this.defs.properties.trg_pulser_count; i++){
-         var elem = $('pulser-period'+i);
-         var val = parseNum(elem.get('value'));
-         
-         var m = elem.get('value').toLowerCase().match(/([mk]?)hz/);
-         if (m) {
-            if (m[1] == 'k') val *= 1e3;
-            if (m[1] == 'm') val *= 1e6;
-                    
-            val = Math.round ( 1e8 * (1/ val - 1/this.defs.properties.cts_clock_frq)  );
-            if (store) elem.set('value', val);
-         }
-         
-         var changed = (val != this.pulser_values['trg_pulser_config' + i].low_duration + 1);
-         
-         if (store && changed && !isNaN(val)) {
-            var tmp = {};
-            tmp['trg_pulser_config' + i + '.low_duration']
-             = this.pulser_values['trg_pulser_config' + i].low_duration
-             = Math.max(0, val - 1);
-            this.writeRegisters(tmp);
+         durInp.interpret = function(val) {
+            val = val.trim();
+            if (!val) return 0;
             
-            changed = false;
-         }
+            var matches;
          
-         elem[changed ? 'addClass' : 'removeClass']('unsaved');
-         $('pulser-freq'+i).set('text', (changed ? "(CTS not updated) " : "") + formatFreq(1 / (val / 1e8 + 1 / this.defs.properties.cts_clock_frq)));
+          // frequency -> count
+            if (matches = val.match(/((\d+)\s*[munkKMgG]?)[hH][zZ]?/)) {
+               var freq = interpretScalingPrefix(matches[1]);
+               return this.defs.properties.cts_clock_frq / freq - 1;
+            }
+            
+          // time -> count
+            if (matches = val.match(/((\d+|\d*\.\d+)\s*[munkKMgG]?)s/)) {
+               var secs = interpretScalingPrefix(matches[1]);
+               return secs * this.defs.properties.cts_clock_frq;
+            }
+            
+          // counts
+            return parseNum(val);
+         }.bind(this);
+         
+         var updateParsedInput = function() {
+            var inp = parsedInput.linkedTo;
+            if (!inp) return;
+                    
+            var val = inp.interpret(inp.get('value'));
+            parsedInput.set('text', rateToFrac(cts.defs.properties.cts_clock_frq / (1+parseInt(val)))).reposition();
+         };
+         
+         durInp.addEvents({
+            'focus': function(e) {
+               var t = $(e.target);
+               parsedInput.linkedTo = t;
+               parsedInput.reposition().fade('in');
+               updateParsedInput();
+            },
+               
+            'blur': function() {
+               parsedInput.fade('out').linkedTo = null;
+            },
+            
+            'click': updateParsedInput,
+            'keyup': updateParsedInput
+         });
+         
+         freqTd.format = function(val) {
+            return rateToFrac(cts.defs.properties.cts_clock_frq / (1+parseInt(val)))
+         };
+         
       }
    },
 
@@ -592,7 +623,7 @@ var CTS = new Class({
       for(var i=0; i < cnt; i++) {
          var inp;
          $('rand-pulser-tab').adopt(
-            new Element('tr', {'class': i%2?'':'alt'})
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup':  'itc-' + (i + parseInt(this.defs.properties.trg_random_pulser_itc_base))})
             .adopt(
                new Element('td', {'class': 'num', 'text': i})
             ).adopt(
@@ -602,7 +633,11 @@ var CTS = new Class({
                      'value': 'n/a',
                      'class': 'autocommit autoupdate',
                      'interpret': 'InterpretToRandPulserThreshold',
-                     'format': 'FormatRandPulserThreshold'
+                     'format': 'FormatRandPulserThreshold',
+                     'inputhint': 'Enter the <strong>mean frequency</strong> in Hz<br />' + 
+                        'Optional unit prefixes: <pre>n</pre>, <pre>u</pre>, <pre>m</pre>, <pre>k</pre>/<pre>K</pre>, <pre>M</pre>, <pre>g</pre>/<pre>G</pre>. Example 1ms = 1e-3s, 1 Ms = 1e3s<br />' +
+                        'Press enter or leave input do apply values. The changes might take a few moments<br /> and are visible in the corresponding ITC stats'
+
                   })
                )
             )
@@ -642,25 +677,55 @@ var cts;
 function countToTime(val) {return (1.0*val / cts.defs.properties.cts_clock_frq * 1e9).toFixed(0);}
 function countToFreq(val) {return formatFreq (1 / (val / cts.defs.properties.cts_clock_frq)); }
 function timeToCount(val) {return (parseNum(val) / 1.0e9 * cts.defs.properties.cts_clock_frq).round();}
+function rateToFrac(val) {return appendScalingPrefix(val) + 'cnt/s'}
 
 function formatFreq(val, sigDigits) {
+   return appendScalingPrefix(val, sigDigits) + "Hz";
+}
+
+function appendScalingPrefix(val, sigDigits) {
    var fac = 3;
    
-   if (sigDigits == undefined) sigDigits = 2;
+   var pref = [1e-9, 'n', 1e-6, 'u', 1e-3, 'm',
+               1e9,  'G', 1e6,  'M', 1e3,  'K'];
+               
+   if (sigDigits === undefined) sigDigits = 2;
    
-        if (val < 0.1 * fac && val > 0) val = (val * 1000).toFixed(sigDigits) + " mHz";
-   else if (val > 1e6 * fac) val = (val / 1e6).toFixed(sigDigits) + " MHz";
-   else if (val > 1e3 * fac) val = (val / 1e3).toFixed(sigDigits) + " KHz";
-   else                      val = (val / 1e0).toFixed(sigDigits) + "  Hz";
+   while(pref.length) {
+      scale = pref.shift();
+      name  = pref.shift();
    
-   return val.replace(',', '.');
+      if (((scale > 1) && (val > scale * fac)) || ((scale < 1) && (val < scale * 100 * fac)))
+         return ((val / scale).toFixed(sigDigits) + ' ' + name).replace(',', '.');
+   }
+   
+   return val.toFixed(sigDigits) + ' ';
+}
+
+function interpretScalingPrefix(val) {
+   var num = parseNum(val);
+   val.trim();
+   var prefs = {
+      'n': 1e-9,
+      'u': 1e-6,
+      'm': 1e-3,
+      'K': 1e3, 'k': 1e3,
+      'M': 1e6,
+      'G': 1e9, 'g': 1e9};
+   
+   var prefix = val.substr(val.length - 1, 1);
+   
+   if (prefs[prefix])
+      num *= prefs[prefix];
+   
+   return num;
 }
 
 function InterpretToRandPulserThreshold(v) {
-   var freq = parseNum(v);
+   var match = v.match(/((\d+|\d*\.\d+)\s*[munkKMgG]?)[hH]?[zZ]?/);
+   if (!match) return 0;
    
-   if (v.match(/khz/i)) freq *= 1e3;
-   else if (v.match(/mhz/i)) freq *= 1e6;
+   freq = interpretScalingPrefix(match[1]);
    
    freq = Math.min(cts.defs.properties.cts_clock_frq, Math.max(freq, 0));
    
@@ -749,5 +814,70 @@ var GuiExpander = new Class({
 });
 var guiExpander;
 window.addEvent('domready', function() {guiExpander = new GuiExpander();});
+
+/* InputHints */
+/**
+ * Shows a caption-like hint below an input field each time it gets the focus
+ */
+window.addEvent('load', function() {
+   var inputs = $$('input[inputhint]');
+   if (!inputs) return;
+   
+   var activeInput = null;
+   
+   var caption = new Element('div', {id: 'input-hint', 'class': 'hint'}).inject($('content-area'), 'after');
+   caption.reposition = function() {
+      if (!activeInput) return;
+      
+      var inputPos = activeInput.getCoordinates();
+      var wndSize = document.getSize();
+      var captionSize = caption.getScrollSize();
+      
+      caption.setStyles({
+         'top': inputPos.top + inputPos.height + 3,
+         'left': Math.max(0, Math.min(inputPos.left - 11, wndSize.x - captionSize.x))
+      });
+   };
+   
+   inputs.each(function(input) {
+      if (input.get('inputhint-registered')) return;
+               
+      input.addEvents({
+      'focus': function(e) {
+         var t = $(e.target);
+         activeInput = t;
+         caption.set('html', t.get('inputhint'));
+         caption.reposition();
+         caption.fade('in');
+      },
+                  
+      'blur': function() {
+         caption.fade('out');
+         activeInput = null;
+      }
+      }).set('inputhint-registered', '1');
+   });
+   
+   window.addEvent('resize', caption.reposition);
+});
+   
+/* Flash groups */
+window.addEvent('load', function() {
+   $$('*[flashgroup]').addEvents({
+      'mouseenter': function(e) {
+         var t = $(e.target);
+         while(!t.get('flashgroup')) {
+            if (t.get('id') == 'content-area') return;
+            t = t.getParent();
+         }
+         
+         $$('*[flashgroup="' + t.get('flashgroup') + '"]').addClass('flash');
+      }, 
+      
+      'mouseleave': function(e) {
+         $$('.flash').removeClass('flash');
+      }
+   });
+});
 
 function id(x) {return x;}
