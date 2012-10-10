@@ -51,6 +51,32 @@
       margin: 60px auto 20px auto;
       text-align: left;
    }
+   
+   .hint {
+      display: inline;
+      opacity: 0;
+      position: absolute;
+      top: -100px;
+      left: 0;
+      
+      padding: 3px 10px 3px 10px;
+      
+      background: black;
+      color: white;
+      border: 1px solid #808080;
+      
+      text-align: left;
+   }
+   
+   .hint pre {
+      display: inline;
+      font-weight: bold;
+      color: red;
+   }
+   
+   .hint strong {
+      color: yellow;
+   }
 
 /* Expandable handling */
    .expandable {
@@ -118,10 +144,14 @@
       background: #e0e0ff;
    }
 
+   table tr.flash, table tr.flash td {
+      background: #b5ff00;
+   }
+
    table tr.alt:hover td, table tr:hover td {
       background: #ffffd0;
    }
-
+   
    .alt td {
       background: #f6f6f6;
       border-bottom: 1px solid #e0e0e0;
@@ -194,5 +224,9 @@
    #pulser-tab .period {text-align: right}
    #pulser-tab .freq   {width: 30%; text-align: right}
    #pulser-tab .period input {text-align: right; width: 8em;}
+   
+   #rand-pulser-tab .freq {
+      text-align: right;
+   }
 
       
