@@ -38,7 +38,7 @@ sub format {
    
    my $cache = {};
    
-   foreach my $key (keys $self->{'_keys'}) {
+   foreach my $key (keys %{$self->{'_keys'}}) {
       my $tmp;
       my $reg = $self->{'_keys'}{$key};
       
@@ -72,7 +72,7 @@ sub read {
    
    my $cache = {};
    
-   foreach my $key (keys $self->{'_keys'}) {
+   foreach my $key (keys %{$self->{'_keys'}}) {
       my $tmp;
       my $reg = $self->{'_keys'}{$key};
       
@@ -104,18 +104,19 @@ sub write {
    if (ref $values) {
       my $valuesPerReg = {};
       
-      foreach my $key (keys $values) {
+      foreach my $key (keys %$values) {
          $valuesPerReg->{$self->{'_keys'}{$key}} = $values->{$key};
       }
       
-      foreach my $reg (keys $valuesPerReg) {
+      foreach my $reg (keys %$valuesPerReg) {
          $reg->write( $valuesPerReg->{$reg} );
       }
    } else {
       if (%{$self->{'_keys'}} > 1) {
          warnings::warn("TrbSlicedRegister->write(): Scalar values are supported for exclusively defintions, containing only one slice");
       } else {
-         $self->{'_keys'}{ (keys $self->{'_keys'})[0] }->write( $values );
+	 $self->{'_keys'}{ (keys %{$self->{'_keys'}})[0] }->write( $values );
+         #$self->{'_keys'}{ (keys %{$self->{'_keys'})[0]->write( $values )};
       }
    }
 }
@@ -127,7 +128,7 @@ sub getAddresses {
    my $self = shift;
    my %addresses = ();
    
-   foreach my $key (keys $self->{'_keys'}) {
+   foreach my $key (keys %{$self->{'_keys'}}) {
       $addresses{$self->{'_keys'}{$key}->getAddress} = 1;
    }
    
@@ -139,7 +140,7 @@ sub getAddress {
    #  returns single address used by a randomly chosen slices
    
    my $self = shift;
-   my @keys= (keys $self->{'_keys'});
+   my @keys= (keys %{$self->{'_keys'}});
    
    return $self->{'_keys'}->{ $keys[0] }->getAddress;
 }
@@ -148,7 +149,7 @@ sub getSliceNames {
    # TrbSlicedRegister->getSliceNames()
    #  returns an array reference containing all Slicenames
    my $self = shift;
-   return [sort keys $self->{'_keys'}];
+   return [sort keys %{$self->{'_keys'}}];
 }
 
 sub getAccessMode { 
@@ -161,7 +162,7 @@ sub getAccessMode {
    my $read = 1;
    my $write = 1;
 
-   foreach my $key (keys $self->{'_keys'}) {
+   foreach my $key (keys %{$self->{'_keys'}}) {
       my $mode = $self->{'_keys'}{$key}->getAccessMode();
       
       if ($mode eq "ro") {$write = 0;}

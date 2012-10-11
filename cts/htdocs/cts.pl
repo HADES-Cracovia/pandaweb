@@ -5,7 +5,7 @@ use lib "./include/";
 
 use Cts;
 use CtsConfig;
-use JSON::PP;
+use JSON;
 
 sub connectToCTS {
    my $endpoint = shift;
@@ -23,7 +23,7 @@ my $cts = connectToCTS( CtsConfig->getDefaultEndpoint );
 my $query = $ENV{'QUERY_STRING'};
 
 if ($query eq "init") {
-   print JSON::PP->new->allow_blessed->convert_blessed->encode({
+   print JSON::XS->new->allow_blessed->convert_blessed->encode({
       'registers' => $cts->getRegisters,
       'properties' => $cts->getProperties
    });
@@ -39,7 +39,7 @@ if ($query eq "init") {
       $result{$key} = $op eq "read" ? $reg->read() : $reg->format();
    }
    
-   print JSON::PP->new->allow_blessed->convert_blessed->encode(\%result);
+   print JSON::XS->new->allow_blessed->convert_blessed->encode(\%result);
 } elsif ($query =~ /^write,([\w\d_,\.\[\]]+)$/) {
    my @values = split /,/, $1;
    my $regs = {};
@@ -58,7 +58,7 @@ if ($query eq "init") {
       }
    }
    
-   foreach my $key (keys $regs) {
+   foreach my $key (keys %$regs) {
       my $reg = $cts->getRegisters->{$key};
       #next unless defined $reg;
       $reg->write($regs->{$key});
