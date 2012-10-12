@@ -16,6 +16,7 @@ if(!$ARGV[0]) {
   print "usage: padiwa.pl \$FPGA \$chain \$command \$options\n\n";
   print "\t uid \t\t read unique ID, no options\n";
   print "\t temp \t\t read temperature, no options\n";
+  print "\t dac \t\t set LTC-DAC value. options: \$channel, \$value\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
   print "\t pwm \t\t read PWM value. options: \$channel\n";
   print "\t disable \t set input diable. options: \$mask\n";
@@ -83,6 +84,11 @@ if($ARGV[2] eq "uid") {
     printf("0x%04x\t%d\t0x%04x%04x%04x%04x\n",$e,$chain,$ids->{$e}->{3},$ids->{$e}->{2},$ids->{$e}->{1},$ids->{$e}->{0});
     }
   }
+
+if($ARGV[2] eq "dac" && defined $ARGV[4]) {
+  my $b = sendcmd(0x00300000+$ARGV[3]*0x10000+($value&0xffff));
+  print "Wrote PWM settings.\n";
+  }     
   
 if($ARGV[2] eq "pwm" && defined $ARGV[4]) {
   my $b = sendcmd(0x00800000+$ARGV[3]*0x10000+($value&0xffff));
