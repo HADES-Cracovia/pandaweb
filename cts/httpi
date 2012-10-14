@@ -112,12 +112,12 @@ undef %system_content_types;
 
 #if ($pid = fork()) { exit; }
 $0 = "dhttpi: binding port ...";
-$bindthis = pack($sockaddr, 2, 1234, pack('C4', 0, 0, 0, 0));
+$bindthis = pack($sockaddr, 2, $server_port, pack('C4', 0, 0, 0, 0));
 socket(S, 2, 1, 6);
 setsockopt(S, 1, 2, 1);
-bind(S, $bindthis) || die("$0: while binding port 1234:\n\"$!\"\n");
+bind(S, $bindthis) || die("$0: while binding port $server_port:\n\"$!\"\n");
 listen(S, 128);
-$0 = "dhttpi: connected and waiting ANY:1234";
+$0 = "dhttpi: connected and waiting ANY:$server_port";
 
 $statiosuptime = time();
 
@@ -353,7 +353,7 @@ EOF
 	$raddress = "$path$address"
 	;
 	1 while ($raddress =~ s#//#/#);
-	&hterror301("http://manchot:1234$address/")
+	&hterror301("http://$server_host:$server_port$address/")
 		if ($address !~ m#/$# && -d $raddress);
 	$raddress = (-r "${raddress}index.shtml") ?
 		"${raddress}index.shtml" : "${raddress}index.html"
@@ -364,11 +364,11 @@ EOF
 			) {
 			$currentcode = 100; &nsecmodel;
 			$ENV{'REQUEST_METHOD'} = $method;
-			$ENV{'SERVER_NAME'} = "manchot";
+			$ENV{'SERVER_NAME'} = $server_host;
 			$ENV{'SERVER_PROTOCOL'} = "HTTP/$httpver";
 			$ENV{'SERVER_SOFTWARE'} = "HTTPi/$VERSION";
-			$ENV{'SERVER_PORT'} = "1234";
-			$ENV{'SERVER_URL'} = "http://manchot:1234/";
+			$ENV{'SERVER_PORT'} = "$server_port";
+			$ENV{'SERVER_URL'} = "http://$server_host:$server_port/";
 			$ENV{'SCRIPT_FILENAME'} = $raddress;
 			$ENV{'SCRIPT_NAME'} = $address;
 			$ENV{'REMOTE_HOST'} = $hostname;
@@ -480,12 +480,12 @@ sub hterror301 {
 }
 
 
-$0 = "dhttpi: on ANY:1234, ready!";
+$0 = "dhttpi: on ANY:$server_port, ready!";
 $master_pid = $$;
 for (;;) {
 	if ($secondary_pid = fork()) {
 		waitpid($secondary_pid, 0);
-		$0 = "dhttpi: on ANY:1234, last request " .
+		$0 = "dhttpi: on ANY:$server_port, last request " .
 			scalar localtime;
 	} else {
 		$0 = "dhttpi (child of $master_pid): waiting for connect";
