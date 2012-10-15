@@ -42,6 +42,7 @@ var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var chain      = 1<<document.getElementById("form_chain").value;
 var chan       = document.getElementById("form_channel").value;
+var updateTask = setInterval("doUpdate()",updaterate);
 
 
 function update(bar,scale) {
@@ -51,7 +52,7 @@ function update(bar,scale) {
   command = 0x00300000 + (chan << 16) + ((value[0]+value[1]) & 0xFFFF);
   command = command.toString(16);
   dataWaiting = 1;
-  if(!updateTask) {  
+  if(updateTask == 0) {  
     updateTask = setInterval("doUpdate()",updaterate);
     }
   }
@@ -65,6 +66,7 @@ function doUpdate() {
     }
   else {
     clearInterval(updateTask);
+    updateTask = 0;
     }
   }
   
@@ -82,7 +84,6 @@ function setValues() {
   updateTask = setInterval("doUpdate()",updaterate);
   }
 
-var updateTask = setInterval("doUpdate()",updaterate);
   
   
 </script>
