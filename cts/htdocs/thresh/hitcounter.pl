@@ -28,7 +28,8 @@ my $board = 0xffff;
 my $e = <<EOD;
 <h4>Hit Counters</h4>
 <form acion="">
-<table><tr><td>Board:<td><input type="text" id="form_board" name="board" maxlength="4" value="ffff">
+<table><tr><td>Board<td><input type="text" id="form_board" name="board" maxlength="4" value="ffff">
+<tr><td># of Channels<td><input type="text" id="form_channels" name="channels" maxlength="3" value="65">
 <tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="1000">
 <tr><td>Differences<td><input type="checkbox" id="form_diff" name="diff" value="1">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
@@ -41,7 +42,7 @@ print $e;
 
 
 print "<table id=\"content\"><tr><th>Channel<th>Value\n";
-for(my $c =0; $c < 64; $c++) {
+for(my $c =0; $c < channels; $c++) {
   print "<tr><td>$c<td id=\"content".($c+1)."\">";
   }
   
@@ -52,7 +53,8 @@ $e = <<EOD;
 <script language="javascript">
 var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
-var updateTask = setInterval("getdata('get.pl?"+board+"-4000-64',update)",updaterate);
+var channels   = document.getElementById("form_channels").value;
+var updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+"',update)",updaterate);
 var differences= document.getElementById("form_diff").checked;
 var oldvalues = {};
 
@@ -69,7 +71,7 @@ function update(data) {
     o += "<th>"+c[j][0];
     } 
   
-  for(i = 1; i <= 64; i++) {
+  for(i = 1; i <= channels; i++) {
     o += "<tr><th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
@@ -89,8 +91,9 @@ function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
   differences= document.getElementById("form_diff").checked;
+  channels   = document.getElementById("form_channels").value;
   clearInterval(updateTask);
-  updateTask = setInterval("getdata('get.pl?"+board+"-4000-64',update)",updaterate);
+  updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+"',update)",updaterate);
   }
   
 </script>
