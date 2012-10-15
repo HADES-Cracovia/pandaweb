@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="styles.css" rel="stylesheet" type="text/css"/>
+<script src="scripts.js" type="text/javascript"></script>
+<title>Threshold settings</title>
+</head>
+<body>
+
+<h4>Threshold Settings</h4>
+<form acion="">
+<table><tr><td>Board:<td><input type="text" id="form_board" name="board" maxlength="4" value="fccc">
+<tr><td>DAC-Chain:<td><select id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
+<tr><td>Channel<td><select id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
+<tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="500">
+<tr><td><td><input type="button" onClick="setValues()" value="OK">
+</table>
+</form>
+
+<table><tr><td>
+<div id="bar1"  onScroll="update(1,1)">
+<div>&nbsp;</div>
+</div>
+<td id="bar1value">
+<tr><td><div id="bar2"  onScroll="update(2,256)">
+<div>&nbsp;</div>
+</div>
+<td id="bar2value">
+<tr><td id="total">&nbsp;<td>&nbsp;
+<tr><td id="cmd">&nbsp;<td>&nbsp;
+<tr><td id="err">&nbsp;<td>&nbsp;
+</table>
+
+<script language="javascript">
+
+var value = {};
+var dataWaiting = 0;
+var updateDelay = 0;
+var command     = 0;
+var updaterate = document.getElementById("form_rate").value;
+var board      = document.getElementById("form_board").value;
+var chain      = 1<<document.getElementById("form_chain").value;
+var chan       = document.getElementById("form_channel").value;
+
+
+function update(bar,scale) {
+  value[bar-1] = Math.round(document.getElementById("bar"+bar).scrollLeft/scale);
+  document.getElementById("bar"+bar+"value").innerHTML = value[bar-1];
+  document.getElementById("total").innerHTML = value[0]+value[1];
+  command = 0x00300000 + (chan << 16) + ((value[0]+value[1]) & 0xFFFF);
+  command = command.toString(16);
+  dataWaiting = 1;
+  if(!updateTask) {  
+    updateTask = setInterval("doUpdate()",updaterate);
+    }
+  }
+
+  
+function doUpdate() {
+  if(dataWaiting) {
+    cmdstring = "put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
+    getdata(cmdstring,showret);
+    dataWaiting = 0;
+    }
+  else {
+    clearInterval(updateTask);
+    }
+  }
+  
+function showret(d) {
+//   document.getElementById("err").innerHTML = d;
+  }
+  
+  
+function setValues() {
+  updaterate = document.getElementById("form_rate").value;
+  board      = document.getElementById("form_board").value;
+  chain      = 1<<document.getElementById("form_chain").value;
+  chan       = document.getElementById("form_channel").value;
+  clearInterval(updateTask);
+  updateTask = setInterval("doUpdate()",updaterate);
+  }
+
+var updateTask = setInterval("doUpdate()",updaterate);
+  
+  
+</script>
+
+</body></html>
+
+
