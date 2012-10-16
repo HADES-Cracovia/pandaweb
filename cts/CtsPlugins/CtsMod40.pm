@@ -65,11 +65,11 @@ sub init {
       });
    }
 
-   for(my $i=0; $i<16; $i++) {
-      $regs->{'trg_trigger_type' . $i} = new TrbSlicedRegister({
-         'type' => $regs->{'_trg_trigger_types' . ($i < 8 ? '0' : '1')},
-      });
-   }
+#   for(my $i=0; $i<16; $i++) {
+#      $regs->{'trg_trigger_type' . $i} = new TrbSlicedRegister({
+#         'type' => $regs->{'_trg_trigger_types' . ($i < 8 ? '0' : '1')},
+#      });
+#   } 
 }
 
 1;
