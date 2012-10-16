@@ -1,11 +1,15 @@
 
 
 function getdata(command,callback) {
+  var xmlhttp = null;
+  var cb = null;
   xmlhttp=new XMLHttpRequest();
+  cb = callback;
+  
   xmlhttp.onreadystatechange = function() {
     if(xmlhttp.readyState == 4) {
-      if(callback)
-        callback(xmlhttp.responseText);
+      if(cb)
+        cb(xmlhttp.responseText);
       }
     }
   xmlhttp.open("GET",command,true);
