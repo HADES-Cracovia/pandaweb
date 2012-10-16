@@ -32,20 +32,20 @@ var oldvalues = {};
 
 var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90";
 var regs = reglist.split('-');
+var regnames = new Array("debug<br>channels<br>ref input","window bef.<br>window aft.",
+                         "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
+                         "spurious trg","wrong rdo","spikes","idle time","wait time",
+                         "releases","rdo time");
 
 var updateTask;
 var updateRegsTask;
-
 
 
 function update(data) {
   if(!document.getElementById("content").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "";
-//   for(j=0;j<b.length-1;j++) 
-//     o += "<col class='j'>";
-  o += "<tr class=\"head\"><th>Channel";
+  o = "<tr class=\"head\"><th>Channel";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
@@ -58,11 +58,14 @@ function update(data) {
     for(j=0;j<b.length-1;j++) {
       if(differences) {
         val = c[j][i]- (oldvalues[j][i]||0);
+        if (val < 0) {
+          val += 0x1000000;
+          }
         }
       else {
         val = c[j][i];
         }
-      o += "<td>"+val;
+      o += "<td>"+(val & 0xffffff);
       }
     }
   oldvalues = c;
@@ -85,10 +88,7 @@ function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "";
-//   for(j=0;j<b.length-1;j++) 
-//     o += "<col class='"+j+"' />";
-  o += "<tr class=\"head\"><th>Register<th>Content";
+  o = "<tr class=\"head\"><th>Register<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
@@ -96,54 +96,8 @@ function updateregs(data) {
     } 
   
   for(i = 0; i < 14; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+regs[i];
-    switch(i) {
-      case 0:
-        o += "<td>debug<br>channels<br>ref input";
-        break;
-      case 1:
-        o += "<td>window bef.<br>window aft.";
-        break;
-      case 2:
-        o+= "<td>valid trg";
-        break;
-      case 3:
-        o+= "<td>valid tmg trg";
-        break;
-      case 4:
-        o+= "<td>valid notmg";
-        break;
-      case 5:
-        o+= "<td>invalid trg";
-        break;
-      case 6:
-        o+= "<td>multi trg";
-        break;
-      case 7:
-        o+= "<td>spurious trg";
-        break;
-      case 8:
-        o+= "<td>wrong rdo";
-        break;
-      case 9:
-        o+= "<td>spikes";
-        break;
-      case 10:
-        o+= "<td>idle time";
-        break;
-      case 11:
-        o+= "<td>wait time";
-        break;
-      case 12:
-        o+= "<td>releases";
-        break;
-      case 13:
-        o+= "<td>rdo time";
-        break;
-        
-      default:
-        o += "<td>&nbsp;";
-      }
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+regs[i]+"<td>"+regnames[i];
+
     
     for(j=0;j<b.length-1;j++) {
       val = c[j][i+1];
@@ -152,7 +106,7 @@ function updateregs(data) {
         o += (val&0xFF).toString(16)+"<br>"+((val&0xff00)>>8)+"<br>"+(val>>16 & 1);
         }
       else if(i==1) {
-        o += (val&0x7FF).toString(16)+"<br>"+((val&0x7ff0000)>>16);
+        o += (val&0x7FF)+"<br>"+((val&0x7ff0000)>>16);
         }
       else {
         o += val;
