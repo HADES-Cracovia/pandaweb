@@ -1,5 +1,5 @@
 body {
-    background:#def;
+    background:#eef;
 }
 
 
@@ -47,3 +47,21 @@ div#bar2 div {
   text-align:center;
   font-weight:bold;
   }
+
+  
+.odd {
+  background:#f0f0f8;
+}
+
+.odd:hover, .even:hover {
+  background:#ffe;
+}
+
+.even {
+  background:#e0e0e8;
+}
+
+.head {
+  background:#334;
+  color:#eef;
+}

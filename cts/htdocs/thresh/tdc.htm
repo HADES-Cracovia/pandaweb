@@ -42,7 +42,10 @@ function update(data) {
   if(!document.getElementById("content").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr><th>Channel";
+  o = "";
+//   for(j=0;j<b.length-1;j++) 
+//     o += "<col class='j'>";
+  o += "<tr class=\"head\"><th>Channel";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
@@ -51,7 +54,7 @@ function update(data) {
     } 
   
   for(i = 1; i <= channels; i++) {
-    o += "<tr><th>"+(i-1);
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
         val = c[j][i]- (oldvalues[j][i]||0);
@@ -82,7 +85,10 @@ function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr><th>Register<th>Content";
+  o = "";
+//   for(j=0;j<b.length-1;j++) 
+//     o += "<col class='"+j+"' />";
+  o += "<tr class=\"head\"><th>Register<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
@@ -90,7 +96,7 @@ function updateregs(data) {
     } 
   
   for(i = 0; i < 14; i++) {
-    o += "<tr><th>"+regs[i];
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+regs[i];
     switch(i) {
       case 0:
         o += "<td>debug<br>channels<br>ref input";
