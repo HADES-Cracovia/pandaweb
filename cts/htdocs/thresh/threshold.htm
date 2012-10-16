@@ -83,6 +83,7 @@ function setValues() {
   board      = document.getElementById("form_board").value;
   chain      = 1<<document.getElementById("form_chain").value;
   chan       = document.getElementById("form_channel").value;
+  reference  = document.getElementById("form_ref").value;
   clearInterval(updateTask);
   updateTask = setInterval("doUpdate()",updaterate);
   }
