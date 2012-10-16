@@ -24,10 +24,18 @@ use lib "./include";
    
    use Time::HiRes qw(usleep gettimeofday tv_interval);
    
-   #use JSON::PP;
-   use JSON;
+   BEGIN {
+      if (eval "require JSON::PP;") {
+         *JSON_BIND:: = *JSON::PP::;
+      } else {
+         eval "require JSON;";
+         *JSON_BIND:: = *JSON::XS::;
+      }
+   }
 
    use FileHandle;
+   
+   use CtsPlugins::CtsModStatic;
    
    
 sub help {
@@ -247,6 +255,9 @@ sub commandRead {
       my $reg = $cts->getRegisters->{$key};
       if (defined $reg) {
          my $values = $reg->format();
+         
+         print Dumper $values;
+         
          my $columns = [
             $key, 
             sprintf("0x%04x", $reg->getAddress()),
@@ -373,6 +384,22 @@ sub commandMonitor {
    
    my $plotData = [];
    
+   my $gnuplot_fh = new FileHandle ("|gnuplot");
+   if ($gnuplot_fh) {
+      $gnuplot_fh->autoflush(1);
+      
+      print $gnuplot_fh <<"EOF";
+set terminal png font "monospace,8" size 450,185
+#set font 
+set grid
+set key 
+set autoscale xfixmin
+#set yrange [* : *<1000000]
+set xlabel "Time since last update [s]"
+set ylabel "Rate [Hz]"
+EOF
+               ;
+   }
    
    while (1) {
       my $tab = [
@@ -464,7 +491,7 @@ sub commandMonitor {
       
       if ($filename) {
       # store json
-         my $json = JSON::XS->new->encode({
+         my $json = JSON_BIND->new->encode({
             'time' => $time,
             'servertime' => time2str('%Y-%m-%d %H:%M', time),
             'interval' => $interval,
@@ -478,48 +505,41 @@ sub commandMonitor {
          close FH;
 
       # generate plot
-         shift @$plotData if $#{ $plotData } > 30;
-         push @$plotData, [
-            $time,
-            $rates->{'cts_cnt_trg_asserted.value'}{'rate'},
-            $rates->{'cts_cnt_trg_edges.value'}{'rate'},
-            $rates->{'cts_cnt_trg_accepted.value'}{'rate'}
-         ] if $rates->{'cts_cnt_trg_asserted.value'};
+         if ($gnuplot_fh) {
+            shift @$plotData if $#{ $plotData } > 30;
+            push @$plotData, [
+               $time,
+               $rates->{'cts_cnt_trg_asserted.value'}{'rate'},
+               $rates->{'cts_cnt_trg_edges.value'}{'rate'},
+               $rates->{'cts_cnt_trg_accepted.value'}{'rate'}
+            ] if $rates->{'cts_cnt_trg_asserted.value'};
 
-         if ($#{ $plotData } > 4) {
-            open FH, ">$filename/plot.data";
-            foreach (@{$plotData}) {
-               my @row = (@{ $_ });
-               $row[0] -= $plotData->[-1][0];
-               print FH (join "  ", @row) . "\n";
-            }
-            close FH;
+            if ($#{ $plotData } > 4) {
+               open FH, ">$filename/plot.data";
+               foreach (@{$plotData}) {
+                  my @row = (@{ $_ });
+                  $row[0] -= $plotData->[-1][0];
+                  print FH (join "  ", @row) . "\n";
+               }
+               close FH;
 
-            my $fh = new FileHandle ("|gnuplot");
-            if ($fh) {
-               $fh->autoflush(1);
-               
-               print $fh <<"EOF";
-set terminal svg font "monospace,8" size 450,185
-set font 
-set output "$filename/plot.svg"
-set grid
-set key 
-set autoscale xfixmin
-#set yrange [* : *<1000000]
-set xlabel "Time since last update [s]"
-set ylabel "Rate [Hz]"
+               print $gnuplot_fh <<"EOF"
+set xrange [*:0]
+set output "$filename/plot.png"
 plot \\
-   "$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-   "$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+"$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
+"$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+
+set xrange [-5:0]
+set output "$filename/plotshort.png"
+plot \\
+"$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
+"$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 EOF
-               ;
-               close $fh;
-               
+;
+
                print "Plot produced\n";
-            } else {
-               print "error while executing gnuplot\n";
             }
          }
       }
