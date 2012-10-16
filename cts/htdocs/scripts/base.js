@@ -691,7 +691,7 @@ function appendScalingPrefix(val, sigDigits) {
                
    if (sigDigits === undefined) sigDigits = 2;
    
-   while(pref.length) {
+   while(val && pref.length) {
       scale = pref.shift();
       name  = pref.shift();
    
@@ -741,6 +741,19 @@ function formatAddress(x) {
    while(hex.length < 4) hex = "0" + hex;
    return "0x" + hex;
 }
+
+window.addEvent('domready', function() {
+   $('rate-plot').addEvent('click', function() {
+      var i = $('rate-plot');
+      u = i.get('src');
+      if (u.test('short'))
+         u = u.replace('short', '');
+      else
+         u = u.replace('plot.', 'plotshort.');
+      
+      i.set('src', u);
+   });
+});
 
 var GuiExpander = new Class({
    boxes: null,
