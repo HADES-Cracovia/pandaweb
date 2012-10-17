@@ -9,9 +9,10 @@
 <body>
 
 
-<h4>Hit Counters</h4>
+<h2>Hit Counters &amp; TDC Registers</h2>
 <form acion="">
-<table><tr><td>Board<td><input type="text" id="form_board" name="board" maxlength="4" value="ffff">
+<table class="form"><tr class="head"><th colspan=2>Settings
+<tr><td>Board<td><input type="text" id="form_board" name="board" maxlength="4" value="ffff">
 <tr><td># of Channels<td><input type="text" id="form_channels" name="channels" maxlength="3" value="65">
 <tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="1000">
 <tr><td>Differences<td><input type="checkbox" id="form_diff" name="diff" value="1">
@@ -45,7 +46,7 @@ function update(data) {
   if(!document.getElementById("content").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr class=\"head\"><th>Channel";
+  o = "<tr class=\"head\"><th>Reg<th>Channel";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
@@ -54,7 +55,7 @@ function update(data) {
     } 
   
   for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1);
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
         val = c[j][i]- (oldvalues[j][i]||0);
@@ -88,7 +89,7 @@ function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr class=\"head\"><th>Register<th>Content";
+  o = "<tr class=\"head\"><th>Reg<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
