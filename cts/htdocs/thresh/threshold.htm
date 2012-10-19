@@ -8,29 +8,30 @@
 </head>
 <body>
 
-<h4>Threshold Settings</h4>
+<h2>Threshold Settings</h2>
 <form acion="">
-<table><tr><td>Board:<td><input type="text" id="form_board" name="board" maxlength="4" value="fccc">
+<table class="form"><tr class="head"><th colspan="2">Configuration<tr><td>Board:<td><input type="text" id="form_board" name="board" maxlength="4" value="fccc">
 <tr><td>DAC-Chain:<td><select id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
 <tr><td>Channel<td><select id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
+<tr><td>Board Type<td><select id="form_type" name="chain"><option value='3' selected>LTC242x DAC<option value='8'>Padiwa SPI</select>
 <tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="500">
 <tr><td>Reference (mV)<td><input type="text" id="form_ref" name="reference" maxlength="4" value="2500">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
 
-<table><tr><td>
+<table><tr><td>Coarse (0-65535)<td>
 <div id="bar1"  onScroll="update(1,1)">
 <div>&nbsp;</div>
 </div>
 <td id="bar1value">
-<tr><td><div id="bar2"  onScroll="update(2,256)">
+<tr><td>Fine (0-255)<td><div id="bar2"  onScroll="update(2,256)">
 <div>&nbsp;</div>
 </div>
 <td id="bar2value">
-<tr><td id="total">&nbsp;<td>&nbsp;
-<tr><td id="cmd">&nbsp;<td>&nbsp;
-<tr><td id="err">&nbsp;<td>&nbsp;
+<tr><td id="total" colspan="3">&nbsp;
+<tr><td id="cmd" colspan="3">&nbsp;
+<tr><td id="err" colspan="3">&nbsp;
 </table>
 
 <script language="javascript">
@@ -43,6 +44,7 @@ var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var chain      = 1<<document.getElementById("form_chain").value;
 var chan       = document.getElementById("form_channel").value;
+var type       = document.getElementById("form_type").value;
 var reference  = document.getElementById("form_ref").value;
 var updateTask = setInterval("doUpdate()",updaterate);
 
@@ -52,7 +54,7 @@ function update(bar,scale) {
   document.getElementById("bar"+bar+"value").innerHTML = value[bar-1];
   total = Math.min(value[0]+value[1],65535);
   document.getElementById("total").innerHTML = total+" - "+Math.round(total/655.36*reference)/100+" mV";
-  command = 0x00300000 + (chan << 16) + (total);
+  command = (type << 20) + (chan << 16) + (total);
   command = command.toString(16);
   dataWaiting = 1;
   if(updateTask == 0) {  
@@ -83,6 +85,7 @@ function setValues() {
   board      = document.getElementById("form_board").value;
   chain      = 1<<document.getElementById("form_chain").value;
   chan       = document.getElementById("form_channel").value;
+  type       = document.getElementById("form_type").value;
   reference  = document.getElementById("form_ref").value;
   clearInterval(updateTask);
   updateTask = setInterval("doUpdate()",updaterate);
