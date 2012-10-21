@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-my $endpoint = 0x201;
+my $endpoint = 0xc001;
 
 use HADES::TrbNet;
 
@@ -89,7 +89,7 @@ sub scrollBar() {
 my $rough_value=0;
 my $fine_value=0;
 #my $mode = $main::mode;
-my $mode = "padiwa";
+my $mode = "cbm";
 
 
 sub NEW {
@@ -135,7 +135,12 @@ sub NEW {
 
 
     this->slider->setMinimum(0x0);
-    this->slider->setMaximum(0xffff);
+    if ($mode eq "padiwa") {
+	this->slider->setMaximum(0xffff);
+    }
+    else {
+	this->slider->setMaximum(0xfff);
+    }
 
     this->scrollBar->setMinimum(0x0);
     this->scrollBar->setMaximum(0xff);
@@ -164,7 +169,9 @@ sub NEW {
 
     this->valueSpinBox->setValue(3150);
 
-    this->setWindowTitle(this->tr('Thresholds'));
+    my  $titleofwindow="Thresholds of channel $main::channel";
+    this->setWindowTitle(this->tr($titleofwindow));
+#    this->setWindowTitle(this->tr('Thresholds $channel'));
 }
 
 
@@ -175,7 +182,7 @@ sub setValue {
     $rough_value = $value;
     write_to_hardware();
 
-    print "set value called: $value\n";
+    #print "set value called: $value\n";
 }
 
 sub setValueFine {
@@ -183,14 +190,19 @@ sub setValueFine {
     this->scrollBar->setValue($value);
     $fine_value = $value;
     write_to_hardware();
-    print "set fine value called: $value\n";
+    #print "set fine value called: $value\n";
 }
 
 
 sub write_to_hardware {
   my $sum = $rough_value + $fine_value;
 
+  #print "channels: ". $main::channel_str . "\n";
+
   if ($mode eq "cbm") {
+
+      my $rh_res;
+      $rh_res = trb_register_write($endpoint,0xd410, 0x1);
 
       if($sum > 4095) {
 	  $sum=4095;
@@ -200,16 +212,18 @@ sub write_to_hardware {
       foreach my $dacch (0..7) {
 	  my $rh_res;
 	  my $command;
-	  $command= 0x00300000+($dacch<<16) + ($sum<<4);
+	  $command= 0x00300000 | ($dacch<<16) | ($sum<<4);
 
 	  $rh_res = trb_register_write($endpoint,0xd400, $command);
-	  
+	  printf "trbcmd w 0x%x 0xd400 0x%x\n", $endpoint, $command;
+
 	  if(!defined $rh_res) {
 	      my $res = trb_strerror();
 	      print "error output: $res\n";
 	      exit();
 	  }
 	  $rh_res = trb_register_write($endpoint,0xd411, 0x1);
+	  printf "trbcmd w 0x%x 0xd411 0x%x\n", $endpoint, 1;
       }
   }
 
@@ -221,20 +235,21 @@ sub write_to_hardware {
       
       my $rh_res;
       $rh_res = trb_register_write($endpoint,0xd410, 0x1);
-      foreach my $dacch (0..15) {
-
-	  my $command;
-	  $command= 0x00800000 + ($dacch<<16) + ($sum);
-
-	  $rh_res = trb_register_write($endpoint,0xd400, $command);
-	  
-	  if(!defined $rh_res) {
-	      my $res = trb_strerror();
-	      print "error output: $res\n";
-	      exit();
-	  }
-	  $rh_res = trb_register_write($endpoint,0xd411, 0x1);
+      
+      #foreach my $dacch (0..15) {
+      my $dacch = $main::channel;
+      #print "chosen channel:$dacch\n";
+      my $command;
+      $command= 0x00800000 + ($dacch<<16) + ($sum);
+      $rh_res = trb_register_write($endpoint,0xd400, $command);
+      
+      if(!defined $rh_res) {
+	  my $res = trb_strerror();
+	  print "error output: $res\n";
+	  exit();
       }
+      $rh_res = trb_register_write($endpoint,0xd411, 0x1);
+
 	  
   }
   
