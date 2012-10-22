@@ -110,7 +110,6 @@ table#content td.over {
   border-radius:40px 40px;
   border-spacing:2px;
   background:#faa;
-  opacity:0.8;
 }
 
 table#content td.under {
@@ -121,9 +120,18 @@ table#content td.under {
   border-radius:40px 40px;
   border-spacing:2px;
   background:#afa;
-  opacity:0.8;
 }
 
+
+table#content  tr:hover td.over {
+  background:#fcc;
+  border-color:#fcc;
+}
+
+table#content  tr:hover td.under {
+  background:#cfc;
+  border-color:#cfc;
+}
 
 /*
 body {
