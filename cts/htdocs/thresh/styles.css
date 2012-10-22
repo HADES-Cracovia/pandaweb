@@ -103,22 +103,22 @@ div#bar2 div {
 }
 
 table#content td.over {
-  width:70px;
+  width:50px;
+  margin:0 10px;
   padding-right:10px;
   border-left: 5px solid #fcc;
   border-right:5px solid #fcc;
-  border-radius:40px 40px;
-  border-spacing:2px;
+  border-radius:180px 180px;
   background:#fcc;
 }
 
 table#content td.under {
-  width:70px;
+  width:50px;
+  margin:0 10px;
   padding-right:10px;
   border-left: 5px solid #cfc;
   border-right:5px solid #cfc;
-  border-radius:40px 40px;
-  border-spacing:2px;
+  border-radius:180px 180px;
   background:#cfc;
 }
 
