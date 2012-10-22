@@ -16,6 +16,7 @@
 <tr><td># of Channels<td><input type="text" id="form_channels" name="channels" maxlength="3" value="65">
 <tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="1000">
 <tr><td>Differences<td><input type="checkbox" id="form_diff" name="diff" value="1">
+<tr><td>Input Status<td><input type="checkbox" id="form_status" name="status" value="1">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
@@ -29,6 +30,7 @@ var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var channels   = document.getElementById("form_channels").value;
 var differences= document.getElementById("form_diff").checked;
+var showstatus = document.getElementById("form_status").checked;
 var oldvalues = {};
 
 var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90";
@@ -66,7 +68,10 @@ function update(data) {
       else {
         val = c[j][i] & 0xFFFFFF;
         }
-      o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      if(showstatus)
+        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      else
+        o += "<td>"+(val);
       }
     }
   oldvalues = c;
@@ -77,6 +82,7 @@ function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
   differences= document.getElementById("form_diff").checked;
+  showstatus = document.getElementById("form_status").checked;
   channels   = document.getElementById("form_channels").value;
   clearInterval(updateTask);
   updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+"',update)",updaterate);

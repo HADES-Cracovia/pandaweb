@@ -104,22 +104,24 @@ div#bar2 div {
 
 table#content td.over {
 /*   border-collapse:separate;   */
-  border-right:5px solid #f88;
-  border-left: 5px solid #f88;
+  border-right:5px solid #faa;
+  border-left: 5px solid #faa;
   width:60px;
   padding-right:20px;
   border-radius:40px 40px;
   border-spacing:2px;
+  background:#faa;
 }
 
 table#content td.under {
 /*   border-collapse:separate; */
   width:60px;
   padding-right:20px;
-  border-left: 5px solid #8f8;
-  border-right:5px solid #8f8;
+  border-left: 5px solid #afa;
+  border-right:5px solid #afa;
   border-radius:40px 40px;
   border-spacing:2px;
+  background:#afa;
 }
 
 
