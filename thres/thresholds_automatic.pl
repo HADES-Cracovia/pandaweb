@@ -8,7 +8,18 @@ use Data::Dumper;
 use Getopt::Long;
 use Log::Log4perl qw(get_logger);
 
+use IPC::ShareLite qw( :lock );
+
 use HADES::TrbNet;
+
+
+my $share = IPC::ShareLite->new(
+    -key     => 3212,
+    -create  => 'yes',
+    -destroy => 'no'
+    ) or die $!;
+
+$share->store("dummy text");
 
 my $hitregister = 0xc001;
 
@@ -20,12 +31,13 @@ my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
 my $sleep_time = 0.1;
 my $accepted_dark_rate = 4;
-my $number_of_iterations = 1; # at least 15 are recommended
+my $number_of_iterations = 15; # at least 15 are recommended
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
 my $help = "";
 my $offset = 0;
+my $polarity = 1;
 my @channels  = ();
 our $chain = 0;
 
@@ -34,6 +46,7 @@ my $result = GetOptions (
     "c|chain=i" => \$chain,
     "e|endpoint=s" => \$endpoint,
     "m|mode=s" => \$mode,
+    "p|polarity=i" => \$polarity,
     "o|offset=s" => \$offset,
     );
 
@@ -65,10 +78,18 @@ if($endpoint !~ /^0x/) {
 $endpoint = hex($endpoint);
 
 
+# go to the right position
+$hitregister += 16*$chain;
+
+
 Log::Log4perl->init("logger_threshold.conf");
 
 my $logger = get_logger("padiwa_threshold.log");
 my $logger_data = get_logger("padiwa_threshold_data");
+
+
+my $startup_str = sprintf "startup with: endpoint: $endpoint, chain: $chain, offset: $offset, polarity: $polarity";
+$logger->info($startup_str);
 
 trb_init_ports() or die trb_strerror();
 
@@ -122,12 +143,12 @@ while ($number_of_steps < $number_of_iterations ||
       $hit_diff = abs($hits - $old_hitreg);
       $hit_diff[$i] = $hit_diff;
 
-      $crossed_thresh[$i] = 1 if($static_value == 0 && $hit_diff < 2);
+      $crossed_thresh[$i] = 1 if( ($static_value == ($polarity ? 0 : 1)) && $hit_diff < 2);
 
       # select best  threshold, closest from bottom
       if($crossed_thresh[$i] == 1 && $hit_diff[$i] < $accepted_dark_rate &&
 	 $best_thresh[$i] <= $current_thresh[$i] &&
-	 $static_value == 1
+	 $static_value == $polarity
 	) {
 	$best_thresh[$i] = $current_thresh[$i];
       }
@@ -138,7 +159,7 @@ while ($number_of_steps < $number_of_iterations ||
       }
 
       my $direction = 1;
-      if ($static_value == 0 && $hit_diff < 2) {
+      if (($static_value == ($polarity ? 0 : 1)) && $hit_diff < 2) {
 	$interval_step = int($interval_step/2 * 1.2);
 	$direction = -1;
       } elsif ($hit_diff > $accepted_dark_rate ) {
@@ -154,8 +175,6 @@ while ($number_of_steps < $number_of_iterations ||
       $interval_step[$i] = $interval_step;
 
       $current_thresh[$i] += $interval_step * $direction;
-
-      #$current_thresh += $interval_step * ($static_value ? 1 : -1.2);
 
       my $str = 
       sprintf ("iter: %4d, endpoint: 0x%04x, chain: %2d, channel: %2d, hits: %8d ",
@@ -199,6 +218,7 @@ exit;
 sub write_thresholds {
   (my $mode, my $chain, my $ra_thresh) = @_;
 
+  $share->lock(LOCK_EX);
   my $rh_res = trb_register_write($endpoint,0xd410, 1<<$chain);
 
   foreach my $current_channel (0..15) {
@@ -218,6 +238,7 @@ sub write_thresholds {
 
     $command= $fixed_bits | ($current_channel<<16) | ($ra_thresh->[$current_channel] << $shift_bits);
     send_command($endpoint, $command);
+    $share->unlock();
 
   }
 }
@@ -262,6 +283,9 @@ or in short
 thresholds_automatic.pl -e 0x303 -o 0x10 -c 0
 
 currently only mode "padiwa" is implemented.
+
+polarity: tells what the status of bit 32 is, when the thresholds are set to 0
+
 
 EOF
 
