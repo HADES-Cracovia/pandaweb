@@ -103,18 +103,17 @@ div#bar2 div {
 }
 
 table#content td.over {
-/*   border-collapse:separate;   */
-  border-right:5px solid #faa;
-  border-left: 5px solid #faa;
   width:70px;
   padding-right:10px;
+  border-left: 5px solid #faa;
+  border-right:5px solid #faa;
   border-radius:40px 40px;
   border-spacing:2px;
   background:#faa;
+  opacity:0.8;
 }
 
 table#content td.under {
-/*   border-collapse:separate; */
   width:70px;
   padding-right:10px;
   border-left: 5px solid #afa;
@@ -122,6 +121,7 @@ table#content td.under {
   border-radius:40px 40px;
   border-spacing:2px;
   background:#afa;
+  opacity:0.8;
 }
 
 
