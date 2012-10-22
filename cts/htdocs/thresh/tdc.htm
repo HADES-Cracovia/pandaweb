@@ -33,12 +33,12 @@ var differences= document.getElementById("form_diff").checked;
 var showstatus = document.getElementById("form_status").checked;
 var oldvalues = {};
 
-var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90";
+var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
 var regs = reglist.split('-');
 var regnames = new Array("debug<br>channels<br>ref input","window bef.<br>window aft.",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time",
-                         "releases","rdo time");
+                         "releases","rdo time","basic ctrl","act chan 1","act chan 2");
 
 var updateTask;
 var updateRegsTask;
@@ -102,7 +102,7 @@ function updateregs(data) {
     o += "<th>"+c[j][0];
     } 
   
-  for(i = 0; i < 14; i++) {
+  for(i = 0; i < 17; i++) {
     o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+regs[i]+"<td>"+regnames[i];
 
     
@@ -114,6 +114,9 @@ function updateregs(data) {
         }
       else if(i==1) {
         o += (val&0x7FF)+"<br>"+((val&0x7ff0000)>>16);
+        }
+      else if(i==16 || i==15 || i==14) {
+        o += (val*1).toString(16);
         }
       else {
         o += val;
