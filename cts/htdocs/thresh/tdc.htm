@@ -55,16 +55,16 @@ function update(data) {
     } 
   
   for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
+    o += "<tr class=\""+(i%2?"odd":"even")+" "+((c[j][i]&0x80000000)?"high":"low")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
-        val = c[j][i]- (oldvalues[j][i]||0);
+        val = (c[j][i] & 0xFFFFFF)- ((oldvalues[j][i]||0) & 0xFFFFFF);
         if (val < 0) {
           val += 0x1000000;
           }
         }
       else {
-        val = c[j][i];
+        val = c[j][i] & 0xFFFFFF;
         }
       o += "<td>"+(val & 0xffffff);
       }
