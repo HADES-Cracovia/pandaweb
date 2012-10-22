@@ -10,12 +10,12 @@
 
 <h2>Threshold Settings</h2>
 <form acion="">
-<table class="form"><tr class="head"><th colspan="2">Configuration<tr><td>Board<td><input type="text" id="form_board" name="board" maxlength="4" value="fccc">
-<tr><td>DAC-Chain<td><select id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
-<tr><td>Channel<td><select id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
-<tr><td>Board Type<td><select id="form_type" name="chain"><option value='3' selected>LTC242x DAC<option value='8'>Padiwa SPI</select>
-<tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="500">
-<tr><td>Reference (mV)<td><input type="text" id="form_ref" name="reference" maxlength="4" value="2500">
+<table class="form"><tr class="head"><th colspan="2">Configuration<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fccc">
+<tr><td>DAC-Chain<td><select onChange="setValues()"  id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
+<tr><td>Channel<td><select onChange="setValues()" id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
+<tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3' selected>LTC242x DAC<option value='8'>Padiwa SPI</select>
+<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
+<tr><td>Reference (mV)<td><input onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="2500">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>

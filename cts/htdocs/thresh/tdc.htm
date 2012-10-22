@@ -12,11 +12,11 @@
 <h2>Hit Counters &amp; TDC Registers</h2>
 <form acion="">
 <table class="form"><tr class="head"><th colspan=2>Configuration
-<tr><td>Board<td><input type="text" id="form_board" name="board" maxlength="4" value="ffff">
-<tr><td># of Channels<td><input type="text" id="form_channels" name="channels" maxlength="3" value="65">
-<tr><td>Update Interval (ms)<td><input type="text" id="form_rate" name="rate" maxlength="5" value="1000">
-<tr><td>Differences<td><input type="checkbox" id="form_diff" name="diff" value="1">
-<tr><td>Input Status<td><input type="checkbox" id="form_status" name="status" value="1">
+<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="ffff">
+<tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
+<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="1000">
+<tr><td>Differences<td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
+<tr><td>Input Status<td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
