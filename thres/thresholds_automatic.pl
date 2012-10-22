@@ -227,21 +227,25 @@ sub send_command {
   (my $endpoint, my $command) = @_;
 
   my $rh_res = trb_register_write($endpoint,0xd400, $command);
-  send_command_error() if (!defined $rh_res);
+  send_command_error($endpoint) if (!defined $rh_res);
 
   $rh_res = trb_register_write($endpoint,0xd411, 0x1);
-  send_command_error() if (!defined $rh_res);
+  send_command_error($endpoint) if (!defined $rh_res);
 
   $rh_res = trb_register_read($endpoint,0xd412);
   #print Dumper $rh_res;
-  send_command_error() if (!defined $rh_res);
+  send_command_error($endpoint) if (!defined $rh_res);
   return $rh_res;
 
 }
 
 sub send_command_error {
   my $res = trb_strerror();
-  print "error output: $res\n";
+  my $s= sprintf "error output for access to endpoint 0x%04x: $res\n", $endpoint;
+  print $s;
+  $s=~s/\n/, /g;
+  $logger->error($s);
+  $logger_data->error($s);
   exit();
 }
 
