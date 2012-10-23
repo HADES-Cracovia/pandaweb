@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-my $endpoint = 0xc001;
+my $endpoint = 0x0101;
 
 use HADES::TrbNet;
 
@@ -89,7 +89,7 @@ sub scrollBar() {
 my $rough_value=0;
 my $fine_value=0;
 #my $mode = $main::mode;
-my $mode = "cbm";
+my $mode = "padiwa";
 
 
 sub NEW {

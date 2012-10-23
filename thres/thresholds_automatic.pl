@@ -8,35 +8,35 @@ use Data::Dumper;
 use Getopt::Long;
 use Log::Log4perl qw(get_logger);
 
-use IPC::ShareLite qw( :lock );
-
 use HADES::TrbNet;
 
+use IPC::ShareLite qw( :lock );
 
 my $share = IPC::ShareLite->new(
-    -key     => 3212,
+    -key     => 3214,
     -create  => 'yes',
-    -destroy => 'no'
+    -destroy => 'yes'
     ) or die $!;
 
 $share->store("dummy text");
+#print "store res: $r\n";
 
 my $hitregister = 0xc001;
 
-my @valid_interval = (0x3000, 0xa000);
+my @valid_interval = (0x8000, 0x9000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
 
-
-my $sleep_time = 0.1;
-my $accepted_dark_rate = 4;
-my $number_of_iterations = 15; # at least 15 are recommended
+my $sleep_time = 0.2;
+my $accepted_dark_rate = 30;
+my $number_of_iterations = 40; # at least 15 are recommended
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
 my $help = "";
 my $offset = 0;
+my $opt_skip = 99;
 my $polarity = 1;
 my @channels  = ();
 our $chain = 0;
@@ -48,6 +48,7 @@ my $result = GetOptions (
     "m|mode=s" => \$mode,
     "p|polarity=i" => \$polarity,
     "o|offset=s" => \$offset,
+    "s|skip=i" => \$opt_skip,
     );
 
 if($help) {
@@ -78,6 +79,8 @@ if($endpoint !~ /^0x/) {
 $endpoint = hex($endpoint);
 
 
+
+
 # go to the right position
 $hitregister += 16*$chain;
 
@@ -98,6 +101,10 @@ my @best_thresh = (0) x 16;
 my @hit_diff = (0) x 16;
 my @crossed_thresh = (0) x 16;
 my @interval_step = ($interval_step) x 16;
+
+if (defined $opt_skip && $opt_skip <15) {
+  $best_thresh[$opt_skip] = 0x7000;
+}
 
 my $hit_diff = 0;
 
@@ -123,7 +130,7 @@ while ($number_of_steps < $number_of_iterations ||
     write_thresholds($mode, $chain, \@current_thresh);
 
     # wait settling time, experimentally determined to 0.04 seconds
-    select(undef, undef, undef, 0.04);
+    select(undef, undef, undef, 0.05);
 
     $old_rh_res = trb_register_read_mem($endpoint, $hitregister, 0, 16);
 
@@ -143,12 +150,20 @@ while ($number_of_steps < $number_of_iterations ||
       $hit_diff = abs($hits - $old_hitreg);
       $hit_diff[$i] = $hit_diff;
 
-      $crossed_thresh[$i] = 1 if( ($static_value == ($polarity ? 0 : 1)) && $hit_diff < 2);
+      if( ($static_value == ($polarity ? 0 : 1))
+	  && $hit_diff < 100
+	  && $crossed_thresh[$i] == 0) {
+	$crossed_thresh[$i] = 1;
+      }
+
+#      $crossed_thresh[$i] = 1;
 
       # select best  threshold, closest from bottom
-      if($crossed_thresh[$i] == 1 && $hit_diff[$i] < $accepted_dark_rate &&
-	 $best_thresh[$i] <= $current_thresh[$i] &&
-	 $static_value == $polarity
+      if( 
+	 #$crossed_thresh[$i] == 1 
+	 $hit_diff[$i] <= $accepted_dark_rate
+	 && $best_thresh[$i] <= $current_thresh[$i]
+	 && $static_value == $polarity
 	) {
 	$best_thresh[$i] = $current_thresh[$i];
       }
@@ -159,18 +174,20 @@ while ($number_of_steps < $number_of_iterations ||
       }
 
       my $direction = 1;
-      if (($static_value == ($polarity ? 0 : 1)) && $hit_diff < 2) {
-	$interval_step = int($interval_step/2 * 1.2);
+      if ( 
+	  #$crossed_thresh[$i]==1 && 
+	  $static_value == ($polarity ? 0 : 1)) {
+	$interval_step = int($interval_step/1.2);
 	$direction = -1;
       } elsif ($hit_diff > $accepted_dark_rate ) {
-	$interval_step = int($interval_step/2 * 1.2);
+	$interval_step = int($interval_step/1.2);
 	$direction = -1;
       } else {
-	$interval_step = int($interval_step/2);
+	$interval_step = int($interval_step/1.2);
       }
 
-      $interval_step = 1 if($interval_step==0);
-      $interval_step = 2 if($interval_step==1 && $direction==-1);
+      $interval_step = 2 if($interval_step<2);
+      $interval_step = 3 if($interval_step==1 && $direction==-1);
 
       $interval_step[$i] = $interval_step;
 
@@ -218,7 +235,14 @@ exit;
 sub write_thresholds {
   (my $mode, my $chain, my $ra_thresh) = @_;
 
-  $share->lock(LOCK_EX);
+  $share->store($chain);
+
+  my $res=$share->lock(LOCK_EX);
+  if(!defined $res || $res != 1) {
+      die "could not lock shared element";
+  }
+
+
   my $rh_res = trb_register_write($endpoint,0xd410, 1<<$chain);
 
   foreach my $current_channel (0..15) {
@@ -238,9 +262,14 @@ sub write_thresholds {
 
     $command= $fixed_bits | ($current_channel<<16) | ($ra_thresh->[$current_channel] << $shift_bits);
     send_command($endpoint, $command);
-    $share->unlock();
+
 
   }
+
+  #sleep 10 if($current_channel == 15 && $chain==1);
+  #sleep 1;
+  $share->unlock();
+
 }
 
 
