@@ -14,12 +14,14 @@ my $opt_help;
 my @opt_endpoints;
 my @opt_chains;
 my $opt_offset = 0;
+my $opt_polarity = 0;
 my $opt_verb;
 
 GetOptions ('h|help'        => \$opt_help,
             'e|endpoints=s' => \@opt_endpoints,
             'c|chains=s'    => \@opt_chains,
             'o|offset=s'    => \$opt_offset,
+            'p|polarity=i'  => \$opt_polarity,
             'v|verb'        => \$opt_verb);
 
 
@@ -44,8 +46,8 @@ my %pids;
 foreach my $endpoint (@$endpoints) {
   foreach my $chain (@$chains) {
     my $endpoint = sprintf("0x%04x", $endpoint);
-    $command = "./thresholds_automatic.pl -e $endpoint -o $opt_offset -c $chain";
-    #print "command: $command\n";
+    $command = "./thresholds_automatic.pl -e $endpoint -o $opt_offset -c $chain -p $opt_polarity";
+    print "command: $command\n";
     my $pid = fork();
     if($pid==0) { #child
       my $res = qx($command);
@@ -117,7 +119,7 @@ usage:
 run_threshold_on_system.pl |options]
 
 example:
-run_threshold_on_system.pl --endpoints=0x301-0x308,0x310..0x315,0x380 --chains=0..3
+run_threshold_on_system.pl --endpoints=0x301-0x308,0x310..0x315,0x380 --chains=0..3 --offset=4 --polarity=0
 will run for endpoints 0x301-0x308 and 0x310-0x315 and 0x380 for all chains (0..3)
 
 
