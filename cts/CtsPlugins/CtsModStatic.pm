@@ -63,18 +63,21 @@ sub init {
    
    $regs->{'cts_td_fsm_state'}    = TrbRegister->new(0x05 + $debug_block, $trb, {
       'state'    => {'lower' => 0,  'len' => 32, 'type' => 'enum', 'enum' => {
-         0x001 => 'TD_FSM_IDLE', 
-         0x002 => 'TD_FSM_SEND_TRIGGER',
-         0x004 => 'TD_FSM_WAIT_FEE_RECV_TRIGGER',
-         0x008 => 'TD_FSM_FEE_COMPLETE',
-         0x010 => 'TD_FSM_WAIT_TRIGGER_BECOME_IDLE',
-         0x020 => 'TD_FSM_DEBUG_LIMIT_REACHED',
-         0x040 => 'TD_FSM_FEE_ENQUEUE_IDLE_COUNTER',
-         0x080 => 'TD_FSM_FEE_ENQUEUE_DEAD_COUNTER',
-         0x100 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_ASSERTED_COUNTER',
-         0x200 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_EDGES_COUNTER',
-         0x400 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_ACCEPTED_COUNTER'
-      }}
+         0x0001 => 'TD_FSM_IDLE', 
+         0x0002 => 'TD_FSM_SEND_TRIGGER',
+         0x0004 => 'TD_FSM_WAIT_FEE_RECV_TRIGGER',
+         0x0008 => 'TD_FSM_FEE_ENQUEUE_INPUT_COUNTER',
+         0x0010 => 'TD_FSM_FEE_ENQUEUE_CHANNEL_COUNTER',
+         0x0020 => 'TD_FSM_FEE_ENQUEUE_IDLE_COUNTER',
+         0x0040 => 'TD_FSM_FEE_ENQUEUE_DEAD_COUNTER',
+         0x0080 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_ASSERTED_COUNTER',
+         0x0100 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_EDGES_COUNTER',
+         0x0200 => 'TD_FSM_FEE_ENQUEUE_TRIGGER_ACCEPTED_COUNTER',
+         0x0400 => 'TD_FSM_FEE_ENQUEUE_TIMESTAMP',
+         0x0800 => 'TD_FSM_FEE_COMPLETE',
+         0x1000 => 'TD_FSM_WAIT_TRIGGER_BECOME_IDLE',
+         0x2000 => 'TD_FSM_DEBUG_LIMIT_REACHED'
+         }}
    }, {
       'accessmode' => "ro",
       'monitor' => '1',
