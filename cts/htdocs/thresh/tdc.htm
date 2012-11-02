@@ -15,6 +15,7 @@
 <tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="ffff">
 <tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
 <tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="1000">
+<tr><td>Split Table<td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
 <tr><td>Differences<td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
 <tr><td>Input Status<td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
@@ -29,6 +30,7 @@
 var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var channels   = document.getElementById("form_channels").value;
+var split      = document.getElementById("form_split").checked?"-2":"";
 var differences= document.getElementById("form_diff").checked;
 var showstatus = document.getElementById("form_status").checked;
 var oldvalues = {};
@@ -81,11 +83,12 @@ function update(data) {
 function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
+  split      = document.getElementById("form_split").checked?"-2":"";
   differences= document.getElementById("form_diff").checked;
   showstatus = document.getElementById("form_status").checked;
   channels   = document.getElementById("form_channels").value;
   clearInterval(updateTask);
-  updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+"',update)",updaterate);
+  updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
   clearInterval(updateRegsTask);
   updateRegsTask = setInterval("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",updaterate);
   
@@ -128,7 +131,7 @@ function updateregs(data) {
   
 
     
-updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+"',update)",updaterate);
+updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
 updateRegsTask = setInterval("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",updaterate);
 
   
