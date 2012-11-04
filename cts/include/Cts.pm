@@ -7,8 +7,9 @@ use warnings::register;
 use CtsPlugins::CtsModStatic;
 
 sub new {
-   my $type = $_[0];
-   my $trb  = $_[1];
+   my $type = shift;
+   my $trb  = shift;
+   my $enumCache = shift;
    
    my $self = {
       '_trb'   => $trb,
@@ -23,10 +24,14 @@ sub new {
             unconnected unconnected unconnected unconnected)]
       },   # hash of properties (e.g. "number of inputs" ...)
 
+      '_enumCache' => {},    # can be used to speed up the enumeration if already connected to CTS with
+                             # other process. Has to be implemented by the user interface layer ...
       '_exportRegs' => []    # list of registers, that need to be stored, when saving configuration
    };
    
    bless($self, $type);
+   
+   $self->{'_enumCache'} =  $enumCache if ref $enumCache;
    
    my $static = $self->_loadModule("Static") or die("Error while loading mandantory module >CtsModStatic<");
    $static->register();
@@ -40,6 +45,7 @@ sub _enumerateTriggerLogic {
    # Starts 
    my $self = shift;
    my $address = shift;
+   
    $address = 0xa100 if not defined $address;
 
    my $last = 0;
@@ -56,10 +62,18 @@ sub _enumerateTriggerLogic {
          'last'      => {'lower' => 31, 'len' => 1, 'type' => 'bool'}
       }, {
          'accessmode' => 'ro',
-         'constant'   => 1
+         'const'   => 1
       });
 
-      $regv = $reg->read();
+      
+      if (exists $self->{'_enumCache'}->{sprintf("addr_%04x", $address)}) {
+         $regv = $self->{'_enumCache'}->{sprintf("addr_%04x", $address)};
+         $reg->setConstantValue($regv);
+         $regv = $reg->read();
+      } else {
+         $regv = $reg->read();
+         $self->{'_enumCache'}->{sprintf("addr_%04x", $address)} = $regv->{'_raw'};
+      }
       
       $offsetToNextHeader = $regv->{'len'} + 1;
 
@@ -87,7 +101,6 @@ sub _enumerateTriggerLogic {
       $address += $offsetToNextHeader;
       
    }
-   
 }
 
 sub _loadModule {
@@ -106,6 +119,8 @@ sub _loadModule {
       #print "return of module -> new (self, address: $address => $ret\n";
       return $ret;
    };
+   
+   print("Error when loading module >$modKey<: $@ \n") unless ($mod);
    
    #print "return of eval module -> new (self, address: $address: $@\n";
    $self->{'_modules'}{$modKey} = $mod if $mod;
