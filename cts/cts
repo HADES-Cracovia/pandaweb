@@ -371,7 +371,18 @@ sub commandMonitor {
    
    @monRegs = sort @monRegs;
    @rateRegs = sort @rateRegs;
-
+   
+# write enumration + enviroment into cache
+   if ($filename) {
+      open FH, ">$filename/enum.js";
+      print FH JSON_BIND->new->encode({
+         'endpoint'  => sprintf("0x%04x", $trb->getEndpoint()),
+         'daqop'     => $ENV{'DAQOPSERVER'},
+         'enumCache' => $cts->{'_enumCache'}
+      });
+      close FH;
+   }
+   
 # monitor !
    my $t0;
    my $rates = {};
@@ -636,6 +647,7 @@ for(my $i=0; $i < @ARGV; $i++) {
    } elsif ($arg eq "m" or $arg eq "monitor") {
       my $cts = connectToCTS($endpoint);
       commandMonitor($cts, $ARGV[++$i], $updateInterval, $rateNumber);
+      exit();
       
    } else {
       print "Invalid argument: $arg \n";
