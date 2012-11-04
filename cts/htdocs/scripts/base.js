@@ -95,7 +95,7 @@ var CTS = new Class({
    },
    
    readRegisters: function(regs, callback, formated) {
-      var opts = {'url': 'cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
+      var opts = {'onFailure':xhrFailure, 'url': 'cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
       if (callback) {
          opts['onSuccess'] = callback;
          return (new Request.JSON(opts)).send();
@@ -118,11 +118,7 @@ var CTS = new Class({
                else  alert("An unknown error occured while writing register");
             }
          },
-         onFailure: function(xhr){
-               var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
-               if (m) alert("Server send error response:\n"+m[1].trim());
-               else  alert("An unknown error occured while writing register");
-         }
+         onFailure: xhrFailure
       })).send();
    },
    
@@ -187,11 +183,12 @@ var CTS = new Class({
             this.autoCommitInhibit = false;
          }.bind(this),
             
-         onFailure:    function() {
+         onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
             this.dataUpdate.delay(1000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
+            xhrFailure(xhr);
          }.bind(this)
       }).send();
    },
@@ -298,7 +295,7 @@ var CTS = new Class({
             value = (e.get('checked') != "" ? '1' : '0');
             
          if (e.interpret || e.get('interpret')) {
-            value = parseCallback(e, 'interpret')(value, e);
+            value = parseInt(Math.round( parseCallback(e, 'interpret')(value, e) ));
             
             if (e.format || e.get('format')) {
                if (e.get('type') == 'checkbox') 
@@ -669,10 +666,17 @@ var CTS = new Class({
    }
 });
 
+function xhrFailure(xhr){
+   var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
+   if (m) alert("Server send error response:\n"+m[1].trim());
+   else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection crash?");
+}
+
+
 var cts;
 (new Request.JSON({'url': 'cts.pl?init',
                    'onSuccess': function(json) {cts = new CTS(json)},
-                   'onError': function() {alert("Error while fetching CTS definitions. Did you open this file locally???");}})).send();
+                   'onFailure': xhrFailure})).send();
    
 function countToTime(val) {return (1.0*val / cts.defs.properties.cts_clock_frq * 1e9).toFixed(0);}
 function countToFreq(val) {return formatFreq (1 / (val / cts.defs.properties.cts_clock_frq)); }
