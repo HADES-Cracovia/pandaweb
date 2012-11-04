@@ -1,10 +1,13 @@
 use strict;
 use warnings;
+use warnings::register;
 
 use lib "./include/";
 
 use Cts;
 use CtsConfig;
+
+use File::Basename;
 
 BEGIN {
    if (eval "require JSON::PP;") {
@@ -17,17 +20,28 @@ BEGIN {
 
 
 sub connectToCTS {
-   my $endpoint = shift;
-   
    my $trb;
 
+
+ # open cache create by monitor process to
+ #  a) reduce the number of read accesses
+ #  b) ensure the same interface is used
+   open FH, "<" .  dirname(__FILE__) . "/monitor/enum.js";
+   my $json = join ' ', <FH>;
+   close FH;
+   
+   my $cache = JSON_BIND->new->decode( $json );
+
+   $ENV{'DAQOPSERVER'} = $cache->{'daqop'};
+   my $endpoint = hex $cache->{'endpoint'};
+   
    eval {require "TrbNet.pm"};
    $trb = TrbNet->new($endpoint);
-      
-   return Cts->new($trb);
+   
+   return Cts->new($trb, $cache->{'enumCache'});
 }
 
-my $cts = connectToCTS( CtsConfig->getDefaultEndpoint );
+my $cts = connectToCTS( );
 
 my $query = $ENV{'QUERY_STRING'};
 
