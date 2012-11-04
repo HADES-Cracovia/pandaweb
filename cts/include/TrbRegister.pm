@@ -29,6 +29,7 @@ package TrbRegister;
 
 use strict;
 use warnings;
+use warnings::register;
 use POSIX;
 
 use Data::Dumper;
@@ -247,6 +248,21 @@ sub format {
    $result{"_compact"} = join ", ", @compact;
    
    return \%result;
+}
+
+sub setConstantValue {
+   # TrbRegister->setConstantValue(value)
+   #  Sets the value of register with the CONSTANT tag and avoids
+   #  further read accesses
+   my $self = shift;
+   my $value = shift;
+   
+   unless ($self->{'_const'}) {
+      warnings::warn("Setting constant value for non constant register. Operation abortet");
+      return;
+   }
+   
+   $self->{'_cached'} = $value;
 }
 
 sub getAddress    {return $_[0]->{'_address'}}
