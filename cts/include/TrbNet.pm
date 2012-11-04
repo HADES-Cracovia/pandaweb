@@ -1,6 +1,7 @@
 package TrbNet;
 
 use warnings;
+use warnings::register;
 use strict;
 
 use HADES::TrbNet;
