@@ -80,7 +80,8 @@ $VERSION = "1.7 (Demonic/Linux)";
 
 	 "bin" => "application/octet-stream");
 
-$logfile = "./htdocs/access.log";
+# comment in to enable logs
+#$logfile = "./htdocs/access.log";
 $path = "./htdocs";
 $sockaddr = 'S n a4 x8';
 
@@ -163,7 +164,7 @@ sub htcontent {
 }
 
 sub log {
- 	if (open(J, ">>$logfile")) {
+ 	if ($logfile && open(J, ">>$logfile")) {
 		my $q = $address . (($variables) ? "?$variables" : "");
 		$contentlength += 0;
 		$contentlength = 0 if ($method eq 'HEAD');
