@@ -185,7 +185,7 @@ var CTS = new Class({
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            this.dataUpdate.delay(1000, this);
+            this.dataUpdate.delay(5000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
             xhrFailure(xhr);
@@ -669,7 +669,7 @@ var CTS = new Class({
 function xhrFailure(xhr){
    var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
    if (m) alert("Server send error response:\n"+m[1].trim());
-   else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection crash?");
+   else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?");
 }
 
 
