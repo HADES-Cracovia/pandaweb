@@ -27,7 +27,7 @@ var board      = document.getElementById("form_board").value;
 var oldvalues = {};
 
 var regnames = new Array("ipu2gbe1","ipu2gbe2","pckConstr1","pckConstr2","frameConstr1","frameConstr2",
-                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","","InvSize");
+                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","InvSize");
 
 var updateRegsTask;
 
@@ -38,7 +38,7 @@ function setValues() {
   board      = document.getElementById("form_board").value;
   updateTask = 
   clearInterval(updateRegsTask);
-  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-19',updateregs)",updaterate);
+  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-18',updateregs)",updaterate);
   
   }
 
