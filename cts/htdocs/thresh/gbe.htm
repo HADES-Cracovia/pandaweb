@@ -27,59 +27,19 @@ var board      = document.getElementById("form_board").value;
 var channels   = document.getElementById("form_channels").value;
 var oldvalues = {};
 
-var regnames = new Array("debug<br>channels<br>ref input","window bef.<br>window aft.",
-                         "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
-                         "spurious trg","wrong rdo","spikes","idle time","wait time",
-                         "releases","rdo time","basic ctrl","act chan 1","act chan 2");
+var regnames = new Array("ipu2gbe1","ipu2gbe2","pckConstr1","pckConstr2","frameConstr1","frameConstr2",
+                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","InvSize");
 
 var updateRegsTask;
 
 
-function update(data) {
-  if(!document.getElementById("content").innerHTML) return;
-  var b = data.split("&");
-  var c = {};
-  o = "<tr class=\"head\"><th>Reg<th>Channel";
-
-  for(j=0;j<b.length-1;j++) {
-    c[j] = b[j].split(" ");
-    if(!oldvalues[j]) oldvalues[j] = c[j];
-    o += "<th>"+c[j][0];
-    } 
-  
-  for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
-    for(j=0;j<b.length-1;j++) {
-      if(differences) {
-        val = (c[j][i] & 0xFFFFFF)- ((oldvalues[j][i]||0) & 0xFFFFFF);
-        if (val < 0) {
-          val += 0x1000000;
-          }
-        }
-      else {
-        val = c[j][i] & 0xFFFFFF;
-        }
-      if(showstatus)
-        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
-      else
-        o += "<td>"+(val);
-      }
-    }
-  oldvalues = c;
-  document.getElementById("content").innerHTML  = o;
-  }
   
 function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
-  split      = document.getElementById("form_split").checked?"-2":"";
-  differences= document.getElementById("form_diff").checked;
-  showstatus = document.getElementById("form_status").checked;
-  channels   = document.getElementById("form_channels").value;
-  clearInterval(updateTask);
-  updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
+  updateTask = 
   clearInterval(updateRegsTask);
-  updateRegsTask = setInterval("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",updaterate);
+  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-18',updateregs)",updaterate);
   
   }
 
@@ -94,23 +54,30 @@ function updateregs(data) {
     o += "<th>"+c[j][0];
     } 
   
-  for(i = 0; i < 17; i++) {
-    if(i==0 || i==1 || i==
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((regs[i]+0x83E0).toString(16)+"<td>"+regnames[i];
-
-    
+  for(i = 0; i < 18; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83E0).toString(16)+"<td>"+regnames[i];
     for(j=0;j<b.length-1;j++) {
       val = c[j][i+1];
       o += "<td>";
-      o += val;
-      }
+      if(i<=4) {
+        o += val.toString(16);
+        }
+      else if(i==10){
+        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xffff).toString(16));
+        }
+      else if(i>=12 && i<=16) {
+        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xffff).toString(16));
+        }
+      else{
+        o += val;
+        }
     }
   document.getElementById("contentregs").innerHTML  = o;
   }
   
 
     
-updateRegsTask = setInterval("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",updaterate);
+updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-18',updateregs)",updaterate);
 
   
   
