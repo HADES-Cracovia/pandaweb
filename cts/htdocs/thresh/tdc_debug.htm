@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="styles.css" rel="stylesheet" type="text/css"/>
+<script src="scripts.js" type="text/javascript"></script>
+<title>TDC Registers</title>
+</head>
+<body>
+
+
+<h2>Hit Counters &amp; TDC Registers</h2>
+<form acion="">
+<table class="form"><tr class="head"><th colspan=2>Configuration
+<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="ffff">
+<tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
+<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="1000">
+<tr><td>Split Table<td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
+<tr><td>Differences<td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
+<tr><td>Input Status<td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">
+<tr><td><td><input type="button" onClick="setValues()" value="OK">
+</table>
+</form>
+
+<div style="float:left"><table id="content"><tr><th>Channel<th>Value</table></div>
+
+<div style="float:left"><table id="contentEnc"><tr><th>ChannelEnc<th>ValueEnc</table></div>
+
+<div style="float:left"><table id="contentFifo"><tr><th>ChannelFifo<th>ValueFifo</table></div>
+
+<div style="float:left"><table id="contentLost"><tr><th>ChannelLost<th>ValueLost</table></div>
+
+
+<script language="javascript">
+var updaterate = document.getElementById("form_rate").value;
+var board      = document.getElementById("form_board").value;
+var channels   = document.getElementById("form_channels").value;
+var split      = document.getElementById("form_split").checked?"-2":"";
+var differences= document.getElementById("form_diff").checked;
+var showstatus = document.getElementById("form_status").checked;
+var oldvalues = {};
+var oldvaluesEnc = {};
+var oldvaluesFifo = {};
+var oldvaluesLost = {};
+
+var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
+var regs = reglist.split('-');
+var regnames = new Array("debug<br>channels<br>ref input","window bef.<br>window aft.",
+                         "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
+                         "spurious trg","wrong rdo","spikes","idle time","wait time",
+                         "releases","rdo time","basic ctrl","act chan 1","act chan 2");
+
+var updateTask;
+var updateEncTask;
+var updateFifoTask;
+var updateLostTask;
+
+
+function update(data) {
+  if(!document.getElementById("content").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr class=\"head\"><th>HitCounter<th>Channel";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!oldvalues[j]) oldvalues[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+  
+  for(i = 1; i <= channels; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
+    for(j=0;j<b.length-1;j++) {
+      if(differences) {
+        val = (c[j][i] & 0xFFFFFF)- ((oldvalues[j][i]||0) & 0xFFFFFF);
+        if (val < 0) {
+          val += 0x1000000;
+          }
+        }
+      else {
+        val = c[j][i] & 0xFFFFFF;
+        }
+      if(showstatus)
+        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      else
+        o += "<td>"+(val);
+      }
+    }
+  oldvalues = c;
+  document.getElementById("content").innerHTML  = o;
+  }
+
+
+function setValues() {
+  updaterate = document.getElementById("form_rate").value;
+  board      = document.getElementById("form_board").value;
+  split      = document.getElementById("form_split").checked?"-2":"";
+  differences= document.getElementById("form_diff").checked;
+  showstatus = document.getElementById("form_status").checked;
+  channels   = document.getElementById("form_channels").value;
+  clearInterval(updateTask);
+  updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
+  clearInterval(updateEncTask);
+  updateEncTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateEnc)",updaterate);
+  clearInterval(updateFifoTask);
+  updateFifoTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateFifo)",updaterate);
+  clearInterval(updateLostTask);
+  updateLostTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateLost)",updaterate);  
+
+  }
+
+
+  
+function updateEnc(data) {
+  if(!document.getElementById("contentEnc").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr class=\"head\"><th>EncoderStart<th>Channel";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!oldvaluesEnc[j]) oldvaluesEnc[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+  
+  for(i = 1; i <= channels; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
+    for(j=0;j<b.length-1;j++) {
+      if(differences) {
+        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesEnc[j][i]||0) & 0xFFFFFF);
+        if (val < 0) {
+          val += 0x1000000;
+          }
+        }
+      else {
+        val = c[j][i] & 0xFFFFFF;
+        }
+      if(showstatus)
+        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      else
+        o += "<td>"+(val);
+      }
+    }
+  oldvaluesEnc = c;
+  document.getElementById("contentEnc").innerHTML  = o;
+  }
+
+
+
+
+function updateFifo(data) {
+  if(!document.getElementById("contentFifo").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr class=\"head\"><th>FifoWrite<th>Channel";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!oldvaluesFifo[j]) oldvaluesFifo[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+  
+  for(i = 1; i <= channels; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
+    for(j=0;j<b.length-1;j++) {
+      if(differences) {
+        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesFifo[j][i]||0) & 0xFFFFFF);
+        if (val < 0) {
+          val += 0x1000000;
+          }
+        }
+      else {
+        val = c[j][i] & 0xFFFFFF;
+        }
+      if(showstatus)
+        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      else
+        o += "<td>"+(val);
+      }
+    }
+  oldvaluesFifo = c;
+  document.getElementById("contentFifo").innerHTML  = o;
+  }
+
+
+
+
+function updateLost(data) {
+  if(!document.getElementById("contentLost").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr class=\"head\"><th>LostHits<th>Channel";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!oldvaluesLost[j]) oldvaluesLost[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+  
+  for(i = 1; i <= channels; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
+    for(j=0;j<b.length-1;j++) {
+      if(differences) {
+        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesLost[j][i]||0) & 0xFFFFFF);
+        if (val < 0) {
+          val += 0x1000000;
+          }
+        }
+      else {
+        val = c[j][i] & 0xFFFFFF;
+        }
+      if(showstatus)
+        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
+      else
+        o += "<td>"+(val);
+      }
+    }
+  oldvaluesLost = c;
+  document.getElementById("contentLost").innerHTML  = o;
+  }
+
+ 
+
+    
+updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
+updateEncTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateEnc)",updaterate);
+updateFifoTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateFifo)",updaterate);
+updateLostTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateLost)",updaterate);
+  
+  
+</script>
+</body></html>
