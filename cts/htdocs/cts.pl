@@ -22,18 +22,24 @@ BEGIN {
 sub connectToCTS {
    my $trb;
 
+   my $endpoint = CtsConfig->getDefaultEndpoint;
+   my $cache = {'enumCache' => 0};
 
  # open cache create by monitor process to
  #  a) reduce the number of read accesses
  #  b) ensure the same interface is used
    open FH, "<" .  dirname(__FILE__) . "/monitor/enum.js";
-   my $json = join ' ', <FH>;
-   close FH;
-   
-   my $cache = JSON_BIND->new->decode( $json );
+   if (tell(FH) != -1) {
+      my $json = join ' ', <FH>;
+      close FH;
+      
+      if ($json) {
+         $cache = JSON_BIND->new->decode( $json );
 
-   $ENV{'DAQOPSERVER'} = $cache->{'daqop'};
-   my $endpoint = hex $cache->{'endpoint'};
+         $ENV{'DAQOPSERVER'} = $cache->{'daqop'};
+         $endpoint = hex $cache->{'endpoint'};
+      }
+   }
    
    eval {require "TrbNet.pm"};
    $trb = TrbNet->new($endpoint);
