@@ -24,6 +24,11 @@ if(!$ARGV[0]) {
 
 open $fh, "$ARGV[0]" or die $!."\nFile '$ARGV[0]' not found.";
 
+my $offset = 0;
+if (defined $ARGV[1]) {
+  $offset = $ARGV[1];
+  }
+
 my $reference = 2**16;
 
 while (my $a = <$fh>) {
@@ -49,7 +54,7 @@ while (my $a = <$fh>) {
     
     $o = $cmd << 20;
     $o |= $chan << 16;
-    $o |= (($val*1.)/$reference*65536.) & 0xFFFF;
+    $o |= (($val*1.+$offset)/$reference*65536.) & 0xFFFF;
     
     my @values;
     foreach my $i (0..15) {

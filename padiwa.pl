@@ -67,7 +67,7 @@ trb_register_write($board,0xd410,1<<$chain) or die "trb_register_write: ", trb_s
   
 if($ARGV[2] eq "temp") {
   my $b = sendcmd(0x10040000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t%2.1f\n",$e,$chain,($b->{$e}&0xfff)/16);
     }
   }
@@ -76,11 +76,11 @@ if($ARGV[2] eq "uid") {
   my $ids;
   for(my $i = 0; $i <= 3; $i++) {
     my $b = sendcmd(0x10000000 + $i*0x10000);
-    foreach my $e (sort keys $b) {
+    foreach my $e (sort keys %$b) {
       $ids->{$e}->{$i} = $b->{$e}&0xffff;
       }
     }
-  foreach my $e (sort keys $ids) {
+  foreach my $e (sort keys %$ids) {
     printf("0x%04x\t%d\t0x%04x%04x%04x%04x\n",$e,$chain,$ids->{$e}->{3},$ids->{$e}->{2},$ids->{$e}->{1},$ids->{$e}->{0});
     }
   }
@@ -97,7 +97,7 @@ if($ARGV[2] eq "pwm" && defined $ARGV[4]) {
   
 if($ARGV[2] eq "pwm") {
   my $b = sendcmd(0x00000000+$ARGV[3]*0x10000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t%d\t0x%04x\t%4.2f\n",$e,$chain,$ARGV[3],$b->{$e}&0xffff,($b->{$e}&0xffff)*3300/65536);
     }
   }  
@@ -110,7 +110,7 @@ if($ARGV[2] eq "disable" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "disable") {
   my $b = sendcmd(0x20000000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
   }    
@@ -123,7 +123,7 @@ if($ARGV[2] eq "invert" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "invert") {
   my $b = sendcmd(0x20040000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
   }    
@@ -136,14 +136,14 @@ if($ARGV[2] eq "stretch" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "stretch") {
   my $b = sendcmd(0x20050000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
   }      
   
 if($ARGV[2] eq "input") {
   my $b = sendcmd(0x20010000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
   }    
@@ -155,7 +155,7 @@ if($ARGV[2] eq "led" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "led") {
   my $b = sendcmd(0x20020000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
     }
   }     
@@ -168,7 +168,7 @@ if($ARGV[2] eq "monitor" && defined $ARGV[3]) {
   
 if($ARGV[2] eq "monitor") {
   my $b = sendcmd(0x20030000);
-  foreach my $e (sort keys $b) {
+  foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
     }
   }     
@@ -177,11 +177,11 @@ if($ARGV[2] eq "time") {
   my $ids;
   for(my $i = 0; $i <= 1; $i++) {
     my $b = sendcmd(0x21000000 + $i*0x10000);
-    foreach my $e (sort keys $b) {
+    foreach my $e (sort keys %$b) {
       $ids->{$e}->{$i} = $b->{$e}&0xffff;
       }
     }
-  foreach my $e (sort keys $ids) {
+  foreach my $e (sort keys %$ids) {
     printf("0x%04x\t%d\t0x%04x%04x\t%s\n",$e,$chain,$ids->{$e}->{1},$ids->{$e}->{0},time2str('%Y-%m-%d %H:%M',($ids->{$e}->{1}*2**16+$ids->{$e}->{0})));
     }
   } 
