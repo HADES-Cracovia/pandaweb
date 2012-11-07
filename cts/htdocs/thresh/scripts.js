@@ -16,6 +16,18 @@ function getdata(command,callback) {
   xmlhttp.send(null);
   }
   
+
+function SciNotation(v) {
+  if (v == 0) return "0";
+  if (v < 1000) return  v;
+  if (v < 20000) return  (v/1E3).toFixed(3)+"k" ;
+  if (v < 1E6) return  (v/1E3).toFixed(2)+"k" ;
+  if (v < 20E6) return  (v/1E6).toFixed(3)+"M" ;
+  if (v < 1E9) return  (v/1E6).toFixed(2)+"M" ;
+  if (v < 20E9) return  (v/1E9).toFixed(3)+"G" ;
+  if (v < 1E12) return  (v/1E9).toFixed(2)+"G" ;
+  return  v;
+  }
   
   
 //   function reload() {
