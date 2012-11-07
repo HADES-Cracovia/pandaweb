@@ -131,3 +131,11 @@ table#content  tr:hover td.under {
   background:#dfd;
   border-color:#dfd;
 }
+
+input {
+  width:182px;
+}
+
+#form_rate, #form_rate2 {
+width: 89px;
+}

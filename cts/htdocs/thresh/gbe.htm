@@ -26,19 +26,30 @@ var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var oldvalues = {};
 
-var regnames = new Array("ipu2gbe1","ipu2gbe2","pckConstr1","pckConstr2","frameConstr1","frameConstr2",
-                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","InvSize");
+//var regnames = new Array("ipu2gbe1","ipu2gbe2","pckConstr1","pckConstr2","frameConstr1","frameConstr2",
+//                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","InvSize");
+var regnames = new Array("Bytes","sent","dropped","small","large","headers","status","","","empty");  
 
 var updateRegsTask;
 
+function SciNotation(v) {
+  if (v == 0) return "0";
+  if (v < 1000) return  v;
+  if (v < 20000) return  (v/1E3).toFixed(3)+"k" ;
+  if (v < 1E6) return  (v/1E3).toFixed(2)+"k" ;
+  if (v < 20E6) return  (v/1E6).toFixed(3)+"M" ;
+  if (v < 1E9) return  (v/1E6).toFixed(2)+"M" ;
+  if (v < 20E9) return  (v/1E9).toFixed(3)+"G" ;
+  if (v < 1E12) return  (v/1E9).toFixed(2)+"G" ;
+  return  v;
+  }
 
   
 function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
-  updateTask = 
   clearInterval(updateRegsTask);
-  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-18',updateregs)",updaterate);
+  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83f3-10',updateregs)",updaterate);
   
   }
 
@@ -50,9 +61,10 @@ function updateregs(data) {
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
+    if(!oldvalues[j]) oldvalues[j] = c[j];
     o += "<th>"+c[j][0];
     } 
-  
+/*  
   for(i = 0; i < 18; i++) {
     o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83E0).toString(16))+"<td>"+regnames[i];
     for(j=0;j<b.length-1;j++) {
@@ -62,7 +74,7 @@ function updateregs(data) {
         o += val.toString(16);
         }
       else if(i==10){
-        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xffff).toString(16));
+        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xff).toString(16));
         }
       else if(i>=12 && i<=16) {
         o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xffff).toString(16));
@@ -72,12 +84,31 @@ function updateregs(data) {
         }
       }
     }
+*/
+  for(i = 0; i < 10; i++) {
+    if(i==7 || i==8) {continue;}
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83F3).toString(16))+"<td>"+regnames[i];
+    for(j=0;j<b.length-1;j++) {
+      val = c[j][i+1];
+      o += "<td>";
+      if(i==0) {
+         o += SciNotation(val)+"<br>"+SciNotation((val-(oldvalues[j][i+1])))+"B";
+         }
+      else if(i==1) {
+         o += SciNotation(val)+"<br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck";
+         }
+      else {
+         o += val;
+         }
+      }
+    }
+
+  oldvalues=c;
   document.getElementById("contentregs").innerHTML  = o;
   }
-  
 
     
-updateRegsTask = setInterval("getdata('get.pl?"+board+"-83e0-18',updateregs)",updaterate);
+updateRegsTask = setInterval("getdata('get.pl?"+board+"-83f3-10',updateregs)",updaterate);
 
   
   
