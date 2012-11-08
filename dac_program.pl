@@ -5,13 +5,10 @@ use Time::HiRes qw( usleep );
 use Data::Dumper;
 use HADES::TrbNet;
 
-if (!defined &trb_init_ports()) {
-  die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
-}
-my $fh;
 
 if(!$ARGV[0]) {
-  print "usage: dac_program.pl <filename of configuration file>\n\n";
+  print "usage: dac_program.pl <filename of configuration file>  [offset]\n\n";
+  print "The optional offset introduces an additional offset to the values read from the config file.\n";
   print "Example config file:\n";
   print "# Board   Chain     ChainLen    DAC     Channel       Command       Value\n";
   print "  f300    1         1           0       0             3             0x3456\n";
@@ -22,6 +19,11 @@ if(!$ARGV[0]) {
   exit;
   }
 
+if (!defined &trb_init_ports()) {
+  die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
+}
+
+my $fh;
 open $fh, "$ARGV[0]" or die $!."\nFile '$ARGV[0]' not found.";
 
 my $offset = 0;
@@ -47,8 +49,8 @@ while (my $a = <$fh>) {
     $cmd   = hex($cmd);
     $board = hex($board);
     
-    if ($val >= $reference) {
-      printf(STDERR "Error, value %i is higher than reference %i\n",$val,$reference);
+    if ($val+$offset >= $reference || $val+$offset < 0) {
+      printf(STDERR "Error, value %i with offset %i is higher or lower than reference %i\n",$val,$offset,$reference);
       next;
       }
     
