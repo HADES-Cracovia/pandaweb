@@ -101,11 +101,11 @@ function setValues() {
   clearInterval(updateTask);
   updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
   clearInterval(updateEncTask);
-  updateEncTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateEnc)",updaterate);
+  updateEncTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateEnc)",updaterate);
   clearInterval(updateFifoTask);
-  updateFifoTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateFifo)",updaterate);
+  updateFifoTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateFifo)",updaterate);
   clearInterval(updateLostTask);
-  updateLostTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateLost)",updaterate);  
+  updateLostTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateLost)",updaterate);  
 
   }
 
@@ -124,7 +124,7 @@ function updateEnc(data) {
     } 
   
   for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc200).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
         val = (c[j][i] & 0xFFFFFF)- ((oldvaluesEnc[j][i]||0) & 0xFFFFFF);
@@ -198,7 +198,7 @@ function updateLost(data) {
     } 
   
   for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc400).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(differences) {
         val = (c[j][i] & 0xFFFFFF)- ((oldvaluesLost[j][i]||0) & 0xFFFFFF);
@@ -223,9 +223,9 @@ function updateLost(data) {
 
     
 updateTask = setInterval("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
-updateEncTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateEnc)",updaterate);
-updateFifoTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateFifo)",updaterate);
-updateLostTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateLost)",updaterate);
+updateEncTask = setInterval("getdata('get.pl?"+board+"-c200-"+channels+split+"',updateEnc)",updaterate);
+updateFifoTask = setInterval("getdata('get.pl?"+board+"-c300-"+channels+split+"',updateFifo)",updaterate);
+updateLostTask = setInterval("getdata('get.pl?"+board+"-c400-"+channels+split+"',updateLost)",updaterate);
   
   
 </script>

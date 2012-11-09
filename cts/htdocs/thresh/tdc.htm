@@ -36,7 +36,10 @@ var differences= document.getElementById("form_diff").checked;
 var showstatus = document.getElementById("form_status").checked;
 var oldvalues = {};
 
-var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
+
+var reglist = "c100-c103-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c0-c2-c3";
+//var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
+
 var regs = reglist.split('-');
 var regnames = new Array("Temperature","debug<br>channels<br>ref input","window bef.<br>window aft.",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
