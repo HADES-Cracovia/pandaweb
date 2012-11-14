@@ -30,12 +30,13 @@ if($amount != 1) {
       }
     }
   else {
-    my $chunk = $amount/$split;
+    my $chunk = int($amount/$split);
     if($amount%$split) {$chunk++;}
     my $i = 0;
     my @hits;
     do {
       $hits[$i] = trb_register_read_mem($board,$addr+$i*$chunk,0,$chunk);
+#      print Dumper  %{$hits[$i]};
 #       print ($board." ".($addr+$i*$chunk)." ".($amount/$split)."\n");
       } while(++$i < $split);
     foreach my $b (sort keys %{$hits[0]}) {
