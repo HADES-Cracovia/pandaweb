@@ -34,14 +34,16 @@ if($amount != 1) {
     my $i = 0;
     my @hits;
     do {
-      $hits[$i] = trb_register_read_mem($board,$addr+$i*$chunk,0,$amount/$split);
+      $hits[$i] = trb_register_read_mem($board,$addr+$i*$chunk,0,$chunk);
 #       print ($board." ".($addr+$i*$chunk)." ".($amount/$split)."\n");
       } while(++$i < $split);
     foreach my $b (sort keys %{$hits[0]}) {
       printf ("%04x",$b);
       for(my $i = 0; $i < scalar @hits; $i++) {
         for(my $c =0; $c < $chunk; $c++) {
-          printf(" %d",$hits[$i]->{$b}->[$c]);
+          if($i*$chunk + $c < $amount) {
+            printf(" %d",$hits[$i]->{$b}->[$c]);
+            }
           }
         }
       print "&";
