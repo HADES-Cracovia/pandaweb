@@ -185,8 +185,8 @@ var CTS = new Class({
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            xhrFailure(xhr);
-            this.dataUpdate.delay(5000, this);
+            //xhrFailure(xhr);
+            this.dataUpdate.delay(1000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
          }.bind(this)
