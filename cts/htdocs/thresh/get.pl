@@ -31,6 +31,7 @@ if($amount != 1) {
     }
   else {
     my $chunk = $amount/$split;
+    if($amount%$split) {$chunk++;}
     my $i = 0;
     my @hits;
     do {
