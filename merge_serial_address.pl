@@ -21,8 +21,9 @@ trb_init_ports() or die trb_strerror();
 
 my %trb;
 foreach my $cur_ln (<$fh1>) {
-    next if($cur_ln =~ /\s*#/ or $cur_ln =~ /^\s*$/);
+    next if($cur_ln =~ /^\s*#/ or $cur_ln =~ /^\s*$/);
     (my $serial_nr, my $uid) = $cur_ln =~ /(\d+)\s+(\w+)/;
+    next if (!defined $serial_nr);
     $serial_nr = int($serial_nr);
     $trb{$serial_nr}->{'uid'} = $uid;
 }
@@ -30,9 +31,10 @@ foreach my $cur_ln (<$fh1>) {
 #print Dumper \%trb;
 
 foreach my $cur_ln (<$fh2>) {
-    next if($cur_ln =~ /\s*#/ or $cur_ln =~ /^\s*$/);
+    next if($cur_ln =~ /^\s*#/ or $cur_ln =~ /^\s*$/);
     (my $address, my $sernr1, my $sernr2) = $cur_ln =~ /(\w+)\s+(\d+)\s+(\d+)/;
     my $serial_nr = $sernr1*10 + $sernr2;
+    next if (!defined $serial_nr);
     $trb{$serial_nr}->{'address'} = hex($address);
     $trb{$serial_nr}->{'endpoint_nr'} = $sernr2;
 }
