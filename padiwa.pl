@@ -55,15 +55,17 @@ if (defined $ARGV[4]) {
   
 sub sendcmd {
   my ($cmd) = @_;
-  trb_register_write($board,0xd400,$cmd);
-  trb_register_write($board,0xd411,1);
+  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
+  trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+#   trb_register_write($board,0xd410,1<<$chain) or die "trb_register_write: ", trb_strerror();   
+#   trb_register_write($board,0xd411,1);
   return trb_register_read($board,0xd412);
   }
   
   
 
 
-trb_register_write($board,0xd410,1<<$chain) or die "trb_register_write: ", trb_strerror(); 
+
   
 if($ARGV[2] eq "temp") {
   my $b = sendcmd(0x10040000);
