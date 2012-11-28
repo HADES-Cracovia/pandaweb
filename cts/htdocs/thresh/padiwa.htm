@@ -59,9 +59,9 @@ function update(data) {
     for(j=0;j<b.length-1;j++) {
       if(option == "temp") {
         val = (((c[j][i]) & 0xFFF)/16);
-        if(val == 0 || val > 250) val = "---";
+        if(val <= 0 || val > 100 || (c[j][i])&0xf000) val = "---";
           else val = val.toFixed(1)
-        o += "<td class=\"under\" style=\"background:"+findcolor(val,min,max,0)+"\">"+(val);
+        o += "<td class=\"colored\" style=\"background:"+findcolor(val,min,max,0)+"\">"+(val);
         }
       else if(option == "id") {
         val = c[j][(i-1)*4+4]+c[j][(i-1)*4+3]+c[j][(i-1)*4+2]+c[j][(i-1)*4+1];
