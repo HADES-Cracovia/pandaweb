@@ -72,9 +72,15 @@ function update(data) {
         o += "<td>";
         for(k=1;k<=16;k++) {
           val = c[j][(i-1)*16+k];
-          if(c[j][(i-1)*16+k]&0x7ff80000 != Math.floor(k/2)<<20) val = "---";
-          else val =((val&0xffff*1).toString(16));
-          o += "<span class=\"fixed\" style=\"background:"+findcolor(val,0,65536,0)+"\">"+val+"</span><br>";
+          if(c[j][(i-1)*16+k]&0x7ff80000 != Math.floor(k/2)<<20) {
+            val = "---";
+            col = "transparent";
+            }
+          else {
+            val =((val&0xffff*1).toString(16));
+            col = findcolor((val&0xffff*1),0,65536,0);
+            }
+          o += "<span class=\"fixed\" style=\"background:"+col+"\">"+val+"</span><br>";
           }
         }
       }
