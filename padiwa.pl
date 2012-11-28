@@ -73,9 +73,9 @@ if($ARGV[2] eq "temp") {
   }
 
 if($ARGV[2] eq "uid" && defined $ARGV[3]) {
-  my $b = sendcmd(0x10000001);
+  my $b = sendcmd(0x10800001);
   usleep(100000);
-  $b = sendcmd(0x10000000);
+  $b = sendcmd(0x10800000);
   usleep(100000);
   }
 
