@@ -73,7 +73,7 @@ function update(data) {
         for(k=1;k<=16;k++) {
           val = c[j][(i-1)*16+k] & 0xffff;
           if(val == 0 || val == 0xffff) val = "---";
-          o += "<span  style=\"background:"+findcolor(val,0,65536,0)+"\">"+(val.toString(16))+"</span><br>";
+          o += "<span class=\"fixed\" style=\"background:"+findcolor(val,0,65536,0)+"\">"+(val.toString(16))+"</span><br>";
           }
         }
       }
