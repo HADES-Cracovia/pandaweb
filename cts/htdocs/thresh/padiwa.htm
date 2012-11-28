@@ -77,10 +77,8 @@ function update(data) {
             col = "transparent";
             }
           else {
-            col = findcolor((val&0xffff),min,max,0);
+            col = findcolor((val&0xffff),0x6500,0x9000,0);
             val =((val&0xffff).toString(16));
-//            if((c[j][(i-1)*16+k]&0x7fff0000) != (((k-1)<<15) & 0x7fff0000))
-//              val = "-"+val;
             }
           o += "<span class=\"fixed\" style=\"background:"+col+"\">"+val+"</span><br>";
           }
