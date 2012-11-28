@@ -41,7 +41,7 @@ function findcolor(v,min,max,lg) {
   step = ((max-min)/655);
 
 
-  if (v == 0) {
+  if (v == 0 || v<min) {
     r = 220;
     g = 220;
     b = 220;
