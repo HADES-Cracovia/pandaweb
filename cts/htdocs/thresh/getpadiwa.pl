@@ -40,6 +40,12 @@ for(my $i=0; $i < 4; $i++) {
     $ret->[$i*4+2] = sendcmd(0x10020000,$i);
     $ret->[$i*4+3] = sendcmd(0x10030000,$i);
     }
+  elsif ($task eq "thresh") {
+    $num = 16;
+    for(my $j=0;$j<16;$j++) {
+      $ret->[$i*16+$j] = sendcmd(0x00000000+$j*0x10000,$i);
+      }
+    }
   }
 
 

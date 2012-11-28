@@ -42,9 +42,7 @@ function findcolor(v,min,max,lg) {
 
 
   if (v == 0 || v<min) {
-    r = 220;
-    g = 220;
-    b = 220;
+    return "transparent";
   } else {
     v -= min;
     if (step) {
