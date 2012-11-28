@@ -16,6 +16,7 @@ if(!$ARGV[0]) {
   print "usage: padiwa.pl \$FPGA \$chain \$command \$options\n\n";
   print "\t uid \t\t read unique ID, no options\n";
   print "\t temp \t\t read temperature, no options\n";
+  print "\t resettemp \t\t resets the 1-wire logic\n";
   print "\t dac \t\t set LTC-DAC value. options: \$channel, \$value\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
   print "\t pwm \t\t read PWM value. options: \$channel\n";
@@ -72,11 +73,10 @@ if($ARGV[2] eq "temp") {
     }
   }
 
-if($ARGV[2] eq "uid" && defined $ARGV[3]) {
-  my $b = sendcmd(0x10800001);
+if($ARGV[2] eq "resettemp") {
+  sendcmd(0x10800001);
   usleep(100000);
-  $b = sendcmd(0x10800000);
-  usleep(100000);
+  sendcmd(0x10800001);
   }
 
   
