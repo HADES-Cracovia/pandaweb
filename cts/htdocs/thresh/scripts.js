@@ -30,26 +30,47 @@ function SciNotation(v) {
   }
   
   
-//   function reload() {
-//   xmlhttp=new XMLHttpRequest();
-//   xmlhttp.onreadystatechange = function() {
-//     if(xmlhttp.readyState == 4) {
-//       document.getElementById("content").innerHTML=xmlhttp.responseText;
-//       if(document.getElementById('logbox')) {
-//         if(saveScrollTop) {
-//           document.getElementById('logbox').scrollTop = saveScrollTop;
-//           }
-//         }
-// 
-//       document.getElementById("stop").style.background="#444";
-//       reloadevery = setTimeout('reload()',$.($delay*1000).qq$);
-//       }
-//     };
-//   if(document.getElementById('logbox')) {
-//     saveScrollTop = document.getElementById('logbox').scrollTop;
-//     if (saveScrollTop == 0) {saveScrollTop = 0.1;}
-//     }
-//   xmlhttp.open("GET","get.cgi?$.$ENV{'QUERY_STRING'}.qq$",true);
-//   xmlhttp.send(null);
-//   document.getElementById("stop").style.background="#111";
-//   }
+
+function findcolor(v,min,max,lg) {
+  if (!(v>0)){    v = 0;}
+  if (v && lg){        v = log(v);}
+  if (min && lg){      min = log(min);}
+  if (max && lg){      max = log(max);}
+  if (max == undefined){max  = 1;}
+
+  step = ((max-min)/655);
+
+
+  if (v == 0) {
+    r = 220;
+    g = 220;
+    b = 220;
+  } else {
+    v -= min;
+    if (step) {
+      v  = v/step;
+      }
+    if (v<156) {
+      r = 0;
+      g = v+100;
+      b = 0;
+    } else if (v<412) {
+      v -= 156;
+      r = v;
+      g = 255;
+      b = 0;
+    } else {
+      v -= 412;
+      r = 255;
+      g = 255-v;
+      b = 0;
+    }
+  }
+r = Math.round(r);
+g = Math.round(g);
+b = Math.round(b);
+
+  alert("rgb("+(r%256)+","+(g%256)+","+(b%256)+")");
+  return "rgb("+(r%256)+","+(g%256)+","+(b%256)+")";
+  
+}

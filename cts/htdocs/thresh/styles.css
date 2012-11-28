@@ -136,6 +136,6 @@ input {
   width:182px;
 }
 
-#form_rate, #form_rate2 {
+#form_rate, #form_rate2, #form_min, #form_max {
 width: 89px;
 }
