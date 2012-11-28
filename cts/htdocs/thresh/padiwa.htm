@@ -71,9 +71,9 @@ function update(data) {
       else if(option == "thresh") {
         o += "<td>";
         for(k=1;k<=16;k++) {
-          val = c[j][(i-1)*16+k] & 0xffff;
-          if(c[j][(i-1)*16+k]&0x7ff80000 != 0) val = "---";
-          o += "<span class=\"fixed\" style=\"background:"+findcolor(val,0,65536,0)+"\">"+(val.toString(16))+"</span><br>";
+          val = c[j][(i-1)*16+k];
+//           if(c[j][(i-1)*16+k]&0x7ff80000 != 0) val = "---";
+          o += "<span class=\"fixed\" style=\"background:"+findcolor(val,0,65536,0)+"\">"+((val*1).toString(16))+"</span><br>";
           }
         }
       }
