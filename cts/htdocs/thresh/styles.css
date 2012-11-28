@@ -139,3 +139,8 @@ input {
 #form_rate, #form_rate2, #form_min, #form_max {
 width: 89px;
 }
+
+.fixed {
+  font-family:monospace;
+  font-size:85%;
+}
