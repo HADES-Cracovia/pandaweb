@@ -70,7 +70,6 @@ r = Math.round(r);
 g = Math.round(g);
 b = Math.round(b);
 
-  alert("rgb("+(r%256)+","+(g%256)+","+(b%256)+")");
   return "rgb("+(r%256)+","+(g%256)+","+(b%256)+")";
   
 }
