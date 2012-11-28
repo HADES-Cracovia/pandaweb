@@ -64,8 +64,6 @@ sub sendcmd {
   
   
 
-
-
   
 if($ARGV[2] eq "temp") {
   my $b = sendcmd(0x10040000);
@@ -74,6 +72,15 @@ if($ARGV[2] eq "temp") {
     }
   }
 
+if($ARGV[2] eq "uid" && defined $ARGV[3]) {
+  my $b = sendcmd(0x10000001);
+  usleep(100000);
+  $b = sendcmd(0x10000000);
+  usleep(100000);
+  }
+
+  
+  
 if($ARGV[2] eq "uid") {
   my $ids;
   for(my $i = 0; $i <= 3; $i++) {
