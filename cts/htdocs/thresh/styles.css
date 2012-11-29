@@ -144,3 +144,18 @@ width: 89px;
   font-family:monospace;
   font-size:85%;
 }
+
+
+#content .checkbox {
+
+
+  display: block;
+  float:left;
+  margin:0px -15px 2px 0px;
+  padding:0px -15px 0px 0px;
+}
+
+
+.onoffbutton {
+  width:22px;
+}
