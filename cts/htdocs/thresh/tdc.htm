@@ -174,7 +174,12 @@ function updateregs(data) {
         o += ((val>>20)/16).toFixed(1);
         }
       else if(i==1) {
-        o += (val&0xFF).toString(16)+"<br>"+((val&0xff00)>>8)+"<br>"+(val>>16 & 1);
+        o += (val&0xFF).toString(16)+"<br>"+((val&0xff00)>>8)+"<br>";
+        if((val>>16 & 1)) 
+          o += "<span class=\"over\" style=\"background:#faa;display:block;width:100%;float:right\">";
+        o += (val>>16 & 1);
+        if((val>>16 & 1)) 
+          o += "</span>";
         }
       else if(i==2) {
         o += (val&0x7FF)+"<br>"+((val&0x7ff0000)>>16);
