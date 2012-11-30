@@ -51,6 +51,21 @@ var updateTask;
 var updateRegsTask;
 var enableGroup = new Array(0,0);
 
+function settimers(time1,time2) {
+
+  if(time1 != -1) {
+    if(!time1) time1 = updaterate;
+    clearTimeout(updateTask);
+    updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",time1);
+    }
+    
+  if(time2 != -1) {
+    if(!time2) time2 = updaterate2;
+    clearTimeout(updateRegsTask);
+    updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",time2);
+    }
+  }
+
 
 function update(data) {
   if(!document.getElementById("content").innerHTML) return;
@@ -105,8 +120,7 @@ function update(data) {
     }
   oldvalues = c;
   document.getElementById("content").innerHTML  = o;
-  clearTimeout(updateTask);
-  updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
+  settimers(0,-1);
   }
   
 function setValues() {
@@ -118,10 +132,7 @@ function setValues() {
   showstatus = document.getElementById("form_status").checked;
   channels   = document.getElementById("form_channels").value;
   showenable = document.getElementById("form_enable").checked;
-  clearTimeout(updateTask);
-  updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",100);
-  clearTimeout(updateRegsTask);
-  updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",100);
+  settimers(200,50);
   
   }
 
@@ -129,6 +140,7 @@ function setEnable(e,board,channel) {
   reg = Math.floor(channel/32) + 0xc2;
   op  = e.checked?"set":"clr";
   getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
+  settimers(200,50);
   }
 
 function setEnableBlock(e,board,channel,val) {
@@ -136,6 +148,7 @@ function setEnableBlock(e,board,channel,val) {
   op  = val?"set":"clr";
   value = channel%2?0xffff0000:0xffff;
   getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
+  settimers(200,50);
   }  
   
   
@@ -177,15 +190,11 @@ function updateregs(data) {
       }
     }
   document.getElementById("contentregs").innerHTML  = o;
-  clearTimeout(updateRegsTask);
-  updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",updaterate2);
+  settimers(-1,0);
   }
   
 
-updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",200);
-updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",50);
-
-  
+settimers(200,50);
   
 </script>
 </body></html>
