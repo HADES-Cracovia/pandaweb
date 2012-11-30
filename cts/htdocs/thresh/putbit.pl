@@ -17,12 +17,14 @@ $board = hex($board);
 $addr = hex($addr);
 $value = hex($value);
 
-my $mode = 0;
-$mode = 1 if($op eq "set") ;
-$mode = 2 if($op eq "clr") ;
-exit -1   if $mode == 0;
+if($op eq "set") {
+  trb_register_setbit($board,$addr,$value);
+  }
+
+if($op eq "clr") {
+  trb_register_clearbit($board,$addr,$value);
+  }
 
 
-trb_register_modify($board,$addr,$mode,$value,0);
   
 exit 1;

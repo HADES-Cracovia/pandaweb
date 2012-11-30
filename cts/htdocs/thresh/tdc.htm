@@ -12,7 +12,7 @@
 <h2>Hit Counters &amp; TDC Registers</h2>
 <form acion="">
 <table class="form"><tr class="head"><th colspan=2>Configuration
-<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe50">
+<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe48">
 <tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
 <tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000"><input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
 <tr><td>Split Table<td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
@@ -38,8 +38,8 @@ var showenable = document.getElementById("form_enable").checked;
 var oldvalues = {};
 
 
-//var reglist = "0-c100-c103-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c0-c2-c3";
-var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
+var reglist = "0-c100-c103-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c0-c2-c3";
+//var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
 
 var regs = reglist.split('-');
 var regnames = new Array("Temperature","debug<br>channels<br>ref input","window bef.<br>window aft.",
@@ -67,11 +67,15 @@ function update(data) {
     o += "<tr><td><td>Channel group";
     for(j=0;j<b.length-1;j++) {
       o += "<th>";
-      for(k=0;k<4;k++) {
+      for(k=3;k>=0;k--) {
+        o += "<span style=\"display:block;float:left;width:20px;font-size:80%\">"+k+"</span>";
+        }
+      o+="<br>";
+      for(k=3;k>=0;k--) {
         o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",1)\" value=\"on\">";
         }
       o += "<br>";
-      for(k=0;k<4;k++) {
+      for(k=3;k>=0;k--) {
         o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",0)\" value=\"off\">";
         }
       }
@@ -93,9 +97,9 @@ function update(data) {
       else
         o += "<td>";
       o += (val);
-      if(showenable) {
-        checked = (enableGroup[Math.floor((i-1)/32)]&1<<(i-1)%32)?"checked":"";
-        o += "<input class=\"checkbox\" type=\"checkbox\" onClick=\"setEnable(this,'"+c[j][0]+"',"+(i-1)+")\" "+checked+">";
+      if(showenable && i!=1) {
+        checked = (enableGroup[Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
+        o += "<input class=\"checkbox\" type=\"checkbox\" onClick=\"setEnable(this,'"+c[j][0]+"',"+(i-2)+")\" "+checked+">";
         }
       }
     }
@@ -122,16 +126,16 @@ function setValues() {
   }
 
 function setEnable(e,board,channel) {
-  reg = Math.floor(channel/32) + 82;
+  reg = Math.floor(channel/32) + 0xc2;
   op  = e.checked?"set":"clr";
-  getdata("putbit.pl?"+board+"-"+reg+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
+  getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
   }
 
 function setEnableBlock(e,board,channel,val) {
-  reg = Math.floor(channel/2) + 82;
+  reg = Math.floor(channel/2) + 0xc2;
   op  = val?"set":"clr";
   value = channel%2?0xffff0000:0xffff;
-  getdata("putbit.pl?"+board+"-"+reg+"-"+op+"-"+value);
+  getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
   }  
   
   
@@ -178,8 +182,8 @@ function updateregs(data) {
   }
   
 
-updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",100);
-updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",100);
+updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",200);
+updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",50);
 
   
   
