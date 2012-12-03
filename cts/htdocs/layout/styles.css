@@ -7,7 +7,7 @@ body {
 }
 
 body.index {
-      background:#f5f5f5 url("/layout/background.png") fixed;
+      background:#f5f5f5 url("/layout/background.png") fixed no-repeat;
 }
 
 h2 {
