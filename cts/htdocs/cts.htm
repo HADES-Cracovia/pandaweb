@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html version="-//W3C//DTD XHTML 1.1//EN" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html>
    <head>
       <title>Central Trigger System</title>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
       <link href="layout/base.css" rel="Stylesheet" type="text/css" />
       <script src="scripts/mootools-core-1.4.5.js" type="text/javascript"></script>
       <script src="scripts/base.js" type="text/javascript"></script>
@@ -23,7 +22,7 @@
             <div class="header"><span class="indicator"></span> Status overview</div>
             
             <div class="content">
-               <img src="monitor/plot.png" id="rate-plot" title="Click to switch between short and long plot interval" alt="Rate Plot (may require some time to load after server (re)start)" />
+               <img src="monitor/plot.png" id="rate-plot" title="Click to switch between short and long plot interval" />
                <table id="overview-tab">
                   <tr>
                      <th class="label">Counter</th>
@@ -35,19 +34,19 @@
                      <td class="label">Trigger asserted</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_asserted.value" suffix=" clks.">n/a</td>
                      <td class="rate  autorate"               slice="cts_cnt_trg_asserted.value" format="rateToFrac">n/a</td>
-                  </tr>
+                  <tr>
 
                   <tr>
                      <td class="label">Trigger rising edges</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_edges.value" suffix=" edges">n/a</td>
                      <td class="rate  autorate"               slice="cts_cnt_trg_edges.value">n/a</td>
-                  </tr>
+                  <tr>
                   
                   <tr class="alt">
                      <td class="label">Trigger accepted</td>
                      <td class="value autorate autoratevalue" slice="cts_cnt_trg_accepted.value" suffix=" events">n/a</td>
                      <td class="rate  autorate"               slice="cts_cnt_trg_accepted.value">n/a</td>
-                  </tr>
+                  <tr>
                   
                   <tr>
                      <td colspan="3">&nbsp;</td>
@@ -57,13 +56,13 @@
                      <td class="label">Last Idle Time</td>
                      <td class="value autoupdate" slice="cts_cnt_idle_time.value" format="countToTime" suffix=" ns">n/a</td>
                      <td class="rate "></td>
-                  </tr>
+                  <tr>
 
                   <tr>
                      <td class="label">Last Dead Time</td>
                      <td class="value autoupdate" slice="cts_cnt_dead_time.value" format="countToTime" suffix=" ns">n/a</td>
                      <td class="rate  autoupdate" slice="cts_cnt_dead_time.value" format="countToFreq">n/a</td>
-                  </tr>
+                  <tr>
 
                   <tr>
                      <td colspan="3">&nbsp;</td>
@@ -132,7 +131,7 @@
                      <tr>
                         <th class="num">#</th>
                         <th class="window">Window</th>
-                        <th class="coin"><abbr title="Inputs that are required to rise within the specified window of time (edge sensitive)">Coin Mask</abbr></th>
+                        <th class="coin"><abbr title="Inputs that are required to rise within the specified window of time (edge sensitive)">Coin Mask</acronym></th>
                         <th class="inhibit"><abbr title="Additionally to the Coin Mask, this input have to be asserted (level sensitive)">Inhibit Mask</abbr></th>
                      </tr>
                   </table>
@@ -248,12 +247,12 @@
                      
                      <tr class="alt">
                         <td class="label">Current Trigger (15:0)</td>
-                        <td class="value autoupdate" slice="cts_cur_trg_state" format="var x=function(x,data){return '&lt;pre&gt;'+ data.f.mask + '&lt;/pre&gt;' + (data.v.asserted?', Asserted, Type '+data.f.type:', Not asserted')}; x">n/a</td>
+                        <td class="value autoupdate" slice="cts_cur_trg_state" format="var x=function(x,data){return '<pre>'+ data.f.mask + '</pre>' + (data.v.asserted?', Asserted, Type '+data.f.type:', Not asserted')}; x">n/a</td>
                      </tr>
                      
                      <tr>
                         <td class="label">Buffered Trigger (15:0)</td>
-                        <td class="value autoupdate" slice="cts_buf_trg_state" format="var x=function(x,data){return '&lt;pre&gt;'+ data.f.mask + '&lt;/pre&gt;, Type: '+data.f.type}; x">n/a</td>
+                        <td class="value autoupdate" slice="cts_buf_trg_state" format="var x=function(x,data){return '<pre>'+ data.f.mask + '</pre>, Type: '+data.f.type}; x">n/a</td>
                      </tr>
                   </table>
                </div>

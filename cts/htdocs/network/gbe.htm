@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link href="styles.css" rel="stylesheet" type="text/css"/>
-<script src="scripts.js" type="text/javascript"></script>
+<link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts/scripts.js" type="text/javascript"></script>
 <title>GbE Registers</title>
 </head>
 <body>
@@ -37,7 +37,7 @@ function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
   clearInterval(updateRegsTask);
-  updateRegsTask = setInterval("getdata('get.pl?"+board+"-83f3-10',updateregs)",updaterate);
+  updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83f3-10',updateregs)",updaterate);
   
   }
 
@@ -96,7 +96,7 @@ function updateregs(data) {
   }
 
     
-updateRegsTask = setInterval("getdata('get.pl?"+board+"-83f3-10',updateregs)",updaterate);
+updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83f3-10',updateregs)",updaterate);
 
   
   

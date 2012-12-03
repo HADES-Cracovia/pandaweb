@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link href="styles.css" rel="stylesheet" type="text/css"/>
-<script src="scripts.js" type="text/javascript"></script>
+<link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts/scripts.js" type="text/javascript"></script>
 <title>Threshold settings</title>
 </head>
 <body>
@@ -66,7 +66,7 @@ function update(bar,scale) {
   
 function doUpdate() {
   if(dataWaiting) {
-    cmdstring = "put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
+    cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
     getdata(cmdstring,showret);
     dataWaiting = 0;
     }
@@ -95,7 +95,7 @@ function setValues() {
   type       = document.getElementById("form_type").value;
   reference  = document.getElementById("form_ref").value;
   if(type == 8) {
-    cmdstring = "spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
+    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
     getdata(cmdstring,anaret2);
     }
   else{  

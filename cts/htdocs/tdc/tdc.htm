@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link href="styles.css" rel="stylesheet" type="text/css"/>
-<script src="scripts.js" type="text/javascript"></script>
+<link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts/scripts.js" type="text/javascript"></script>
 <title>TDC Registers</title>
 </head>
 <body>
@@ -56,13 +56,13 @@ function settimers(time1,time2) {
   if(time1 != -1) {
     if(!time1) time1 = updaterate;
     clearTimeout(updateTask);
-    updateTask = setTimeout("getdata('get.pl?"+board+"-c000-"+channels+split+"',update)",time1);
+    updateTask = setTimeout("getdata('../commands/get.pl?"+board+"-c000-"+channels+split+"',update)",time1);
     }
     
   if(time2 != -1) {
     if(!time2) time2 = updaterate2;
     clearTimeout(updateRegsTask);
-    updateRegsTask = setTimeout("getdata('getmultreg.pl?"+board+"-"+reglist+"',updateregs)",time2);
+    updateRegsTask = setTimeout("getdata('../commands/getmultreg.pl?"+board+"-"+reglist+"',updateregs)",time2);
     }
   }
 
@@ -139,7 +139,7 @@ function setValues() {
 function setEnable(e,board,channel) {
   reg = Math.floor(channel/32) + 0xc2;
   op  = e.checked?"set":"clr";
-  getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
+  getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
   settimers(200,50);
   }
 
@@ -147,7 +147,7 @@ function setEnableBlock(e,board,channel,val) {
   reg = Math.floor(channel/2) + 0xc2;
   op  = val?"set":"clr";
   value = channel%2?0xffff0000:0xffff;
-  getdata("putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
+  getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
   settimers(200,50);
   }  
   
