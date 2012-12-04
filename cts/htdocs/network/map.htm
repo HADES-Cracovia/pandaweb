@@ -84,7 +84,8 @@ function update(data) {
       if((c[j][4] & 0x0020) != 0x0000) o += "opt. sctrl in, ";
       if((c[j][4] & 0x0040) != 0x0000) o += "opt. trg out, ";
       if((c[j][4] & 0x0080) != 0x0000) o += "opt. sctrl out, ";
-//       o = o.substring(0,o.length-2); 
+      if(c[j][4] & 0xffff)
+        o = o.substring(0,o.length-2); 
       }
 
     o += "<td>"+c[j][5];
