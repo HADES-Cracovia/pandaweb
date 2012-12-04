@@ -204,14 +204,14 @@ table#content.map td + td + td + td {width:120px;}
 #content .level8 {background:#d0d0d0;}
 #content .level9 {background:#d0d0d0;}
 
-#content .level1 > td:first-child {   border-left:10px solid #333;}
-#content .level2 > td:first-child {   border-left:30px solid #333;}
-#content .level3 > td:first-child {   border-left:50px solid #333;}
-#content .level4 > td:first-child {  }
-#content .level5 > td:first-child {  }
-#content .level6 > td:first-child {  }
-#content .level7 > td:first-child {  }
-#content .level8 > td:first-child {  }
-#content .level9 > td:first-child {  }
+#content .level1 > td:first-child { border-left:10px solid #333;}
+#content .level2 > td:first-child { border-left:30px solid #333;}
+#content .level3 > td:first-child { border-left:50px solid #333;}
+#content .level4 > td:first-child { border-left:70px solid #333; }
+#content .level5 > td:first-child { border-left:90px solid #333; }
+#content .level6 > td:first-child { border-left:110px solid #333; }
+#content .level7 > td:first-child { border-left:130px solid #333; }
+#content .level8 > td:first-child { border-left:150px solid #333;  }
+#content .level9 > td:first-child { border-left:170px solid #333;  }
 #content .newlevel td {border-top:1px solid #aaa;}
 /* #content .oldlevel td {border-top-style:hidden;}  */
