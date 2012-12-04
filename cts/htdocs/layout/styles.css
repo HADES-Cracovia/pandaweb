@@ -70,6 +70,7 @@ table#content, table#contentregs {
 table#contentregs td:first-child, table#contentregs th:first-child,
 table#content td:first-child, table#content th:first-child{
   width:40px;
+  
   padding-right:0px;
   text-align:center;
 }
@@ -80,6 +81,7 @@ table#content td, table#content th, table#contentregs td, table#contentregs th{
  border:solid #ccc; 
  border-width:0 1px 1px 0;
  width:90px;
+ min-width:90px;
  text-align:right;
  padding-right:15px;
 }
@@ -191,7 +193,7 @@ width: 89px;
 }
 
 table#content.map td {border-bottom:none; margin-left:10px; text-align:right}
-table#content.map td:first-child {text-align:left;padding-left:15px; }
+table#content.map td:first-child {text-align:left;padding-left:10px; width:100px;}
 table#content.map td + td + td + td {width:120px;}
 
 #content .level1 {background:#f5f5f5;}
@@ -216,9 +218,13 @@ table#content.map td + td + td + td {width:120px;}
 #content .newlevel td {border-top:1px solid #aaa;}
 /* #content .oldlevel td {border-top-style:hidden;}  */
 
+
+
 #content .level > td:first-child div {
   position:relative;
   left:-30px;
+  width:20px;
+  text-align:right;
   color:white;
   float:left;
   font-size:80%;
