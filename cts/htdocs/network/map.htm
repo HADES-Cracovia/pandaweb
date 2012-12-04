@@ -53,7 +53,7 @@ function update(data) {
       case 0x12: o+= "MDC Hub"; break;
       }
     
-    o += "<td>";
+    o += "<td title=\"0x"+(c[j][4]*1).toString(16)+"\">";
     if(type == 0x91) {
       switch(c[j][4]>>12 & 0xF) {
         case 0: o += "ADA v1"; break;
@@ -66,7 +66,27 @@ function update(data) {
       }
     else 
       o+= "---";
-    o += "<td>";
+    o += "<td title=\"0x"+(c[j][4]*1).toString(16)+"\">";
+    if(type == 0x91 || type == 0x92) {
+      if((c[j][4] & 0x0b00) == 0x000) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0x0900) == 0x100) {o += "TDC, double, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0x0900) == 0x800) {o += "TDC, dbl-sep, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0x0200) == 0x200) o += "Hub, ";
+      if((c[j][4] & 0x0400) == 0x400) o += "SPI, ";
+      o = o.substring(0,o.length-2);  
+      }
+    if(type == 0x90) {
+      if((c[j][4] & 0xf001) == 0xc000) o += "CTS, ";
+      if((c[j][4] & 0xf001) == 0xc001) o += "CTS w/AddOn, ";
+      if((c[j][4] & 0x0f00) == 0x0e00) o += "GbE sctrl rdo, ";
+      if((c[j][4] & 0x0f00) == 0x0d00) o += "GbE rdo, ";
+      if((c[j][4] & 0x0010) != 0x0000) o += "opt. trg in, ";
+      if((c[j][4] & 0x0020) != 0x0000) o += "opt. sctrl in, ";
+      if((c[j][4] & 0x0040) != 0x0000) o += "opt. trg out, ";
+      if((c[j][4] & 0x0080) != 0x0000) o += "opt. sctrl out, ";
+//       o = o.substring(0,o.length-2); 
+      }
+
     o += "<td>"+c[j][5];
     
     lastlevel = c[j][2];
