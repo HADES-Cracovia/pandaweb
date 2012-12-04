@@ -32,9 +32,12 @@ function update(data) {
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split("#");
-    o += "<tr class=\"level"+c[j][2]+" ";
+    o += "<tr class=\"level level"+c[j][2]+" ";
     if(lastlevel!=c[j][2])  o += "newlevel"; else o += "oldlevel";
-    o += "\"><td>"+c[j][3];
+    o += "\"><td>";
+    if(c[j][2]>1)  
+      o += "<div>"+c[j][1]+"</div>";
+    o += c[j][3];
     o += "<td>";
     
     type = (c[j][4]>>24&0xff);

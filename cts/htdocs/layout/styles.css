@@ -215,3 +215,15 @@ table#content.map td + td + td + td {width:120px;}
 #content .level9 > td:first-child { border-left:170px solid #333;  }
 #content .newlevel td {border-top:1px solid #aaa;}
 /* #content .oldlevel td {border-top-style:hidden;}  */
+
+#content .level > td:first-child div {
+  position:relative;
+  left:-30px;
+  color:white;
+  float:left;
+  font-size:80%;
+  margin-top:3px;
+}
+
+
+
