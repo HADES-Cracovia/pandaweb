@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 &htsponse(200, "OK");
 print "Content-type: text/html\r\n\r\n";
 
@@ -16,6 +17,9 @@ if(!defined $board || !defined $addr || !defined $op || !defined $value) {exit -
 $board = hex($board);
 $addr = hex($addr);
 $value = hex($value);
+
+print "$board $addr $value\n";
+
 
 if($op eq "set") {
   trb_register_setbit($board,$addr,$value);
