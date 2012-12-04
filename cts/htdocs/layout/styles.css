@@ -179,15 +179,39 @@ width: 89px;
 
 
 #content .checkbox {
-
-
   display: block;
   float:left;
   margin:0px -15px 2px 0px;
-  padding:0px -15px 0px 0px;
+  padding:0px 0px 0px 0px;
 }
 
 
 .onoffbutton {
   width:22px;
 }
+
+table#content.map td {border-bottom:none; margin-left:10px; text-align:right}
+table#content.map td:first-child {text-align:left;padding-left:15px; }
+table#content.map td + td + td + td {width:120px;}
+
+#content .level1 {background:#f5f5f5;}
+#content .level2 {background:#eaeaea;}
+#content .level3 {background:#dedede;}
+#content .level4 {background:#d0d0d0;}
+#content .level5 {background:#f5f5f5;}
+#content .level6 {background:#eaeaea;}
+#content .level7 {background:#dedede;}
+#content .level8 {background:#d0d0d0;}
+#content .level9 {background:#d0d0d0;}
+
+#content .level1 > td:first-child {   border-left:10px solid #333;}
+#content .level2 > td:first-child {   border-left:30px solid #333;}
+#content .level3 > td:first-child {   border-left:50px solid #333;}
+#content .level4 > td:first-child {  }
+#content .level5 > td:first-child {  }
+#content .level6 > td:first-child {  }
+#content .level7 > td:first-child {  }
+#content .level8 > td:first-child {  }
+#content .level9 > td:first-child {  }
+#content .newlevel td {border-top:1px solid #aaa;}
+/* #content .oldlevel td {border-top-style:hidden;}  */

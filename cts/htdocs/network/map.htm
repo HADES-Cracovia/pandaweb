@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts/scripts.js" type="text/javascript"></script>
+<title>Network Map</title>
+</head>
+<body>
+
+
+<h2>Network Map</h2>
+<form acion="">
+<table class="form"><tr class="head"><th colspan=2>Configuration
+<tr><td><td><input type="button" onClick="location.reload()" value="Reload">
+</table>
+</form>
+
+<div style="float:left"><table id="content" class="map"><tr><th>Register<th>Values</table></div>
+
+
+<script language="javascript">
+
+
+
+function update(data) {
+  if(!document.getElementById("content").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  var lastlevel = 1;
+  o = "<tr class=\"head map\"><th>Board<th>Hardware<th>AddOn<th>Design<th>Compile Time";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split("#");
+    o += "<tr class=\"level"+c[j][2]+" ";
+    if(lastlevel!=c[j][2])  o += "newlevel"; else o += "oldlevel";
+    o += "\"><td>"+c[j][3];
+    o += "<td>";
+    
+    type = (c[j][4]>>24&0xff);
+    switch(type) {
+      case 0x90: o+= "TRB3 central"; break;
+      case 0x91: o+= "TRB3 periph"; break;
+      case 0x92: o+= "CBM-Rich"; break;
+      case 0x62: o+= "Hub AddOn"; break;
+      case 0x52: o+= "CTS"; break;
+      case 0x42: o+= "Shower AddOn"; break;
+      case 0x33: o+= "RICH ADCM"; break;
+      case 0x23: o+= "MDC OEP"; break;
+      case 0x12: o+= "MDC Hub"; break;
+      }
+    
+    o += "<td>";
+    if(type == 0x91) {
+      switch(c[j][4]>>12 & 0xF) {
+        case 0: o += "ADA v1"; break;
+        case 1: o += "ADA v2"; break;
+        case 2: o += "Multitest"; break;
+        case 3: o += "SFP"; break;
+        case 4: o += "Padiwa"; break;
+        default: o+= "---";
+        }
+      }
+    else 
+      o+= "---";
+    o += "<td>";
+    o += "<td>"+c[j][5];
+    
+    lastlevel = c[j][2];
+    } 
+  document.getElementById("content").innerHTML  = o;
+  }
+
+    
+getdata('../commands/nettrace.pl',update);
+
+  
+//parent port layer board type compiletime  
+</script>
+</body></html>
+
