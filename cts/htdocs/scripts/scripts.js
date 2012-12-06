@@ -39,7 +39,7 @@ function findcolor(v,min,max,lg) {
   if (max == undefined){max  = 1;}
 
   step = ((max-min)/655);
-
+  v =  Math.round(v);
 
   if (v == 0 || v<min) {
     return "transparent";
@@ -64,9 +64,9 @@ function findcolor(v,min,max,lg) {
       b = 0;
     }
   }
-r = Math.round(r);
-g = Math.round(g);
-b = Math.round(b);
+r = Math.floor(r);
+g = Math.floor(g);
+b = Math.floor(b);
 
   return "rgb("+(r%256)+","+(g%256)+","+(b%256)+")";
   
