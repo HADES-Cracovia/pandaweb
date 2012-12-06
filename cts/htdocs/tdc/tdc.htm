@@ -12,14 +12,24 @@
 <h2>Hit Counters &amp; TDC Registers</h2>
 <form acion="">
 <table class="form"><tr class="head"><th colspan=2>Configuration
-<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe48">
-<tr><td>Filter<td><input onChange="setValues()" type="text" id="form_filter" name="filter"  value="">
-<tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
-<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000"><input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
-<tr><td>Split Table<td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
-<tr><td>Differences<td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
-<tr><td>Input Status/Enable<td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">&nbsp;<input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
-<tr><td><td><input type="button" onClick="setValues()" value="OK">
+<tr title="4-digit hex board address for data query"><td>Board
+    <td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe48">
+<tr title="list of 4-digit hex addresses of boards to show"><td>Filter
+    <td><input onChange="setValues()" type="text" id="form_filter" name="filter"  value="" >
+<tr title="Number of TDC channels to show"><td># of Channels
+    <td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
+<tr title="Update interval in milliseconds, separate for first and second table"><td>Update Interval (ms)
+    <td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000">
+        <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
+<tr title="For huge set-ups, enable this to split data queries in several smaller chunks"><td>Split Table
+    <td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
+<tr title="Show only the difference of input signal counters since the last read-out, not absolute value"><td>Differences
+    <td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
+<tr title="1. Enable display of current input status. 2. Show control buttons for channel enable/disable"><td>Input Status/Enable
+    <td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">&nbsp;
+        <input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
+<tr title="Just for your convenience, you actually don't need this button..."><td>
+    <td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
 
