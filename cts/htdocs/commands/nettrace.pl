@@ -46,11 +46,12 @@ sub printlist {
   my @o;
   foreach my $b (@store) {
     if ($b->{parent} == $parent) {
-      push(@o,sprintf("%04x#%d#%d#%04x#%d#%s&",$b->{parent},$b->{port},$layer,$b->{addr},$b->{type},time2str('%Y-%m-%d %H:%M',$b->{ctime})));      $o[-1] .= printlist($b->{addr},$layer+1);
+      push(@o,sprintf("%04x#%d#%d#%04x#%d#%s&",$b->{parent},$b->{port},$layer,$b->{addr},$b->{type},time2str('%Y-%m-%d %H:%M',$b->{ctime})));      
+      $o[-1] .= printlist($b->{addr},$layer+1);
       }
     }
   return join("",sort @o);
   }
-sprintf("%4s\t%s\t%8s",$a, time2str('%Y-%m-%d %H:%M',hex($t)),$t);
+#sprintf("%4s\t%s\t%8s",$a, time2str('%Y-%m-%d %H:%M',hex($t)),$t);
 
 # parent port layer board type compiletime

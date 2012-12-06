@@ -217,7 +217,7 @@ table#content.map td + td + td + td + td{width:120px;}
 #content .level8 > td:first-child { border-left:150px solid #333;  }
 #content .level9 > td:first-child { border-left:170px solid #333;  }
 #content .newlevel td {border-top:1px solid #aaa;}
-/* #content .oldlevel td {border-top-style:hidden;}  */
+
 
 
 
