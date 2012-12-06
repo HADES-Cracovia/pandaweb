@@ -100,17 +100,19 @@ function update(data) {
   if(showenable) {
     o += "<tr><td><td>Channel group";
     for(j=0;j<b.length-1;j++) {
-      o += "<th>";
-      for(k=3;k>=0;k--) {
-        o += "<span style=\"display:block;float:left;width:20px;font-size:80%\">"+k+"</span>";
-        }
-      o+="<br>";
-      for(k=3;k>=0;k--) {
-        o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",1)\" value=\"on\">";
-        }
-      o += "<br>";
-      for(k=3;k>=0;k--) {
-        o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",0)\" value=\"off\">";
+      if(isShown[j]) {
+        o += "<th>";
+        for(k=3;k>=0;k--) {
+          o += "<span style=\"display:block;float:left;width:20px;font-size:80%\">"+k+"</span>";
+          }
+        o+="<br>";
+        for(k=3;k>=0;k--) {
+          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",1)\" value=\"on\">";
+          }
+        o += "<br>";
+        for(k=3;k>=0;k--) {
+          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableBlock(this,'"+c[j][0]+"',"+k+",0)\" value=\"off\">";
+          }
         }
       }
     }

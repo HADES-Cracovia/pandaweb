@@ -71,7 +71,7 @@ function update(data) {
       else if(option == "thresh") {
         o += "<td>";
         for(k=1;k<=16;k++) {
-          val = c[j][(i-1)*16+k];
+          val = c[j][(i-1)*16+k]*1.;
           if((c[j][(i-1)*16+k]&0x7fff0000) != (((k-1)<<15) & 0x7fff0000)) {
             val = "---";
             col = "transparent";
