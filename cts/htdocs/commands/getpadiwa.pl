@@ -1,17 +1,34 @@
 #!/usr/bin/perl -w
-&htsponse(200, "OK");
-print "Content-type: text/html\r\n\r\n";
+
+eval{
+  &htsponse(200, "OK");
+  print "Content-type: text/html\r\n\r\n";
+  };
 
 
 
 use HADES::TrbNet;
 use Data::Dumper;
 
+
+
  if (!defined &trb_init_ports()) {
    die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
  }
 
-my ($board,$task) = split('-',$ENV{'QUERY_STRING'}); 
+ 
+
+my ($board,$task);
+
+if(exists $ENV{'QUERY_STRING'}) {
+  ($board, $task) = split('-',$ENV{'QUERY_STRING'}); 
+  }
+else {
+  ($board, $task) = @ARGV; 
+}
+if(!defined $board || !defined $task) {
+  die "Not enough parameters";
+  }
 $board = hex($board); 
  
  
@@ -40,7 +57,7 @@ for(my $i=0; $i < 4; $i++) {
     $ret->[$i*4+2] = sendcmd(0x10020000,$i);
     $ret->[$i*4+3] = sendcmd(0x10030000,$i);
     }
-  elsif ($task eq "thresh") {
+  elsif ($task eq "thresh" || $task eq "threshdump") {
     $num = 16;
     for(my $j=0;$j<16;$j++) {
       $ret->[$i*16+$j] = sendcmd(0x00000000+$j*0x10000,$i);
@@ -50,20 +67,28 @@ for(my $i=0; $i < 4; $i++) {
 
 
   
-  
-foreach my $b (sort keys %{$ret->[0]}) {
-  printf ("%04x",$b);
-  for(my $i=0; $i < 4*$num; $i++) {
-    if($task eq "id"){
-      printf(" %04x",$ret->[$i]->{$b} & 0xffff);
+if($task ne "threshdump") {  
+  foreach my $b (sort keys %{$ret->[0]}) {
+    printf ("%04x",$b);
+    for(my $i=0; $i < 4*$num; $i++) {
+      if($task eq "id"){
+        printf(" %04x",$ret->[$i]->{$b} & 0xffff);
+        }
+      else {
+        printf(" %d",$ret->[$i]->{$b});
+        }
       }
-    else {
-      printf(" %d",$ret->[$i]->{$b});
+    print "&";
+    }
+  }
+else {
+  print "# Board\tChain\tLen\tDAC\tChannel\tCommand\tValue\n";
+  foreach my $b (sort keys %{$ret->[0]}) {
+    for(my $i=0; $i < 4*$num; $i++) {
+      printf("  %04x\t0x%x\t1\t0\t%d\t8\t0x%04x\n",$b,1<<($i/16),$i%16,$ret->[$i]->{$b} & 0xffff);
       }
     }
-  print "&";
+
   }
-
-
-  
+#  print "# Board   Chain     ChainLen    DAC     Channel       Command       Value\n";  
 exit 1;

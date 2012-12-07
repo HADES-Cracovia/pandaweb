@@ -43,7 +43,7 @@ while (my $a = <$fh>) {
 #     print $reference."\n";
     }
  
-  if(my ($board,$chain,$chainlen,$dac,$chan,$cmd,$val) = $a =~ /^\s*(\w\w\w\w)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d)\s+(\w)\s+(\w+)/) {
+  if(my ($board,$chain,$chainlen,$dac,$chan,$cmd,$val) = $a =~ /^\s*(\w\w\w\w)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\w)\s+(\w+)/) {
     $val   = hex(substr($val,2)) if (substr($val,0,2) eq "0x");
     $chain = hex(substr($chain,2)) if (substr($chain,0,2) eq "0x");
     $cmd   = hex($cmd);
