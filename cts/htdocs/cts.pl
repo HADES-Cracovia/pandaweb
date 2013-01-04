@@ -47,6 +47,7 @@ sub connectToCTS {
    return Cts->new($trb, $cache->{'enumCache'});
 }
 
+
 my $cts = connectToCTS( );
 
 my $query = $ENV{'QUERY_STRING'};
