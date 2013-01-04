@@ -645,6 +645,7 @@ var CTS = new Class({
    renderCTSDetails: function() {
       $('trb_compiletime').set('text', new Date(this.defs.properties.trb_compiletime * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', ''));
       $('trb_endpoint').set('text', "0x" + this.defs.properties.trb_endpoint.toString(16));
+      $('trb_daqopserver').set('text', this.defs.properties.daqopserver);
    },
    
    updateStatusIndicator: function(data) {
