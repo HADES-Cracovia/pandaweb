@@ -17,6 +17,7 @@ sub new {
       '_modules'    => {},   # hash (header-type => module) of modules loaded during enumeration
       '_registers'  => {},   # hash of available registers
       '_properties' => {
+         'daqopserver' => $trb->getDAQOPSERVER,
          'itc_assignments' => [
          qw(unconnected unconnected unconnected unconnected
             unconnected unconnected unconnected unconnected 
@@ -151,6 +152,10 @@ sub getProperties {
 sub getRegisters {
    # returns a hash reference of the registers known
    return $_[0]->{'_registers'};
+}
+
+sub getRegister {
+   return $_[0]->{'_registers'}{$_[1]};
 }
 
 sub getExportRegisters {
