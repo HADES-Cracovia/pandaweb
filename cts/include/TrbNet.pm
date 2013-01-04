@@ -13,6 +13,7 @@ sub new {
    trb_init_ports() or die trb_strerror();
    
    my $self = {
+      '_daqopserver' => $ENV{'DAQOPSERVER'},
       '_endpoint' => $endpoint,
       '_known_registers' => {},
       '_prefetch' => {},
@@ -209,5 +210,7 @@ sub addKnownRegister {
    $self->{'_known_registers'}{$reg->getAddress} = $reg;
 }
 
-
+sub getDAQOPSERVER {
+  return $_[0]->{'_daqopserver'}
+}
 1;
