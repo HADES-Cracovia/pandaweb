@@ -257,7 +257,7 @@ sub commandRead {
       if (defined $reg) {
          my $values = $reg->format();
          
-         print Dumper $values;
+         #print Dumper $values;
          
          my $columns = [
             $key, 
