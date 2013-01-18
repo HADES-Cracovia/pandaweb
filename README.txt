@@ -1,13 +1,18 @@
 ==Directories
 config		Configuration files for scripts
-cts		All TRB3-CTS related scripts
+web		Web-based tools
 files		All temporary files created by scripts, not in CVS
-
+jan             Jans development directory
+thresholds      Tools to set, determine and retrieve thresholds
 
 
 ==Scripts
-adcplot.pl	Takes values (measurements from AD9222 and similar) from a TrbNet-Fifo and plots them using the HPlot library
 dac_progam.pl	Programs a LTC2600 DAC with settings from a db files
+merge_serial_address.pl	Generate a address list from the id- and serials databases for TrbNet
+padiwa.pl	R/W of all padiwa registers
+
+jan/adcplot.pl	Takes values (measurements from AD9222 and similar) from a TrbNet-Fifo and plots them using the HPlot library
+
 
 
 ==Config Files
