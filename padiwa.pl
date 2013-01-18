@@ -60,6 +60,7 @@ sub sendcmd {
   trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
 #   trb_register_write($board,0xd410,1<<$chain) or die "trb_register_write: ", trb_strerror();   
 #   trb_register_write($board,0xd411,1);
+  usleep(10000);
   return trb_register_read($board,0xd412);
   }
   
