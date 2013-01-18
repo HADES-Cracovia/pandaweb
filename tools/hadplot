@@ -1,0 +1,1455 @@
+#!/usr/bin/perl -w
+use warnings;
+
+use FileHandle;
+use Time::HiRes qw( gettimeofday usleep time );
+use Getopt::Long;
+use Data::Dumper;
+use POSIX qw/floor strftime/;
+
+use constant AXISISTIME => 1;
+use constant AXISISNOTIME => 0;
+use constant DIFFY => 1;
+use constant DIFFX => 1;
+use constant NODIFFY => 0;
+use constant NODIFFX => 0;
+use constant NODELAY => 0;
+use constant NO => 0;
+use constant YES => 1;
+use constant NONEWLINE => 1;
+
+my $GPbuffer = "";
+my $buffercount = 0;
+
+my $windowtitle = ""; #Global var to store real name of GUI window
+
+my $PlotBuffer = {};
+my $PlotBufferCnt = 0;
+
+my @PlotBufArr = ();
+
+#my @color = ("#1155bb","#bb1111","#999900","#660000","#006633","#990066","#6633CC","#00CCCC");
+my @color = ("#2222dd","#880000","#00cc00","#ee00dd","#ffcc00","#00cc88","#6633CC","#00CCCC");
+our $write2file = "";
+our $plotendedbefore = 0;
+
+
+
+#################################################
+# Variables...
+#################################################
+my $delay     = 1000;
+my $samples   = 100; 
+my $downscale = 1;
+# my $system    = 0;
+my $address   = [];
+my $register  = [];
+my $regoffset = [];
+my $regwidth  = [];
+my $title     = [];
+my $timeref   = [];
+my $geom      = "700x400";
+my $style     = 0;
+my $nametmp   = "";
+my $regamount = [];
+my $xscale   = [];
+my $yscale   = [];
+my $xtitle   = "";
+my $ytitle   = "";
+my $windowname = "No Name";
+my $xistime  = AXISISNOTIME;
+my $xoverflow = [];
+my $yoverflow = [];
+my $ydiff     = 0;
+my $outputcfg = "";
+my $name      = "HadPlot";
+my $key       ;     
+my $curvestyle= 'points';  #points, steps, histo or histostacked
+my $xticks    = 0;  #show labels on x-axis
+my $yticks    = 1;  #show labels on y-axis
+my $plotoption= ""; #string with additional gnuplot commands
+my $curveoption= []; #options for plot command
+my $xgrid     = 1;
+my $ygrid     = 1;
+my $ymax;
+my $ymin;
+my $xmin;
+my $xmax;
+
+GetOptions('d=i' => \$delay,
+           'n=i' => \$samples,
+           'o=i' => \$downscale,
+           'a=s' => $address,
+           'r=s' => $register,
+           'w=i' => $regwidth,
+           'p=i' => $regoffset,
+           't=s' => $title,
+           'm=i' => $regamount,
+           'g=s' => \$geom,
+           'z=i' => \$style,
+           'output=s'     => \$outputcfg,
+           'windowname=s' => \$windowname,
+           'xscale=f'     => $xscale,
+           'yscale=f'     => $yscale,
+           'xtitle=s'     => \$xtitle,
+           'ytitle=s'     => \$ytitle,
+           'xistime!'     => \$xistime,
+           'timeref=s'    => $timeref,
+           'xoverflow=f'  => $xoverflow,
+           'yoverflow=f'  => $yoverflow,
+           'ydiff!'       => \$ydiff,
+           'name=s'       => \$name,
+           'key!'         => \$key,
+           'xticks!'      => \$xticks,
+           'yticks!'      => \$yticks,
+           'xgrid!'       => \$xgrid,
+           'ygrid!'       => \$ygrid,
+           'ymax=i'       => \$ymax,
+           'ymin=i'       => \$ymin,
+           'xmax=i'       => \$xmax,
+           'xmin=i'       => \$xmin,           
+           'curvestyle=s' => \$curvestyle,
+           'curveoption=s'=> $curveoption,
+           'plotoption=s' => \$plotoption
+           );
+
+for(my $i=0;$i<16;$i++) {
+	$regoffset->[$i]   = 0  unless defined $regoffset->[$i];
+	$regwidth->[$i]    = 32 unless defined $regwidth->[$i];
+	$xoverflow->[$i]   = 2**20 unless defined $xoverflow->[$i];
+	$yoverflow->[$i]   = 2**32 unless defined $yoverflow->[$i];
+	$xscale->[$i]      = 1 unless defined $xscale->[$i];
+	$yscale->[$i]      = 1 unless defined $yscale->[$i];
+	$title->[$i]       = "" unless defined $title->[$i];
+	$curveoption->[$i] = ""  unless defined $curveoption->[$i];
+	}
+
+for(my $i=0;$i < scalar @{$address};$i++) {
+  if(!defined($title->[$i])) {
+		$title->[$i] = hex($address->[$i])." $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
+		}
+	}
+
+
+$delay *= 1000;
+if($style == 1) {$curvestyle="points";     $xticks=1;}
+if($style == 2) {$curvestyle="histo";      $xticks=0;}
+if($style == 3) {$curvestyle="histo";      $xticks=1;}
+if($style == 4) {$curvestyle="histostacked";      $xticks=0;}
+if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
+
+
+
+#Open Gnuplot
+our $fh;
+my $fn = "gnuplot -geometry $geom -bg 'ghost white'";
+$fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
+$fh->autoflush(1);
+
+
+sub makeTimeString{
+  return strftime("set label 100 \"%H:%M:%S\" at screen 0.02,0.02 left tc rgb \"#000044\" font \"monospace,8\"\n", localtime())
+  }
+
+#################################################
+# When exiting, close Gnuplot window
+#################################################
+sub finish {
+  print $fh "exit;\n";
+  close $fh;
+  exit;
+}
+
+$SIG{INT} = \&finish;
+$SIG{PIPE} = \&finish;
+
+
+
+my $last_wakeup;
+
+sub max {
+  my $a = shift;
+  my $b = shift;
+  return $a > $b ? $a : $b;
+  }
+
+sub min {
+  my $a = shift;
+  my $b = shift;
+  return $a < $b ? $a : $b;
+  }
+
+sub usleep_total {
+  my $delay = shift;
+  if(defined $last_wakeup) {
+    my $time = time();
+#     printf "%.0f\n",$delay-($time-$last_wakeup)*1E6;
+    usleep(max(0,$delay-($time-$last_wakeup)*1E6));
+    }
+  else {
+    usleep($delay);
+    }
+  $last_wakeup = time();
+  return $last_wakeup;
+  }
+
+
+#################################################
+# Write to gnuplot
+#################################################
+sub plot_write {
+  my ($str,$no) = @_;
+  if(defined($no) && $no) {
+    print $fh $str;
+#     print $str;
+    }
+  else {
+    print $fh $str."\n";
+#     print $str."\n";
+    }
+  }
+
+sub plot_add {
+  my ($x,$y) = @_;
+  $x = $x || $PlotBufferCnt;
+  $PlotBufArr[$PlotBufferCnt]->{x} = $x;
+  $PlotBufArr[$PlotBufferCnt]->{y} = $y;
+  
+  $PlotBufferCnt++;
+#   $PlotBuffer->{$x} = $y;
+#   print $x." ".$y."\n";
+  }
+  
+sub plot_end {
+  my ($single) = @_;
+  for(my $i = 0;$i<scalar @PlotBufArr;$i++) {
+    if($single) {
+      print $fh $PlotBufArr[$i]->{y}."\n";
+      }
+    else {
+      print $fh $PlotBufArr[$i]->{x}." ".$PlotBufArr[$i]->{y}."\n";
+      }
+    }
+#   foreach my $line (sort keys %{$PlotBuffer}) {
+#     if($single) {
+#       print $fh $PlotBuffer->{$line}."\n";
+# #       print     "plot_end: ".$PlotBuffer->{$line}."\n";
+#       }
+#     else {
+#       print $fh $line." ".$PlotBuffer->{$line}."\n";
+# #       print     "plot_end: ".$line." ".$PlotBuffer->{$line}."\n";
+#       }
+#     }
+  @PlotBufArr = ();
+  $PlotBuffer = {};
+  $PlotBufferCnt = 0;
+  print $fh "e\n";
+  $plotendedbefore = 1 unless $plotendedbefore;
+  }  
+
+
+sub plot_reset {
+  if($write2file eq ""){
+    system("xwininfo -name '$windowtitle' >/dev/null 2>/dev/null");
+		#print $?."\n";
+		if($? != 0) {
+			usleep(1E5);
+			system("xwininfo -name '$windowtitle' >/dev/null 2>/dev/null");
+			if($? != 0) {
+				finish();
+				}
+			}
+    if ($plotendedbefore != 0) {
+			$plotendedbefore = 0;
+#                         my $datestring = makeTimeString();
+                        print $fh makeTimeString();			
+                        print $fh "replot\n";
+			}
+		}
+	else {
+    if ($plotendedbefore != 0) {
+			system("mv $write2file.tmp $write2file");
+      plot_write("set out \"$write2file.tmp\"\n");
+      $plotendedbefore = 0;
+#       my $datestring = makeTimeString();
+      print $fh makeTimeString();
+      print $fh "replot\n";
+      
+#       print "reset\n";
+      }
+		}
+  }  
+
+sub plot_finished {
+	my ($store) = @_;
+	if($write2file ne "") {
+		if(defined $store) {
+			if($store->{"initing"} != 2 and $store->{"iteration"} % $store->{"downscale"} == 0) {
+# 				system("mv $write2file.tmp $write2file");
+				}
+			}
+		else {
+			if($write2file ne "") {
+# 				system("mv $write2file.tmp $write2file");
+				}
+			}
+		}
+	}
+
+sub plot_init {
+  my ($xtics) = @_;
+  $windowtitle = $name ." - ".$windowname;
+  if ($outputcfg =~ m$PNG.([/\w]*).(\d+).(\d+)$) {
+		print "Writing PNG to file $1\n";
+		$write2file = $1.".png";
+		plot_write("set term png size $2,$3 font \"monospace,8\"");
+		plot_write("set out \"$write2file.tmp\"");
+		}
+  elsif ($outputcfg =~ m$SVG.([/\w]*).(\d+).(\d+)$) {
+		print "Writing SVG to file $1\n";
+		$write2file = $1.".svg";
+		plot_write("set term svg size ".($2*2).",".($3*2)." dynamic font \"monospace,18\" lw 1.5 \n");
+		plot_write("set out \"$write2file.tmp\"\n");
+		}
+	else {
+    plot_write("set term x11 title '$windowtitle'");
+		}
+  plot_write("set grid");
+  plot_write("set xlabel \"$xtitle\"");
+  plot_write("set ylabel \"$ytitle\"");
+  
+  plot_write(makeTimeString());
+  
+  if(defined $xtics) {
+    plot_write("set xtics $xtics\n");
+    }
+  if(defined $xmin && defined $xmax) {
+    plot_write("set xrange [$xmin:$xmax]");
+    }
+  if(defined $ymin && defined $ymax) {
+    plot_write("set yrange [$ymin:$ymax]");
+    }
+  elsif(defined $ymax) {
+    plot_write("set yrange [:$ymax]");
+    }
+  elsif(defined $ymin) {
+    plot_write("set yrange [$ymin:]");
+    }
+  if (!defined $key || $key == 0) {
+		plot_write("unset key");
+		}
+	if($xgrid == 0) {
+	  plot_write("set grid noxtics");
+		}
+	if($ygrid == 0) {
+	  plot_write("set grid noytics");
+		}
+	if($plotoption ne "") {
+		plot_write($plotoption);
+		}
+  }
+
+sub plot_sleep {
+  my ($delay) = @_;
+  my $t = usleep_total($delay);
+  plot_reset();
+  return $t;
+  }
+
+sub plot_end_sleep {
+  my ($delay,$single) = @_;
+  plot_end($single);
+  return plot_sleep($delay);
+  }
+
+sub plot_storage_end_sleep {
+  my ($store, $single) = @_;
+  my $delay = $store->{"delay"};
+  my $t;
+  if($store->{"initing"} == 0) {
+    if($store->{"iteration"} % $store->{"downscale"} == 0) {
+      plot_end($single);
+      $t = usleep_total($delay);
+      plot_reset();
+      }
+    else {
+      $t = usleep_total($delay);
+      }
+    }
+  return $t;
+  }
+
+sub plot_storage_sleep {
+  my ($store,$noreset) = @_;
+  my $t;
+  my $delay = $store->{"delay"};
+  #print $store->{"initing"}.$store->{"iteration"}.$store->{"downscale"}."\n";
+  if($store->{"initing"} != 2) {
+    if($store->{"iteration"} % $store->{"downscale"} == 0) {
+      $t = usleep_total($delay);
+      plot_storage_reset() unless $noreset;
+      }
+    else {
+      $t = usleep_total($delay);
+      }
+    }
+  return $t;
+  }
+
+sub plot_storage_reset {
+  my ($store) = @_;
+  if(defined $store->{"initing"} && $store->{"initing"} != 2) {
+    if($store->{"iteration"} % $store->{"downscale"} == 0) {
+      plot_reset();
+      }
+    }
+  }
+  
+sub plot_storage_end {
+  my ($store) = @_;
+  if($store->{"initing"} == 0) {
+    if($store->{"iteration"} % $store->{"downscale"} == 0) {
+      plot_end();
+      }
+    }
+  }
+
+#################################################
+# Writes a new value pair to storage
+#################################################
+sub store_push {
+  my ($storage,$x,$y,$divtime) = @_;
+  my $xval = $x;
+  my $yval = $y;  
+  my $curtime = time();
+  
+  if ($storage->{"initing"} != 2) {
+    if (scalar(@{$storage->{"datax"}}) == $storage->{"size"}) {
+      my $tmp = shift(@{$storage->{"datax"}});
+      my $tmpy = shift(@{$storage->{"datay"}});
+      $storage->{"totalx"} -= $tmp;
+#       if($storage->{"initing"} == 0 && (($tmpy <= $storage->{"miny"}) || ($tmpy >= $storage->{"maxy"}))) {
+#         store_calc_range($storage);
+#         }
+      }  
+    if($storage->{"diffx"}) {
+      if(defined($storage->{"xmax"}) && $x < $storage->{"lastx"}) {
+        $xval = ($x - $storage->{"lastx"}  + $storage->{"xmax"});
+        }
+      else {
+        $xval = ($x - $storage->{"lastx"});
+        }
+      if(defined($storage->{"last_push"}) &&  $storage->{"last_push"} != 0) {
+        while (floor($xval/$storage->{"xmax"}) < floor(($curtime - $storage->{"last_push"})/($storage->{"xmax"}/1E6))){
+          $xval += $storage->{"xmax"};
+          }
+        }
+      }
+    if($storage->{"diffy"}) {
+			$yval = $y - $storage->{"lasty"};
+      if(defined($storage->{"ymax"}) && $y < $storage->{"lasty"}) {
+        while($yval < 0) {
+					$yval += $storage->{"ymax"};
+					}
+        }
+      if($divtime) {  
+        $yval /= ($xval?$xval:1)/1000000;
+        }
+      }
+
+    
+    if($storage->{"initing"} == 1) {
+      $storage->{"initing"} = 0;
+      for(my $i = $storage->{"size"}-1; $i>0; $i--) {
+        push(@{$storage->{"datax"}},$storage->{"delay"});
+        push(@{$storage->{"datay"}},$yval);
+        $storage->{"totalx"} += $storage->{"delay"};         
+        }
+      }
+    
+    push(@{$storage->{"datax"}},$xval?$xval:0);
+    push(@{$storage->{"datay"}},$yval?$yval:0);
+    $storage->{"totalx"} += $xval?$xval:0;
+    }
+  else {
+    $storage->{"initing"} = 1;
+    }
+
+  $storage->{"last_push"} = $curtime;
+  $storage->{"lasty"} = $y;
+  $storage->{"lastx"} = $x;
+  }
+
+#################################################
+# Writes storage contents to stream
+#################################################
+sub store_print {
+  my $str = "";
+  my ($storage) = @_;
+  if($storage->{"initing"} != 2) {
+    if($storage->{"iteration"} % $storage->{"downscale"} == 0) {
+      my $xcnt = - $storage->{"totalx"} /1000000.0;
+      for (my $i = 0; $i < $storage->{"size"}; $i++) {
+        my $xval = $storage->{"datax"}->[$i];  #${}[]
+        my $yval = $storage->{"datay"}->[$i];
+        $xval = 0 unless defined($xval);
+        $yval = 0 unless defined($yval);
+        $xcnt += $xval/1000000.0;
+#        $str .= $xcnt." ".$yval."\n";
+        $str .= sprintf "%.3f %.2f\n", $xcnt,$yval;
+        #plot_write($xcnt/1000000.0." ".$yval);
+        }
+      plot_write($str,1);  
+#       print $str;
+      plot_end(1);
+      }
+    $storage->{"iteration"}++;
+    }
+  }
+
+
+#################################################
+# Initialize storage
+#################################################
+sub store_init {
+  my ($storage,$size,$diffx,$diffy,$delay,$downscale,$xmax,$ymax) = @_;
+  
+  $storage->{"datax"} = [];
+  $storage->{"datay"} = [];
+  $storage->{"size"}  = $size;
+  $storage->{"diffx"} = $diffx;
+  $storage->{"diffy"} = $diffy;
+  $storage->{"delay"} = $delay;
+  $storage->{"downscale"} = $downscale;
+  $storage->{"initing"}   = 2;
+  $storage->{"iteration"} = 0;
+  $storage->{"totalx"}    = 0;
+  $storage->{"xmax"}      = $xmax;
+  $storage->{"ymax"}      = $ymax;
+  $storage->{"maxy"} = 0;
+  $storage->{"miny"} = 1E100;
+  $storage->{"last_push"} = 0;
+  $storage->{"last_sleep"}  = 0;
+  }
+
+#################################################
+# Help Message
+#################################################
+sub help {
+  print <<EHELP;
+  hadplot plots values...
+  --------------------------------------------
+  Usage: hadplot [-d int] [-n int] [-o int]
+  \t\t [-a int -r int -w int -p int [-m int] [-t str]]*
+  \t\t [-output str] [-windowname str] [-(no)key] [-g geometry] [-z style]
+  \t\t [-curvestyle str] [-curveoption str] [-plotoption str]
+  \t\t [-xscale int] [-xmax int] [-xtitle str] [-(no)xticks] [-(no)xgrid] [-xoverflow float]
+  \t\t [-yscale int] [-ymax int] [-ytitle str] [-(no)yticks] [-(no)ygrid] [-yoverflow float]
+  \t\t  command
+  
+Options:
+  command         One of the commands listed below
+  -d delay        Time to sleep between readings in milliseconds
+  -n samples      Number of samples to store / display in histogram
+  -d downscaling  Replot histogram only every nth iteration
+  -g geometry     Size of the plot window in pixels
+  -a address      Board address when using generic option 
+  -p register     Register address when using generic option
+  -w regwidth     Width in bits of the value to plot
+  -r regoffset    Offset of the value to plot in the register
+  -z style        Selects one of the possible styles (deprecated)
+  -output         expects a string "(PNG|SVG).\$filename.\$xsize.\$ysize" to write to a file
+  -windowname     Name of window (shown in titlebar after "Hadplot - "
+  -timeref        In a differential plot, the endpoint with this addressis used for timestamping
+  -(x|y)scale     Scaling factor, the x/y values are divided by
+  -(x|y)max       Maximal value for x/y axis
+  -(x|y)title     Label for axes
+  -xistime        Marks x axis as containing time stamps (used for formatting)
+  -(no)(x|y)ticks Switches tick marks on axes on or off (e.g. OEP addresses / values)
+  -(no)(x|y)grid  Switches grid lines on or off
+  -(x|y)overflow  The value at which the register content has an overflow
+  -ydiff          Plot differences of register contents on y-axis
+  -(no)key        Show key for all plots
+  -curvestyle     Plot type: points, histo, histostacked, steps
+  -curveoption    Additional options given to the plot command (per curve)
+  -plotoption     Additional commands given to gnuplot
+  
+EHELP
+
+     
+  print "\nAvailable commands:\n";
+  print "\thelp\t\tPrints this message\n";
+  print "\trpcdatarate\tNumber of sent and received data words (RPC only)\n";
+  print "\toeptemp\t\tDisplays temperatures (OEP only)\n";
+  print "\toep5V\t\tShows the input and output voltages of 5V (OEP only)\n";
+  print "\toep3.3V\t\tShows the input and output voltages of 3.3V (OEP only)\n";
+  print "\toep1.2V\t\tShows the input and output voltages of 1.2V (OEP only)\n";
+  print "\toep3V\t\tShows the input  voltages of +-3V (OEP only)\n";
+  print "\tdatarate\tshows a histogram of data rates\n";
+  print "\teventrate\tHistogram of the trigger rate\n";
+  print "\tbusytime\tHistogram of busy times\n";
+  print "\tbusy\t\tBargraph of busy times\n";
+  print "\tfilllevel\tFill level of data buffers in all endpoints\n";
+  print "\toepfill\t\tFill level of OEP buffers\n";
+  print "\tshowerfill\tFill level of Shower buffers\n";
+  print "\toepspikehist\tSpike histogram of OEP CMS input\n";
+  print "\toepworktime\tStatistics about states of the OEP trigger handler\n";
+  print "\toeptrgerr\tNumbers of errors on CMS for indivual OEP\n";
+  print "\toeptrgerrhist\tHistory of errors on CMS of OEP\n";
+  print "\toepretr\t\tRetransmission statistics for individual OEP\n";
+  print "\toepretrhist\tHistory of retransmissions on OEP\n";
+  print "\toeptokenmiss\tNumber of missing tokens on OEP\n";
+  print "\toepwords\t\tNumber of data words sent by OEP\n";
+  print "\tmdcchannel\tData counters per TDC channel for MDC\n";
+  print "\tmdcchanneldiff\tdata counters per TDC channel for MDC, changes only\n";
+  print "\tgberate\t\tAmount of data sent by GbE links\n";
+  print "\ttimecmslvl1\tTime between CMS and LVL1 trigger on OEP\n";
+#  print "\t\t\n";
+  
+  print "\n";
+  print "\treg\t\tPrint any specified register from addressed boards\n";
+  print "\tregdiff\t\tPrint the changes of any specified register from addressed boards\n";
+  print "\thist\t\tShows a histogram of the specified value \n";
+  print "\thistdiff\tShows a histogram of the changes of the specified value\n";
+  print "\n\n";
+  }
+
+
+
+#################################################
+# Generic Register
+#################################################
+sub bitmap {
+  my ($delay,$address,$register,$regamount,$regoff,$regwidth,$title,$style,$name) = @_;
+  $style = 0 unless defined $style;
+  for(my $i = 0; $i<scalar(@{$address});$i++) {
+#     if(!(defined($title->[$i])) || ($title->[$i] eq "")) {
+#       $title->[$i] = hex($address->[$i])." ".$register->[$i]." ".$regoff->[$i]."..".($regoff->[$i]+$regwidth->[$i]-1);
+#       }
+    if (!(defined $regamount->[$i])) {
+      $regamount->[$i] = 1;
+      }
+    }
+  $ymin = $regoff->[0];
+  $ymax = $regoff->[0]+$regwidth->[0];
+  plot_init(256);  
+#   if ($style == 0) {
+#     plot_write("plot",1);
+#     for(my $i = 0; $i<scalar(@{$address});$i++) {
+#       plot_write("'-' using 1:2 with points pt 5 title \"$title->[$i]\" ",1);
+#       plot_write(", ",1) unless $i == scalar(@{$address})-1;
+#       }
+#     plot_write("");  
+#     }
+#   elsif($style == 1) {
+    plot_write("set xtics rotate by 90 offset .7,-2 scale 0 ");
+    plot_write("set style fill   solid 1.00 border -1");
+    plot_write("set boxwidth 1 absolute");    
+    plot_write("unset key");
+    plot_write('set format x "%x"');
+    plot_write("plot ",1);
+    for(my $i = 0; $i<scalar(@{$address});$i++) {
+      plot_write("'-'  with points pt 5 ps 1 title \"$title->[$i]\" ",1); #using 2:xticlabels(1)
+      plot_write(", ",1) unless $i == scalar(@{$address})-1;
+      }
+    plot_write(""); 
+#     }
+  while(1) {
+    for(my $i = 0; $i<scalar(@{$address});$i++) {
+      my $c;
+      if ($regamount->[$i] == 1) {
+        $c = "trbcmd r $address->[$i] $register->[$i] | sort";  
+        }
+      else {
+        $c = "trbcmd rm $address->[$i] $register->[$i] $regamount->[$i] 0";  
+        }
+      my @out = qx($c);
+      my $addr = undef;
+      my $cnt = 0;
+      foreach my $s (@out) {
+        if($s =~ /^H:\s*0x(\w\w\w\w)/) {
+          $addr = $1;
+          }
+        if($s =~ /^0x(\w\w\w\w)\s*0x(\w{8})/) {
+          $addr = hex($1) if($regamount->[$i] == 1);
+          if ($regamount->[$i] == 1) { plot_add($addr,-1);  }
+          else {                       plot_add("\"$addr.$1\"",-1); }
+          for(my $j = $regoff->[$i]; $j < $regoff->[$i] + $regwidth->[$i];$j++) {
+            if(hex($2) & (1<<$j)) {
+              if ($regamount->[$i] == 1) { plot_add("$addr",$j);  }
+              else {                       plot_add("\"$addr.$1\"",$j); }
+              }          
+            }
+          $cnt++;
+          }
+        }
+      plot_end(1);
+      }
+    plot_sleep($delay);
+    }
+  }
+
+
+
+#################################################
+# Generic Register differences
+#################################################
+sub genreg {
+  my %oldvals;
+
+  plot_init(undef);  
+
+  if($xticks) {
+    plot_write("set xtics rotate by 90 offset .7,-1.7 scale .7 ");
+    }
+  if($curvestyle eq "histo") {
+    plot_write("set style fill   solid 1.00 border -1");
+    plot_write("set boxwidth 2 absolute");    
+    }
+  elsif($curvestyle eq "histostacked") {
+    plot_write("set style fill   solid 1.00 border -1");
+    plot_write("set style histogram rowstacked");
+    plot_write("set boxwidth 1 absolute");   
+    plot_write("set key outside") unless defined $key && $key==0; 
+    plot_write("set autoscale xfix ");    
+    }
+
+  plot_write("plot",1);
+  for(my $i = 0; $i<scalar(@{$address});$i++) {
+    plot_write("'-' ",NONEWLINE);
+    if($xticks) {
+			plot_write("using 2:xticlabels(1) ",NONEWLINE);
+			}
+    if(($curvestyle =~ /histo/)) {
+      plot_write("with histograms lt rgb \"$color[$i]\" title \"$title->[$i]\" ",NONEWLINE);
+      }
+    elsif ($curvestyle eq "steps") {      
+			plot_write("with histeps title \"$title->[$i]\" ",NONEWLINE);
+			}
+    else {
+      plot_write("with points pt 5 title \"$title->[$i]\" ",NONEWLINE);
+      }
+    plot_write(" ".$curveoption->[$i],NONEWLINE);
+    plot_write(", ",NONEWLINE) unless $i == scalar(@{$address})-1;
+    }
+  plot_write(""); 
+
+
+  while(1) {
+    for(my $i = 0; $i<scalar(@{$address});$i++) {
+      my $c;
+      my $cnt;
+      if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
+        $c = "trbcmd r $address->[$i] $register->[$i] | sort";  
+        }
+      else {
+        $c = "trbcmd rm $address->[$i] $register->[$i] $regamount->[$i] 0";  
+        }
+      my @out = qx($c);
+      my $addr = undef;
+      foreach my $s (@out) {
+        if($s =~ /^H:\s*0x(\w\w\w\w)/) {
+          $addr = $1;
+          $cnt = -1;
+          }
+        if($s =~ /^0x(\w{4})\s*0x(\w{8})/) {
+          my $tmp = (hex($2)>>$regoffset->[$i])&(2**$regwidth->[$i]-1);
+          my $val = 0;
+          my $board = $1;
+          if(defined $addr) {$board = $addr;}
+          $cnt++;
+          my $reg   = $1;
+          if($ydiff) {
+						if(defined $oldvals{$i}->{$board.$reg}) {
+							if ($oldvals{$i}->{$board.$reg} > $tmp) {
+								$val = $tmp - $oldvals{$i}->{$board.$reg} + 2**$regwidth->[$i];
+								}
+							else {
+								$val = $tmp - $oldvals{$i}->{$board.$reg};
+								}
+							}
+						$oldvals{$i}->{$board.$reg} = $tmp;  
+						}
+				  else {
+						$val = $tmp;
+						}
+          if($xticks) {
+            if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
+              plot_add("\"$board\"",$val/($yscale->[$i]||1));
+              }
+            else {
+              plot_add("\"$board.$reg\"",$val/($yscale->[$i]||1));
+              }
+            }
+          else {
+            plot_add("",$val/($yscale->[$i]||1));
+            }
+          }
+        }
+        plot_end(!$xticks);
+      }
+    plot_sleep($delay);
+    }    
+  }
+
+#################################################
+# Generic Histogram
+#################################################
+sub genhist {
+  my %storearr;
+  my %oldvals;
+#   $xtitle = "Time [s]" unless $xtitle ne "";
+  plot_init();
+  plot_write("set autoscale fix");
+  plot_write("plot",1);
+  $diff = 0 unless defined($diff);
+  for(my $i = 0; $i<scalar(@{$address});$i++) {
+    $storearr{$i} = {};
+    store_init($storearr{$i},$samples,DIFFX,$ydiff,$delay,$downscale,$xoverflow->[$i],$yoverflow->[$i]); 
+    plot_write("'-' with lines title \"$title->[$i]\" ",1);
+    plot_write(", ",1) unless $i == scalar(@{$address})-1;
+    }
+  plot_write(""); 
+  
+  while(1) {
+    my $a, my $s, my $t;
+    my $val = 0 , my $time;
+    plot_storage_reset($storearr{0});
+    for(my $i = 0; $i<scalar(@{$address});$i++) {
+      $val = 0;
+      my $c = "trbcmd rt $address->[$i] $register->[$i] | sort";
+      my @out = qx($c);
+      $time += $delay;
+      foreach my $o (@out) {
+        if (($a,$s,$t) = $o =~ /^0x(\w{4})\s*0x(\w{8})\s*0x(\w{4})/) {
+          $val  += ((hex($s)>>($regoffset->[$i]))&(2**($regwidth->[$i])-1));
+          $time = hex($t)*16;
+          }
+        }
+      store_push($storearr{$i},$time/$xscale->[$i],$val/($yscale->[$i]||1),AXISISTIME);
+      store_print($storearr{$i});
+      }
+    plot_storage_sleep($storearr{0});
+		plot_finished($storearr{0});
+    }
+  }
+
+#################################################
+# Deadtime histogram
+#################################################
+sub deadtimehist2 {
+  my %values, my %lastvalues, my %diffvalues;
+  my @keys  = ("33","34","36","31","38","37","3b","35");
+  my @keys2 = ("43","44","46","41","48","47","4b","45");
+  my @names = ("MDC12","MDC34","TOF","RPC","RICH","SHW","Start","FW");
+  my %storearr;
+  
+  if ($style != 0) {
+    for(my $i= 0; $i < scalar(@keys); $i++) {
+      $storearr{$keys[$i]} = {};  
+      store_init($storearr{$keys[$i]},$samples,0,0,$delay*.0,$downscale,2**32,2**32);
+      }
+    for(my $i= 0; $i < scalar(@keys2); $i++) {
+      $storearr{$keys2[$i]} = {};  
+      store_init($storearr{$keys2[$i]},$samples,0,0,$delay*.0,$downscale,2**32,2**32);
+      }
+    }
+  
+  plot_init();
+  plot_write("set key left top Left");
+  plot_write("set autoscale fix");
+  plot_write("set yrange [-1:101]");
+  
+  if ($style != 0) {
+    plot_write("plot ",1);
+    plot_write("\"-\" title \"MDC12\" with lines,",1);
+    plot_write("\"-\" title \"MDC34\" with lines,",1);
+    plot_write("\"-\" title \"TOF\" with lines,",1);  
+    plot_write("\"-\" title \"RPC\" with lines,",1);
+    plot_write("\"-\" title \"RICH\" with lines,",1);
+    plot_write("\"-\" title \"SHW\" with lines,",1);
+    plot_write("\"-\" title \"Start\" with lines,",1);
+    plot_write("\"-\" title \"FW\" with lines");
+    }
+  else {
+    plot_write("set style fill   solid 1.00 border -1");
+    plot_write("set grid noxtics ytics");
+    plot_write("set boxwidth 2 absolute");
+    plot_write("set xtics ('MDC12' 0,'MDC34' 1,'TOF' 2, 'RPC' 3, 'RICH' 4, 'SHW' 5, 'Start' 6, 'FW' 7) offset 2,0 scale 0");
+    plot_write("set style histogram title offset character 0, 0, 0");
+    plot_write("set style data histograms");
+    plot_write("plot \"-\" title 'incl. busy' lt rgb \"#1155bb\", \"-\" title 'excl. busy' lt rgb \"#bb1111\"");
+    }
+	my $cmd = sprintf("trbcmd -n-1 -s%d rmt 0x8001 0x4031 31 0",$delay/1000);
+	if($style != 0) {
+		$cmd =  sprintf("trbcmd -n-1 -s%d rmt 0x8001 0x4031 12 0",$delay/1000);
+		}
+	open(FTRB, "$cmd|");
+
+  while(my $a = <FTRB>) {
+    if($a =~ /^0x\w{2}(\w{2})\s*0x(\w{8})\s*0x(\w{4})/) {
+      $values{$1}   = hex($2);
+      $values{"50"} = hex($3)*16;
+      }
+    if ($a eq "---\n") {
+			$diffvalues{"50"} = 1E6;  
+			if (defined $lastvalues{"50"}) {
+				if ($values{"50"} > $lastvalues{"50"}) {
+					$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"};
+					}
+				else {
+					$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"} + 2**20;
+					}
+				}    
+			#$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"} if defined $lastvalues{"50"};
+			my $time = $diffvalues{"50"};
+			foreach my $key (keys %values) { 
+				next unless hex($key)<0x50;
+				$diffvalues{$key} = 0;
+				if (defined $lastvalues{$key}) {
+					if ($values{$key} >= $lastvalues{$key}) {
+						$diffvalues{$key} = $values{$key} - $lastvalues{$key};
+						}
+					else {
+						$diffvalues{$key} = $values{$key} - $lastvalues{$key} + 2**32;
+						}
+					}
+				$diffvalues{$key} /= $time if $time;
+				#print $key." ".$values{$key}." ".$lastvalues{$key}." ".$diffvalues{$key}."\n";
+				}  
+			#print "=====\n";
+			$diffvalues{"31"} = max($diffvalues{"31"},$diffvalues{"32"});
+			$diffvalues{"38"} = max(max($diffvalues{"38"},$diffvalues{"39"}),$diffvalues{"3a"});
+			if ($style == 0) {
+				$diffvalues{"41"} = max($diffvalues{"41"},$diffvalues{"42"});
+				$diffvalues{"48"} = max(max($diffvalues{"48"},$diffvalues{"49"}),$diffvalues{"4a"});
+				}
+			%lastvalues = %values;
+			if($style != 0) {
+        plot_storage_reset($storearr{$keys[0]});
+				for(my $i= 0; $i < scalar(@keys); $i++) {
+					store_push($storearr{$keys[$i]},$time,$diffvalues{$keys[$i]},0);
+					store_print($storearr{$keys[$i]});
+					}
+				plot_storage_sleep($storearr{$keys[0]},1);      
+				plot_finished($storearr{$keys[0]});
+        }
+			else {
+        plot_reset();
+				for(my $i= 0; $i < scalar(@keys); $i++) {    
+					plot_add("",$diffvalues{$keys[$i]});  #"\"".$names[$i]."\"",
+					}
+				plot_end(1);  
+				for(my $i= 0; $i < scalar(@keys2); $i++) {    
+					plot_add("",$diffvalues{$keys2[$i]});  #"\"".$names[$i]."\"",
+					}
+				plot_end(1);
+				plot_finished();
+        }
+			}
+    }
+  } 
+
+
+#################################################
+# Select Operation
+#################################################
+
+if(!(defined $ARGV[0])  || $ARGV[0] =~ /help/) {help(); exit;}
+
+if($ARGV[0] =~ /oep5V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x8010,0x8011];
+  $regwidth    = [12,12];
+  $regoffset   = [0,0];
+  $yscale      = [.5,.5];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["5.8V input","5V reg."];
+  genreg();
+  }
+
+if($ARGV[0] =~ /oep3.3V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x8012,0x8013];
+  $regwidth    = [12,12];
+  $regoffset   = [0,0];
+  $yscale      = [1,1];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["3.8V input","3.3V reg."];
+  genreg();
+  }
+
+if($ARGV[0] =~ /oep1.2V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x8014,0x8015];
+  $regwidth    = [12,12];
+  $regoffset   = [0,0];
+  $yscale      = [1,1];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["1.8V input","1.2V reg."];
+  genreg();
+  }
+
+if($ARGV[0] =~ /oep3V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x8016,0x8017];
+  $regwidth    = [12,12];
+  $regoffset   = [0,0];
+  $yscale      = [1,1];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["+3V input","-3V reg."];
+  genreg();
+  }
+
+if($ARGV[0] =~ /oepminmaxp3V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x801e,0x801e];
+  $regwidth    = [12,12];
+  $regoffset   = [0,16];
+  $yscale      = [1,1];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["+3V minimum","+3V maximum"];
+  genreg();
+  }  
+
+if($ARGV[0] =~ /oepminmaxn3V/) {
+  $address     = [0xfffd,0xfffd];
+  $register    = [0x801f,0x801f];
+  $regwidth    = [12,12];
+  $regoffset   = [0,16];
+  $yscale      = [1,1];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["-3V minimum","-3V maximum"];
+  genreg();
+  }    
+
+if($ARGV[0] =~ /oepminmax5Vin/) {
+  $address     = [0xfffd,0xfffd,0xfffd];
+  $register    = [0x8018,0x8018,0x8010];
+  $regwidth    = [12,12,12];
+  $regoffset   = [0,16,0];
+  $yscale      = [.5,.5,.5];
+  $xtitle      = "Board";
+  $ytitle      = "Voltage [mV]";
+  $key         = YES;
+  $windowname  = "OEP Voltages";
+  $title       = ["5Vin minimum","5Vin maximum","5Vin"];
+  genreg();
+  }    
+  
+if($ARGV[0] =~ /oeptemp/) {
+  oeptemp(($delay)?$delay:5000000,[$name." - OEP Temperature"]);
+  }
+
+
+if($ARGV[0] =~ /rpcdatarate/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 ;
+	$xtitle      = "Sender ((Sector mod 3)*4+TRB)";
+	$ytitle      = "Data Words /1024";
+  $windowname  = "Data Words sent by RPC";
+  $curvestyle  = "histo";
+  $key         = YES;
+  $ydiff       = DIFFY;
+  $ymin        = 0;
+  $yscale      = [512,512];
+  $address     = [0x8401,0x8411];
+  $register    = [0x4001,0x4001];
+  $regamount   = [12,12];
+  $title       = ["Sector 0,1,2","Sector 3,4,5"];
+  $regoffset   = [0,0];
+  $regwidth    = [32,32]; 
+  genreg();
+  }
+
+#hadplot -a 2 -r 1 -p 0 -w 16 -d 5 -o 200 -n 1000 -yoverflow 65536 genhistdiff
+
+if($ARGV[0] =~ /eventratehighres/) {
+  $delay       = 5000 ; #unless $delay;
+  $samples     = 1000; # unless $samples;
+  $downscale   = 200;#  unless $downscale;
+#   $style       = 0 unless $style;
+  $windowname  = "Eventrate High Resolution";
+  $xistime     = AXISISTIME;
+  $ydiff       = DIFFY;
+  $xoverflow   = [2**20];
+  $title       = ["Event rate"];
+  $address     = [0x2];
+  $register    = [0x1];
+  $regoffset   = [0];
+  $regwidth    = [16];
+  $yoverflow   = [65536];
+  genhist();
+  } 
+  
+  
+if($ARGV[0] =~ /eventrate/) {
+  $address     = [0x2];
+  $register    = [0x1];
+  $regwidth    = [16];
+  $regoffset   = [0];
+  $timeref     = [0x2];
+  $delay       = 100000 unless $delay;
+  $samples     = 500    unless $samples;
+  $downscale   = 10     unless $downscale;
+  $windowname  = "Event rate history"; 
+  $key         = NO;
+	$ytitle      = "Event rate [Hz]" if $ytitle eq "";
+	$xistime     = AXISISTIME;
+	$ydiff       = DIFFY;
+	$xoverflow   = [2**20];
+	$yoverflow   = [2**16] unless $yoverflow->[0] != 2**32;
+	genhist();
+  }
+
+if($ARGV[0] =~ /datarate/) {
+  $address     = [0xff7f];
+  $register    = [0x83f3];
+  $regwidth    = [32];
+  $regoffset   = [0];
+  $timeref     = [0x8000];
+  $delay       = 100000 unless $delay;
+  $samples     = 500    unless $samples;
+  $downscale   = 5      unless $downscale;
+  $windowname  = "Total data rate history"; 
+	$xtitle      = "Time [s]" unless defined $xtitle;
+	$ytitle      = "Data rate [MiByte]" unless defined $ytitle;
+	$xistime     = AXISISTIME;
+	$ydiff       = DIFFY;
+	$xoverflow   = [2**20];
+	$yoverflow   = [2**12];
+	$yscale      = [2**20];
+	$key         = NO;
+	genhist();
+  }  
+
+if($ARGV[0] =~ /busytime/) {
+  $delay       = 100000 unless $delay;
+  $samples     = 100    unless $samples;
+  $downscale   = 5      unless $downscale;
+  $style       = 1;
+  $windowname  = "Busytime history";
+  deadtimehist2();
+  }  
+
+if($ARGV[0] =~ /busy/) {
+  $delay       = 100000 unless $delay;
+  $style       = 0;
+  $windowname  = "Busy time";
+  deadtimehist2();
+  }
+
+if($ARGV[0] =~ /oepspikehist/) {
+  $delay       = 100000 unless $delay;
+  $samples     = 1000 unless $samples;
+  $downscale   = 10   unless $downscale;
+#   $style       = 0 unless $style;
+  $windowname  = "OEP CMS Spikes";
+  $ydiff       = DIFFY;
+  $title       = ["OEP CMS Spikes"];
+  $address     = [0xfffd];
+  $register    = [7];
+  $regoffset   = [0];
+  $regwidth    = [16];
+  genhist();
+  } 
+
+if($ARGV[0] =~ /oepretrhist/) {
+  $delay       = 500000 unless $delay;
+  $samples     = 600 unless $samples;
+  $downscale   = 2   unless $downscale;
+  $style       = 0 unless $style;
+  $windowname  = "OEP Retransmissions";
+  $ydiff       = DIFFY;
+  $title       = ["Retransmit Received","Retransmit Sent"];
+  $address     = [0xfffd,0xfffd];
+  $register    = [4,4];
+  $regoffset   = [16,24];
+  $regwidth    = [8,8];
+  genhist();
+  }
+
+if($ARGV[0] =~ /oeptokenmisshist/) {
+  $delay       = 500000 unless $delay;
+  $samples     = 2000 unless $samples;
+  $downscale   = 4   unless $downscale;
+  $style       = 0 unless $style;
+  $windowname  = "OEP Token Missing";
+  $ydiff       = DIFFY;
+  $title       = ["Missing Tokens"];
+  $address     = [0xfffd];
+  $register    = [0x9101];
+  $regoffset   = [0];
+  $regwidth    = [24];
+  genhist();
+  } 
+
+  
+if($ARGV[0] =~ /oeptrgerrhist/) {
+  $delay       = 500000 unless $delay;
+  $samples     = 2000 unless $samples;
+  $downscale   = 2   unless $downscale;
+  $style       = 0 unless $style;
+  $windowname  = "OEP CMS Errors";
+  $ydiff       = DIFFY;
+  $title       = ["Spikes","Spurious","Invalid","Multiple"];
+  $address     = [0xfffd,0xfffd,0xfffd,0xfffd];
+  $register    = [7,7,6,6];
+  $regoffset   = [0,16,0,16];
+  $regwidth    = [16,16,16,16];  
+  genhist();
+  } 
+
+
+if($ARGV[0] =~ /histdiff/) {
+  $delay       = 1000000 unless $delay;
+  $samples     = 200 unless $samples;
+  $downscale   = 1   unless $downscale;
+  $style       = 0 unless $style;
+  $ydiff       = DIFFY;
+  genhist();
+  } 
+
+if($ARGV[0] =~ /hist/) {
+  $delay       = 1000000 unless $delay;
+  $samples     = 200 unless $samples;
+  $downscale   = 1   unless $downscale;
+  $style       = 0   unless $style;
+  $ydiff       = NODIFFY;
+  genhist();
+  } 
+
+if($ARGV[0] =~ /oepworktime/) {
+  $delay       = 1000000 unless $delay;
+	$curvestyle  = "histostacked";
+	$xticks      = 0 unless $xticks;
+	$ymax        = $delay*1.1/1000;
+	$yscale      = [1000];
+	$xtitle      = "OEP";
+	$ytitle      = "Time [ms]";
+  $windowname  = "OEP Trigger Handling Times";
+  $ydiff       = DIFFY;
+  $title       = ["Readout","Waiting","Initialization","Calibration","Idle"];
+  $address     = [0xfffd,0xfffd,0xfffd,0xfffd,0xfffd];
+  $register    = [0x9113,0x9114,0x9111,0x9112,0x9110];
+  $regoffset   = [0,0,0,0,0];
+  $regwidth    = [32,32,32,32,32]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /gberate/) {
+  $delay       = 1000000 unless $delay;
+	$curvestyle  = "histostacked";
+	$xticks      = 1 unless $xticks;
+	$xtitle      = "Sender";
+	$ytitle      = "Data Rate (kiB)" if $ytitle eq "";
+  $windowname  = "Gbe Data Rate";
+  $key         = NO;
+  $ydiff       = DIFFY;
+  $xgrid       = NO;
+  $address     = [0xff7f];
+  $register    = [0x83f3];
+  $regoffset   = [10];
+  $regwidth    = [22]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /oepwords/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 unless defined $xticks;
+	$xtitle      = "Sender";
+	$ytitle      = "Data Words";
+  $windowname  = "Data Words sent by OEP";
+  $yscale      = [1];
+  $key         = NO;
+  $ydiff       = DIFFY;
+  $address     = [0xfffd];
+  $register    = [0x910B];
+  $regoffset   = [0];
+  $regwidth    = [32]; 
+  genreg();
+  }
+
+
+if($ARGV[0] =~ /mdcchan/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1;
+	$xtitle      = "Sender";
+	$ytitle      = "Data Words";
+  $windowname  = "Data words per TDC channel";
+  $yscale      = [1];
+  $key         = NO;
+  $ydiff       = NODIFFY;
+  if ($ARGV[0] =~ /diff/) {
+		$ydiff       = DIFFY;
+		}
+  $address     = [$address->[0]?$address->[0]:0xfffd];
+  $register    = [0xc088];
+  $regamount   = [96];
+  $regoffset   = [0];
+  $regwidth    = [32]; 
+  genreg();
+  }
+
+
+if($ARGV[0] =~ /regdiff/) {
+  $delay       = 1000000 unless $delay;
+# 	$xticks      = 1 unless $xticks;
+  $ydiff       = DIFFY;
+#   $key         = NO unless defined $key;
+  $windowname  = "General Plot" unless $windowname;
+  genreg();
+  }
+
+if($ARGV[0] =~ /reg/) {
+  $delay       = 1000000 unless $delay;
+# 	$xticks      = 1 unless $xticks;
+  $ydiff       = NODIFFY;
+#   $key         = NO unless defined $key;
+  $windowname  = "General Plot" unless $windowname;
+  genreg();
+  }
+
+if($ARGV[0] =~ /oeptrgerr/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 unless defined $xticks;
+	$xtitle      = "Board";
+	$ytitle      = "# of errors";
+  $windowname  = "OEP CMS Errors";
+  $key         = YES;
+  $ydiff       = NODIFFY;
+  $title       = ["Spikes","Spurious","Invalid","Multiple"];
+  $address     = [0xfffd,0xfffd,0xfffd,0xfffd];
+  $register    = [7,7,6,6];
+  $regoffset   = [0,16,0,16];
+  $regwidth    = [16,16,16,16]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /oepfill/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 unless defined $xticks;
+	$xtitle      = "Board";
+	$ytitle      = "Words in Buffer";
+  $windowname  = "OEP Buffer Fill Level";
+  $key         = NO;
+  $ydiff       = NODIFFY;
+  $address     = [0xfffd];
+  $register    = [0x7100];
+  $regoffset   = [0];
+  $regwidth    = [16]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /showerfill/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 unless defined $xticks;
+	$xtitle      = "Board";
+	$ytitle      = "Words in Buffer";
+  $windowname  = "Shower Data Buffer Fill Level";
+  $key         = $key || NO;
+  $ydiff       = NODIFFY;
+  $address     = [0xfff7,0xfff7,0xfff7,0xfff7,0xfff7,0xfff7];
+  $register    = [0x7100,0x7101,0x7102,0x7103,0x7104,0x7105];
+  $regoffset   = [0,0,0,0,0,0];
+  $regwidth    = [16,16,16,16,16,16]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /filllevel/) {
+  $delay       = 1000000 unless $delay;
+	$xticks      = 1 unless defined $xticks;
+	$xtitle      = "Board";
+	$ytitle      = "Words in Buffer";
+  $windowname  = "Front-end Data Buffer Fill Level";
+  $key         = NO;
+  $ydiff       = NODIFFY;
+  $address     = [0xffff,0xffff,0xffff,0xffff,0xffff,0xffff];
+  $register    = [0x7100,0x7101,0x7102,0x7103,0x7104,0x7105];
+  $regoffset   = [0,0,0,0,0,0];
+  $regwidth    = [16,16,16,16,16,16]; 
+  genreg();
+  }
+
+if($ARGV[0] =~ /oepretr/) {
+  $delay       = 1000000 unless $delay;
+  $windowname  = "OEP Retransmissions";
+  $key         = YES;
+  $ydiff       = NODIFFY;
+  $title       = ["Retransmit Received","Retransmit Sent"];
+  $address     = [0xfffd,0xfffd];
+  $register    = [4,4];
+  $regoffset   = [16,24];
+  $regwidth    = [8,8];
+  genreg();
+  }
+
+if($ARGV[0] =~ /timecmslvl1/) {
+  $delay       = 1000000 unless $delay;
+  $windowname  = "Trigger Delay";
+  $key         = NO;
+  $ydiff       = NODIFFY;
+  $ytitle      = "Time between CMS and LVL1 [10ns]";
+  $address     = [0xfffd];
+  $register    = [2];
+  $regoffset   = [16];
+  $regwidth    = [11];
+  genreg();
+  }
+
+if($ARGV[0] =~ /oeptokenmiss/) {
+  $delay       = 1000000 unless $delay;
+  $windowname  = "OEP Token Missing";
+  $key         = NO;
+  $ydiff       = NODIFFY;
+  $ytitle      = "# of missing token";
+  $address     = [0xfffd];
+  $register    = [0x9101];
+  $regoffset   = [0];
+  $regwidth    = [24];
+  genreg();
+  }
+
+if($ARGV[0] =~ /slowcontrolrate/) {
+  $delay       = 1000000 unless $delay;
+  $samples     = 240 unless $samples;
+  $downscale   = 1   unless $downscale;
+  $style       = 0 unless $style;
+  $windowname  = "Slow Control Data Rate";
+  $ydiff       = DIFFY;
+  $ytitle      = "Slow Control Data / kByte/s";
+  $address     = [0x8000];
+  $register    = [0x4012];
+  $regoffset   = [0];
+  $regwidth    = [32];  
+  $yscale      = [102.4];
+  genhist();
+  } 
+
+
+
+if($ARGV[0] =~ /commonstatus/) {
+  bitmap(($delay)?$delay:1000000,[0xffff],[0],[1],[0],[20],["Common Status Bits"],0,$name." - Common Status Bit");
+  } 
+if($ARGV[0] =~ /genbit/ || $ARGV[0] =~ /bitmap/) {
+  bitmap(($delay)?$delay:1000000,$address,$register,$regamount,$regoffset,$regwidth,$title,$style,$name." - ".$windowname);
+  }   
+
