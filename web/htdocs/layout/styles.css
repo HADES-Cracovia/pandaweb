@@ -232,5 +232,12 @@ table#content.map td + td + td + td + td{width:120px;}
   margin-top:3px;
 }
 
+table#server-details td.label {
+   padding-right: 10px;
+}
 
+table#server-details pre {
+   display: inline;
+}
+   
 
