@@ -71,6 +71,7 @@ var CTS = new Class({
    
    initialize: function(defs) {
       this.defs = defs;
+      this.monitorPrefix = 'monitor-' + window.location.port + '/';
 
       this.renderTriggerChannels();
       this.renderTriggerInputs();
@@ -83,6 +84,7 @@ var CTS = new Class({
       this.initAutoUpdate();
       this.dataUpdate();
       
+      $('rate-plot').set('src', this.monitorPrefix + 'plot.png');
       this.addEvent('dataUpdate', function() {
          $('rate-plot').set('src', $('rate-plot').get('src').split('?')[0] + "?" + new Date().getTime());
       });
@@ -148,7 +150,7 @@ var CTS = new Class({
       var manualTimeout = window.location.reload.delay(10000);
       
       new Request.JSON({
-         url: 'monitor/dump.js',
+         url: this.monitorPrefix + 'dump.js',
          timeout: 200,
          onSuccess: function(data) {
             window.clearTimeout(manualTimeout);
