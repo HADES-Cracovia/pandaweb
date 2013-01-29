@@ -6,8 +6,10 @@ use lib "./include/";
 
 use Cts;
 use CtsConfig;
+use CtsCommands;
 
 use File::Basename;
+
 
 BEGIN {
    if (eval "require JSON::PP;") {
@@ -18,17 +20,37 @@ BEGIN {
    }
 }
 
+sub printHeader {
+   my $state = shift;
+   my $type = shift;
+   my $attachment = shift;
+   $type = 'text/javascript' unless defined($type) && $type;
+   
+   if (defined( $state ) && $state eq 'error') {
+      print 'HTTP/1.0 500 INTERNAL SERVER ERROR';
+   } else {
+      print 'HTTP/1.0 200 OK';
+   }
+   
+   print "\r\nContent-Disposition: attachment; filename=$attachment;" if ($attachment);
+   
+   print "\r\nContent-Type: $type;\r\n\r\n";
+   
+}
 
 sub connectToCTS {
    my $trb;
 
    my $endpoint = CtsConfig->getDefaultEndpoint;
    my $cache = {'enumCache' => 0};
+   
+   my $port = int $ENV{'SERVER_PORT'};
+   die("missing SERVER_PORT env variable") unless $port;
 
  # open cache create by monitor process to
  #  a) reduce the number of read accesses
  #  b) ensure the same interface is used
-   open FH, "<" .  dirname(__FILE__) . "/monitor/enum.js";
+   open FH, "<" .  dirname(__FILE__) . "/monitor-$port/enum.js";
    if (tell(FH) != -1) {
       my $json = join ' ', <FH>;
       close FH;
@@ -53,10 +75,12 @@ my $cts = connectToCTS( );
 my $query = $ENV{'QUERY_STRING'};
 
 if ($query eq "init") {
+   printHeader;
    print JSON_BIND->new->allow_blessed->convert_blessed->encode({
       'registers' => $cts->getRegisters,
       'properties' => $cts->getProperties
    });
+   
 } elsif ($query =~ /^(format|read),([\w\d_,]+)$/) {
    my $op = $1;
    my @keys = split /,/, $2;
@@ -69,7 +93,9 @@ if ($query eq "init") {
       $result{$key} = $op eq "read" ? $reg->read() : $reg->format();
    }
    
+   printHeader;
    print JSON_BIND->new->allow_blessed->convert_blessed->encode(\%result);
+   
 } elsif ($query =~ /^write,([\w\d_,\.\[\]]+)$/) {
    my @values = split /,/, $1;
    my $regs = {};
@@ -96,7 +122,17 @@ if ($query eq "init") {
 
    $cts->getTrb->stopCachedWrites();
    
+   printHeader;
    print "1;";
+} elsif ($query =~ /^dump,(shell|trbcmd)/) {
+   my $mode = $1;
+   my $attachment = 'cts-dump';
+   
+   $attachment .= $mode eq 'shell' ? '.sh' : '.trb';
+   
+   printHeader 'ok', 'text/plain', $attachment;
+
+   print(commandDump($cts, $mode));
 }
    
 1;
