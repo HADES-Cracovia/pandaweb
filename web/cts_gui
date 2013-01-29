@@ -1,30 +1,114 @@
-#!/bin/bash
-if [ $2 > 0 ]; then
-   host=`hostname`
-#   host='cbmpc011_2'
-   port="1234"
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Getopt::Long;
+
+# This method will execute the cts-command in monitoring mode.
+# If it failes, it is automatically respawned. The only way to
+# exit this function is by user interaction, e.g. by pressing
+# CTRL+C
+sub execServerAndMonitor {
+   my $host = shift;
+   my $port = shift;
+   my $htdocsDumpDir = shift;
+   my $quiteParam = shift;
+
+# Start Webserver
+   print "\n\nStart Webserver. Navigate to http://$host:$port\n";
+   print "If you want to access the page from another PC, \n";
+   print "please ensure there's no firewall blocking port $port\n\n";
+   system("./httpi $host $port &");
+
+   sleep 1;
    
-   echo "Trying to kill processes 'cts' and 'dhttpi'"
-      pkill "^(cts|dhttpi)$"
+# Exec Monitor   
+   while(1) {
+      system "./cts $quiteParam m $htdocsDumpDir";
+      system "clear";
+      print "If you willingly killed the monitoring script press CTRL+C again!";
+      
+      for(my $i=5; $i; $i--) {
+         print "\n  Monitor will restart in $i second(s)\a";
+         sleep 1;
+      }
+   }
+}
 
-   echo "Try to map monitoring files to shared memory (if it failes, no harm is"
-   echo " done. Only the HDD has to work a little bit more)"
+# Print help
+sub help {
+   print <<"HELP"
+$0 [--port=1234] [--[no]openxterm] [--help]
+Setups up running enviroment for the CTS gui and start webserver.
 
-      rm -rf /dev/shm/cts-monitor
-      mkdir -p /dev/shm/cts-monitor
-#      chmod 666 /dev/shm/cts-monitor
-      ln -s /dev/shm/cts-monitor htdocs/monitor
-      mkdir -p htdocs/monitor
+--quite        Don't print monitored values to stdout
+--port         Port number of the webserver
+--noopenxterm  By default, the CTS monitoring results are displayed in an
+               additional XTerm window. Use this open to prevent an output.
+HELP
+;
+   exit(0);
+}
 
-   echo "Start webserver at http://$host:$port"
-      ./httpi $host $port &
 
-   echo "Start monitoring script"
-      until ./cts m htdocs/monitor ; do
-         echo " - Monitor crashed with exit code $?.  Respawning.." >&2
-         sleep 1
-      done
-else
-   xterm -fn "-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15" \
-      +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e ./cts_gui 1 1
-fi;
+# Gather and check parameters
+   if (!$ENV{'DAQOPSERVER'}) {
+      print "ERROR: Missing DAQOPSERVER enviroment variable !\n";
+      print "use 'export DAQOPSERVER=...' to specify the DAQOPSERVER used by the webserver\n\n";
+      exit;
+   }
+
+   my $host = 'localhost';
+   my $port = 1234;
+   my $openxterm = 1;
+   my $monitor = 0;
+   my $help = 0;
+   my $quite = 0;
+
+   GetOptions(
+      'openxterm!' => \$openxterm,
+      'port=i' => \$port,
+      'monitor!' => \$monitor,
+      'help!' => \$help,
+      'quite!' => \$quite
+   );
+
+
+   my $sharedDir     = "/dev/shm/cts-monitor-$port";
+   my $htdocsDumpDir = "htdocs/monitor-$port";
+   my $quiteParam    = $quite ? '--quite ' : '';
+   
+
+# If this script was started within xterm - start monitor  
+   if ($monitor) {
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam;
+      exit;
+   }
+
+# Setup shared memory
+   print "Trying to kill processes 'cts' and 'dhttpi'\n";
+   system 'pkill "^(cts|dhttpi)$"';
+
+   print "\n\nTry to map monitoring files to shared memory (if it failes, no harm
+   is done. Only the HDD has to work a little bit more)\n";
+
+
+   system "rm -rf $sharedDir";
+   system "mkdir -p $sharedDir";
+   system( "ln -s $sharedDir $htdocsDumpDir" ) || system ("mkdir -p $htdocsDumpDir");
+   system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plot.png" );
+   system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plotshort.png" );
+   
+   
+   $SIG{ 'INT' } = sub {
+      print "\n\n\n CLEAN UP\n";
+      system "rm -rf $sharedDir $htdocsDumpDir";
+      exit;
+   };
+
+# Start Monitor (either directly or indirectly via XTERM)"
+   print "\n\nStart monitoring script";
+   if ($openxterm) {
+      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quiteParam'");
+   } else {
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam;
+   }
