@@ -112,7 +112,7 @@ HELP
 # Start Monitor (either directly or indirectly via XTERM)"
    print "\n\nStart monitoring script";
    if ($openxterm) {
-      exec("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quiteParam'");
+      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quiteParam'");
    } else {
       execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam;
    }
