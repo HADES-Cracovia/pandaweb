@@ -158,6 +158,11 @@
    }
 
    table pre {display: inline;}
+   table a {
+      color: #000060;
+      text-decoration: none;
+   }
+      
 
    input {text-align: right;}
    input.text {width: 7em;}
@@ -170,11 +175,18 @@
    
    #overview-tab .fullstop {background: #ffd0d0; color: #ff0000; font-weight: bold;}
    
-   #rate-plot {
+   #rate-plot-cotainer {
       float: right;
+      display: inline;
       width: 450px;
-      height: 185px;
       margin-right: 20px;
+      text-align: center;
+      font-size: 80%;
+      color: #303030;
+   }
+   
+   #rate-plot {
+      margin-bottom: 10px;
    }
    
 /* Trigger Inputs */
