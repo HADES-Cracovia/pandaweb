@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use Data::Dumper;
 use Getopt::Long;
 
 # This method will execute the cts-command in monitoring mode.
@@ -8,96 +9,101 @@ use Getopt::Long;
 # exit this function is by user interaction, e.g. by pressing
 # CTRL+C
 sub execServerAndMonitor {
-  my $host = shift;
-  my $port = shift;
-  my $htdocsDumpDir = shift;
-  my $quietParam = shift;
+   my $host = shift;
+   my $port = shift;
+   my $htdocsDumpDir = shift;
+   my $quiteParam = shift;
+   my $endpointParam = shift;
 
-  # Start Webserver
-  print "\n\nStart Webserver. Navigate to http://$host:$port\n";
-  print "If you want to access the page from another PC, \n";
-  print "please ensure there's no firewall blocking port $port\n\n";
-  system("./httpi $host $port &");
+# Start Webserver
+   print "\n\nStart Webserver. Navigate to http://$host:$port\n";
+   print "If you want to access the page from another PC, \n";
+   print "please ensure there's no firewall blocking port $port\n\n";
+   system("./httpi $host $port &");
 
-  sleep 1;
-
-  $SIG{ 'INT' } = \&clean_up;
-
-  # Exec Monitor
-  while (1) {
-    system "./cts $quietParam m $htdocsDumpDir";
-    system "clear";
-    print "If you willingly killed the monitoring script press CTRL+C again!";
-
-    for (my $i=5; $i; $i--) {
-      print "\n  Monitor will restart in $i second(s)\a";
-      sleep 1;
-    }
-  }
+   sleep 1;
+   
+   $SIG{ 'INT' } = \&clean_up;
+   
+# Exec Monitor   
+   while(1) {
+      system "./cts $quiteParam $endpointParam  m $htdocsDumpDir";
+      #system "clear";
+      print "\n\n\nIf you willingly killed the monitoring script press CTRL+C again! \n\n\n\n\n\n\n\n\n";
+      
+      for(my $i=5; $i; $i--) {
+         print "\n  Monitor will restart in $i second(s)\a";
+         sleep 1;
+      }
+   }
 }
 
 # Print help
 sub help {
-  print <<EOFHELP;
-$0 [--port=1234] [--[no]openxterm] [--help]
+   print <<EOFHELP;
+$0 [--port=1234] [--[no]openxterm] [--endpoint=0x....] [--help]
 Setups up running enviroment for the CTS gui and start webserver.
 
---quiet        Don\'t print monitored values to stdout
+--quite        Don't print monitored values to stdout
 --port         Port number of the webserver
 --noopenxterm  By default, the CTS monitoring results are displayed in an
                additional XTerm window. Use this open to prevent an output.
-
+--endpoint     CTS TrbNet Endpoint. Default: endpoint defined in CtsConfig.pm
 EOFHELP
 
-  exit(0);
+   exit(0);
 }
 
 
 
 # Gather and check parameters
-my $host = 'localhost';
-my $port = 1234;
-my $openxterm = 0;
-my $monitor = 0;
-my $help = 0;
-my $quiet = 0;
+   my $host = 'localhost';
+   my $port = 1234;
+   my $openxterm = 1;
+   my $monitor = 0;
+   my $help = 0;
+   my $quite = 0;
+   my $endpoint = undef;
 
-GetOptions(
-	   'openxterm!' => \$openxterm,
-	   'port=i' => \$port,
-	   'monitor!' => \$monitor,
-	   'help!' => \$help,
-	   'quiet!' => \$quiet
-	  );
+   GetOptions(
+      'openxterm!' => \$openxterm,
+      'endpoint=s' => \$endpoint,
+      'port=i' => \$port,
+      'monitor!' => \$monitor,
+      'help!' => \$help,
+      'quite!' => \$quite
+   );
 
-
-if ($help) {
-help();
-exit;
-}
-
-if (!$ENV{'DAQOPSERVER'}) {
-  print "ERROR: Missing DAQOPSERVER enviroment variable !\n";
-  print "use 'export DAQOPSERVER=...' to specify the DAQOPSERVER used by the webserver\n\n";
-  exit;
-}
-
-
-
+   help if $help;
+      
+   if (!$ENV{'DAQOPSERVER'}) {
+      print "ERROR: Missing DAQOPSERVER enviroment variable !\n";
+      print "use 'export DAQOPSERVER=...' to specify the DAQOPSERVER used by the webserver\n\n";
+      exit;
+   }
+   
+   if (defined $endpoint) {
+      $endpoint= $endpoint =~ /^\s*0x/ ? hex $endpoint : ($endpoint + 0);
+      die("Invalid CTS endpoint") unless $endpoint;
+   }
+   
+   my $endpointParam = defined $endpoint ? sprintf(" -e 0x%04x", $endpoint) : '';
+   
+   
    my $sharedDir     = "/dev/shm/cts-monitor-$port";
    my $htdocsDumpDir = "htdocs/monitor-$port";
-   my $quietParam    = $quiet ? '--quiet ' : '';
-
+   my $quiteParam    = $quite ? '--quite ' : '';
+   
 
    sub clean_up {
       print "\n\n\n CLEAN UP\n";
       system "rm -rf $sharedDir $htdocsDumpDir";
       exit;
    };
-
-# If this script was started within xterm - start monitor
+   
+# If this script was started within xterm - start monitor  
    if ($monitor) {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam, $endpointParam;
       exit;
    }
 
@@ -115,13 +121,14 @@ if (!$ENV{'DAQOPSERVER'}) {
    system( "ln -s $sharedDir $htdocsDumpDir || mkdir -p $htdocsDumpDir");
    system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plot.png" );
    system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plotshort.png" );
-
+   
+   
 # Start Monitor (either directly or indirectly via XTERM)"
    print "\n\nStart monitoring script";
    if ($openxterm) {
-      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quietParam'");
+      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quiteParam $endpointParam'");
    } else {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam, $endpointParam;
    }
-
+   
    clean_up;
