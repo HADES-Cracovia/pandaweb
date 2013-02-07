@@ -78,7 +78,8 @@ if ($query eq "init") {
    printHeader;
    print JSON_BIND->new->allow_blessed->convert_blessed->encode({
       'registers' => $cts->getRegisters,
-      'properties' => $cts->getProperties
+      'properties' => $cts->getProperties,
+      'server' => {'port' => $ENV{'SERVER_PORT'}}
    });
    
 } elsif ($query =~ /^(format|read),([\w\d_,]+)$/) {
@@ -134,5 +135,4 @@ if ($query eq "init") {
 
    print(commandDump($cts, $mode));
 }
-   
 1;

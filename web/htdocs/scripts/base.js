@@ -71,7 +71,7 @@ var CTS = new Class({
    
    initialize: function(defs) {
       this.defs = defs;
-      this.monitorPrefix = 'monitor-' + window.location.port + '/';
+      this.monitorPrefix = 'monitor-' + this.defs.server.port + '/';
 
       this.renderTriggerChannels();
       this.renderTriggerInputs();
