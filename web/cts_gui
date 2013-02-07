@@ -55,12 +55,6 @@ EOFHELP
 
 
 # Gather and check parameters
-if (!$ENV{'DAQOPSERVER'}) {
-  print "ERROR: Missing DAQOPSERVER enviroment variable !\n";
-  print "use 'export DAQOPSERVER=...' to specify the DAQOPSERVER used by the webserver\n\n";
-  exit;
-}
-
 my $host = 'localhost';
 my $port = 1234;
 my $openxterm = 0;
@@ -81,6 +75,13 @@ if ($help) {
 help();
 exit;
 }
+
+if (!$ENV{'DAQOPSERVER'}) {
+  print "ERROR: Missing DAQOPSERVER enviroment variable !\n";
+  print "use 'export DAQOPSERVER=...' to specify the DAQOPSERVER used by the webserver\n\n";
+  exit;
+}
+
 
 
    my $sharedDir     = "/dev/shm/cts-monitor-$port";

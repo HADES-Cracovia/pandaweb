@@ -1,4 +1,5 @@
 #This example start-up script as to be adapted to your setup!
+#0x8000 is assumed to be the address of the central board running CTS and GbE
 
 
 ####### TrbNet           #######
