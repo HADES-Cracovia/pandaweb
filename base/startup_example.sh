@@ -5,11 +5,14 @@
 
 ##### TRBNET #####
 # set the TRBNet addresses of the Endpoints
-trbcmd s 0xb000000390381d28 0 0x0200
-trbcmd s 0xa300000390381328 1 0x0201
-trbcmd s 0x4800000390381628 2 0x0202
-trbcmd s 0x1700000390382028 3 0x0203
-trbcmd s 0xdc00000390380c28 5 0x8000
+#trbcmd s 0xb000000390381d28 0 0x0200
+#trbcmd s 0xa300000390381328 1 0x0201
+#trbcmd s 0x4800000390381628 2 0x0202
+#trbcmd s 0x1700000390382028 3 0x0203
+#trbcmd s 0xdc00000390380c28 5 0x8000
+
+# automatic setup of all trbnet addresses
+~/daqtools/merge_serial_address.pl ~/daqtools/base/serials_trb3.db ~/daqtools/base/addresses_trb3.db > /dev/null
 
 ##### Ethernet and UDP #######
 trbcmd w 0x8000 0x8300 0x8000        #Subsystem ID in data files, should be equal to address
