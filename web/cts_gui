@@ -12,7 +12,7 @@ sub execServerAndMonitor {
    my $host = shift;
    my $port = shift;
    my $htdocsDumpDir = shift;
-   my $quiteParam = shift;
+   my $quietParam = shift;
    my $endpointParam = shift;
 
 # Start Webserver
@@ -27,7 +27,7 @@ sub execServerAndMonitor {
    
 # Exec Monitor   
    while(1) {
-      system "./cts $quiteParam $endpointParam  m $htdocsDumpDir";
+      system "./cts $quietParam $endpointParam  m $htdocsDumpDir";
       #system "clear";
       print "\n\n\nIf you willingly killed the monitoring script press CTRL+C again! \n\n\n\n\n\n\n\n\n";
       
@@ -44,7 +44,7 @@ sub help {
 $0 [--port=1234] [--[no]openxterm] [--endpoint=0x....] [--help]
 Setups up running enviroment for the CTS gui and start webserver.
 
---quite        Don't print monitored values to stdout
+--quiet        Don't print monitored values to stdout
 --port         Port number of the webserver
 --noopenxterm  By default, the CTS monitoring results are displayed in an
                additional XTerm window. Use this open to prevent an output.
@@ -62,7 +62,7 @@ EOFHELP
    my $openxterm = 1;
    my $monitor = 0;
    my $help = 0;
-   my $quite = 0;
+   my $quiet = 0;
    my $endpoint = undef;
 
    GetOptions(
@@ -71,7 +71,7 @@ EOFHELP
       'port=i' => \$port,
       'monitor!' => \$monitor,
       'help!' => \$help,
-      'quite!' => \$quite
+      'quiet!' => \$quiet
    );
 
    help if $help;
@@ -92,7 +92,7 @@ EOFHELP
    
    my $sharedDir     = "/dev/shm/cts-monitor-$port";
    my $htdocsDumpDir = "htdocs/monitor-$port";
-   my $quiteParam    = $quite ? '--quite ' : '';
+   my $quietParam    = $quiet ? '--quiet ' : '';
    
 
    sub clean_up {
@@ -103,7 +103,7 @@ EOFHELP
    
 # If this script was started within xterm - start monitor  
    if ($monitor) {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam, $endpointParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam;
       exit;
    }
 
@@ -126,9 +126,9 @@ EOFHELP
 # Start Monitor (either directly or indirectly via XTERM)"
    print "\n\nStart monitoring script";
    if ($openxterm) {
-      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quiteParam $endpointParam'");
+      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quietParam $endpointParam'");
    } else {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quiteParam, $endpointParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam;
    }
    
    clean_up;
