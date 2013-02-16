@@ -284,7 +284,7 @@ sub commandMonitor {
    my $filename = shift;
    my $interval = shift;
    my $rateNumber = shift;
-   my $quite = shift;
+   my $quiet = shift;
    
    my $trb = $cts->getTrb;
    my @rateRegs = ();
@@ -366,7 +366,7 @@ EOF
          '-'
       ];
       
-      print chr(27) . "[1;1H" . chr(27) . "[2J" unless $quite;
+      print chr(27) . "[1;1H" . chr(27) . "[2J" unless $quiet;
    
       my $read = {};
       $trb->prefetch(1);
@@ -399,7 +399,7 @@ EOF
          }
       }
 
-      unless ($quite) {
+      unless ($quiet) {
          printTable $tab;
          print "\n";
       }
@@ -449,7 +449,7 @@ EOF
          }
       }
       
-      printTable $tab unless $quite;
+      printTable $tab unless $quiet;
       
       if ($filename) {
       # store json
@@ -501,7 +501,7 @@ plot \\
 EOF
 ;
 
-               print "Plot produced\n";
+               print $quiet ? "." : "Plot produced\n";
             } else {
                print "Plotting delayed as to few points captured yet\n";
             }
