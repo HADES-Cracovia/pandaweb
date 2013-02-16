@@ -501,9 +501,9 @@ plot \\
 EOF
 ;
 
-               print $quiet ? "." : "Plot produced\n";
+               print ($quiet ? "." : "Plot produced\n");
             } else {
-               print "Plotting delayed as to few points captured yet\n";
+               print "Plotting delayed as too few points captured yet\n";
             }
          }
       }
