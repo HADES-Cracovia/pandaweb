@@ -78,6 +78,8 @@ END_MSG
 sub connectToCTS {
    my $endpoint = shift;
    
+   die("Please set the enviroment variable DAQOPSERVER") unless defined $ENV{'DAQOPSERVER'};
+     
    my $trb;
    eval {require "TrbNet.pm"};
    $trb = TrbNet->new($endpoint);
@@ -124,7 +126,7 @@ for(my $i=0; $i < @ARGV; $i++) {
       
       $updateInterval = $ARGV[++$i];
 
-   } elsif ($arg eq "-q" or $arg eq "--quite") {
+   } elsif ($arg eq "-q" or $arg eq "--quiet") {
       unless ($i < @ARGV) {
          print "last parameter expects value\n";
          exit();
