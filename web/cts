@@ -48,7 +48,7 @@ Options:
    -e | --endpoint  Endpoint number of CTS
    -s | --sim       Simulate TrbNet
    -i | --interval  Interval of rate monitoring in milliseconds. Default: 1000
-   -q | --quite     Prevent monitor from writing values to stdout            
+   -q | --quiet     Prevent monitor from writing values to stdout            
    
 Commands:
    l | list         Connect to CTS and list all named registers available
@@ -92,7 +92,7 @@ my $endpoint = CtsConfig->getDefaultEndpoint;
 
 my $updateInterval = 1000;
 my $rateNumber     = 30;
-my $quite = 0;
+my $quiet = 0;
 
 for(my $i=0; $i < @ARGV; $i++) {
    my $arg = $ARGV[$i];
@@ -132,7 +132,7 @@ for(my $i=0; $i < @ARGV; $i++) {
          exit();
       }
       
-      $quite = 1;
+      $quiet = 1;
       
    } elsif ($arg eq "-n") {
       unless ($i < @ARGV) {
@@ -172,7 +172,7 @@ for(my $i=0; $i < @ARGV; $i++) {
    
    } elsif ($arg eq "m" or $arg eq "monitor") {
       my $cts = connectToCTS($endpoint);
-      commandMonitor($cts, $ARGV[++$i], $updateInterval, $rateNumber, $quite);
+      commandMonitor($cts, $ARGV[++$i], $updateInterval, $rateNumber, $quiet);
       exit();
       
    } else {
