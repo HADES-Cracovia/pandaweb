@@ -291,6 +291,8 @@ sub commandMonitor {
    my @slices = ();
    
    my @monRegs = ();
+   
+   local $| = 1 if $quiet;
 
 # gather all registers and slices that need to be monitored
    $trb->clearPrefetch();
