@@ -50,15 +50,15 @@ var showenable = document.getElementById("form_enable").checked;
 var oldvalues = {};
 
 
-var reglist = "0-c100-c103-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c0-c2-c3";
+var reglist = "0-c100-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c0-c1-c2-c3";
 //var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
 
 var regs = reglist.split('-');
-var regnames = new Array("Temperature","debug_wr<br>debug_rd<br>channels<br>ref input","window en.<br>window bef.<br>window aft.",
+var regnames = new Array("Temperature","debug_wr<br>debug_rd<br>channels<br>ref input",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time",
                          "releases","rdo time","timeout number","data finished number","Logic Anal.<br>Debug Mode<br>Run Mode",
-			 "act chan 1","act chan 2");
+			 "window en.<br>window bef.<br>window aft.","act chan 1","act chan 2");
 
 var updateTask;
 var updateRegsTask;
@@ -179,10 +179,18 @@ function setEnableBlock(e,board,channel,val) {
 function setRunMode(e,board,val) {
    reg = 0xc0;
    op  = val?"set":"clr";
-   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(12)).toString(16),0);
+   value = 0x1000;
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
   settimers(200,50);
   }
 
+function setEnableWindow(e,board,val) {
+   reg = 0xc1;
+   op  = val?"set":"clr";
+   value = 0x80000000;
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
+  settimers(200,50);
+  }
   
 function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
@@ -220,19 +228,21 @@ function updateregs(data) {
           if((val>>16 & 1)) 
             o += "</span>";
           }
-        else if(i==2) {
-          o += ((val&0x80000000)>>31)+"<br>"+(val&0x7FF)+"<br>"+((val&0x7ff0000)>>16);
-          }
-	else if(i==17) {
+        else if(i==16) {
           o += (val&0xF)+"<br>"+((val&0x10)>>4)+"<br>";
-	  if((val>>12 & 1)) {
-	    o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',0)\" value=\"Tgl.\">";
-	    o += "Trg-less";
-	    }
-	  else {
-	    o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Tgl.\">";
-	    o += "Trg-ed";
-	    }
+	  if(val>>12 & 1)
+	    o += "<input title=\"Current run mode is triggerless. The epoch and coarse counters are never reset.\" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',0)\" value=\"Triggerless\">";
+	  else
+	    o += "<input title=\"Current run mode is triggered. The epoch and coarse counters are reset after every trigger window.\" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Triggered\">";
+	}
+	else if(i==17) {
+	  o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',1)\" value=\"on\">";
+	  o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',0)\" value=\"off\">";
+	  if ((val&0x80000000))
+	    o += "Enabled";
+	  else
+	    o += "Disabled";
+          o += "<br>"+(val&0x7FF)+"<br>"+((val&0x7ff0000)>>16);
           }
 	else if(i==18 || i==19) {
           o += (val*1.).toString(16);
