@@ -192,6 +192,10 @@ width: 89px;
   width:22px;
 }
 
+.triggerbutton {
+  width:100px;
+}
+
 table#content.map td {border-bottom:none; margin-left:10px; text-align:right}
 table#content.map td:first-child {text-align:left;padding-left:10px; width:100px;}
 table#content.map td + td + td + td {width:200px;}
