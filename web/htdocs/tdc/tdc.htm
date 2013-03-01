@@ -179,7 +179,7 @@ function setEnableBlock(e,board,channel,val) {
 function setRunMode(e,board,val) {
    reg = 0xc0;
    op  = val?"set":"clr";
-   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(12%32)).toString(16),0);
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(12)).toString(16),0);
   settimers(200,50);
   }
 
