@@ -176,6 +176,13 @@ function setEnableBlock(e,board,channel,val) {
   settimers(200,50);
   }  
   
+function setRunMode(e,board,val) {
+   reg = 0xc0;
+   op  = val?"set":"clr";
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(12%32)).toString(16),0);
+  settimers(200,50);
+  }
+
   
 function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
@@ -218,10 +225,14 @@ function updateregs(data) {
           }
 	else if(i==17) {
           o += (val&0xF)+"<br>"+((val&0x10)>>4)+"<br>";
-	  if((val>>12 & 1))
-	    o += "Triggerless";
-	  else
-	    o += "Triggered";
+	  if((val>>12 & 1)) {
+	    o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',0)\" value=\"Tgl.\">";
+	    o += "Trg-less";
+	    }
+	  else {
+	    o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Tgl.\">";
+	    o += "Trg-ed";
+	    }
           }
 	else if(i==18 || i==19) {
           o += (val*1.).toString(16);
