@@ -50,7 +50,7 @@ var showenable = document.getElementById("form_enable").checked;
 var oldvalues = {};
 
 
-var reglist = "0-c100-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c0-c1-c2-c3";
+var reglist = "0-c100-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c800-c801-c802-c803";
 //var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
 
 var regs = reglist.split('-');
@@ -162,14 +162,14 @@ function setValues() {
   }
 
 function setEnable(e,board,channel) {
-  reg = Math.floor(channel/32) + 0xc2;
+  reg = Math.floor(channel/32) + 0xc802;
   op  = e.checked?"set":"clr";
   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
   settimers(200,50);
   }
 
 function setEnableBlock(e,board,channel,val) {
-  reg = Math.floor(channel/2) + 0xc2;
+  reg = Math.floor(channel/2) + 0xc802;
   op  = val?"set":"clr";
   value = channel%2?0xffff0000:0xffff;
   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
@@ -177,7 +177,7 @@ function setEnableBlock(e,board,channel,val) {
   }  
   
 function setRunMode(e,board,val) {
-   reg = 0xc0;
+   reg = 0xc800;
    op  = val?"set":"clr";
    value = 0x1000;
    getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
@@ -185,7 +185,7 @@ function setRunMode(e,board,val) {
   }
 
 function setEnableWindow(e,board,val) {
-   reg = 0xc1;
+   reg = 0xc801;
    op  = val?"set":"clr";
    value = 0x80000000;
    getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
