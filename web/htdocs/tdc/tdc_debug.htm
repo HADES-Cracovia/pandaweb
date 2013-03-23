@@ -22,13 +22,13 @@
 </table>
 </form>
 
-<div style="float:left"><table id="content"><tr><th>Channel<th>Value</table></div>
+<div style="float:left"><table id="content" name="content"><tr><th>Channel<th>Value</table></div>
 
-<div style="float:left"><table id="contentEnc"><tr><th>ChannelEnc<th>ValueEnc</table></div>
+<div style="float:left"><table id="content" name="content"><tr><th>ChannelEnc<th>ValueEnc</table></div>
 
-<div style="float:left"><table id="contentFifo"><tr><th>ChannelFifo<th>ValueFifo</table></div>
+<div style="float:left"><table id="content" name="content"><tr><th>ChannelFifo<th>ValueFifo</table></div>
 
-<div style="float:left"><table id="contentLost"><tr><th>ChannelLost<th>ValueLost</table></div>
+<div style="float:left"><table id="content" name="content"><tr><th>ChannelLost<th>ValueLost</table></div>
 
 
 <script language="javascript">
@@ -57,7 +57,7 @@ var updateLostTask;
 
 
 function update(data) {
-  if(!document.getElementById("content").innerHTML) return;
+  if(!document.getElementsByName("content")[0].innerHTML) return;
   var b = data.split("&");
   var c = {};
   o = "<tr class=\"head\"><th>HitCounter<th>Channel";
@@ -87,7 +87,7 @@ function update(data) {
       }
     }
   oldvalues = c;
-  document.getElementById("content").innerHTML  = o;
+  document.getElementsByName("content")[0].innerHTML  = o;
   }
 
 
@@ -112,7 +112,7 @@ function setValues() {
 
   
 function updateEnc(data) {
-  if(!document.getElementById("contentEnc").innerHTML) return;
+  if(!document.getElementsByName("content")[1].innerHTML) return;
   var b = data.split("&");
   var c = {};
   o = "<tr class=\"head\"><th>EncoderStart<th>Channel";
@@ -142,14 +142,14 @@ function updateEnc(data) {
       }
     }
   oldvaluesEnc = c;
-  document.getElementById("contentEnc").innerHTML  = o;
+  document.getElementsByName("content")[1].innerHTML  = o;
   }
 
 
 
 
 function updateFifo(data) {
-  if(!document.getElementById("contentFifo").innerHTML) return;
+  if(!document.getElementsByName("content")[2].innerHTML) return;
   var b = data.split("&");
   var c = {};
   o = "<tr class=\"head\"><th>FifoWrite<th>Channel";
@@ -179,14 +179,14 @@ function updateFifo(data) {
       }
     }
   oldvaluesFifo = c;
-  document.getElementById("contentFifo").innerHTML  = o;
+  document.getElementsByName("content")[2].innerHTML  = o;
   }
 
 
 
 
 function updateLost(data) {
-  if(!document.getElementById("contentLost").innerHTML) return;
+  if(!document.getElementsByName("content")[3].innerHTML) return;
   var b = data.split("&");
   var c = {};
   o = "<tr class=\"head\"><th>LostHits<th>Channel";
@@ -216,7 +216,7 @@ function updateLost(data) {
       }
     }
   oldvaluesLost = c;
-  document.getElementById("contentLost").innerHTML  = o;
+  document.getElementsByName("content")[3].innerHTML  = o;
   }
 
  
