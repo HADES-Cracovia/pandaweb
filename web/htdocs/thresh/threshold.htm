@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
 <script src="../scripts/scripts.js" type="text/javascript"></script>
+<script src="../scripts/mousetrap.js" type="text/javascript"></script>
 <title>Threshold settings</title>
 </head>
 <body>
@@ -25,7 +26,7 @@
 <div>&nbsp;</div>
 </div>
 <td id="bar1value">
-<tr><td>Fine (0-255)<td><div id="bar2"  onScroll="update(2,256)">
+<tr><td>Fine (0-255)<td><div id="bar2" onScroll="update(2,256)">
 <div>&nbsp;</div>
 </div>
 <td id="bar2value">
@@ -33,6 +34,17 @@
 <tr><td id="cmd" colspan="3">&nbsp;
 <tr><td id="err" colspan="3">&nbsp;
 </table>
+
+
+
+<h4 title="Awesome!">Shortcuts</h4>
+<ul><li><b>c/C</b>: Increase/Decrease channel number
+    <li><b>d/D</b>: Increase/Decrease chain number
+    <li><b>Up/Down</b>: Increase/Decrease by 1
+    <li><b>Shift + Up/Down</b>: Increase/Decrease by 16
+    <li><b>PageUp/PageDown</b>: Increase/Decrease by 256
+    <li><b>Shift + PageUp/PageDown</b>: Increase/Decrease by 2048
+</ul>
 
 <script language="javascript">
 
@@ -42,7 +54,7 @@ var updateDelay = 0;
 var command     = 0;
 var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
-var chain      = 1<<document.getElementById("form_chain").value;
+var chain      = document.getElementById("form_chain").value;
 var chan       = document.getElementById("form_channel").value;
 var type       = document.getElementById("form_type").value;
 var reference  = document.getElementById("form_ref").value;
@@ -66,7 +78,7 @@ function update(bar,scale) {
   
 function doUpdate() {
   if(dataWaiting) {
-    cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
+    cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
     getdata(cmdstring,showret);
     dataWaiting = 0;
     }
@@ -90,12 +102,12 @@ function setValues() {
   clearInterval(updateTask);
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
-  chain      = 1<<document.getElementById("form_chain").value;
+  chain      = document.getElementById("form_chain").value;
   chan       = document.getElementById("form_channel").value;
   type       = document.getElementById("form_type").value;
   reference  = document.getElementById("form_ref").value;
   if(type == 8) {
-    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+chain+"-1";
+    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
     getdata(cmdstring,anaret2);
     }
   else{  
@@ -103,8 +115,29 @@ function setValues() {
     }
   }
 
-  
-  
+Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan });  
+Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain });  
+Mousetrap.bind('C', function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan });  
+Mousetrap.bind('D', function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain });  
+ 
+
+function changebar(i) {
+document.getElementById("bar1").scrollLeft+=i; 
+if(document.getElementById("bar1").scrollLeft > 65535) 
+  document.getElementById("bar1").scrollLeft = 65535; 
+if(document.getElementById("bar1").scrollLeft < 0) 
+  document.getElementById("bar1").scrollLeft = 0; 
+update(1,1);
+}
+ 
+Mousetrap.bind('pageup', function(){changebar(256); return false;});  
+Mousetrap.bind('pagedown', function(){changebar(-256); return false;});  
+Mousetrap.bind('shift+pageup', function(){changebar(2048); return false;});  
+Mousetrap.bind('shift+pagedown', function(){changebar(-2048); return false;});  
+Mousetrap.bind('up', function(){changebar(1); return false;});  
+Mousetrap.bind('down', function(){changebar(-1); return false;});  
+Mousetrap.bind('shift+up', function(){changebar(16); return false;});  
+Mousetrap.bind('shift+down', function(){changebar(-16); return false;});  
 </script>
 
 </body></html>
