@@ -38,8 +38,8 @@
 
 
 <h4 title="Awesome!">Shortcuts</h4>
-<ul><li><b>c/C</b>: Increase/Decrease channel number
-    <li><b>d/D</b>: Increase/Decrease chain number
+<ul><li><b title="C for decrease is valid as well">c/v</b>: Increase/Decrease channel number
+    <li><b title="D for decrease is valid as well">d/f</b>: Increase/Decrease chain number
     <li><b>Up/Down</b>: Increase/Decrease by 1
     <li><b>Shift + Up/Down</b>: Increase/Decrease by 16
     <li><b>PageUp/PageDown</b>: Increase/Decrease by 256
@@ -117,8 +117,8 @@ function setValues() {
 
 Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan });  
 Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain });  
-Mousetrap.bind('C', function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan });  
-Mousetrap.bind('D', function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain });  
+Mousetrap.bind(['C','v'], function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan });  
+Mousetrap.bind(['D','f'], function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain });  
  
 
 function changebar(i) {
