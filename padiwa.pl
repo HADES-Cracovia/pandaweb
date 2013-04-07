@@ -6,13 +6,16 @@ use Data::Dumper;
 use HADES::TrbNet;
 use Date::Format;
 
-
+if(!defined $ENV{'DAQOPSERVER'}) {
+  die "DAQOPSERVER not set in environment";
+}
+  
 if (!defined &trb_init_ports()) {
   die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
 }
-my $fh;
 
-if(!$ARGV[0]) {
+
+if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "usage: padiwa.pl \$FPGA \$chain \$command \$options\n\n";
   print "\t uid \t\t read unique ID, no options\n";
   print "\t temp \t\t read temperature, no options\n";
