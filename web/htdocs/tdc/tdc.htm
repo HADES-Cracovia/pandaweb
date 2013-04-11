@@ -164,7 +164,7 @@ function setValues() {
 function setEnable(e,board,channel) {
   reg = Math.floor(channel/32) + 0xc802;
   op  = e.checked?"set":"clr";
-  getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+(1<<(channel%32)).toString(16),0);
+  getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+((0xffffffff+(1<<(channel%32))+1)%0x100000000).toString(16),0);
   settimers(200,50);
   }
 
