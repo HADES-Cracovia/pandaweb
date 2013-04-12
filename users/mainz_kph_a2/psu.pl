@@ -73,8 +73,8 @@ sub get_current_values {
   my($Uset,$Iset) = unpack("x5nnx", $response_set);
 
   # do the weird calculation to physical values (depends on device)
-  $U = 84 * $U / 25600;
-  $I = 5 * $I / 25600;
+  $U = $maxU * $U / 25600;
+  $I = $maxI * $I / 25600;
   my $OnOff = $status2 & 0b1;
   my $Remote = $status1 &0b11;
   $Uset = $maxU * $Uset / 25600;
