@@ -39,6 +39,8 @@ my $offset = 0;
 my $opt_skip = 99;
 my $polarity = 1;
 my @channels  = ();
+my $channel32 = undef;
+
 our $chain = 0;
 
 my $result = GetOptions (
@@ -48,6 +50,7 @@ my $result = GetOptions (
     "m|mode=s" => \$mode,
     "p|polarity=i" => \$polarity,
     "o|offset=s" => \$offset,
+    "32|32channel" => \$channel32,
     "s|skip=i" => \$opt_skip,
     );
 
@@ -82,8 +85,16 @@ $endpoint = hex($endpoint);
 
 
 # go to the right position
-$hitregister += 16*$chain;
 
+my $hitchannel_multiplicator = 1;
+
+if($channel32) {
+    $hitregister += 32*$chain;
+    $hitchannel_multiplicator = 2;
+}
+else {
+    $hitregister += 16*$chain;
+}
 
 Log::Log4perl->init("logger_threshold.conf");
 
@@ -102,7 +113,7 @@ my @hit_diff = (0) x 16;
 my @crossed_thresh = (0) x 16;
 my @interval_step = ($interval_step) x 16;
 
-if (defined $opt_skip && $opt_skip <15) {
+if (defined $opt_skip && $opt_skip < 15) {
   $best_thresh[$opt_skip] = 0x7000;
 }
 
@@ -113,17 +124,11 @@ my $number_of_steps = 0;
 my $rh_res;
 my $old_rh_res;
 
-#while (abs($interval_step) > 1 || $hit_diff > $accepted_dark_rate || $number_of_steps < 14) {
-
 while ($number_of_steps < $number_of_iterations ||
-#       grep({$_ > $accepted_dark_rate} @hit_diff) >0 ||
-       grep({$_ == 0} @best_thresh) >0
+       grep({$_ == 0} @best_thresh) > 0
       ) {
-#while ($number_of_steps < 14 || grep({$_ > $accepted_dark_rate} @hit_diff) >0  ) {
-#while ($number_of_steps < 14 ) {
   $number_of_steps++;
   last if($number_of_steps > 40);
-
 
   if ($mode eq "padiwa") {
 
@@ -132,11 +137,11 @@ while ($number_of_steps < $number_of_iterations ||
     # wait settling time, experimentally determined to 0.04 seconds
     select(undef, undef, undef, 0.05);
 
-    $old_rh_res = trb_register_read_mem($endpoint, $hitregister, 0, 16);
+    $old_rh_res = trb_register_read_mem($endpoint, $hitregister, 0, 32);
 
     select(undef, undef, undef, $sleep_time);
 
-    $rh_res = trb_register_read_mem($endpoint, $hitregister, 0, 16);
+    $rh_res = trb_register_read_mem($endpoint, $hitregister, 0, 32);
     #print Dumper $rh_res;
     #print Dumper $old_rh_res;
 
@@ -144,9 +149,9 @@ while ($number_of_steps < $number_of_iterations ||
     foreach my $i (0..15) {
       $interval_step = $interval_step[$i];
 
-      my $cur_hitreg = $rh_res->{$endpoint}->[$i];
-      my $old_hitreg = $old_rh_res->{$endpoint}->[$i] & 0x7fffffff;
-      (my $hits, my $static_value) = ($cur_hitreg & 0x7fffffff , ($cur_hitreg & 0x80000000)>>31);
+      my $cur_hitreg = $rh_res->{$endpoint}->[$i*$hitchannel_multiplicator];
+      my $old_hitreg = $old_rh_res->{$endpoint}->[$i*$hitchannel_multiplicator] & 0x7fffffff;
+      (my $hits, my $static_value) = ($cur_hitreg & 0x7fffffff , ($cur_hitreg & 0x80000000) >> 31);
       $hit_diff = abs($hits - $old_hitreg);
       $hit_diff[$i] = $hit_diff;
 
@@ -186,8 +191,8 @@ while ($number_of_steps < $number_of_iterations ||
 	$interval_step = int($interval_step/1.2);
       }
 
-      $interval_step = 2 if($interval_step<2);
-      $interval_step = 3 if($interval_step==1 && $direction==-1);
+      $interval_step = 2 if($interval_step < 2);
+      $interval_step = 3 if($interval_step == 1 && $direction ==- 1);
 
       $interval_step[$i] = $interval_step;
 
@@ -210,14 +215,14 @@ while ($number_of_steps < $number_of_iterations ||
 } #end of loop over steps
 
 
-map { $_-=$offset } @best_thresh;
+map { $_-= $offset } @best_thresh;
 write_thresholds($mode, $chain, \@best_thresh);
 
 my $uid;
 foreach my $i (reverse (0..3)) {
   #print "send command: $endpoint , i: $i\n";
   $rh_res = send_command($endpoint, 0x10000000 | $i * 0x10000);
-  $uid .= sprintf("%04x", $rh_res->{$endpoint}&0xffff);
+  $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
 }
 
@@ -237,13 +242,13 @@ sub write_thresholds {
 
   $share->store($chain);
 
-  my $res=$share->lock(LOCK_EX);
+  my $res = $share->lock(LOCK_EX);
   if(!defined $res || $res != 1) {
       die "could not lock shared element";
   }
 
 
-  my $rh_res = trb_register_write($endpoint,0xd410, 1<<$chain);
+  my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   foreach my $current_channel (0..15) {
 
@@ -260,7 +265,7 @@ sub write_thresholds {
       $shift_bits = 4;
     }
 
-    $command= $fixed_bits | ($current_channel<<16) | ($ra_thresh->[$current_channel] << $shift_bits);
+    $command = $fixed_bits | ($current_channel << 16) | ($ra_thresh->[$current_channel] << $shift_bits);
     send_command($endpoint, $command);
 
 
@@ -303,18 +308,18 @@ sub usage {
 
   print <<EOF;
 usage: thresholds_automatic.pl --endpoint=<endpoint_address> --chain=<SPI-chain> [--offset=<number in decimal or hex>]
-       [--help] [--mode=<"padiwa"|"cbmrich">]
+       [--help] [--mode=<"padiwa"|"cbmrich">] [--32channel]
 
 example:
 
-thresholds_automatic.pl l --endpoint=0x303 --chain=0 --offset=0x10
+thresholds_automatic.pl l --endpoint=0x303 --chain=0 --offset=0x10 --32channel
 or in short
 thresholds_automatic.pl -e 0x303 -o 0x10 -c 0
 
 currently only mode "padiwa" is implemented.
 
 polarity: tells what the status of bit 32 is, when the thresholds are set to 0
-
+32channel: when set the tool assums a TDC with 32 channels, leading and trailing channels use two channels
 
 EOF
 
