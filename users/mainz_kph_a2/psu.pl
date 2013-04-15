@@ -39,7 +39,7 @@ sub do_power_cycle {
 
   if($timeout>0) {
     print "Waiting a bit more...\n";
-    sleep(3);
+    sleep(10);
     print_current_values($ch);
     print "Turning on Output $ch again...\n";
     send_and_read("F100360101",$ch);
