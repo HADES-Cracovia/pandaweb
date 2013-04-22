@@ -14,13 +14,15 @@ sub main {
   if(defined $ARGV[0] and $ARGV[0] eq "powercycle") {
     die "No Channel given to powercycle" unless defined $ARGV[1];
     my $channel = $ARGV[1] eq "1" ? 1 : 0;
-    do_power_cycle($channel);
+    my $no_powerup = defined $ARGV[2];
+    do_power_cycle($channel,$no_powerup);
   }
   # serial connection is closed in END {} block
 }
 
 sub do_power_cycle {
   my $ch = shift;
+  my $skip = shift;
   print "Powercycling Output $ch...\n";
   # enable remote control
   send_and_read("F100361010",$ch);
@@ -37,7 +39,7 @@ sub do_power_cycle {
     $timeout--;
   }
 
-  if($timeout>0) {
+  if(!$skip && $timeout>0) {
     print "Waiting a bit more...\n";
     sleep(10);
     print_current_values($ch);
@@ -45,7 +47,7 @@ sub do_power_cycle {
     send_and_read("F100360101",$ch);
     sleep(1);
   }
-  else {
+  elsif(!$skip) {
     print "Could not reach Voltage < 1 V before timeout.\n";
   }
 
