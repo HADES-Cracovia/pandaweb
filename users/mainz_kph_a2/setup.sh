@@ -2,7 +2,7 @@
 # PATH should already be marked as exported...
 PATH=${HOME}/trbsoft/bin:${PATH}
 PATH=${HOME}/trbsoft/daqdata/bin:${PATH}
-PATH=${HOME}/trbsoft/trbnettools/binlocal:${PATH}
+PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
 export TRB3_SERVER=trb019
 export DAQOPSERVER=localhost:0
 
