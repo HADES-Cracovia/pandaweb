@@ -145,6 +145,7 @@ function update(data) {
   oldvalues = c;
   document.getElementById("content").innerHTML  = o;
   settimers(0,-1);
+  delete isShown;
   }
   
 function setValues() {
@@ -257,6 +258,7 @@ function updateregs(data) {
     }
   document.getElementById("contentregs").innerHTML  = o;
   settimers(-1,0);
+  delete isShown;
   }
   
 
