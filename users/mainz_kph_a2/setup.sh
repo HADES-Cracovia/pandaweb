@@ -1,5 +1,8 @@
 #!/bin/sh
-export PATH=${HOME}/trbsoft/daqdata/bin:${HOME}/trbsoft/trbnettools/binlocal:${PATH}
+# PATH should already be marked as exported...
+PATH=${HOME}/trbsoft/bin:${PATH}
+PATH=${HOME}/trbsoft/daqdata/bin:${PATH}
+PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
 export TRB3_SERVER=trb019
 export DAQOPSERVER=localhost:0
 
@@ -39,9 +42,12 @@ trbcmd w 0x8000 0x830b 0x7
 trbcmd w 0x8000 0x830d 0x0
 
 #mac address of the EB
-# 14:fe:b5:ec:10:9a
-trbcmd w 0x8000 0x8100 0xb5ec109a # lower 4 bytes
-trbcmd w 0x8000 0x8101 0x14fe #upper byte
+# 14:fe:b5:ec:10:9a (normandy)
+#trbcmd w 0x8000 0x8100 0xb5ec109a # lower 4 bytes
+#trbcmd w 0x8000 0x8101 0x14fe # upper byte
+# 00:19:b9:0a:ad:e2 (a2trb)
+trbcmd w 0x8000 0x8100 0xb90aade2 # lower 4 bytes
+trbcmd w 0x8000 0x8101 0x0019 # upper byte
 
 # destination port and source IP and so on
 trbcmd w 0x8000 0x8102 0xc0a80101

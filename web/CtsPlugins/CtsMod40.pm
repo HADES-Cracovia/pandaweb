@@ -42,7 +42,7 @@ sub init {
          0xa => '0xa_shower_calibration_trigger',
          0xb => '0xb_shower_pedestal_trigger',
          0xc => '0xc',
-         0xd => '0xd',
+         0xd => '0xd_tdc_calibration_trigger',
          0xe => '0xe_status_information_trigger',
          0xf => '0xf'
       };
