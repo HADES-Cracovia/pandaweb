@@ -17,7 +17,7 @@ if [[ $? = 0 ]]; then
     echo "trbnetd already running, skipping setup (but exports done)."
     return
 fi
-trbnetd
+${HOME}/trbsoft/trbnettools/binlocal/trbnetd
 
 
 ##### TRBNET #####
