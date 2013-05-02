@@ -38,7 +38,7 @@ sub init {
          'export' => 1
       });
 
-   $self->{'_cts'}->getProperties->{'itc_assignments'}[$header->{'itc_base'}] = "Ext. Logic - A2";
+   $self->{'_cts'}->getProperties->{'itc_assignments'}[$header->{'itc_base'}] = "External Trigger - A2";
 }
 
 1;
