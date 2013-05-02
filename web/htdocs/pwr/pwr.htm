@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="styles.css" rel="stylesheet" type="text/css"/>
+<script src="scripts.js" type="text/javascript"></script>
+<title>Power Supply Monitor and Access</title>
+</head>
+<body style="font-family: sans-serif;" >
+
+
+<p style="bold" id="headline">Power Supply Access</p>
+
+
+<table align=center id="layout" style="
+		border-width: 1px;
+		border-style: solid;
+		border-color: black;
+">
+
+<tr>
+<th align="left">Readings:</th><TD rowspan=2 style="border-left: 1px solid black; padding: 5px;"> <th align="left">Settings:</th>
+</tr>
+
+<tr>
+<td>
+
+<table id="readings" width="300" >
+</table>
+</td>
+
+
+
+
+<td>
+
+<form acion="">
+<table id="settings" >
+<tr>
+<td align="right">Voltage [V]<td><input type="text" id="form_v" name="voltage" value="">
+<td><input type="button" onClick="set_v()" value="set">
+<tr><td colspan=3><hr />
+<tr>
+<td align="right">Voltage limit [V]<td><input type="text" id="form_v_lim" name="voltage_limit" value="">
+<td><input type="button" onClick="set_v_lim()" value="set">
+<tr><td align="right">Current limit [A]<td><input type="text" id="form_c_lim" name="current_limit" value="">
+<td><input type="button" onClick="set_c_lim()" value="set">
+<tr><td align="right">Power limit [W]<td><input type="text" id="form_p_lim" name="power_limit"  value="">
+<td><input type="button" onClick="set_p_lim()" value="set">
+<tr><td colspan=2>Save settings to EEPROM<td><input type="button" onClick="save_to_eep()" value="save">
+<tr><td colspan=3><hr />
+
+<tr>
+<tr><td colspan=2>Output Relais<td><input type="button" onClick="turn_on()" value="on"><input type="button" onClick="turn_off()" value="off">
+<tr><td colspan=3><hr />
+<tr><td colspan=3><input type="checkbox" value="1" id="showreadings">Enable read-back of values.
+</table>
+</form>
+
+</td>
+</tr>
+</table>
+
+
+
+
+<script language="javascript">
+var updaterate = 500;
+var updateTask;
+var new_commands = new Array();
+var ser_dev = getParameterByName("device");
+var dev_id = getParameterByName("id")
+
+
+function set_v() {
+	var value = parseFloat(document.getElementById("form_v").value);
+	var command = "SV "+padZeros(value.toFixed(2),5);
+	new_commands.push(command);
+}
+
+function set_v_lim() {
+	var value = parseInt(document.getElementById("form_v_lim").value);
+	var command = "SU "+padZeros(value,2);
+	new_commands.push(command);
+}
+
+function set_c_lim() {
+	var value = parseFloat(document.getElementById("form_c_lim").value);
+	var command = "SI "+padZeros(value.toFixed(2),4);
+	new_commands.push(command);
+}
+
+function set_p_lim() {
+	var value = parseInt(document.getElementById("form_p_lim").value);
+	var command = "SP "+padZeros(value,3);
+	new_commands.push(command);
+}
+
+function turn_on() {
+	new_commands.push("KOE");
+}
+
+function turn_off() {
+	new_commands.push("KOD");
+}
+
+function save_to_eep() {
+	new_commands.push("EEP");
+}
+
+function update(data) {
+  if(!document.getElementById("readings").innerHTML) return;
+  document.getElementById("readings").innerHTML  = data;
+updateTask = setInterval("communication()",updaterate);
+  }
+
+
+function communication() {
+//	getdata('pwr.pl?/dev/ttyUSB0-KOD',update);
+  cmds = new_commands.join('&');
+  if (cmds != "" || document.getElementById("showreadings").checked) {
+    clearInterval(updateTask);
+    getdata('pwr.pl?'+ser_dev+'&'+cmds,update);
+    }
+	new_commands = new Array();
+}
+
+
+function padZeros(theNumber, max) {
+    var numStr = String(theNumber);
+    
+    while ( numStr.length < max) {
+        numStr = '0' + numStr;
+    }
+    
+    return numStr;
+}
+
+
+function getParameterByName(name)
+{
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.search);
+  if(results == null)
+    return "";
+  else
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+
+
+
+updateTask = setInterval("communication()",updaterate);
+document.getElementById("headline").innerHTML  = "Power Supply "+'<b>'+dev_id+'</b>'+" [connected to "+'<b>'+ser_dev+'</b>'+"]" ;
+  
+  
+</script>
+</body></html>
