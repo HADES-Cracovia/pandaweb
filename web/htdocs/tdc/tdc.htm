@@ -50,7 +50,7 @@ var showenable = document.getElementById("form_enable").checked;
 var oldvalues = {};
 
 
-var reglist = "0-c100-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c800-c801-c802-c803";
+var reglist = "0-c100-c104-c105-c106-c107-c108-c109-c10a-c10b-c10c-c10d-c10f-c110-c111-c112-c800-c801-c802-c803-c804";
 //var reglist = "0-80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
 
 var regs = reglist.split('-');
@@ -58,7 +58,7 @@ var regnames = new Array("Temperature","debug_wr<br>debug_rd<br>channels<br>ref 
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time",
                          "releases","rdo time","timeout number","data finished number","Logic Anal.<br>Debug Mode<br>Run Mode",
-			 "window en.<br>window bef.<br>window aft.","act chan 1","act chan 2");
+			 "window en.<br>window bef.<br>window aft.","act chan 1","act chan 2","data limit");
 
 var updateTask;
 var updateRegsTask;
@@ -210,7 +210,7 @@ function updateregs(data) {
       o += "<th>"+c[j][0];
     } 
   
-  for(i = 0; i < 20; i++) {
+  for(i = 0; i < 21; i++) {
     o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+regs[i]+"<td>"+regnames[i];
 
     
