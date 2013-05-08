@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+	<html>
+	  <head>
+	  <link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="scripts.js" type="text/javascript"></script>
+	  <title>Access all POWER!</title>
+
+	  </head>
+
+	  <body>
+<h2>Basic power supply control</h2>
+<p id="content">
+Platzhalter
+</p>
+
+<script language="javascript">
+
+function update(data) {
+  if(!document.getElementById("content").innerHTML) return;
+  document.getElementById("content").innerHTML  = data;
+  }
+
+getdata('build_index.pl',update); 
+</script>
+
+<p id="conf_area">
+Note that you need to have libdevice-serialport-perl or perl-Device-SerialPort<br> 
+installed and that the /dev/ttyUSBn need to be accessible by normal users.<br>
+To be able to read back values from the supply, you need an interface capable<br>
+of supplying at least 7V on the DTR line of the serial port.<br>
+Feel free to alter the config file to accommodate your needs!<br>
+Please don't use the # character to comment out lines<br>
+<TEXTAREA NAME="Address" id="config_field" ROWS=10 COLS=50 >
+Platzhalter
+</TEXTAREA>
+<br>
+<input type="button" onClick="save_conf()" value="save">
+<input type="button" onClick="reload_page()" value="reload page">
+
+<script language="javascript">
+
+function save_conf() {
+	var field_content = document.getElementById("config_field").value;
+	field_content = field_content.replace(/\n\r?/g, '&');
+	//alert(field_content);		
+	getdata('save_conf.pl?'+field_content,alert); 
+
+  //debug//document.getElementById("content").innerHTML  = field_content;
+  }
+
+function reload_page() {
+	window.location.reload();
+}
+
+function write_field(data) {
+  if(!document.getElementById("config_field").value) return;
+  document.getElementById("config_field").value  = data;
+  }
+
+  
+getdata('read_conf.pl',write_field); 
+</script>
+
+</p>
+
+
+	  </body>
+
+	</html>
+
+
+
+
+
+
+
+
