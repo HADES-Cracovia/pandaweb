@@ -52,7 +52,7 @@ my $chain = hex($ARGV[1]);
 
 if (defined $ARGV[3]) {  
   ($mask) = $ARGV[3] =~ /^0?x?(\w+)/;
-  $mask = hex($mask);
+  $mask = hex($mask) if defined $mask;
   }
 
 if (defined $ARGV[4]) {  
@@ -64,6 +64,7 @@ if (defined $ARGV[4]) {
 sub sendcmd16 {
   my @cmd = @_;
   my $c = [@cmd,1<<$chain,16+0x80];
+#   print Dumper $c;
   trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
   usleep(1000);
   }  
@@ -236,7 +237,7 @@ if($ARGV[2] eq "flash" && defined $ARGV[4]) {
   }
   
 if($ARGV[2] eq "dumpcfg") {   
-  for(my $p = 0; $p<5758; $p++) {  #5758
+  for(my $p = 0; $p<5760; $p++) {  #5758
     sendcmd(0x50800000 + $p);
     printf("0x%04x:\t",$p);
     for(my $i=0;$i<16;$i++) {
@@ -246,7 +247,7 @@ if($ARGV[2] eq "dumpcfg") {
         }
       }
     printf("\n");
-    printf(STDERR "\r%d / 5758",$p) if(!($p%10)); 
+    printf(STDERR "\r%d / 5760",$p) if(!($p%10)); 
     }
   }
 
@@ -254,4 +255,20 @@ if($ARGV[2] eq "enablecfg" && defined $ARGV[3]) {
   my $c = 0x5C800000 + $ARGV[3];
   my $b = sendcmd($c);
   printf("Sent command.\n");
+  }  
+  
+if($ARGV[2] eq "writecfg" && defined $ARGV[3]) {   
+  open(INF,$ARGV[3]) or die "Couldn't read file : $!\n";
+  my $p = 0;
+  while(my $s = <INF>) {
+    my @t = split(' ',$s);
+    my @a;
+    for(my $i=0;$i<16;$i++) {
+      push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 16));
+      }
+    sendcmd16(@a);
+    sendcmd(0x50804000 + $p);
+    $p++;
+    printf(STDERR "\r%d / 5760",$p) if(!($p%10)); 
+    }
   }  
