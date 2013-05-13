@@ -39,7 +39,8 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t  \t\t read the RAM content (16 Byte)\n";
   print "\t flash \t\t execute flash command, options: \$command, \$page. See manual for commands.\n";
   print "\t enablecfg\t enable or disable access to configuration flash, options: 1/0\n";
-  print "\t dumpcfg \t Dump content of configuration flash\n";
+  print "\t dumpcfg \t Dump content of configuration flash. Pipe output to file\n";
+  print "\t writecfg \t Write content of configuration flash. options: \$filename\n";
   
   exit;
   }
@@ -50,7 +51,7 @@ $board = hex($board);
 
 my $chain = hex($ARGV[1]);  
 
-if (defined $ARGV[3]) {  
+if (defined $ARGV[3] && $ARGV[2] ne "writecfg") {  
   ($mask) = $ARGV[3] =~ /^0?x?(\w+)/;
   $mask = hex($mask) if defined $mask;
   }
