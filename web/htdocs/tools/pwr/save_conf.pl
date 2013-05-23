@@ -7,7 +7,7 @@ $envstring =~ s/&/\n/g;
 ##$envstring =~ s/&/\n/g;
 
 
-open(SCHREIBEN,">htdocs/pwr/pwr.conf")
+open(SCHREIBEN,">htdocs/tools/pwr/pwr.conf")
   or print "Fehler beim oeffnen von : $!\n";
 
 print SCHREIBEN $envstring;

@@ -5,7 +5,7 @@ use Cwd;
 my $pwd = &Cwd::cwd();
 
 
-open(LESEN,"htdocs/pwr/pwr.conf")
+open(LESEN,"htdocs/tools/pwr/pwr.conf")
   or die "Fehler beim oeffnen von : $!\n";
 
 while(defined(my $i = <LESEN>)) {
