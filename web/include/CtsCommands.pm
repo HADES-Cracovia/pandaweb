@@ -489,19 +489,23 @@ EOF
 
                print $gnuplot_fh <<"EOF"
 set xrange [*:0]
-set output "$filename/plot.png"
+set output "$filename/_tmp_plot.png"
 plot \\
 "$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
 "$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 set xrange [-5:0]
-set output "$filename/plotshort.png"
+set output "$filename/_tmp_plotshort.png"
 plot \\
 "$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
 "$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 EOF
 ;
+
+               rename "$filename/_tmp_plot.png",      "$filename/plot.png";
+               rename "$filename/_tmp_plotshort.png", "$filename/plotshort.png";
+               
 
                print ($quiet ? "." : "Plot produced\n");
             } else {
