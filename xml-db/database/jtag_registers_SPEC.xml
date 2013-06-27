@@ -5,7 +5,7 @@ xsi:noNamespaceSchemaLocation="TrbNet.xsd"
   offset="1000"
   >
 <group name="JtagCommonControl"
-       address="0000"  size="21"  function="config"  continuous="true">
+       address="0000"  size="37"  function="config"  mode="rw"  continuous="true">
 
   <register name="WaitBeforeStart"
             address="0007" mode="rw" function ="config" >
@@ -79,7 +79,24 @@ xsi:noNamespaceSchemaLocation="TrbNet.xsd"
     </field>
   </register>
 
+  <group name="JtagOverride"
+       address="0020"  size="5"  function="config"  mode="rw"  continuous="true">
+    <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
+    
+    <!--
+    MAPS_RESET_OUT(i) <= (maps_reset(i)  xor signals_invert(i)(10)) when signals_invert(i)(11) = '1' else signals_invert(i)(10);
+    MAPS_START_OUT(i) <= (maps_start(i)  xor signals_invert(i)(8))  when signals_invert(i)(9) = '1'  else signals_invert(i)(8);
+    JTAG_TCK_OUT(i)   <= (jtag_tck(i)    xor signals_invert(i)(6))  when signals_invert(i)(7) = '1'  else signals_invert(i)(6);
+    JTAG_TMS_OUT(i)   <= (jtag_tms(i)    xor signals_invert(i)(4))  when signals_invert(i)(5) = '1'  else signals_invert(i)(4);
+    JTAG_TDI_OUT(i)   <= (jtag_tdi(i)    xor signals_invert(i)(2))  when signals_invert(i)(3) = '1'  else signals_invert(i)(2);
+    jtag_tdo(i)       <= (JTAG_TDO_IN(i) xor signals_invert(i)(0))  when signals_invert(i)(1) = '1'  else signals_invert(i)(0);
+
+    clk_maps_tmp_p(i) <= signals_invert(i)(12) when signals_invert(i)(13) = '1' else signals_invert(i)(12);
+    clk_maps_tmp_n(i) <= not signals_invert(i)(12) when signals_invert(i)(13) = '1' else signals_invert(i)(12);
+      -->
+  </group>
 
 </group>
 
 </TrbNet>
+
