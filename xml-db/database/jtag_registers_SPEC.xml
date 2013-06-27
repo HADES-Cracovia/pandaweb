@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="spec.xsd"
+  type="JtagController"
+  offset="1000"
+  >
+
+<register
+  name="TriggerAllchainsInitSeq"
+  address="0003"
+  mode="w"
+  function ="configuration"
+  >
+  <description>
+Start initialization sequence for all connected sensor chains    
+  </description>
+<field
+  type="configuration"
+  name="NU"
+  start="16"
+  size="4"
+  defaultValue="0" >
+  <description>Reserved, Not Used </description>
+</field>
+</register>
+
+</TrbNet>
