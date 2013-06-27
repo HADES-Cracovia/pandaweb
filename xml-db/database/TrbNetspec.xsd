@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-
+<!--==============================
+    Type Definitions
+==============================-->
 <xs:simpleType name="addresstype">
   <xs:restriction base="xs:string">
     <xs:pattern value="[0-9a-fA-F]{4}"/>
@@ -49,7 +51,9 @@
 </xs:simpleType> 
 
 
-<xs:element name="description" type="xs:string" />
+<!--==============================
+    Attribute Definition
+==============================-->
 <xs:attribute name="name"         type="xs:string" />
 <xs:attribute name="address"      type="addresstype" />
 <xs:attribute name="offset"       type="addresstype" />
@@ -64,6 +68,14 @@
 <xs:attribute name="continuous"   type="xs:boolean" />
 
 
+<!--==============================
+    Simple Elements
+==============================-->
+<xs:element name="description" type="xs:string" />
+
+<!--==============================
+    Complex Elements
+==============================-->
 <xs:element name="TrbNet">
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
