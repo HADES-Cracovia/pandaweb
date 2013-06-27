@@ -11,10 +11,75 @@ xsi:noNamespaceSchemaLocation="TrbNet.xsd"
             address="0007" mode="rw" function ="config" >
     <description>Wait time between write sequence and start signal.</description>
     <field name="WaitBeforeStart"
-           start="0"   size="20"  type="config"    defaultValue="0" >
+           start="0"   size="20"  mode="rw"  type="config"  format="integer"  defaultValue="0" >
       <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
     </field>
   </register>
+  
+  <register name="TriggerInitSeq"
+            address="000c" mode="w" function ="trigger" >
+    <description>Trigger the init sequence.</description>
+    <field name="TriggerInitSeq"
+           start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+      <description>A bitmask to trigger the init sequence on individual JTAG chains. </description>
+    </field>
+  </register>
+
+  <register name="TriggerReset"
+            address="000d" mode="w" function ="trigger" >
+    <description>Trigger the init sequence.</description>
+    <field name="TriggerReset"
+           start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+      <description>A bitmask to trigger sending a reset pulse on individual JTAG chains </description>
+    </field>
+  </register>
+
+  <register name="TriggerStart"
+            address="000e" mode="w" function ="trigger" >
+    <description>Trigger sending a start pulse.</description>
+    <field name="TriggerStart"
+           start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+      <description>A bitmask to trigger sending a start pulse on individual JTAG chains </description>
+    </field>
+  </register>
+
+  <register name="TriggerJtagRun"
+            address="000f" mode="w" function ="trigger" >
+    <description>Trigger running JTAG write.</description>
+    <field name="TriggerJtagRun"
+           start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+      <description>A bitmask to trigger writing the JTAG registers three times on individual JTAG chains </description>
+    </field>
+  </register>
+
+  <register name="ResetBeforeInit"
+            address="0010" mode="rw" function ="config" >
+    <description>Generate a reset before doing init sequence</description>
+    <field name="ResetBeforeInit"
+           start="0"   size="1"  mode="rw"  type="config"  format="boolean"  defaultValue="0" >
+      <description>Enable to send a reset pulse before starting init sequence</description>
+    </field>
+  </register>
+
+  <register name="ResetAfterFirstWrite"
+            address="0011" mode="rw" function ="config" >
+    <description>Generate a reset after first register write sequence</description>
+    <field name="ResetAfterFirstWrite"
+           start="0"   size="1"  mode="rw"  type="config"  format="boolean"  defaultValue="0" >
+      <description>Enable to send a reset pulse after the first writing of JTAG registers</description>
+    </field>
+  </register>
+
+  <register name="TriggerWriteOnce"
+            address="0014" mode="w" function ="trigger" >
+    <description>Trigger writing all JTAG registers once</description>
+    <field name="TriggerWriteOnce"
+           start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+      <description>Trigger writing all JTAG registers once on individual JTAG chains</description>
+    </field>
+  </register>
+
+
 </group>
 
 </TrbNet>

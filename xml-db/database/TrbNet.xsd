@@ -41,10 +41,12 @@
 
 <xs:simpleType name="formattype">
  <xs:restriction base="xs:string">
+    <xs:enumeration value="integer"/>
     <xs:enumeration value="signed"/>
     <xs:enumeration value="unsigned"/>
     <xs:enumeration value="hex"/>
     <xs:enumeration value="bitmask"/>
+    <xs:enumeration value="boolean"/>
     <xs:enumeration value="time"/>
     <xs:enumeration value="string"/>
   </xs:restriction>
@@ -79,7 +81,7 @@
 <xs:element name="TrbNet">
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
       <xs:element   ref="group"       maxOccurs="unbounded" />
       <xs:element   ref="register"    maxOccurs="unbounded" />
       <xs:element   ref="memory"      maxOccurs="unbounded" />
@@ -94,7 +96,7 @@
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
       <xs:element   ref="group"       maxOccurs="unbounded" />
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
       <xs:element   ref="register"    maxOccurs="unbounded" />
       <xs:element   ref="memory"      maxOccurs="unbounded" />
       <xs:element   ref="fifo"        maxOccurs="unbounded" />
@@ -113,12 +115,13 @@
 <xs:element name="field">
   <xs:complexType>
     <xs:all>
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
     </xs:all>
     <xs:attribute ref="name" />
     <xs:attribute ref="start" />
     <xs:attribute ref="size" />
     <xs:attribute ref="type" />
+    <xs:attribute ref="mode" />
     <xs:attribute ref="defaultValue" />
     <xs:attribute ref="format" />
   </xs:complexType>
@@ -129,7 +132,7 @@
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
       <xs:element   ref="field" />
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
     </xs:choice>
     <xs:attribute ref="name" />
     <xs:attribute ref="address" />
@@ -142,7 +145,7 @@
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
       <xs:element   ref="field" />
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
     </xs:choice>
     <xs:attribute ref="name" />
     <xs:attribute ref="address" />
@@ -156,7 +159,7 @@
   <xs:complexType>
     <xs:choice maxOccurs="unbounded">
       <xs:element   ref="field" />
-      <xs:element   ref="description" maxOccurs="1" />
+      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
     </xs:choice>
     <xs:attribute ref="name" />
     <xs:attribute ref="address" />
