@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<TrbNet 
+  type="JtagController"
+  offset="1000"
+  >
+<group 
+  name
+  addr
+  width
+  continuous="yes"
+  >  
+<register
+  name="TriggerAllchainsInitSeq"
+  address="0003"
+  mode="w"
+  type =""
+  >
+  <description>
+Start initialization sequence for all connected sensor chains    
+  </description>
+<field
+  type="configuration"
+  name="NU"
+  start="16"
+  size="4"
+  defaultValue="0" >
+  <description>Reserved, Not Used </description>
+</field>
+</register>
+</group>
+</TrbNet>

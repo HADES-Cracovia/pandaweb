@@ -1,0 +1,16 @@
+This directory contains some effort to describe and explain all TrbNet
+Registers in a human-readable way, including some "annotations" how to
+read/write them efficiently.
+
+The XML database can then serve as a default configuration (protected
+by SHA1 hash?), on which personal modifications can build upon.
+
+Some envisaged use cases:
+
+1) trbcmd-pretty -> Have a look at the content of registers without
+reading "raw" hex values
+
+2) Save/Load TRB config in XML format (as diff to "default" database)
+
+3) Automatically create configuration for third-party monitoring (e.g.
+EPICS)
