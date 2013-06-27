@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="spec.xsd"
-  type="JtagController"
+  name="JtagController"
   offset="1000"
   >
 
@@ -9,13 +9,13 @@ xsi:noNamespaceSchemaLocation="spec.xsd"
   name="TriggerAllchainsInitSeq"
   address="0003"
   mode="w"
-  function ="configuration"
+  function ="config"
   >
   <description>
 Start initialization sequence for all connected sensor chains    
   </description>
 <field
-  type="configuration"
+  type="config"
   name="NU"
   start="16"
   size="4"
