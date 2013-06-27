@@ -1,27 +1,33 @@
-<?xml version="1.0"?>
+<?xml version="1.0"  encoding="utf-8" ?>
 <TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:noNamespaceSchemaLocation="spec.xsd"
+xsi:noNamespaceSchemaLocation="TrbNetspec.xsd"
   name="JtagController"
   offset="1000"
   >
-
-<register
-  name="TriggerAllchainsInitSeq"
-  address="0003"
-  mode="w"
-  function ="config"
+<group
+  name="JtagCommonControl"
+  address="0000"
+  size="21"
+  function="config"
+  continuous="true"
   >
-  <description>
-Start initialization sequence for all connected sensor chains    
-  </description>
-<field
-  type="config"
-  name="NU"
-  start="16"
-  size="4"
-  defaultValue="0" >
-  <description>Reserved, Not Used </description>
-</field>
-</register>
+
+  <register
+    name="WaitBeforeStart"
+    address="0007"
+    mode="rw"
+    function ="config"
+    >
+    <description>Wait time between write sequence and start signal.</description>
+    <field
+      type="config"
+      name="WaitBeforeStart"
+      start="0"
+      size="20"
+      defaultValue="0" >
+      <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
+    </field>
+  </register>
+</group>
 
 </TrbNet>

@@ -41,13 +41,13 @@
 
 <xs:simpleType name="formattype">
  <xs:restriction base="xs:string">
-      <xs:enumeration value="signed"/>
-      <xs:enumeration value="unsigned"/>
-      <xs:enumeration value="hex"/>
-      <xs:enumeration value="bitmask"/>
-      <xs:enumeration value="time"/>
-      <xs:enumeration value="string"/>
-    </xs:restriction>
+    <xs:enumeration value="signed"/>
+    <xs:enumeration value="unsigned"/>
+    <xs:enumeration value="hex"/>
+    <xs:enumeration value="bitmask"/>
+    <xs:enumeration value="time"/>
+    <xs:enumeration value="string"/>
+  </xs:restriction>
 </xs:simpleType> 
 
 
