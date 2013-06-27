@@ -1,0 +1,20 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="TrbNet.xsd"
+  name="JtagController"
+  offset="1000"
+  >
+<group name="JtagCommonControl"
+       address="0000"  size="21"  function="config"  continuous="true">
+
+  <register name="WaitBeforeStart"
+            address="0007" mode="rw" function ="config" >
+    <description>Wait time between write sequence and start signal.</description>
+    <field name="WaitBeforeStart"
+           start="0"   size="20"  type="config"    defaultValue="0" >
+      <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
+    </field>
+  </register>
+</group>
+
+</TrbNet>
