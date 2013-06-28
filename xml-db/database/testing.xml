@@ -15,7 +15,7 @@
     <register
         name="WaitBeforeStart"
         address="0007"
-        mode="rww"
+        mode="rw"
         function ="config"
         >
       <description>Wait time between write sequence and start signal.</description>

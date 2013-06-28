@@ -5,11 +5,13 @@ use warnings;
 use XML::LibXML;
 use Getopt::Long;
 use Pod::Usage;
+use File::chdir;
 use FindBin qw($RealBin);
 use Data::Dumper;
 
 # some default config options
 # and provide nice help documentation
+# some global variables, needed everywhere
 
 my $man = 0;
 my $help = 0;
@@ -24,13 +26,56 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
 
-print "Database: $db_dir\n" if $verbose;
+# tell something about the configuration
+if($verbose) {
+  print "Database directory: $db_dir\n";
+}
 
-my $doc = XML::LibXML->new->parse_file("$db_dir/testing.xml");
-my $xmlschema = XML::LibXML::Schema->new('location' => "$db_dir/".
-                                         $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation'));
+# jump to subroutine which handles the job,
+# depending on the options
+&main;
 
-$xmlschema->validate($doc);
+sub main {
+  # load the unmerged database
+  my $db = &LoadDB;
+}
+
+sub LoadDB {
+  # change to he db_dir here in this subroutine
+  local $CWD = $db_dir;
+
+  # we first load the schemas and parse them
+  # so we can validate the XML files
+  my %schemas = ();
+  while(<*.xsd>) {
+    $schemas{$_} = XML::LibXML::Schema->new(location => $_);
+    print "Loaded schema $_\n" if $verbose;
+  }
+
+  # load the xml files
+  my $parser = XML::LibXML->new(line_numbers => 1);
+  my $db = {};
+  while(<*.xml>) {
+    my $doc = $parser->parse_file($_);
+    my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
+    die "Schema $xsd_file not found to validate $_" unless defined $schemas{$xsd_file};
+    $schemas{$xsd_file}->validate($doc);
+    $db->{$_} = $doc;
+    print "Loaded and validated database file $_\n" if $verbose;
+  }
+  # $parser->parse_file("$db_dir/testing.xml");
+
+  # my $xmlschema = XML::LibXML::Schema->new('location' => "$db_dir/".
+  #                                          $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation'));
+
+  # 
+  return $db;
+}
+
+
+
+
+
 
 #print $xsd;
 
@@ -46,7 +91,7 @@ xml-db.pl - Access the TRB XML Database
 xml-db.pl [options] [config file]
 
  Options:
-   -h, --help     brief help message
+   -h, --help    brief help message
    --xml-db_dir  database directory
 
 =head1 OPTIONS
