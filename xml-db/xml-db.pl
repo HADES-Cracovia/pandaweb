@@ -3,6 +3,8 @@ use strict;
 use warnings;
 
 use XML::LibXML;
+use XML::LibXML::Debugging;
+#use XML::LibXML::Iterator;
 use Getopt::Long;
 use Pod::Usage;
 use File::chdir;
@@ -21,7 +23,8 @@ my $db_dir = "$RealBin/database";
 GetOptions(
            'help|h' => \$help,
            'man' => \$man,
-           'verbose|v+' => \$verbose
+           'verbose|v+' => \$verbose,
+           'db-dir=s' => \$db_dir 
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
@@ -33,11 +36,51 @@ if($verbose) {
 
 # jump to subroutine which handles the job,
 # depending on the options
-&main;
+&Main;
 
-sub main {
+sub Main {
   # load the unmerged database
   my $db = &LoadDB;
+
+  my $doc = $db->{'TDC.xml'};
+  #my $doc = $db->{'testing.xml'};
+  #print Dumper($doc->findnodes('TrbNet')->toDebuggingHash);
+  # get the iterator for the document root.
+  #my $iter = XML::LibXML::Iterator->new( $doc->documentElement );
+
+  # walk through the document, we select all groups which
+  # have some registers, since those share the same base name
+  # and base address
+  foreach my $groupNode ($doc->findnodes('//group[register]')) {
+    # determine base name (concatenated by /)
+    # and base address (just add all previous offsets)
+    my $baseaddress = 0;
+    my $basename = '';
+    foreach my $anc ($groupNode->findnodes('ancestor::group | .')) {
+      $baseaddress += hex($anc->getAttribute('address'));
+      $basename .= '/'.$anc->getAttribute('name');
+    }
+
+    # now iterate over all children
+    foreach my $curNode ($groupNode->findnodes('register')) {
+      #print $curNode->nodeName,"\t",$curNode->nodePath,"\n";
+      my $name = $basename.'/'.$curNode->getAttribute('name');
+      my $address = $baseaddress+hex($curNode->getAttribute('address'));
+      #printf("%s %04x\n\n",$name,$address);
+      foreach my $field ($curNode->findnodes('field')) {
+        printf("%04x:%02d:%02d %s/%s\n", $address,
+              $field->getAttribute('start'),
+              $field->getAttribute('size'),
+              $name, $field->getAttribute('name'));
+      }
+    }
+  }
+}
+
+sub GetBaseNameAndAddress($) {
+  my $node = shift;
+  
+  #return ($baseName, $baseAddress);
 }
 
 sub LoadDB {
@@ -49,7 +92,7 @@ sub LoadDB {
   my %schemas = ();
   while(<*.xsd>) {
     $schemas{$_} = XML::LibXML::Schema->new(location => $_);
-    print "Loaded schema $_\n" if $verbose;
+    print "Loaded schema <$_>\n" if $verbose;
   }
 
   # load the xml files
@@ -58,17 +101,11 @@ sub LoadDB {
   while(<*.xml>) {
     my $doc = $parser->parse_file($_);
     my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
-    die "Schema $xsd_file not found to validate $_" unless defined $schemas{$xsd_file};
+    die "Schema $xsd_file not found to validate <$_>" unless defined $schemas{$xsd_file};
     $schemas{$xsd_file}->validate($doc);
     $db->{$_} = $doc;
-    print "Loaded and validated database file $_\n" if $verbose;
+    print "Loaded and validated <$_>\n" if $verbose;
   }
-  # $parser->parse_file("$db_dir/testing.xml");
-
-  # my $xmlschema = XML::LibXML::Schema->new('location' => "$db_dir/".
-  #                                          $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation'));
-
-  # 
   return $db;
 }
 
@@ -92,6 +129,7 @@ xml-db.pl [options] [config file]
 
  Options:
    -h, --help    brief help message
+   -v, --verbose be verbose
    --xml-db_dir  database directory
 
 =head1 OPTIONS
@@ -101,6 +139,10 @@ xml-db.pl [options] [config file]
 =item B<--help>
 
 Print a brief help message and exits.
+
+=item B<--verbose>
+
+Print some information what is going on.
 
 =item B<--db-dir>
 
