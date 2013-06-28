@@ -2,7 +2,7 @@
 <TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="TrbNet.xsd"
         name="JtagController"
-        offset="0000"
+        address="a000"
         >
   <!--===========================================-->
   <!-- Common JTAG control registers             -->
@@ -143,8 +143,8 @@
   <!--===========================================-->
   <group name="JtagStatus"
          address="1800"  size="40"  function="status"  mode="r"  continuous="true">
-    <group name="JtagChainStatus"
-           address="1800"  size="8"  repeat="5"  function="status"  mode="r"  continuous="true">
+    <group name="JtagStatusChain"
+           address="0000"  size="8"  repeat="5"  function="status"  mode="r"  continuous="true">
       <register  name="JtagErrorCount1"
                 address="0002" function="status" mode="r" >
         <field name="ErrorsReadId"

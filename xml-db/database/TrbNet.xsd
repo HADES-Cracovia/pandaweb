@@ -96,7 +96,7 @@
       <xs:element   ref="fifo"        maxOccurs="unbounded" />
     </xs:choice>
     <xs:attribute ref="name" />
-    <xs:attribute ref="offset" />
+    <xs:attribute ref="address" />
   </xs:complexType>
 </xs:element>
 
