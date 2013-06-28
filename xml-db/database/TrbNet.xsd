@@ -47,6 +47,7 @@
 
 <xs:simpleType name="formattype">
  <xs:restriction base="xs:string">
+    <xs:enumeration value="raw"/>
     <xs:enumeration value="integer"/>
     <xs:enumeration value="signed"/>
     <xs:enumeration value="unsigned"/>
@@ -74,6 +75,7 @@
 <xs:attribute name="value"        type="valuetype" />
 <xs:attribute name="format"       type="formattype" />
 <xs:attribute name="continuous"   type="xs:boolean" />
+<xs:attribute name="repeat"       type="xs:positiveInteger" default="1" />
 
 
 <!--==============================
@@ -112,8 +114,9 @@
     <xs:attribute ref="size" />
     <xs:attribute ref="function" />
     <xs:attribute ref="continuous" />
-    <xs:attribute ref="defaultValue" />
+    <xs:attribute ref="mode" />
     <xs:attribute ref="format" />
+    <xs:attribute ref="repeat" />
   </xs:complexType>
 </xs:element> 
 
@@ -130,6 +133,7 @@
     <xs:attribute ref="mode" />
     <xs:attribute ref="defaultValue" />
     <xs:attribute ref="format" />
+    <xs:attribute ref="repeat" />
   </xs:complexType>
 </xs:element> 
 
@@ -144,6 +148,7 @@
     <xs:attribute ref="address" />
     <xs:attribute ref="mode" />
     <xs:attribute ref="function" />
+    <xs:attribute ref="repeat" />
   </xs:complexType>
 </xs:element> 
 
