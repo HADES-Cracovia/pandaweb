@@ -1,184 +1,194 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-<!--==============================
-    Type Definitions
-==============================-->
-<xs:simpleType name="nametype">
-  <xs:restriction base="xs:string">
-    <xs:pattern value="[0-9a-zA-Z_]+"/>
-  </xs:restriction>
-</xs:simpleType> 
+  <!--==============================
+      Type Definitions
+      ==============================-->
+  <xs:simpleType name="nametype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-zA-Z_]+"/>
+    </xs:restriction>
+  </xs:simpleType> 
 
-<xs:simpleType name="addresstype">
-  <xs:restriction base="xs:string">
-    <xs:pattern value="[0-9a-fA-F]{4}"/>
-  </xs:restriction>
-</xs:simpleType> 
+  <xs:simpleType name="addresstype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{4}"/>
+    </xs:restriction>
+  </xs:simpleType> 
 
-<xs:simpleType name="valuetype">
-  <xs:restriction base="xs:string">
-    <xs:pattern value="[0-9a-fA-F]+"/>
-  </xs:restriction>
-</xs:simpleType> 
+  <xs:simpleType name="valuetype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]+"/>
+    </xs:restriction>
+  </xs:simpleType> 
 
-<xs:simpleType name="modetype">
-  <xs:restriction base="xs:string">
-    <xs:pattern value="[rwb]+"/>
-    <!-- (r)ead and /or (w)rite, plus maybe (b)lock, if a no-more-data from this registers transports some vital information-->
-  </xs:restriction>
-</xs:simpleType> 
+  <xs:simpleType name="modetype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="r|w|rw|b"/>
+      <!-- (r)ead and /or (w)rite, plus maybe (b)lock, if a no-more-data from this registers transports some vital information-->
+    </xs:restriction>
+  </xs:simpleType> 
 
-<xs:simpleType name="functiontype">
- <xs:restriction base="xs:string">
+  <xs:simpleType name="functiontype">
+    <!-- config: setup some behaviour
+         trigger: register which starts some kind of operation of the hardware
+         status: slowly changing information
+         statistics: quickly changing information
+  
+         Note: The difference between "status" and "statistics" is not sharp,
+         they both give some information about the system. Usually, statistics
+         is updated every event (e.g. number of read-out triggers received),
+         whereas status contains more "constant" stuff (e.g. temperature)   
+    -->
+    <xs:restriction base="xs:string">
       <xs:enumeration value="config"/>
       <xs:enumeration value="trigger"/>
       <xs:enumeration value="status"/>
       <xs:enumeration value="statistics"/>
     </xs:restriction>
-</xs:simpleType> 
+  </xs:simpleType> 
 
-<xs:simpleType name="bittype">
-  <xs:restriction base="xs:integer">
-    <xs:minInclusive value="0"/>
-    <xs:maxInclusive value="31"/>
-  </xs:restriction>
-</xs:simpleType> 
+  <xs:simpleType name="bittype">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="31"/>
+    </xs:restriction>
+  </xs:simpleType> 
 
-<xs:simpleType name="formattype">
- <xs:restriction base="xs:string">
-    <xs:enumeration value="raw"/>
-    <xs:enumeration value="integer"/>
-    <xs:enumeration value="signed"/>
-    <xs:enumeration value="unsigned"/>
-    <xs:enumeration value="hex"/>
-    <xs:enumeration value="bitmask"/>
-    <xs:enumeration value="boolean"/>
-    <xs:enumeration value="time"/>
-    <xs:enumeration value="string"/>
-  </xs:restriction>
-</xs:simpleType> 
-
-
-<!--==============================
-    Attribute Definition
-==============================-->
-<xs:attribute name="name"         type="nametype" />
-<xs:attribute name="address"      type="addresstype" />
-<xs:attribute name="offset"       type="addresstype" />
-<xs:attribute name="mode"         type="modetype"  />
-<xs:attribute name="type"         type="functiontype" />
-<xs:attribute name="function"     type="functiontype" />
-<xs:attribute name="start"        type="bittype" />
-<xs:attribute name="size"         type="xs:positiveInteger" />
-<xs:attribute name="defaultValue" type="valuetype" />
-<xs:attribute name="value"        type="valuetype" />
-<xs:attribute name="format"       type="formattype" />
-<xs:attribute name="continuous"   type="xs:boolean" />
-<xs:attribute name="repeat"       type="xs:positiveInteger" default="1" />
+  <xs:simpleType name="formattype">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="raw"/>
+      <xs:enumeration value="integer"/>
+      <xs:enumeration value="signed"/>
+      <xs:enumeration value="unsigned"/>
+      <xs:enumeration value="hex"/>
+      <xs:enumeration value="bitmask"/>
+      <xs:enumeration value="boolean"/>
+      <xs:enumeration value="time"/>
+      <xs:enumeration value="string"/>
+    </xs:restriction>
+  </xs:simpleType> 
 
 
-<!--==============================
-    Simple Elements
-==============================-->
-<xs:element name="description" type="xs:string" />
-
-<!--==============================
-    Complex Elements
-==============================-->
-<xs:element name="TrbNet">
-  <xs:complexType>
-    <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      <xs:element   ref="group"       maxOccurs="unbounded" />
-      <xs:element   ref="register"    maxOccurs="unbounded" />
-      <xs:element   ref="memory"      maxOccurs="unbounded" />
-      <xs:element   ref="fifo"        maxOccurs="unbounded" />
-    </xs:choice>
-    <xs:attribute ref="name" />
-    <xs:attribute ref="address" />
-  </xs:complexType>
-</xs:element>
-
-<xs:element name="group">
-  <xs:complexType>
-    <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="group"       maxOccurs="unbounded" />
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      <xs:element   ref="register"    maxOccurs="unbounded" />
-      <xs:element   ref="memory"      maxOccurs="unbounded" />
-      <xs:element   ref="fifo"        maxOccurs="unbounded" />
-    </xs:choice>
-    <xs:attribute ref="name" use="required" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="size" />
-    <xs:attribute ref="function" />
-    <xs:attribute ref="continuous" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="format" />
-    <xs:attribute ref="repeat" />
-  </xs:complexType>
-</xs:element> 
+  <!--==============================
+      Attribute Definition
+      ==============================-->
+  <xs:attribute name="name"         type="nametype" />
+  <xs:attribute name="address"      type="addresstype" />
+  <xs:attribute name="offset"       type="addresstype" />
+  <xs:attribute name="mode"         type="modetype"  />
+  <xs:attribute name="type"         type="functiontype" />
+  <xs:attribute name="function"     type="functiontype" />
+  <xs:attribute name="start"        type="bittype" />
+  <xs:attribute name="size"         type="xs:positiveInteger" />
+  <xs:attribute name="defaultValue" type="valuetype" />
+  <xs:attribute name="value"        type="valuetype" />
+  <xs:attribute name="format"       type="formattype" />
+  <xs:attribute name="continuous"   type="xs:boolean" />
+  <xs:attribute name="repeat"       type="xs:positiveInteger" default="1" />
 
 
-<xs:element name="field">
-  <xs:complexType>
-    <xs:all>
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-    </xs:all>
-    <xs:attribute ref="name" />
-    <xs:attribute ref="start" />
-    <xs:attribute ref="size" />
-    <xs:attribute ref="type" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="defaultValue" />
-    <xs:attribute ref="format" />
-    <xs:attribute ref="repeat" />
-  </xs:complexType>
-</xs:element> 
+  <!--==============================
+      Simple Elements
+      ==============================-->
+  <xs:element name="description" type="xs:string" />
+
+  <!--==============================
+      Complex Elements
+      ==============================-->
+  <xs:element name="TrbNet">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+        <xs:element   ref="group"       maxOccurs="unbounded" />
+        <xs:element   ref="register"    maxOccurs="unbounded" />
+        <xs:element   ref="memory"      maxOccurs="unbounded" />
+        <xs:element   ref="fifo"        maxOccurs="unbounded" />
+      </xs:choice>
+      <xs:attribute ref="name" />
+      <xs:attribute ref="address" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="group">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="group"       maxOccurs="unbounded" />
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+        <xs:element   ref="register"    maxOccurs="unbounded" />
+        <xs:element   ref="memory"      maxOccurs="unbounded" />
+        <xs:element   ref="fifo"        maxOccurs="unbounded" />
+      </xs:choice>
+      <xs:attribute ref="name" use="required" />
+      <xs:attribute ref="address" />
+      <xs:attribute ref="size" />
+      <xs:attribute ref="function" />
+      <xs:attribute ref="continuous" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="format" />
+      <xs:attribute ref="repeat" />
+    </xs:complexType>
+  </xs:element> 
 
 
-<xs:element name="register">
-  <xs:complexType>
-    <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="field" />
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-    </xs:choice>
-    <xs:attribute ref="name" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="function" />
-    <xs:attribute ref="repeat" />
-  </xs:complexType>
-</xs:element> 
+  <xs:element name="field">
+    <xs:complexType>
+      <xs:all>
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+      </xs:all>
+      <xs:attribute ref="name" />
+      <xs:attribute ref="start" />
+      <xs:attribute ref="size" />
+      <xs:attribute ref="type" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="defaultValue" />
+      <xs:attribute ref="format" />
+      <xs:attribute ref="repeat" />
+    </xs:complexType>
+  </xs:element> 
 
-<xs:element name="memory">
-  <xs:complexType>
-    <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="field" />
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-    </xs:choice>
-    <xs:attribute ref="name" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="size" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="function" />
-  </xs:complexType>
-</xs:element> 
 
-<xs:element name="fifo">
-  <xs:complexType>
-    <xs:choice maxOccurs="unbounded">
-      <xs:element   ref="field" />
-      <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-    </xs:choice>
-    <xs:attribute ref="name" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="function" />
-  </xs:complexType>
-</xs:element> 
+  <xs:element name="register">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="field" />
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+      </xs:choice>
+      <xs:attribute ref="name" />
+      <xs:attribute ref="address" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="function" />
+      <xs:attribute ref="repeat" />
+    </xs:complexType>
+  </xs:element> 
+
+  <xs:element name="memory">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="field" />
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+      </xs:choice>
+      <xs:attribute ref="name" />
+      <xs:attribute ref="address" />
+      <xs:attribute ref="size" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="function" />
+    </xs:complexType>
+  </xs:element> 
+
+  <xs:element name="fifo">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="field" />
+        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
+      </xs:choice>
+      <xs:attribute ref="name" />
+      <xs:attribute ref="address" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="function" />
+    </xs:complexType>
+  </xs:element> 
 
 
 </xs:schema> 
-  
+

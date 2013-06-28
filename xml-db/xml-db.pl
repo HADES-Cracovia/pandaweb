@@ -27,9 +27,13 @@ pod2usage(-exitval => 0, -verbose => 2) if $man;
 print "Database: $db_dir\n" if $verbose;
 
 my $doc = XML::LibXML->new->parse_file("$db_dir/testing.xml");
-my $xmlschema = XML::LibXML::Schema->new( location => "$db_dir/TrbNet.xsd" );
+my $xmlschema = XML::LibXML::Schema->new('location' => "$db_dir/".
+                                         $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation'));
 
 $xmlschema->validate($doc);
+
+#print $xsd;
+
 
 __END__
 
