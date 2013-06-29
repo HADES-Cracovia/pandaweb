@@ -50,15 +50,13 @@
     </memory>
 
     <register name="TriggerWindow" address="0003" purpose="status">
-      <field name="Before" start="0" size="11" format="time">
+      <field name="Before" start="0" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
-        <granularity>5</granularity>
       </field>
-      <field name="After" start="16" size="11" format="time">
+      <field name="After" start="16" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns</description>
-        <granularity>5</granularity>
       </field>
       <field name="Enable" start="31" format="boolean">
         <description>Trigger window enabled?</description>
@@ -120,18 +118,16 @@
     </register>
 
     <register name="Idle" address="000c">
-      <field name="Time" start="0" size="24" format="time">
+      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
         <description>Total time length, that the readout FSM waited in
         the idle state (with granularity of 10 ns)</description>
-        <granularity>10</granularity>
       </field>
     </register>
     
     <register name="Wait" address="000d">
-      <field name="Time" start="0" size="24" format="time">
+      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
         <description>Total time length, that the readout FSM waited in
         the wait states (with granularity of 10 ns)</description>
-        <granularity>10</granularity>
       </field>
     </register>
 
@@ -149,10 +145,9 @@
     </register>
 
     <register name="Readout" address="0010">
-      <field name="Time" start="0" size="24" format="time">
+      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
         <description>Total time length of the readout process 
         (with granularity of 10 ns)</description>
-        <granularity>10</granularity>
       </field>
     </register>
 
@@ -197,15 +192,13 @@
     </register>
 
     <register name="TriggerWindow" address="0001">
-      <field name="Before" start="0" size="11" format="time">
+      <field name="Before" start="0" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
-        <granularity>5</granularity>
       </field>
-      <field name="After" start="16" size="11" format="time">
+      <field name="After" start="16" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns. ATTENTION: Minimum value is x"00f"!</description>
-        <granularity>5</granularity>
       </field>
       <field name="Enable" start="31" format="boolean">
         <description>Trigger window enable</description>

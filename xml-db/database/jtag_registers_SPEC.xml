@@ -148,6 +148,7 @@
            address="0000"  size="8"  repeat="5"  purpose="status"  mode="r"  continuous="true">
       <register  name="JtagErrorCount1"
                 address="0002" purpose="status" mode="r" >
+        <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
                start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of read errors during "read id" operation</description>
@@ -159,6 +160,7 @@
       </register>
       <register  name="JtagErrorCount2"
                 address="0003" purpose="status" mode="r" >
+        <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
                start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
@@ -170,13 +172,14 @@
       </register>
       <register  name="JtagRunCounter"
                 address="0004" purpose="status" mode="r" >
+        <description>Number of times the JTAG controller run a full sequence</description>
         <field name="JtagRunCounter"
                start="0"   size="32"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of times the JTAG controller run a full sequence</description>
         </field>
       </register>
       <register  name="JtagStatusFlags"
                 address="0005" purpose="status" mode="r" >
+        <description>Status flags of the JTAG chain</description>
         <field name="JtagStarted"
                start="0"   size="1"  mode="r"  purpose="status"  format="boolean" >
           <description>JTAG has been started</description>

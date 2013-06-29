@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use XML::LibXML;
-use XML::LibXML::Debugging;
+#use XML::LibXML::Debugging;
 #use XML::LibXML::Iterator;
 use Getopt::Long;
 use Pod::Usage;
