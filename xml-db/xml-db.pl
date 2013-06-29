@@ -42,6 +42,12 @@ sub Main {
   # load the unmerged database
   my $db = &LoadDB;
 
+  DoSomethingWithDb($db);
+}
+
+sub DoSomethingWithDb($) {
+  my $db = shift;
+
   my $doc = $db->{'TDC.xml'};
   #my $doc = $db->{'testing.xml'};
   #print Dumper($doc->findnodes('TrbNet')->toDebuggingHash);
@@ -72,6 +78,7 @@ sub Main {
               $field->getAttribute('start'),
               $field->getAttribute('size'),
               $name, $field->getAttribute('name'));
+        #print $field->getAttribute('errorflag'),"\n";
       }
     }
   }
