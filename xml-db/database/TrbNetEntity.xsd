@@ -107,13 +107,9 @@
         <xs:choice>
           <xs:element   ref="description"/>
         </xs:choice>
-        <!-- but a data without any fields does not make sense for this
-             database, so the default minOccurs=1 is used -->
+        <!-- we require that all data is grouped -->
         <xs:choice maxOccurs="unbounded">
           <xs:element   ref="group"       maxOccurs="unbounded" />
-          <xs:element   ref="register"    maxOccurs="unbounded" />
-          <xs:element   ref="memory"      maxOccurs="unbounded" />
-          <xs:element   ref="fifo"        maxOccurs="unbounded" />
         </xs:choice>
       </xs:sequence>
       <xs:attribute ref="name" use="required" />
@@ -128,8 +124,7 @@
         <xs:choice minOccurs="0">
           <xs:element   ref="description"/>
         </xs:choice>
-        <!-- but a data without any fields does not make sense for this
-             database, so the default minOccurs=1 is used -->
+        <!-- groups may consist of other groups and "TrbData" describing things  -->
         <xs:choice maxOccurs="unbounded">
           <xs:element   ref="group"       maxOccurs="unbounded" />
           <xs:element   ref="register"    maxOccurs="unbounded" />
@@ -146,6 +141,14 @@
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
     </xs:complexType>
+    <xs:unique name="UniqueTrbDataNames">
+      <xs:selector xpath="register | memory | fifo" />
+      <xs:field xpath="@name" />
+    </xs:unique>
+    <xs:unique name="UniqueTrbDataAddresses">
+      <xs:selector xpath="register | memory | fifo" />
+      <xs:field xpath="@address" />
+    </xs:unique>
   </xs:element>
 
   <xs:element name="enumItem">
@@ -184,6 +187,10 @@
            an error is indicated by this field -->
       <xs:attribute ref="errorflag" />
     </xs:complexType>
+    <xs:unique name="UniqueEnumItems">
+      <xs:selector xpath="enumItem" />
+      <xs:field xpath="@value" />
+    </xs:unique>
   </xs:element>
 
 

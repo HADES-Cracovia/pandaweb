@@ -62,7 +62,7 @@ sub DoSomethingWithDb($) {
     # and base address (just add all previous offsets)
     my $baseaddress = 0;
     my $basename = '';
-    foreach my $anc ($groupNode->findnodes('ancestor::group | .')) {
+    foreach my $anc ($groupNode->findnodes('ancestor-or-self::group')) {
       $baseaddress += hex($anc->getAttribute('address'));
       $basename .= '/'.$anc->getAttribute('name');
     }

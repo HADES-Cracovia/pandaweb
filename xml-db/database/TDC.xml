@@ -4,22 +4,34 @@
         name="TDC"
         address="c000"
         >
-  <description>An FPGA-based tapped-delay line TDC</description>
+  <description>An FPGA-based tapped-delay line time-to-digital converter (TDC)</description>
   <!--===========================================-->
   <!-- Common TDC Status registers             -->
   <!--===========================================-->
-  <group name="Status" purpose="config" address="0100"  mode="rw"  continuous="true">
+  <group name="Status" purpose="config" address="0200"  mode="r" continuous="true">
     <register name="Basic"
-              address="0000" mode="rw">
-      <description>Basic controls</description>
+              address="0000">
       <field name="FSMReadout"
              start="0"   size="20"  mode="rw"  purpose="config"  format="enum"  defaultValue="0" >
         <description>Debug word of the TDC readout FSM</description>       
-        <enumItem value="a">bla</enumItem>
+        <enumItem value="1">IDLE</enumItem>
+        <enumItem value="2">IDLE</enumItem>
       </field>
       
     </register>
-    <register name="TriggerInitSeq"
+  </group>
+  <group name="Status" purpose="config" address="0100"  mode="r" continuous="true">
+    <register name="Basic"
+              address="0000">
+      <field name="FSMReadout"
+             start="0"   size="20"  mode="rw"  purpose="config"  format="enum"  defaultValue="0" >
+        <description>Debug word of the TDC readout FSM</description>       
+        <enumItem value="1">IDLE</enumItem>
+        <enumItem value="2">IDLE</enumItem>
+      </field>
+      
+    </register>
+    <register name="Bla"
               address="0001" mode="w" purpose ="trigger" repeat="2">
       <description>Trig</description>
       <field name="TriggerInitSeq"
