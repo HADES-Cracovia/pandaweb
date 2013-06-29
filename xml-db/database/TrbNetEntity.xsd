@@ -25,7 +25,9 @@
   <xs:simpleType name="modetype">
     <xs:restriction base="xs:string">
       <xs:pattern value="r|w|rw|b"/>
-      <!-- (r)ead and /or (w)rite, plus maybe (b)lock, if a no-more-data from this registers transports some vital information-->
+      <!-- (r)ead and /or (w)rite, plus maybe (b)lock, if a
+           no-more-data from this registers transports some vital
+           information -->
     </xs:restriction>
   </xs:simpleType> 
 
@@ -69,7 +71,6 @@
     </xs:restriction>
   </xs:simpleType> 
 
-
   <!--==============================
       Attribute Definition
       ==============================-->
@@ -86,6 +87,7 @@
   <xs:attribute name="format"       type="formattype" />
   <xs:attribute name="continuous"   type="xs:boolean" />
   <xs:attribute name="repeat"       type="xs:positiveInteger" default="1" />
+  <xs:attribute name="errorflag"    type="xs:boolean" default="false" />
 
 
   <!--==============================
@@ -144,6 +146,9 @@
       <xs:attribute ref="defaultValue" />
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
+      <!-- if PERL evaluates this field to false,
+           an error is indicated by this field -->
+      <xs:attribute ref="errorflag" />
     </xs:complexType>
   </xs:element> 
 
