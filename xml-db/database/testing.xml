@@ -4,6 +4,7 @@
         name="JtagController"
         address="1000"
         >
+  <description>Just some testing</description>
   <group
       name="JtagCommonControl"
       address="0000"

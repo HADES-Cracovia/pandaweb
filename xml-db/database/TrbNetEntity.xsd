@@ -8,19 +8,19 @@
     <xs:restriction base="xs:string">
       <xs:pattern value="[0-9a-zA-Z_]+"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="addresstype">
     <xs:restriction base="xs:string">
       <xs:pattern value="[0-9a-fA-F]{4}"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="valuetype">
     <xs:restriction base="xs:string">
       <xs:pattern value="[0-9a-fA-F]+"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="modetype">
     <xs:restriction base="xs:string">
@@ -29,18 +29,18 @@
            no-more-data from this registers transports some vital
            information -->
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="functiontype">
     <!-- config: setup some behaviour
          trigger: register which starts some kind of operation of the hardware
          status: slowly changing information
          statistics: quickly changing information
-  
+         ***
          Note: The difference between "status" and "statistics" is not sharp,
          they both give some information about the system. Usually, statistics
          is updated every event (e.g. number of read-out triggers received),
-         whereas status contains more "constant" stuff (e.g. temperature)   
+         whereas status contains more "constant" stuff (e.g. temperature)
     -->
     <xs:restriction base="xs:string">
       <xs:enumeration value="config"/>
@@ -48,14 +48,14 @@
       <xs:enumeration value="status"/>
       <xs:enumeration value="statistics"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="bittype">
     <xs:restriction base="xs:integer">
       <xs:minInclusive value="0"/>
       <xs:maxInclusive value="31"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
 
   <xs:simpleType name="formattype">
     <xs:restriction base="xs:string">
@@ -68,15 +68,16 @@
       <xs:enumeration value="boolean"/>
       <xs:enumeration value="time"/>
       <xs:enumeration value="string"/>
+      <xs:enumeration value="enum"/>
     </xs:restriction>
-  </xs:simpleType> 
+  </xs:simpleType>
+
 
   <!--==============================
       Attribute Definition
       ==============================-->
   <xs:attribute name="name"         type="nametype" />
   <xs:attribute name="address"      type="addresstype" />
-  <xs:attribute name="offset"       type="addresstype" />
   <xs:attribute name="mode"         type="modetype"  />
   <xs:attribute name="type"         type="functiontype" />
   <xs:attribute name="function"     type="functiontype" />
@@ -95,32 +96,48 @@
       ==============================-->
   <xs:element name="description" type="xs:string" />
 
+
   <!--==============================
       Complex Elements
       ==============================-->
   <xs:element name="TrbNetEntity">
     <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-        <xs:element   ref="group"       maxOccurs="unbounded" />
-        <xs:element   ref="register"    maxOccurs="unbounded" />
-        <xs:element   ref="memory"      maxOccurs="unbounded" />
-        <xs:element   ref="fifo"        maxOccurs="unbounded" />
-      </xs:choice>
-      <xs:attribute ref="name" />
+      <xs:sequence>
+        <!-- we expect description to give a summary of this whole
+             entity, thus this field is required at the beginning -->
+        <xs:choice>
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <!-- but a data without any fields does not make sense for this
+             database, so the default minOccurs=1 is used -->
+        <xs:choice maxOccurs="unbounded">
+          <xs:element   ref="group"       maxOccurs="unbounded" />
+          <xs:element   ref="register"    maxOccurs="unbounded" />
+          <xs:element   ref="memory"      maxOccurs="unbounded" />
+          <xs:element   ref="fifo"        maxOccurs="unbounded" />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute ref="name" use="required" />
       <xs:attribute ref="address" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="group">
     <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="group"       maxOccurs="unbounded" />
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-        <xs:element   ref="register"    maxOccurs="unbounded" />
-        <xs:element   ref="memory"      maxOccurs="unbounded" />
-        <xs:element   ref="fifo"        maxOccurs="unbounded" />
-      </xs:choice>
+      <xs:sequence>
+        <!-- a group does not necessarily need a description -->
+        <xs:choice minOccurs="0">
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <!-- but a data without any fields does not make sense for this
+             database, so the default minOccurs=1 is used -->
+        <xs:choice maxOccurs="unbounded">
+          <xs:element   ref="group"       maxOccurs="unbounded" />
+          <xs:element   ref="register"    maxOccurs="unbounded" />
+          <xs:element   ref="memory"      maxOccurs="unbounded" />
+          <xs:element   ref="fifo"        maxOccurs="unbounded" />
+        </xs:choice>
+      </xs:sequence>
       <xs:attribute ref="name" use="required" />
       <xs:attribute ref="address" />
       <xs:attribute ref="size" />
@@ -130,15 +147,33 @@
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
     </xs:complexType>
-  </xs:element> 
+  </xs:element>
 
+  <xs:element name="enumItem">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="value" type="valuetype" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="field">
     <xs:complexType>
-      <xs:all>
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      </xs:all>
-      <xs:attribute ref="name" />
+      <xs:sequence>
+        <xs:choice>
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <!-- enum items are only meaningful for format="enum"
+               fields, however we don't complain if there are some for
+               other formats... -->
+          <xs:element   ref="enumItem" />
+        </xs:choice>
+      </xs:sequence>
+
+      <xs:attribute ref="name" use="required" />
       <xs:attribute ref="start" />
       <xs:attribute ref="size" />
       <xs:attribute ref="type" />
@@ -150,50 +185,60 @@
            an error is indicated by this field -->
       <xs:attribute ref="errorflag" />
     </xs:complexType>
-  </xs:element> 
+  </xs:element>
+
+
+  <xs:complexType name="basicTrbData">
+    <xs:sequence>
+      <!-- in contrast to the "field" elements, a description is not
+           required here -->
+      <xs:choice minOccurs="0">
+        <xs:element   ref="description"/>
+      </xs:choice>
+      <!-- but a data without any fields does not make sense for this
+           database, so the default minOccurs=1 is used -->
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="field" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="address" use="required" />
+    <xs:attribute ref="mode" />
+    <xs:attribute ref="function" />
+  </xs:complexType>
 
 
   <xs:element name="register">
     <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="field" />
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      </xs:choice>
-      <xs:attribute ref="name" />
-      <xs:attribute ref="address" />
-      <xs:attribute ref="mode" />
-      <xs:attribute ref="function" />
-      <xs:attribute ref="repeat" />
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <xs:attribute ref="repeat" />
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
-  </xs:element> 
+  </xs:element>
 
   <xs:element name="memory">
     <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="field" />
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      </xs:choice>
-      <xs:attribute ref="name" />
-      <xs:attribute ref="address" />
-      <xs:attribute ref="size" />
-      <xs:attribute ref="mode" />
-      <xs:attribute ref="function" />
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <xs:attribute ref="size" />
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
-  </xs:element> 
+  </xs:element>
 
   <xs:element name="fifo">
     <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="field" />
-        <xs:element   ref="description" minOccurs="1" maxOccurs="1" />
-      </xs:choice>
-      <xs:attribute ref="name" />
-      <xs:attribute ref="address" />
-      <xs:attribute ref="mode" />
-      <xs:attribute ref="function" />
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <!-- a fifo is currently not different at all from
+               basicTrbData, but we keep this complicated definition
+               for future extensions -->
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
-  </xs:element> 
+  </xs:element>
 
 
-</xs:schema> 
-
+</xs:schema>

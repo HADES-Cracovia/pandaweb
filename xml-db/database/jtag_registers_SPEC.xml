@@ -4,6 +4,7 @@
         name="JtagController"
         address="a000"
         >
+  <description>A JTAG controller for Pixel Sensors?</description>
   <!--===========================================-->
   <!-- Common JTAG control registers             -->
   <!--===========================================-->

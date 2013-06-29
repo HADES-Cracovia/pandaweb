@@ -4,25 +4,27 @@
         name="TDC"
         address="c000"
         >
+  <description>An FPGA-based tapped-delay line TDC</description>
   <!--===========================================-->
-  <!-- Common TDC control registers             -->
+  <!-- Common TDC Status registers             -->
   <!--===========================================-->
-  <group name="Control"
-         address="1000"  size="37"  function="config"  mode="rw"  continuous="true">
-    <register name="WaitBeforeStart"
-              address="0007" mode="rw" function ="config" >
-      <description>Wait time between write sequence and start signal.</description>
-      <field name="WaitBeforeStart"
-             start="0"   size="20"  mode="rw"  type="config"  format="integer"  defaultValue="0" >
-        <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
+  <group name="Status" function="config" address="0100"  mode="rw"  continuous="true">
+    <register name="Basic"
+              address="0000" mode="rw">
+      <description>Basic controls</description>
+      <field name="FSMReadout"
+             start="0"   size="20"  mode="rw"  type="config"  format="enum"  defaultValue="0" >
+        <description>Debug word of the TDC readout FSM</description>       
+        <enumItem value="a">bla</enumItem>
       </field>
+      
     </register>
     <register name="TriggerInitSeq"
-              address="000c" mode="w" function ="trigger" >
-      <description>Trigger the init sequence.</description>
+              address="0001" mode="w" function ="trigger" repeat="2">
+      <description>Trig</description>
       <field name="TriggerInitSeq"
-             start="0"   size="5"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
-        <description>A bitmask to trigger the init sequence on individual JTAG chains. </description>
+             start="0"   size="32"  mode="w"  type="trigger"  format="bitmask"  defaultValue="0" >
+        <description>Empty signals (hits?) of channels</description>
       </field>
     </register>
     <register name="TriggerReset"
