@@ -54,21 +54,22 @@ sub DoSomethingWithDb($) {
   # get the iterator for the document root.
   #my $iter = XML::LibXML::Iterator->new( $doc->documentElement );
 
-  # walk through the document, we select all groups which
-  # have some registers, since those share the same base name
-  # and base address
-  foreach my $groupNode ($doc->findnodes('//group[register]')) {
+  my $entityName = $doc->getDocumentElement->getAttribute('name');
+  my $entityAddr = hex($doc->getDocumentElement->getAttribute('address'));
+
+  # walk through the document, we select all groups
+  foreach my $groupNode ($doc->findnodes('//group')) {
     # determine base name (concatenated by /)
     # and base address (just add all previous offsets)
-    my $baseaddress = 0;
-    my $basename = '';
+    my $baseaddress = $entityAddr;
+    my $basename = $entityName;
     foreach my $anc ($groupNode->findnodes('ancestor-or-self::group')) {
       $baseaddress += hex($anc->getAttribute('address'));
       $basename .= '/'.$anc->getAttribute('name');
     }
 
     # now iterate over all children
-    foreach my $curNode ($groupNode->findnodes('register')) {
+    foreach my $curNode ($groupNode->findnodes('register | memory | fifo')) {
       #print $curNode->nodeName,"\t",$curNode->nodePath,"\n";
       my $name = $basename.'/'.$curNode->getAttribute('name');
       my $address = $baseaddress+hex($curNode->getAttribute('address'));
@@ -76,7 +77,7 @@ sub DoSomethingWithDb($) {
       foreach my $field ($curNode->findnodes('field')) {
         printf("%04x:%02d:%02d %s/%s\n", $address,
               $field->getAttribute('start'),
-              $field->getAttribute('size'),
+              $field->getAttribute('size') || 1,
               $name, $field->getAttribute('name'));
         #print $field->getAttribute('errorflag'),"\n";
       }

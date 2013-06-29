@@ -94,6 +94,7 @@
       Simple Elements
       ==============================-->
   <xs:element name="description" type="xs:string" />
+  <xs:element name="granularity" type="xs:double" />
 
 
   <!--==============================
@@ -173,10 +174,16 @@
                other formats... -->
           <xs:element   ref="enumItem" />
         </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <!-- granularity is only meaningful for format="time"
+               fields, however we don't complain if there are some for
+               other formats... -->
+          <xs:element ref="granularity" />
+        </xs:choice>
       </xs:sequence>
 
       <xs:attribute ref="name" use="required" />
-      <xs:attribute ref="start" />
+      <xs:attribute ref="start" use="required" />
       <xs:attribute ref="size" />
       <xs:attribute ref="purpose" />
       <xs:attribute ref="mode" />
@@ -228,6 +235,7 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="basicTrbData">
+          <!-- size specified in 32bit long words -->
           <xs:attribute ref="size" />
         </xs:extension>
       </xs:complexContent>

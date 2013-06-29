@@ -1,221 +1,230 @@
 <?xml version="1.0"  encoding="utf-8" ?>
 <TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
-        name="TDC"
-        address="c000"
-        >
+              xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
+              name="TDC"
+              address="c000"
+              >
   <description>An FPGA-based tapped-delay line time-to-digital converter (TDC)</description>
   <!--===========================================-->
-  <!-- Common TDC Status registers             -->
+  <!-- TDC Status registers (mostly statistics)  -->
   <!--===========================================-->
-  <group name="Status" purpose="config" address="0200"  mode="r" continuous="true">
-    <register name="Basic"
-              address="0000">
-      <field name="FSMReadout"
-             start="0"   size="20"  mode="rw"  purpose="config"  format="enum"  defaultValue="0" >
-        <description>Debug word of the TDC readout FSM</description>       
+
+  <group name="Status" purpose="statistics" address="0100"  mode="r" continuous="true">
+    <register name="Basic" address="0000" purpose="status">
+      <field name="ReadoutFSM" start="0"   size="4" format="enum" purpose="status">
+        <description>Debug word of the TDC readout FSM</description>
         <enumItem value="1">IDLE</enumItem>
-        <enumItem value="2">IDLE</enumItem>
+        <enumItem value="2">WAIT_FOR_TRG_WIND_END</enumItem>
+        <enumItem value="3">RD_CH</enumItem>
+        <enumItem value="4">WAIT_FOR_LVL1_TRG_A</enumItem>
+        <enumItem value="5">WAIT_FOR_LVL1_TRG_B</enumItem>
+        <enumItem value="6">WAIT_FOR_LVL1_TRG_C</enumItem>
+        <enumItem value="7">SEND_STATUS</enumItem>
+        <enumItem value="8">SEND_TRG_RELEASE_A</enumItem>
+        <enumItem value="9">SEND_TRG_RELEASE_B</enumItem>
+        <enumItem value="F">OTHERS</enumItem>
       </field>
-      
-    </register>
-  </group>
-  <group name="Status" purpose="config" address="0100"  mode="r" continuous="true">
-    <register name="Basic"
-              address="0000">
-      <field name="FSMReadout"
-             start="0"   size="20"  mode="rw"  purpose="config"  format="enum"  defaultValue="0" >
-        <description>Debug word of the TDC readout FSM</description>       
+      <field name="WriteoutFSM" start="4"   size="4" format="enum">
+        <description>Debug word of the TDC writeout FSM</description>
         <enumItem value="1">IDLE</enumItem>
-        <enumItem value="2">IDLE</enumItem>
+        <enumItem value="2">WR_CH</enumItem>
+        <enumItem value="F">OTHERS</enumItem>
       </field>
-      
-    </register>
-    <register name="Bla"
-              address="0001" mode="w" purpose ="trigger" repeat="2">
-      <description>Trig</description>
-      <field name="TriggerInitSeq"
-             start="0"   size="32"  mode="w"  purpose="trigger"  format="bitmask"  defaultValue="0" >
-        <description>Empty signals (hits?) of channels</description>
+      <field name="ChannelCount" start="8" size="8" format="unsigned">
+        <description>Number of implemented channels</description>
       </field>
-    </register>
-    <register name="TriggerReset"
-              address="000d" mode="w" purpose ="trigger" >
-      <description>Trigger the init sequence.</description>
-      <field name="TriggerReset"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask"  defaultValue="0" >
-        <description>A bitmask to trigger sending a reset pulse on individual JTAG chains </description>
+      <field name="RefTimeSyncedTo100" start="16" format="boolean">
+        <description>Reference time synchronised to 100 MHz Trb-Net
+        clock</description>
+      </field>
+      <field name="TriggerType" start="28" size="4" format="boolean" mode="rw" purpose="config">
+        <description>Trigger type</description>
       </field>
     </register>
-    <register name="TriggerStart"
-              address="000e" mode="w" purpose ="trigger" >
-      <description>Trigger sending a start pulse.</description>
-      <field name="TriggerStart"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask"  defaultValue="0" >
-        <description>A bitmask to trigger sending a start pulse on individual JTAG chains </description>
+
+    <memory name="EmptyChannels" address="0001" size="2" mode="w" purpose="trigger">
+      <field name="Mask" start="0" size="64" format="bitmask">
+        <description>Empty the signals/hits of the specific channel.
+        LSB is channel 1.</description>
+      </field>
+    </memory>
+
+    <register name="TriggerWindow" address="0003" purpose="status">
+      <field name="Before" start="0" size="11" format="time">
+        <description>Trigger window width BEFORE the trigger with
+        granularity of 5 ns</description>
+        <granularity>5</granularity>
+      </field>
+      <field name="After" start="16" size="11" format="time">
+        <description>Trigger window width AFTER the trigger with
+        granularity of 5 ns</description>
+        <granularity>5</granularity>
+      </field>
+      <field name="Enable" start="31" format="boolean">
+        <description>Trigger window enabled?</description>
       </field>
     </register>
-    <register name="TriggerJtagRun"
-              address="000f" mode="w" purpose ="trigger" >
-      <description>Trigger running JTAG write.</description>
-      <field name="TriggerJtagRun"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask"  defaultValue="0" >
-        <description>A bitmask to trigger writing the JTAG registers three times on individual JTAG chains </description>
+
+    <register name="Trigger" address="0004">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of valid triggers received</description>
       </field>
     </register>
-    <register name="ResetBeforeInit"
-              address="0010" mode="rw" purpose="config" >
-      <description>Generate a reset before doing init sequence</description>
-      <field name="ResetBeforeInit"
-             start="0"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-        <description>Enable to send a reset pulse before starting init sequence</description>
+
+    <register name="TimingTrigger" address="0005">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of valid timing triggers
+        received</description>
       </field>
     </register>
-    <register name="ResetAfterFirstWrite"
-              address="0011" mode="rw" purpose="config" >
-      <description>Generate a reset after first register write sequence</description>
-      <field name="ResetAfterFirstWrite"
-             start="0"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-        <description>Enable to send a reset pulse after the first writing of JTAG registers</description>
+
+    <register name="NoTimingTrigger" address="0006">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of valid triggers received which are not
+        timing triggers</description>
       </field>
     </register>
-    <register name="TriggerWriteOnce"
-              address="0014" mode="w" purpose ="trigger" >
-      <description>Trigger writing all JTAG registers once</description>
-      <field name="TriggerWriteOnce"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask"  defaultValue="0" >
-        <description>Trigger writing all JTAG registers once on individual JTAG chains</description>
+
+    <register name="InvalidTrigger" address="0007">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of invalid triggers received</description>
       </field>
     </register>
-    <group name="JtagOverride"
-           address="0020"  size="5"  purpose="config"  mode="rw"  continuous="true">
-      <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
-      <register name="JtagOverride"
-                address="0020"  repeat="5" purpose="config" mode="rw" >
-        <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
-        <field name="InvertTDO"
-               start="0"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert TDO input signal</description>
-        </field>      
-        <field name="InvertTDI"
-               start="2"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert TDI output signal</description>
-        </field>
-        <field name="InvertTMS"
-               start="4"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert TMS output signal</description>
-        </field>
-        <field name="InvertTCK"
-               start="6"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert TCK output signal</description>
-        </field>
-        <field name="InvertStart"
-               start="8"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert Start output signal</description>
-        </field>
-        <field name="InvertReset"
-               start="10"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert Reset output signal</description>
-        </field>
-        <field name="InvertClock"
-               start="12"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Invert Clock output signal</description>
-        </field>
-        <field name="EnableTDO"
-               start="1"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable TDO input signal</description>
-        </field>      
-        <field name="EnableTDI"
-               start="3"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable TDI output signal</description>
-        </field>
-        <field name="EnableTMS"
-               start="5"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable TMS output signal</description>
-        </field>
-        <field name="EnableTCK"
-               start="7"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable TCK output signal</description>
-        </field>
-        <field name="EnableStart"
-               start="9"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable Start output signal</description>
-        </field>
-        <field name="EnableReset"
-               start="11"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable Reset output signal</description>
-        </field>
-        <field name="EnableClock"
-               start="13"   size="1"  mode="rw"  purpose="config"  format="boolean"  defaultValue="0" >
-          <description>Enable Clock output signal</description>
-        </field>
-      </register>
-    </group>
+
+    <register name="MultiTimingTrigger" address="0008">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of multi timing triggers received
+        (triggers received before trigger is released)</description>
+      </field>
+    </register>
+
+    <register name="SpuriousTrigger" address="0009">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of spurious triggers received (in case of
+        timing trigger is validated although it was a
+        timing-trigger-less trigger)</description>
+      </field>
+    </register>
+
+    <register name="WrongReadouts" address="000a">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of wrong readouts due to spurious triggers</description>
+      </field>
+    </register>
+
+    <register name="Spikes" address="000b">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of spikes (pulses narrower than 40 ns)
+        detected at the timing trigger input</description>
+      </field>
+    </register>
+
+    <register name="Idle" address="000c">
+      <field name="Time" start="0" size="24" format="time">
+        <description>Total time length, that the readout FSM waited in
+        the idle state (with granularity of 10 ns)</description>
+        <granularity>10</granularity>
+      </field>
+    </register>
+    
+    <register name="Wait" address="000d">
+      <field name="Time" start="0" size="24" format="time">
+        <description>Total time length, that the readout FSM waited in
+        the wait states (with granularity of 10 ns)</description>
+        <granularity>10</granularity>
+      </field>
+    </register>
+
+    <register name="TotalEmptyChannels" address="000e">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Total number of empty channels since the last reset
+        signal</description>
+      </field>
+    </register>
+
+    <register name="Release" address="000f">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of release signals sent</description>
+      </field>
+    </register>
+
+    <register name="Readout" address="0010">
+      <field name="Time" start="0" size="24" format="time">
+        <description>Total time length of the readout process 
+        (with granularity of 10 ns)</description>
+        <granularity>10</granularity>
+      </field>
+    </register>
+
+    <register name="Timeout" address="0011">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of timeouts detected (too long delay after
+        the timing trigger)</description>
+      </field>
+    </register>
+
+    <register name="Finished" address="0012">
+      <field name="Counter" start="0" size="24" format="unsigned">
+        <description>Number of sent finished signals</description>
+      </field>
+    </register>
+    
   </group>
+  
   <!--===========================================-->
-  <!--JTAG Status registers for each chain       -->
+  <!-- TDC control registers                     -->
   <!--===========================================-->
-  <group name="JtagStatus"
-         address="1800"  size="40"  purpose="status"  mode="r"  continuous="true">
-    <group name="JtagStatusChain"
-           address="0000"  size="8"  repeat="5"  purpose="status"  mode="r"  continuous="true">
-      <register  name="JtagErrorCount1"
-                address="0002" purpose="status" mode="r" >
-        <field name="ErrorsReadId"
-               start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of read errors during "read id" operation</description>
-        </field>
-        <field name="ErrorsWrite"
-               start="16"   size="16"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of read errors during write operation</description>
-        </field>
-      </register>
-      <register  name="JtagErrorCount2"
-                address="0003" purpose="status" mode="r" >
-        <field name="ErrorsDataChanged"
-               start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
-        </field>
-        <field name="ErrorsSampling"
-               start="16"   size="16"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
-        </field>
-      </register>
-      <register  name="JtagRunCounter"
-                address="0004" purpose="status" mode="r" >
-        <field name="JtagRunCounter"
-               start="0"   size="32"  mode="r"  purpose="status"  format="integer" >
-          <description>Number of times the JTAG controller run a full sequence</description>
-        </field>
-      </register>
-      <register  name="JtagStatusFlags"
-                address="0005" purpose="status" mode="r" >
-        <field name="JtagStarted"
-               start="0"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>JTAG has been started</description>
-        </field>
-        <field name="JtagLastSuccesful"
-               start="4"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>Last JTAG run was successful</description>
-        </field>
-        <field name="JtagLastDataChanged"
-               start="8"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>Data in the sensor was corrupted at last JTAG run</description>
-        </field>
-        <field name="JtagLastWriteError"
-               start="12"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>Last run had a JTAG write error</description>
-        </field>
-        <field name="JtagLastReadError"
-               start="16"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>Last run had a JTAG read error</description>
-        </field>
-        <field name="JtagCrcError"
-               start="20"   size="1"  mode="r"  purpose="status"  format="boolean" >
-          <description>Last run had a JTAG CRC error</description>
-        </field>
-      </register>
-    </group>
+  <group name="Control"
+         address="0800" purpose="config"  mode="rw"  continuous="true">
+    <register name="Basic" address="0000">
+      <field name="DebugOutput" start="0" size="4" format="enum">
+        <description>Enables different signals to the HPLA* output for
+        debugging with logic analyser</description>
+      </field>
+      <field name="DebugMode" start="4" format="boolean">
+        <description>Enables the Debug Mode. Different statistics and
+        debug words are sent after every trigger</description>
+      </field>
+      <field name="ResetCounters" start="8" purpose="trigger" mode="w">
+        <description>Resets the internal counters</description>
+      </field>
+      <field name="TriggerMode" start="0" size="12" format="enum">
+        <description>Select the trigger mode: With trigger mode or
+        trigger-less mode</description>
+        <enumItem value="0">TRIGGERED</enumItem>
+        <enumItem value="1">TRIGGERLESS</enumItem>
+      </field>
+    </register>
+
+    <register name="TriggerWindow" address="0001">
+      <field name="Before" start="0" size="11" format="time">
+        <description>Trigger window width BEFORE the trigger with
+        granularity of 5 ns</description>
+        <granularity>5</granularity>
+      </field>
+      <field name="After" start="16" size="11" format="time">
+        <description>Trigger window width AFTER the trigger with
+        granularity of 5 ns. ATTENTION: Minimum value is x"00f"!</description>
+        <granularity>5</granularity>
+      </field>
+      <field name="Enable" start="31" format="boolean">
+        <description>Trigger window enable</description>
+      </field>
+    </register>
+
+    <memory name="Channel" address="0002" size="2">
+      <field name="Enable" start="0" size="64" format="bitmask">
+        <description>Enable signals/hits of the specific channel.
+        LSB is channel 1.</description>
+      </field>
+    </memory>
+
+    <register name="DataTransferLimit" address="0004">
+      <field name="MaxWords" start="0" size="8" format="unsigned">
+        <description>Defines number of data words per channel to be
+        read-out. Set it to 0x80 for full readout.</description>
+      </field>
+    </register>
+
   </group>
 </TrbNetEntity>
-
