@@ -86,8 +86,8 @@
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
   <xs:attribute name="continuous"   type="xs:boolean" />
-  <xs:attribute name="repeat"       type="xs:positiveInteger" default="1" />
-  <xs:attribute name="errorflag"    type="xs:boolean" default="false" />
+  <xs:attribute name="repeat"       type="xs:positiveInteger" />
+  <xs:attribute name="errorflag"    type="xs:boolean" />
 
 
   <!--==============================
