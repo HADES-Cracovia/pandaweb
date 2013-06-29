@@ -9,7 +9,7 @@
       name="JtagCommonControl"
       address="0000"
       size="21"
-      function="config"
+      purpose="config"
       continuous="true"
       >
 
@@ -17,11 +17,10 @@
         name="WaitBeforeStart"
         address="0007"
         mode="rw"
-        function ="config"
+        purpose ="config"
         >
       <description>Wait time between write sequence and start signal.</description>
       <field
-          type="config"
           name="WaitBeforeStart"
           start="0"
           size="20"

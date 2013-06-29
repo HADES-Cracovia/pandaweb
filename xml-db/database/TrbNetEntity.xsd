@@ -31,7 +31,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="functiontype">
+  <xs:simpleType name="purposetype">
     <!-- config: setup some behaviour
          trigger: register which starts some kind of operation of the hardware
          status: slowly changing information
@@ -79,8 +79,7 @@
   <xs:attribute name="name"         type="nametype" />
   <xs:attribute name="address"      type="addresstype" />
   <xs:attribute name="mode"         type="modetype"  />
-  <xs:attribute name="type"         type="functiontype" />
-  <xs:attribute name="function"     type="functiontype" />
+  <xs:attribute name="purpose"     type="purposetype" />
   <xs:attribute name="start"        type="bittype" />
   <xs:attribute name="size"         type="xs:positiveInteger" />
   <xs:attribute name="defaultValue" type="valuetype" />
@@ -141,7 +140,7 @@
       <xs:attribute ref="name" use="required" />
       <xs:attribute ref="address" />
       <xs:attribute ref="size" />
-      <xs:attribute ref="function" />
+      <xs:attribute ref="purpose" />
       <xs:attribute ref="continuous" />
       <xs:attribute ref="mode" />
       <xs:attribute ref="format" />
@@ -176,7 +175,7 @@
       <xs:attribute ref="name" use="required" />
       <xs:attribute ref="start" />
       <xs:attribute ref="size" />
-      <xs:attribute ref="type" />
+      <xs:attribute ref="purpose" />
       <xs:attribute ref="mode" />
       <xs:attribute ref="defaultValue" />
       <xs:attribute ref="format" />
@@ -204,7 +203,7 @@
     <xs:attribute ref="name" use="required" />
     <xs:attribute ref="address" use="required" />
     <xs:attribute ref="mode" />
-    <xs:attribute ref="function" />
+    <xs:attribute ref="purpose" />
   </xs:complexType>
 
 
