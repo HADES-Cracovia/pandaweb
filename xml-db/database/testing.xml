@@ -1,6 +1,6 @@
 <?xml version="1.0"  encoding="utf-8" ?>
-<TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="TrbNet.xsd"
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
         name="JtagController"
         address="1000"
         >
@@ -29,4 +29,4 @@
       </field>
     </register>
   </group>
-</TrbNet>
+</TrbNetEntity>

@@ -96,7 +96,7 @@
   <!--==============================
       Complex Elements
       ==============================-->
-  <xs:element name="TrbNet">
+  <xs:element name="TrbNetEntity">
     <xs:complexType>
       <xs:choice maxOccurs="unbounded">
         <xs:element   ref="description" minOccurs="1" maxOccurs="1" />

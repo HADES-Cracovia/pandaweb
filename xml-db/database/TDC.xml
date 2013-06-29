@@ -1,13 +1,13 @@
 <?xml version="1.0"  encoding="utf-8" ?>
-<TrbNet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="TrbNet.xsd"
-        name="JtagController"
-        address="a000"
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
+        name="TDC"
+        address="c000"
         >
   <!--===========================================-->
   <!-- Common TDC control registers             -->
   <!--===========================================-->
-  <group name="JtagCommonControl"
+  <group name="Control"
          address="1000"  size="37"  function="config"  mode="rw"  continuous="true">
     <register name="WaitBeforeStart"
               address="0007" mode="rw" function ="config" >
@@ -203,5 +203,5 @@
       </register>
     </group>
   </group>
-</TrbNet>
+</TrbNetEntity>
 
