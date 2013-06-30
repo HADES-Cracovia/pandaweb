@@ -215,7 +215,7 @@
     <memory name="ChannelEnable" address="0002" size="2">
       <description>Enable signals/hits of the specific channel. LSB is
       channel 1.</description>
-      <field name="Enable" start="0" size="64" format="bitmask" />
+      <field name="ChannelEnable" start="0" size="64" format="bitmask" />
     </memory>
 
     <register name="DataTransferLimit" address="0004">

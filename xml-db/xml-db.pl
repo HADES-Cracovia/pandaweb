@@ -24,13 +24,13 @@ GetOptions(
            'help|h' => \$help,
            'man' => \$man,
            'verbose|v+' => \$verbose,
-           'db-dir=s' => \$db_dir 
+           'db-dir=s' => \$db_dir
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
 
 # tell something about the configuration
-if($verbose) {
+if ($verbose) {
   print "Database directory: $db_dir\n";
 }
 
@@ -39,16 +39,30 @@ if($verbose) {
 &Main;
 
 sub Main {
-  # load the unmerged database
-  my $db = &LoadDB;
-  # load the topology
-  DoSomethingWithDb($db);
+  # load the unmerged database and the provided files
+  my ($db,$files) = &LoadDBAndFiles;
+
+
+  # testing...
+  #DumpDatabase($db);
 }
 
-sub DoSomethingWithDb($) {
-  my $db = shift;
+sub LoadFile() {
+  my $schema = XML::LibXML::Schema->new(location => "$db_dir/TrbNetSetup.xsd");
 
-  my $doc = $db->{'TDC.xml'};
+
+}
+
+sub DumpDatabase($) {
+  my $db = shift;
+  foreach my $file (keys %$db) {
+    print "Dumping $file...\n";
+    DumpDatabaseFile($db->{$file});
+  }
+}
+
+sub DumpDatabaseFile($) {
+  my $doc = shift;
   #my $doc = $db->{'testing.xml'};
   #my $doc = $db->{'jtag_registers_SPEC.xml'};
   #print Dumper($doc->findnodes('TrbNet')->toDebuggingHash);
@@ -76,52 +90,63 @@ sub DoSomethingWithDb($) {
       my $address = $baseaddress+hex($curNode->getAttribute('address'));
       #printf("%s %04x\n\n",$name,$address);
       foreach my $field ($curNode->findnodes('field')) {
-        
         printf("%04x:%02d:%02d %s/%s\n", $address,
-              $field->getAttribute('start'),
-              $field->getAttribute('size') || 1,
-              $name, $field->getAttribute('name'));
+               $field->getAttribute('start'),
+               $field->getAttribute('size') || 1,
+               $name, $field->getAttribute('name'));
         #print $field->getAttribute('errorflag') || 'false',"\n";
       }
     }
   }
 }
 
-sub GetBaseNameAndAddress($) {
-  my $node = shift;
-  
-  #return ($baseName, $baseAddress);
-}
 
-sub LoadDB {
-  # change to he db_dir here in this subroutine
-  local $CWD = $db_dir;
+sub LoadDBAndFiles {
+  my $schemas = {};
+  my $db = {};
+  my $parser = XML::LibXML->new(line_numbers => 1);
 
-  # we first load the schemas and parse them
-  # so we can validate the XML files
-  my %schemas = ();
-  while(<*.xsd>) {
-    $schemas{$_} = XML::LibXML::Schema->new(location => $_);
-    print "Loaded schema <$_>\n" if $verbose;
+  {
+    # change to the db_dir in the first part
+    local $CWD = $db_dir;
+
+
+    # we first load the schemas and parse them
+    # so we can validate the XML files
+    while (<*.xsd>) {
+      $schemas->{$_} = XML::LibXML::Schema->new(location => $_);
+      print "Loaded schema <$_> from database\n" if $verbose;
+    }
+
+    # load the xml files in the database
+    while (<*.xml>) {
+      my $doc = $parser->parse_file($_);
+      ValidateXML($doc, $schemas);
+      $db->{$_} = $doc;
+      print "Loaded and validated <$_> from database\n" if $verbose;
+    }
   }
 
-  # load the xml files
-  my $parser = XML::LibXML->new(line_numbers => 1);
-  my $db = {};
-  while(<*.xml>) {
+  # now, back in the normal working directoy, load and
+  # validate the provided files
+  my $files = {};
+  for (@ARGV) {
     my $doc = $parser->parse_file($_);
-    my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
-    die "Schema $xsd_file not found to validate <$_>" unless defined $schemas{$xsd_file};
-    $schemas{$xsd_file}->validate($doc);
-    $db->{$_} = $doc;
+    ValidateXML($doc, $schemas);
+    $files->{$_} = $doc;
     print "Loaded and validated <$_>\n" if $verbose;
   }
-  return $db;
+
+  return ($db, $files);
 }
 
-
-
-
+sub ValidateXML($$) {
+  my $doc = shift;
+  my $schemas = shift;
+  my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
+  die "Schema $xsd_file not found to validate <$_>" unless defined $schemas->{$xsd_file};
+  $schemas->{$xsd_file}->validate($doc);
+}
 
 
 #print $xsd;
@@ -135,7 +160,7 @@ xml-db.pl - Manipulate the TrbNet descriptively using XML
 
 =head1 SYNOPSIS
 
-xml-db.pl [options] [xml file]
+xml-db.pl [options] [xml file(s)]
 
  Options:
    -h, --help     brief help message

@@ -103,22 +103,6 @@
       Complex Elements
       ==============================-->
 
-  <xs:complexType name="grouptype">
-    <xs:sequence>
-      <!-- a group does not necessarily need a description -->
-      <xs:choice minOccurs="0">
-        <xs:element   ref="description"/>
-      </xs:choice>
-    </xs:sequence>
-    <xs:attribute ref="name" use="required" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="size" />
-    <xs:attribute ref="purpose" />
-    <xs:attribute ref="continuous" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="format" />
-    <xs:attribute ref="repeat" />
-  </xs:complexType>
 
 
   <xs:element name="enumItem">
@@ -131,11 +115,11 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="field">
-    <!-- we define this as mixed to provide values to be written (or
+
+<!-- we define this as mixed to provide values to be written (or
          extracted from it). It will be converted to hex (or binary)
          according to format attribute -->
-    <xs:complexType mixed="true">
+    <xs:complexType name="fieldtype" mixed="true">
       <xs:sequence>
         <!-- description can be omitted if a register or alike only contains
              one or several identical fields and the description of them can
@@ -152,7 +136,7 @@
       </xs:sequence>
 
       <xs:attribute ref="name" use="required" />
-      <xs:attribute ref="start" use="required" />
+      <!-- start is defined in TrbNetEntity -->
       <xs:attribute ref="size" />
       <xs:attribute ref="purpose" />
       <xs:attribute ref="mode" />
@@ -168,27 +152,21 @@
            an error is indicated by this field -->
       <xs:attribute ref="errorflag" />
     </xs:complexType>
+  
+
+  <xs:element name="field" type="fieldtype">
+    
+
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
       <xs:field xpath="@value" />
     </xs:unique>
   </xs:element>
 
-
   <xs:complexType name="basicTrbData">
-    <xs:sequence>
-      <!-- every TrbData must be described -->
-      <xs:choice>
-        <xs:element   ref="description"/>
-      </xs:choice>
-      <!-- but a data without any fields does not make sense for this
-           database, so the default minOccurs=1 is used -->
-      <xs:choice maxOccurs="unbounded">
-        <xs:element   ref="field" />
-      </xs:choice>
-    </xs:sequence>
+    
     <xs:attribute ref="name" use="required" />
-    <xs:attribute ref="address" use="required" />
+    <!-- start is defined in TrbNetEntity as required attribute -->
     <xs:attribute ref="mode" />
     <xs:attribute ref="purpose" />
   </xs:complexType>
