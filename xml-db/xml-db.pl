@@ -41,7 +41,7 @@ if($verbose) {
 sub Main {
   # load the unmerged database
   my $db = &LoadDB;
-
+  # load the topology
   DoSomethingWithDb($db);
 }
 
@@ -76,11 +76,12 @@ sub DoSomethingWithDb($) {
       my $address = $baseaddress+hex($curNode->getAttribute('address'));
       #printf("%s %04x\n\n",$name,$address);
       foreach my $field ($curNode->findnodes('field')) {
+        
         printf("%04x:%02d:%02d %s/%s\n", $address,
               $field->getAttribute('start'),
               $field->getAttribute('size') || 1,
               $name, $field->getAttribute('name'));
-        #print $field->getAttribute('errorflag'),"\n";
+        #print $field->getAttribute('errorflag') || 'false',"\n";
       }
     }
   }
@@ -130,16 +131,19 @@ __END__
 
 =head1 NAME
 
-xml-db.pl - Access the TRB XML Database
+xml-db.pl - Manipulate the TrbNet descriptively using XML
 
 =head1 SYNOPSIS
 
-xml-db.pl [options] [config file]
+xml-db.pl [options] [xml file]
 
  Options:
-   -h, --help    brief help message
-   -v, --verbose be verbose
-   --xml-db_dir  database directory
+   -h, --help     brief help message
+   -v, --verbose  be verbose
+   --db-dir       database directory
+   -g, --generate generate config xml file (smart guessing from TrbNet)
+   -s, --save     save all config fields from TrbNet in xml file
+   -l, --restore  load config fields into TrbNet from xml file
 
 =head1 OPTIONS
 
