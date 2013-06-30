@@ -5,12 +5,31 @@
               address="c000"
               >
   <description>An FPGA-based tapped-delay line time-to-digital converter (TDC)</description>
+
+  <!--===========================================-->
+  <!-- TDC Channels                              -->
+  <!--===========================================-->
+  <register name="Channel" address="0000" mode="r" repeat="65">
+    <description>Channel-specific information</description>
+    <field name="HitCounter" start="0" size="24" format="unsigned" purpose="statistics">
+      <description>Number of detected hits in channel</description>
+    </field>
+    <field name="InputState" start="31" size="1" format="enum" purpose="status">
+      <description>State of LVDS input buffer</description>
+      <enumItem value="0">Low</enumItem>
+      <enumItem value="1">High</enumItem>
+    </field>
+  </register>
+
+
+
   <!--===========================================-->
   <!-- TDC Status registers (mostly statistics)  -->
   <!--===========================================-->
 
   <group name="Status" purpose="statistics" address="0100"  mode="r" continuous="true">
-    <register name="Basic" address="0000" purpose="status">
+    <register name="BasicStatus" address="0000" purpose="status">
+      <description>Basic config and status information for all channels</description>
       <field name="ReadoutFSM" start="0"   size="4" format="enum" purpose="status">
         <description>Debug word of the TDC readout FSM</description>
         <enumItem value="1">IDLE</enumItem>
@@ -43,135 +62,122 @@
     </register>
 
     <memory name="EmptyChannels" address="0001" size="2" mode="w" purpose="trigger">
-      <field name="Mask" start="0" size="64" format="bitmask">
-        <description>Empty the signals/hits of the specific channel.
-        LSB is channel 1.</description>
-      </field>
+      <description>Empty the signals/hits of the specific channel. LSB
+      is channel 1.</description>
+      <field name="Mask" start="0" size="64" format="bitmask" />
     </memory>
 
-    <register name="TriggerWindow" address="0003" purpose="status">
-      <field name="Before" start="0" size="11" format="time" unit="ns" scale="5">
+    <register name="TriggerWindowStatus" address="0003" purpose="status">
+      <description>Status of the TriggerWindow feature</description>
+      <field name="TriggerWindowBeforeValue" start="0" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="After" start="16" size="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowAfterValue" start="16" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="Enable" start="31" format="boolean">
+      <field name="TriggerWindowEnabled" start="31" format="boolean">
         <description>Trigger window enabled?</description>
       </field>
     </register>
 
-    <register name="Trigger" address="0004">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of valid triggers received</description>
-      </field>
+    <register name="TriggerCounter" address="0004">
+      <description>Number of valid triggers received</description>
+      <field name="TriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="TimingTrigger" address="0005">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of valid timing triggers
-        received</description>
-      </field>
+    <register name="TimingTriggerCounter" address="0005">
+      <description>Number of valid timing triggers
+      received</description>
+      <field name="TimingTriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="NoTimingTrigger" address="0006">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of valid triggers received which are not
-        timing triggers</description>
-      </field>
+    <register name="NoTimingTriggerCounter" address="0006">
+      <description>Number of valid triggers received which are not
+      timing triggers</description>
+      <field name="NoTimingTriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="InvalidTrigger" address="0007">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of invalid triggers received</description>
-      </field>
+    <register name="InvalidTriggerCounter" address="0007">
+      <description>Number of invalid triggers received</description>
+      <field name="InvalidTriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="MultiTimingTrigger" address="0008">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of multi timing triggers received
-        (triggers received before trigger is released)</description>
-      </field>
+    <register name="MultiTimingTriggerCounter" address="0008">
+      <description>Number of multi timing triggers received (triggers
+      received before trigger is released)</description>
+      <field name="MultiTimingTriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="SpuriousTrigger" address="0009">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of spurious triggers received (in case of
-        timing trigger is validated although it was a
-        timing-trigger-less trigger)</description>
-      </field>
+    <register name="SpuriousTriggerCounter" address="0009">
+      <description>Number of spurious triggers received (in case of
+      timing trigger is validated although it was a
+      timing-trigger-less trigger)</description>
+      <field name="SpuriousTriggerCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="WrongReadouts" address="000a">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of wrong readouts due to spurious triggers</description>
-      </field>
+    <register name="WrongReadoutsCounter" address="000a">
+      <description>Number of wrong readouts due to spurious
+      triggers</description>
+      <field name="WrongReadoutsCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="Spikes" address="000b">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of spikes (pulses narrower than 40 ns)
-        detected at the timing trigger input</description>
-      </field>
+    <register name="SpikesCounter" address="000b">
+      <description>Number of spikes (pulses narrower than 40 ns)
+      detected at the timing trigger input</description>
+      <field name="SpikesCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="Idle" address="000c">
-      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
-        <description>Total time length, that the readout FSM waited in
-        the idle state (with granularity of 10 ns)</description>
-      </field>
-    </register>
-    
-    <register name="Wait" address="000d">
-      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
-        <description>Total time length, that the readout FSM waited in
-        the wait states (with granularity of 10 ns)</description>
-      </field>
+    <register name="IdleTime" address="000c">
+      <description>Total time length, that the readout FSM waited in
+      the idle state (with granularity of 10 ns)</description>
+      <field name="IdleTime" start="0" size="24" format="time" unit="ns" scale="10" />
     </register>
 
-    <register name="TotalEmptyChannels" address="000e">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Total number of empty channels since the last reset
-        signal</description>
-      </field>
+    <register name="WaitTime" address="000d">
+      <description>Total time length, that the readout FSM waited in
+      the wait states (with granularity of 10 ns)</description>
+      <field name="WaitTime" start="0" size="24" format="time" unit="ns" scale="10" />
     </register>
 
-    <register name="Release" address="000f">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of release signals sent</description>
-      </field>
+    <register name="TotalEmptyChannelsCounter" address="000e">
+      <description>Total number of empty channels since the last reset
+      signal</description>
+      <field name="TotalEmptyChannelsCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="Readout" address="0010">
-      <field name="Time" start="0" size="24" format="time" unit="ns" scale="10">
-        <description>Total time length of the readout process 
-        (with granularity of 10 ns)</description>
-      </field>
+    <register name="ReleaseCounter" address="000f">
+      <description>Number of release signals sent</description>
+      <field name="ReleaseCounter" start="0" size="24" format="unsigned" />
     </register>
 
-    <register name="Timeout" address="0011">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of timeouts detected (too long delay after
-        the timing trigger)</description>
-      </field>
+    <register name="ReadoutTime" address="0010">
+      <description>Total time length of the readout process (with
+      granularity of 10 ns)</description>
+      <field name="ReadoutTime" start="0" size="24" format="time" unit="ns" scale="10" />
     </register>
 
-    <register name="Finished" address="0012">
-      <field name="Counter" start="0" size="24" format="unsigned">
-        <description>Number of sent finished signals</description>
-      </field>
+    <register name="TimeoutCounter" address="0011">
+      <description>Number of timeouts detected (too long delay after
+      the timing trigger)</description>
+      <field name="TimeoutCounter" start="0" size="24" format="unsigned" />
     </register>
-    
+
+    <register name="FinishedCounter" address="0012">
+      <description>Number of sent finished signals</description>
+      <field name="FinishedCounter" start="0" size="24" format="unsigned" />
+    </register>
+
   </group>
-  
+
   <!--===========================================-->
   <!-- TDC control registers                     -->
   <!--===========================================-->
   <group name="Control"
          address="0800" purpose="config"  mode="rw"  continuous="true">
-    <register name="Basic" address="0000">
+    <register name="BasicControl" address="0000">
+      <description>Basic control for all channels</description>
       <field name="DebugOutput" start="0" size="4" format="enum">
         <description>Enables different signals to the HPLA* output for
         debugging with logic analyser</description>
@@ -191,33 +197,33 @@
       </field>
     </register>
 
-    <register name="TriggerWindow" address="0001">
-      <field name="Before" start="0" size="11" format="time" unit="ns" scale="5">
+    <register name="TriggerWindowConfig" address="0001">
+      <description>Configuration of the TriggerWindow feature</description>
+      <field name="TriggerWindowBefore" start="0" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="After" start="16" size="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowAfter" start="16" size="11" format="time" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns. ATTENTION: Minimum value is x"00f"!</description>
       </field>
-      <field name="Enable" start="31" format="boolean">
+      <field name="TriggerWindowEnable" start="31" format="boolean">
         <description>Trigger window enable</description>
       </field>
     </register>
 
-    <memory name="Channel" address="0002" size="2">
-      <field name="Enable" start="0" size="64" format="bitmask">
-        <description>Enable signals/hits of the specific channel.
-        LSB is channel 1.</description>
-      </field>
+    <memory name="ChannelEnable" address="0002" size="2">
+      <description>Enable signals/hits of the specific channel. LSB is
+      channel 1.</description>
+      <field name="Enable" start="0" size="64" format="bitmask" />
     </memory>
 
     <register name="DataTransferLimit" address="0004">
+      <description>Configuration of the data transfer limit feature</description>
       <field name="MaxWords" start="0" size="8" format="unsigned">
         <description>Defines number of data words per channel to be
         read-out. Set it to 0x80 for full readout.</description>
       </field>
     </register>
-
   </group>
 </TrbNetEntity>

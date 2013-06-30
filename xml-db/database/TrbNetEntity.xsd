@@ -86,6 +86,10 @@
   <xs:attribute name="continuous"   type="xs:boolean" />
   <xs:attribute name="repeat"       type="xs:positiveInteger" />
   <xs:attribute name="errorflag"    type="xs:boolean" />
+  <!-- unit and scale give information about how to interpret data. a
+       numerical scaling factor and/or a physical unit. E.g.
+       temperature measured in 1/16th degrees will be ".0625" and "°C"
+  -->
   <xs:attribute name="unit"         type="xs:string" />
   <xs:attribute name="scale"        type="xs:double" />
 
@@ -94,9 +98,6 @@
       Simple Elements
       ==============================-->
   <xs:element name="description" type="xs:string" />
-  <!--unit and scale give information about how to interpret data. 
-      a numerical scaling factor and/or a physical unit. E.g. temperature measured
-      in 1/16th degrees will be ".0625" and "°C"-->
 
 
   <!--==============================
@@ -110,14 +111,34 @@
         <xs:choice>
           <xs:element   ref="description"/>
         </xs:choice>
-        <!-- we require that all data is grouped -->
+        <!-- may also contain groups -->
         <xs:choice maxOccurs="unbounded">
           <xs:element   ref="group"       maxOccurs="unbounded" />
+          <xs:element   ref="register"    maxOccurs="unbounded" />
+          <xs:element   ref="memory"      maxOccurs="unbounded" />
+          <xs:element   ref="fifo"        maxOccurs="unbounded" />
         </xs:choice>
       </xs:sequence>
       <xs:attribute ref="name" use="required" />
       <xs:attribute ref="address" />
     </xs:complexType>
+    <!-- although requiring "entity global" unique names usually leads
+         to redundant naming schemes, it hopefully makes "naming confusion"
+         less likely -->
+    <xs:unique name="UniqueFieldNames">
+      <xs:selector xpath=".//field" />
+      <xs:field xpath="@name" />
+    </xs:unique>
+    <xs:unique name="UniqueTrbDataNames">
+      <xs:selector xpath=".//register | .//memory | .//fifo" />
+      <xs:field xpath="@name" />
+    </xs:unique>
+    <!-- consistency of addresses (and start, size of fields) is
+         checked more precisely programmatically -->
+    <xs:unique name="UniqueTrbDataAddressesInTop">
+      <xs:selector xpath="register | memory | fifo" />
+      <xs:field xpath="@address" />
+    </xs:unique>
   </xs:element>
 
   <xs:element name="group">
@@ -144,11 +165,7 @@
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
     </xs:complexType>
-    <xs:unique name="UniqueTrbDataNames">
-      <xs:selector xpath="register | memory | fifo" />
-      <xs:field xpath="@name" />
-    </xs:unique>
-    <xs:unique name="UniqueTrbDataAddresses">
+    <xs:unique name="UniqueTrbDataAddressesInGroup">
       <xs:selector xpath="register | memory | fifo" />
       <xs:field xpath="@address" />
     </xs:unique>
@@ -167,7 +184,7 @@
   <xs:element name="field">
     <xs:complexType>
       <xs:sequence>
-        <!-- description can be omitted if a register or alike only contains 
+        <!-- description can be omitted if a register or alike only contains
              one or several identical fields and the description of them can
              be inherited from the register itself-->
         <xs:choice minOccurs="0">
@@ -191,7 +208,7 @@
       <xs:attribute ref="repeat" />
       <xs:attribute ref="unit" />
       <xs:attribute ref="scale" />
-      <!-- if PERL evaluates this field to false,                             <<<- why false? I'd take true here!
+      <!-- if PERL evaluates this field to true,
            an error is indicated by this field -->
       <xs:attribute ref="errorflag" />
     </xs:complexType>
@@ -204,7 +221,8 @@
 
   <xs:complexType name="basicTrbData">
     <xs:sequence>
-      <xs:choice minOccurs="0">                                              <!--<<<As I wrote, I would like to force it here-->
+      <!-- every TrbData must be described -->
+      <xs:choice>
         <xs:element   ref="description"/>
       </xs:choice>
       <!-- but a data without any fields does not make sense for this

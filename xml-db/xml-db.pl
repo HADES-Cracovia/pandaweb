@@ -50,6 +50,7 @@ sub DoSomethingWithDb($) {
 
   my $doc = $db->{'TDC.xml'};
   #my $doc = $db->{'testing.xml'};
+  #my $doc = $db->{'jtag_registers_SPEC.xml'};
   #print Dumper($doc->findnodes('TrbNet')->toDebuggingHash);
   # get the iterator for the document root.
   #my $iter = XML::LibXML::Iterator->new( $doc->documentElement );
@@ -57,8 +58,8 @@ sub DoSomethingWithDb($) {
   my $entityName = $doc->getDocumentElement->getAttribute('name');
   my $entityAddr = hex($doc->getDocumentElement->getAttribute('address'));
 
-  # walk through the document, we select all groups
-  foreach my $groupNode ($doc->findnodes('//group')) {
+  # walk through the document, we select all groups and the top entity
+  foreach my $groupNode ($doc->findnodes('//group | TrbNetEntity')) {
     # determine base name (concatenated by /)
     # and base address (just add all previous offsets)
     my $baseaddress = $entityAddr;
