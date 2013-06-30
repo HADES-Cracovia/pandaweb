@@ -23,8 +23,7 @@
       <field
           name="WaitBeforeStart"
           start="0"
-          size="20"
-          defaultValue="0" >
+          size="20">
         <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
       </field>
     </register>

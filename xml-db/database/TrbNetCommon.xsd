@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!--==============================
+      Type Definitions
+      ==============================-->
+  <xs:simpleType name="nametype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-zA-Z_]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="addresstype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="valuetype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="modetype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(r|w|rw)b?"/>
+      <!-- (r)ead and /or (w)rite, plus maybe (b)lock, if a
+           no-more-data from this registers transports some vital
+           information -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="purposetype">
+    <!-- config: setup some behaviour
+         trigger: register which starts some kind of operation of the hardware
+         status: shows the current status of components. E.g. temperature or the state of a state machine
+         statistics: statistical information like event counter or amount of data transferred
+         ***
+         Note: The difference between "status" and "statistics" is not sharp,
+         they both give some information about the system.
+    -->
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="config"/>
+      <xs:enumeration value="trigger"/>
+      <xs:enumeration value="status"/>
+      <xs:enumeration value="statistics"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="bittype">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="31"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="formattype">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="raw"/>
+      <xs:enumeration value="integer"/>
+      <xs:enumeration value="signed"/>
+      <xs:enumeration value="unsigned"/>
+      <xs:enumeration value="hex"/>
+      <xs:enumeration value="bitmask"/>
+      <xs:enumeration value="boolean"/>
+      <xs:enumeration value="time"/>
+      <xs:enumeration value="string"/>
+      <xs:enumeration value="enum"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!--==============================
+      Attribute Definition
+      ==============================-->
+  <xs:attribute name="name"         type="nametype" />
+  <xs:attribute name="address"      type="addresstype" />
+  <xs:attribute name="mode"         type="modetype"  />
+  <xs:attribute name="purpose"      type="purposetype" />
+  <xs:attribute name="start"        type="bittype" />
+  <xs:attribute name="size"         type="xs:positiveInteger" />
+  <xs:attribute name="defaultValue" type="valuetype" />
+  <xs:attribute name="value"        type="valuetype" />
+  <xs:attribute name="format"       type="formattype" />
+  <xs:attribute name="continuous"   type="xs:boolean" />
+  <xs:attribute name="repeat"       type="xs:positiveInteger" />
+  <xs:attribute name="errorflag"    type="xs:boolean" />
+  <!-- unit and scale give information about how to interpret data. a
+       numerical scaling factor and/or a physical unit. E.g.
+       temperature measured in 1/16th degrees will be ".0625" and "°C"
+  -->
+  <xs:attribute name="unit"         type="xs:string" />
+  <xs:attribute name="scale"        type="xs:double" />
+
+
+  <!--==============================
+      Simple Elements
+      ==============================-->
+  <xs:element name="description" type="xs:string" />
+
+  <!--==============================
+      Complex Elements
+      ==============================-->
+
+  <xs:complexType name="grouptype">
+    <xs:sequence>
+      <!-- a group does not necessarily need a description -->
+      <xs:choice minOccurs="0">
+        <xs:element   ref="description"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="address" />
+    <xs:attribute ref="size" />
+    <xs:attribute ref="purpose" />
+    <xs:attribute ref="continuous" />
+    <xs:attribute ref="mode" />
+    <xs:attribute ref="format" />
+    <xs:attribute ref="repeat" />
+  </xs:complexType>
+  
+  
+  <xs:element name="enumItem">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="value" type="valuetype" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="field">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- description can be omitted if a register or alike only contains
+             one or several identical fields and the description of them can
+             be inherited from the register itself-->
+        <xs:choice minOccurs="0">
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <!-- enum items are only meaningful for format="enum"
+               fields, however we don't complain if there are some for
+               other formats... -->
+          <xs:element   ref="enumItem" />
+        </xs:choice>
+      </xs:sequence>
+
+      <xs:attribute ref="name" use="required" />
+      <xs:attribute ref="start" use="required" />
+      <xs:attribute ref="size" />
+      <xs:attribute ref="purpose" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="value" />
+      <xs:attribute ref="format" />
+      <xs:attribute ref="repeat" />
+      <xs:attribute ref="unit" />
+      <xs:attribute ref="scale" />
+      <!-- if PERL evaluates this field to true,
+           an error is indicated by this field -->
+      <xs:attribute ref="errorflag" />
+    </xs:complexType>
+    <xs:unique name="UniqueEnumItems">
+      <xs:selector xpath="enumItem" />
+      <xs:field xpath="@value" />
+    </xs:unique>
+  </xs:element>
+
+
+  <xs:complexType name="basicTrbData">
+    <xs:sequence>
+      <!-- every TrbData must be described -->
+      <xs:choice>
+        <xs:element   ref="description"/>
+      </xs:choice>
+      <!-- but a data without any fields does not make sense for this
+           database, so the default minOccurs=1 is used -->
+      <xs:choice maxOccurs="unbounded">
+        <xs:element   ref="field" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="address" use="required" />
+    <xs:attribute ref="mode" />
+    <xs:attribute ref="purpose" />
+  </xs:complexType>
+
+
+  <xs:element name="register">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <xs:attribute ref="repeat" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="memory">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <!-- size specified in 32bit long words -->
+          <xs:attribute ref="size" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="fifo">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <!-- a fifo is currently not different at all from
+               basicTrbData, but we keep this complicated definition
+               for future extensions -->
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>                   
