@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <!-- many definitions are used by TrbNetTopology.xsd as well, so
+  <!-- many definitions are used by TrbNetSetup.xsd as well, so
        they are collected in a common scheme -->
   <xs:include schemaLocation="TrbNetCommon.xsd"/>
 
