@@ -80,7 +80,7 @@
   <xs:attribute name="purpose"      type="purposetype" />
   <xs:attribute name="start"        type="bittype" />
   <xs:attribute name="size"         type="xs:positiveInteger" />
-  <xs:attribute name="defaultValue" type="valuetype" />
+  <xs:attribute name="defaultValue" type="xs:string" />
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
   <xs:attribute name="continuous"   type="xs:boolean" />
@@ -119,8 +119,8 @@
     <xs:attribute ref="format" />
     <xs:attribute ref="repeat" />
   </xs:complexType>
-  
-  
+
+
   <xs:element name="enumItem">
     <xs:complexType>
       <xs:simpleContent>
@@ -132,7 +132,10 @@
   </xs:element>
 
   <xs:element name="field">
-    <xs:complexType>
+    <!-- we define this as mixed to provide values to be written (or
+         extracted from it). It will be converted to hex (or binary)
+         according to format attribute -->
+    <xs:complexType mixed="true">
       <xs:sequence>
         <!-- description can be omitted if a register or alike only contains
              one or several identical fields and the description of them can
@@ -140,10 +143,10 @@
         <xs:choice minOccurs="0">
           <xs:element   ref="description"/>
         </xs:choice>
+        <!-- enum items are only meaningful for format="enum" fields,
+             however we don't complain if there are some for other
+             formats... -->
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <!-- enum items are only meaningful for format="enum"
-               fields, however we don't complain if there are some for
-               other formats... -->
           <xs:element   ref="enumItem" />
         </xs:choice>
       </xs:sequence>
@@ -153,7 +156,10 @@
       <xs:attribute ref="size" />
       <xs:attribute ref="purpose" />
       <xs:attribute ref="mode" />
-      <xs:attribute ref="value" />
+      <!-- if the default value of that field is not 0x0 (in the
+           appropiate conversion according to format attribute), it
+           can be specified here -->
+      <xs:attribute ref="defaultValue" />
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
       <xs:attribute ref="unit" />
@@ -221,4 +227,4 @@
     </xs:complexType>
   </xs:element>
 
-</xs:schema>                   
+</xs:schema>
