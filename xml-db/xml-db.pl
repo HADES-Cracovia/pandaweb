@@ -149,8 +149,10 @@ sub LoadDBAndFiles {
       my $doc = $parser->parse_file($_);
       ValidateXML($doc, $schemas);
       my $dbname = $doc->getDocumentElement->getAttribute('name');
+      die "File <$_>: Entity with name $dbname already exists in database"
+        if exists $db->{$dbname};
       $db->{$dbname} = $doc;
-      print "Loaded and validated entity <$dbname> from db/$_\n" if $verbose;
+      print "Loaded and validated entity <$dbname> from database <$_>\n" if $verbose;
     }
   }
 
