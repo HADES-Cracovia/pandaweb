@@ -62,7 +62,8 @@
        are identified by their type and address (if specified) -->
   <trb address="0200">
     <entity type="TDC">
-      <!-- this field is a bitmask, so there's a converter to easily set single bits -->
+      <!-- this field is a bitmask, so there's a converter to easily
+           set single bits -->
       <field name="ChannelEnable">
         0-15 => 1, <!-- enables channels 0-15 -->
         34 => 1, <!-- enables channel 34 -->

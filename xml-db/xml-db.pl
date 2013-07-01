@@ -43,18 +43,35 @@ sub Main {
   my ($db,$files) = &LoadDBAndFiles;
 
   #print Dumper($files);
-  
   foreach my $item (@$files) {
     my $file = $item->[0];
-    my $doc = $item->[1];
-    print "Working on $file...\n" if $verbose;
-    
+    my $doc = $item->[1]; print "Working on $file...\n" if $verbose;
+    my $merged = {};
+    foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
+      my $trbaddress = $trbnode->getAttribute('address');
+      print $trbaddress,"\n";
+      foreach my $entitynode ($trbnode->findnodes('entity')) {
+        my $type = $entitynode->getAttribute('type');
+        # check if we know this type
+        FatalError($entitynode, "Entity type $type not found in database")
+          unless defined $db->{"$type.xml"};
+        
+        print $type,"\n";
+      }
+    }
   }
-
   # testing...
   #DumpDatabase($db);
 }
 
+sub FatalError($$) {
+  my $node = shift;
+  my $file = $node->ownerDocument->URI;
+  my $line = $node->line_number;
+  my $msg = shift;
+  print "$file:$line: Fatal Error: $msg\n";
+  exit 1;
+}
 
 sub DumpDatabase($) {
   my $db = shift;
@@ -98,7 +115,7 @@ sub DumpDocument($) {
                $field->getAttribute('size') || 1,
                $name, $field->getAttribute('name')
               );
-        
+
         #print $field->getAttribute('errorflag') || 'false',"\n";
       }
     }
