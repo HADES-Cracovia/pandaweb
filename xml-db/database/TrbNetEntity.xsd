@@ -21,17 +21,6 @@
               <xs:element ref="field" />
             </xs:choice>
           </xs:sequence>
-          <xs:attribute ref="address" use="required"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:redefine>
-
-  <xs:redefine schemaLocation="TrbNetCommon.xsd">
-    <xs:complexType name="fieldtype">
-      <xs:complexContent>
-        <xs:extension base="fieldtype">
-          <xs:attribute ref="start" use="required"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -82,32 +71,5 @@
   </xs:element>
 
 
-  <xs:element name="group">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="grouptype">
-          <xs:sequence>
-            <!-- a group does not necessarily need a description -->
-            <xs:choice minOccurs="0">
-              <xs:element   ref="description"/>
-            </xs:choice>
-            <xs:choice maxOccurs="unbounded">
-              <xs:element   ref="group"       maxOccurs="unbounded" />
-              <xs:element   ref="register"    maxOccurs="unbounded" />
-              <xs:element   ref="memory"      maxOccurs="unbounded" />
-              <xs:element   ref="fifo"        maxOccurs="unbounded" />
-            </xs:choice>
-          </xs:sequence>
 
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-
-    <!-- consistency of addresses (and start, size of fields) is
-         checked more precisely programmatically -->
-    <xs:unique name="UniqueTrbDataAddressesInGroup">
-      <xs:selector xpath="register | memory | fifo" />
-      <xs:field xpath="@address" />
-    </xs:unique>
-  </xs:element>
 </xs:schema>

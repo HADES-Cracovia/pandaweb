@@ -20,6 +20,7 @@ my $help = 0;
 my $verbose = 0;
 my $warnings = 1;
 my $db_dir = "$RealBin/database";
+my $dump_database = 0;
 
 Getopt::Long::Configure(qw(gnu_getopt));
 GetOptions(
@@ -27,7 +28,8 @@ GetOptions(
            'man' => \$man,
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
-           'db-dir=s' => \$db_dir
+           'db-dir=s' => \$db_dir,
+           'dump' => \$dump_database
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
@@ -41,15 +43,19 @@ if ($verbose) {
 
 # jump to subroutine which handles the job,
 # depending on the options
-&Main;
+
+if($dump_database) {
+  &DumpDatabase;
+}
+else {
+  &Main;
+}
 
 sub Main {
   # load the unmerged database and the provided files
-  my ($db,$files) = &LoadDBAndFiles;
+  my ($db,$files) = &LoadDBAndFiles(@ARGV);
 
-  DumpDatabase($db);
-  exit;
-  
+
   my $merged = {};
 
   foreach my $item (@$files) {
@@ -160,10 +166,14 @@ sub PrintMessage($$) {
 }
 
 sub DumpDatabase($) {
-  my $db = shift;
-  foreach my $file (keys %$db) {
-    print "Dumping $file...\n";
-    DumpDocument($db->{$file}->{'Doc'});
+  # we ignore all files on cmd line
+  my ($db, undef) = &LoadDBAndFiles;
+  my %entities = map { $_ => 1 } @ARGV;
+  my $num = scalar keys %entities;
+  foreach my $entity (keys %$db) {
+    next if $num>0 and not exists $entities{$entity};
+    print "Dumping Entity <$entity>:\n" if $num>1;
+    DumpDocument($db->{$entity}->{'Doc'});
   }
 }
 
@@ -242,7 +252,7 @@ sub LoadDBAndFiles {
   # now, back in the normal working directoy, load and
   # validate the provided files
   my $files = [];
-  for (@ARGV) {
+  for (@_) {
     my $doc = $parser->parse_file($_);
     ValidateXML($doc, $schemas);
     push(@$files, [$_, $doc]);
@@ -275,6 +285,7 @@ xml-db.pl - Manipulate the TrbNet descriptively using XML
 =head1 SYNOPSIS
 
 xml-db.pl [options] [xml file(s)]
+xml-db.pl --dump [entity names]
 
  Options:
    -h, --help     brief help message
@@ -284,6 +295,7 @@ xml-db.pl [options] [xml file(s)]
    -g, --generate generate config xml file (smart guessing from TrbNet)
    -s, --save     save all config fields from TrbNet in xml file
    -l, --restore  load config fields into TrbNet from xml file
+   --dump         dump the database as tree, restricted to given entity names
 
 =head1 OPTIONS
 

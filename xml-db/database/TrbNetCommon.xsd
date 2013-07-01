@@ -121,21 +121,52 @@
   </xs:element>
 
 
-  <xs:complexType name="grouptype">
-    <xs:attribute ref="name" use="required" />
-    <xs:attribute ref="address" />
-    <xs:attribute ref="size" />
-    <xs:attribute ref="purpose" />
-    <xs:attribute ref="continuous" />
-    <xs:attribute ref="mode" />
-    <xs:attribute ref="format" />
-    <xs:attribute ref="repeat" />
-  </xs:complexType>
+  <xs:element name="group">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- a group does not necessarily need a description -->
+        <xs:choice minOccurs="0">
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element   ref="group"       maxOccurs="unbounded" />
+          <xs:element   ref="register"    maxOccurs="unbounded" />
+          <xs:element   ref="memory"      maxOccurs="unbounded" />
+          <xs:element   ref="fifo"        maxOccurs="unbounded" />
+        </xs:choice>
+      </xs:sequence>
 
-  <!-- we define this as mixed to provide values to be written (or
-       extracted from it). It will be converted to hex (or binary)
-       according to format attribute -->
-  <xs:complexType name="fieldtype" mixed="true">
+      <xs:attribute ref="name" use="required" />
+      <xs:attribute ref="address" />
+      <!-- size of the containing elements (more groups or
+           trbdatatypes), specified in 32bit long words
+      -->
+      <xs:attribute ref="size" />
+      <xs:attribute ref="purpose" />
+      <xs:attribute ref="continuous" />
+      <xs:attribute ref="mode" />
+      <xs:attribute ref="format" />
+      <xs:attribute ref="repeat" />
+
+    </xs:complexType>
+
+    <!-- consistency of addresses (and start, size of fields) is
+         checked more precisely programmatically -->
+    <xs:unique name="UniqueTrbDataAddressesInGroup">
+      <xs:selector xpath="register | memory | fifo" />
+      <xs:field xpath="@address" />
+    </xs:unique>
+  </xs:element>
+
+
+
+
+  <xs:element name="field">
+    
+  <!-- we define this as mixed to provide values to be written to the
+       TrbNet (or to store data extracted from TrbNet). It will be
+       converted to hex (or "binary") according to format attribute -->
+  <xs:complexType mixed="true">
     <xs:sequence>
       <!-- description can be omitted if a register or alike only contains
            one or several identical fields and the description of them can
@@ -152,7 +183,11 @@
     </xs:sequence>
 
     <xs:attribute ref="name" use="required" />
-    <!-- start is defined in TrbNetEntity as required -->
+    <!-- "start" (and "address" in basicTrbdata) should usually be
+         provided in the database, but this is verified only
+         programmatically. If it was required here, setup files
+         would become more complicated as they need to be... -->
+    <xs:attribute ref="start" />
     <xs:attribute ref="size" />
     <xs:attribute ref="purpose" />
     <xs:attribute ref="mode" />
@@ -167,10 +202,7 @@
     <!-- if PERL evaluates this field to true,
          an error is indicated by this field -->
     <xs:attribute ref="errorflag" />
-  </xs:complexType>
-
-
-  <xs:element name="field" type="fieldtype">
+      </xs:complexType>
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
       <xs:field xpath="@value" />
@@ -178,9 +210,12 @@
   </xs:element>
 
   <xs:complexType name="basicTrbData">
-
     <xs:attribute ref="name" use="required" />
-    <!-- start is defined in TrbNetEntity as required attribute -->
+    <!-- "address" (and "start" in fieldtype) should usually be provided in
+         the database, but this is verified only programmatically. If
+         it was required here, setup files would become more
+         complicated as they need to be... -->
+    <xs:attribute ref="address" />
     <xs:attribute ref="mode" />
     <xs:attribute ref="purpose" />
   </xs:complexType>

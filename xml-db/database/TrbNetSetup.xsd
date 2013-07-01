@@ -6,7 +6,8 @@
     <xs:complexType>
       <xs:sequence>
         <!-- must contain either a uid map to setup the network
-             initially, or a trb directive -->
+             initially, or a trb directive. otherwise it's useless :)
+             -->
         <xs:choice>
           <xs:element   ref="uidMap"/>
           <xs:element   ref="trb"/>
@@ -34,15 +35,16 @@
 
   <xs:complexType name="trbitemtype">
     <!-- the entity may contain similar elements as the TrbNetEntity
-         element, but without a complex grouping mechanism. This is
-         why we defined some sparse elements in TrbNetCommon.xsd,
-         which are extended/redefined in TrbNetEntity.xsd -->
+         element. They usually modify the "default" structure in an
+         entity and are programmtically merged. Note that the pedantic
+         grouping structure as in the database is not required here.
+         This works because we require unique "name" attributes. -->
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="group" type="grouptype" />
+      <xs:element ref="group" />
       <xs:element ref="register" />
       <xs:element ref="memory" />
       <xs:element ref="fifo" />
-      <xs:element name="field" type="fieldtype" />
+      <xs:element ref="field" />
     </xs:choice>
     <xs:attribute name="ref" type="nametype" use="required" />
     <xs:attribute name="address" type="addresstype" />
