@@ -5,6 +5,7 @@ use warnings;
 use XML::LibXML;
 #use XML::LibXML::Debugging;
 #use XML::LibXML::Iterator;
+use Data::TreeDumper;
 use Getopt::Long;
 use Pod::Usage;
 use File::chdir;
@@ -44,10 +45,9 @@ if ($verbose) {
 # jump to subroutine which handles the job,
 # depending on the options
 
-if($dump_database) {
+if ($dump_database) {
   &DumpDatabase;
-}
-else {
+} else {
   &Main;
 }
 
@@ -101,7 +101,7 @@ sub Main {
         # after the merging, we can validate $entity again
         # now having a nice schema really pays off!
         eval { $db->{$ref}->{'Schema'}->validate($entity) };
-        if($@) {
+        if ($@) {
           print $entity->toString(2,1) if $verbose>2;
           die "Cannot validate merged entity: $@";
         }
@@ -179,44 +179,58 @@ sub DumpDatabase($) {
 
 sub DumpDocument($) {
   my $doc = shift;
-  #my $doc = $db->{'testing.xml'};
-  #my $doc = $db->{'jtag_registers_SPEC.xml'};
-  #print Dumper($doc->findnodes('TrbNet')->toDebuggingHash);
-  # get the iterator for the document root.
-  #my $iter = XML::LibXML::Iterator->new( $doc->documentElement );
 
   my $entityName = $doc->getDocumentElement->getAttribute('name');
   my $entityAddr = hex($doc->getDocumentElement->getAttribute('address'));
 
-  # walk through the document, we select all groups and the top entity
-  foreach my $groupNode ($doc->findnodes('//group | TrbNetEntity')) {
-    # determine base name (concatenated by /)
-    # and base address (just add all previous offsets)
-    my $baseaddress = $entityAddr;
-    my $basename = $entityName;
-    foreach my $anc ($groupNode->findnodes('ancestor-or-self::group')) {
-      $baseaddress += hex($anc->getAttribute('address'));
-      $basename .= '/'.$anc->getAttribute('name');
-    }
+  # recursively populate tree and print it
+  my $tree = {};
+  IterateChildren($tree, $doc->getDocumentElement, $entityAddr);
+  print DumpTree($tree, $entityName,
+                 USE_ASCII => 0, DISPLAY_ADDRESS => 0, NO_NO_ELEMENTS => 1);
+}
 
-    # now iterate over all children
-    foreach my $curNode ($groupNode->findnodes('register | memory | fifo')) {
-      #print $curNode->nodeName,"\t",$curNode->nodePath,"\n";
-      my $name = $basename.'/'.$curNode->getAttribute('name');
-      my $address = $baseaddress+hex($curNode->getAttribute('address'));
-      #printf("%s %04x\n\n",$name,$address);
-      foreach my $field ($curNode->findnodes('field')) {
-        printf("%04x:%02d:%02d %s/%s\n", $address,
-               $field->getAttribute('start'),
-               $field->getAttribute('size') || 1,
-               $name, $field->getAttribute('name')
-              );
+sub IterateChildren {
+  my $tree = shift;
+  my $node = shift;
+  my $baseaddress = shift;
+  my $inrepeat = shift || 0;
 
-        #print $field->getAttribute('errorflag') || 'false',"\n";
+  # now iterate over all children
+  foreach my $curNode ($node->findnodes('register | memory | fifo | group')) {
+    my $name = $curNode->getAttribute('name');
+    my $address = $baseaddress+hex($curNode->getAttribute('address'));
+    my $nodeName = $curNode->nodeName;
+    if ($nodeName eq 'group') {
+      my $key = $name;
+      my $repeat = $curNode->getAttribute('repeat') || 1;
+      $key .= $repeat>1 ? " x $repeat" : '';
+      $tree->{$key} = {};
+      IterateChildren($tree->{$key}, $curNode, $address, $repeat>1 || $inrepeat);
+    } else {
+      my $repeat = $curNode->getAttribute('repeat') || $inrepeat;
+      my $key = '';
+      $key .= sprintf('%04x', $address);
+      $key .= $repeat ? '* ' : ' ';
+      if ($nodeName ne 'register') {
+        $key .= "($nodeName) ";
+      }
+      $key .= $name;
+      $key .= $repeat>1 ? " x $repeat" : '';
+
+      $tree->{$key} = [];
+
+      my $fields = $curNode->findnodes('field');
+
+      next if $fields->size < 2;
+      foreach my $field (@$fields) {
+        push(@{$tree->{$key}}, $field->getAttribute('name'));
       }
     }
   }
+
 }
+
 
 
 sub LoadDBAndFiles {
