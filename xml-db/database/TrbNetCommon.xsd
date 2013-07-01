@@ -103,12 +103,17 @@
       Complex Elements
       ==============================-->
 
-
+  <xs:simpleType name="NonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:pattern value=".*[^\s].*" />
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:element name="enumItem">
     <xs:complexType>
       <xs:simpleContent>
-        <xs:extension base="xs:string">
+        <xs:extension base="NonEmptyString">
           <xs:attribute name="value" type="valuetype" />
         </xs:extension>
       </xs:simpleContent>

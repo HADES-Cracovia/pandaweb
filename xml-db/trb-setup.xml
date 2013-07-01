@@ -72,6 +72,17 @@
     </entity>
   </trb>
 
+
+  <trb address="0200">
+    <entity ref="TDC">
+      <!-- this field is a bitmask, so there's a converter to easily
+           set single bits -->
+      <field name="ChannelEnable">
+        0-15 => 1, <!-- enables channels 0-15 -->
+        34 => 5, <!-- enables channel 34 -->
+      </field>
+    </entity>
+  </trb>
   
   
   

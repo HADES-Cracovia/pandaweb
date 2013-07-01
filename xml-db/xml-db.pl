@@ -18,12 +18,15 @@ use Data::Dumper;
 my $man = 0;
 my $help = 0;
 my $verbose = 0;
+my $warnings = 1;
 my $db_dir = "$RealBin/database";
 
+Getopt::Long::Configure(qw(gnu_getopt));
 GetOptions(
            'help|h' => \$help,
            'man' => \$man,
            'verbose|v+' => \$verbose,
+           'warnings|w!' => \$warnings,
            'db-dir=s' => \$db_dir
           ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -31,7 +34,9 @@ pod2usage(-exitval => 0, -verbose => 2) if $man;
 
 # tell something about the configuration
 if ($verbose) {
-  print "Database directory: $db_dir\n";
+  print STDERR "Database directory: $db_dir\n";
+  # always enable warnings if verbose
+  $warnings = 1;
 }
 
 # jump to subroutine which handles the job,
@@ -51,13 +56,11 @@ sub Main {
 
     foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
       my $trbaddress = $trbnode->getAttribute('address');
-      printf("%s:%d: Evaluating trb node for 0x$trbaddress\n", $file,
-             $trbnode->line_number) if $verbose;
+      PrintMessage($trbnode, "Evaluating <trb> at 0x$trbaddress") if $verbose;
       foreach my $entitynode ($trbnode->findnodes('entity')) {
         my $ref = $entitynode->getAttribute('ref');
-
         # check if we know this type
-        FatalError($entitynode, "Entity reference $ref not found in database")
+        PrintMessage($entitynode, "Fatal Error: Entity reference $ref not found in database", 1)
           unless defined $db->{$ref};
 
         my $db_entitynode = $db->{$ref}->getDocumentElement;
@@ -71,7 +74,8 @@ sub Main {
         unless (defined $merged->{$trbaddress} and
                 defined $merged->{$trbaddress}->{$base_address}) {
           # clone deeply
-          $merged->{$trbaddress}->{$base_address} = $db_entitynode->cloneNode(1);
+          PrintMessage($entitynode, "Cloning entity from database") if $verbose>1;
+          $merged->{$trbaddress}->{$base_address} = $db->{$ref}->cloneNode(1);
         }
         my $e = $merged->{$trbaddress}->{$base_address};
 
@@ -79,7 +83,49 @@ sub Main {
         # like field, register, group, ...) to the "full" TrbNetEntity
         # in $e
         foreach my $elem ($entitynode->findnodes('*')) {
-          print $elem->nodeName,"\n";
+          # try to find the element in $e specified by its unique name
+          # attribute
+          my $uniquename = $elem->getAttribute('name');
+          my $xpath = sprintf('//%s[@name="%s"]',
+                              $elem->nodeName,
+                              $uniquename);
+          my $e_node = $e->findnodes($xpath);
+          if ($e_node->size == 0) {
+            PrintMessage($elem, "Warning: XPath $xpath not found in entity <$ref>, skipping") if $warnings;
+            next;
+          } elsif ($e_node->size > 1) {
+            # this should never happen due to schema restrictions, but
+            # check again here...
+            PrintMessage($elem, "Fatal Error: XPath $xpath found more than once in entity <$ref>, ".
+                         "$uniquename not unique!", 1);
+          }
+
+          # now apply the changes to that single node
+          $e_node = $e_node->shift;
+          PrintMessage($elem, "Modifying entity <$ref> at $trbaddress:$base_address: $uniquename ") if $verbose;
+          #print "=== START:\n", $e_node, "\n";
+
+          # override the attributes (using nice tied hash functionality)
+          foreach my $attr (keys %$elem) {
+            next if $attr eq 'name';
+            $e_node->setAttribute($attr, $elem->{$attr});
+          }
+
+          # appending all additional elements
+          foreach my $subelem ($elem->findnodes('*')) {
+            $e_node->appendChild($subelem);
+          }
+          #print "====",$elem->textContent,"====\n";
+          # delete all text node, and add the new text (effectively overriding)
+          $e_node->findnodes('text()')->map(sub {$e_node->removeChild($_)});
+          $e_node->appendChild(XML::LibXML::Text->new($elem->textContent));
+
+          print "=== RESULT:\n", $e_node, "\n";
+
+          print $e;
+          #printf("%s %s\n", $xpath, $e_node->nodeName());
+          #print $db->{$ref};
+          #exit;
         }
       }
     }
@@ -88,13 +134,15 @@ sub Main {
   #DumpDatabase($db);
 }
 
-sub FatalError($$) {
+sub PrintMessage($$) {
   my $node = shift;
   my $file = $node->ownerDocument->URI;
   my $line = $node->line_number;
   my $msg = shift;
-  print "$file:$line: Fatal Error: $msg\n";
-  exit 1;
+  print STDERR "$file:$line: $msg\n";
+  # third command indicates fatal error message,
+  # so exit...
+  exit 1 if shift;
 }
 
 sub DumpDatabase($) {
@@ -161,7 +209,7 @@ sub LoadDBAndFiles {
     # so we can validate the XML files
     while (<*.xsd>) {
       $schemas->{$_} = XML::LibXML::Schema->new(location => $_);
-      print "Loaded schema <$_> from database\n" if $verbose;
+      print STDERR "Loaded schema <$_> from database\n" if $verbose;
     }
 
     # load the xml files in the database
@@ -172,7 +220,7 @@ sub LoadDBAndFiles {
       die "File <$_>: Entity with name $dbname already exists in database"
         if exists $db->{$dbname};
       $db->{$dbname} = $doc;
-      print "Loaded and validated entity <$dbname> from database <$_>\n" if $verbose;
+      print STDERR "Loaded and validated entity <$dbname> from database <$_>\n" if $verbose;
     }
   }
 
@@ -183,7 +231,8 @@ sub LoadDBAndFiles {
     my $doc = $parser->parse_file($_);
     ValidateXML($doc, $schemas);
     push(@$files, [$_, $doc]);
-    print "Loaded and validated <$_>\n" if $verbose;
+    print STDERR "Loaded and validated <$_>\n" if $verbose;
+    #print "Encoding: ", $doc->getEncoding, "\n";
   }
 
   return ($db, $files);
@@ -213,7 +262,8 @@ xml-db.pl [options] [xml file(s)]
 
  Options:
    -h, --help     brief help message
-   -v, --verbose  be verbose
+   -v, --verbose  be verbose to STDERR
+   -w, --warnings print warnings to STDERR
    --db-dir       database directory
    -g, --generate generate config xml file (smart guessing from TrbNet)
    -s, --save     save all config fields from TrbNet in xml file
