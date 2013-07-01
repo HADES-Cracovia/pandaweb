@@ -47,8 +47,11 @@ sub Main {
   # load the unmerged database and the provided files
   my ($db,$files) = &LoadDBAndFiles;
 
-  #print Dumper($files);
+  DumpDatabase($db);
+  exit;
+  
   my $merged = {};
+
   foreach my $item (@$files) {
     my $file = $item->[0];
     my $doc = $item->[1];
@@ -57,81 +60,92 @@ sub Main {
     foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
       my $trbaddress = $trbnode->getAttribute('address');
       PrintMessage($trbnode, "Evaluating <trb> at 0x$trbaddress") if $verbose;
-      foreach my $entitynode ($trbnode->findnodes('entity')) {
-        my $ref = $entitynode->getAttribute('ref');
+      foreach my $node ($trbnode->findnodes('entity')) {
+        my $ref = $node->getAttribute('ref');
         # check if we know this type
-        PrintMessage($entitynode, "Fatal Error: Entity reference $ref not found in database", 1)
+        PrintMessage($node, "Fatal Error: Entity reference $ref not found in database", 1)
           unless defined $db->{$ref};
 
-        my $db_entitynode = $db->{$ref}->getDocumentElement;
-
-        # use the provided base address or the default one from the db
-        my $base_address = $entitynode->getAttribute('address') ||
-          $db_entitynode->getAttribute('address');
+        # use the provided base address for the registers of the entity
+        # or the default one from the db
+        my $base_address = $node->getAttribute('address') ||
+          $db->{$ref}->{'Doc'}->getDocumentElement->getAttribute('address');
         # check if we know already something about that entity at this
         # trbaddress and base_address...then use this, otherwise use the
         # a cloned entity from the database as a starting point
         unless (defined $merged->{$trbaddress} and
                 defined $merged->{$trbaddress}->{$base_address}) {
-          # clone deeply
-          PrintMessage($entitynode, "Cloning entity from database") if $verbose>1;
-          $merged->{$trbaddress}->{$base_address} = $db->{$ref}->cloneNode(1);
+          PrintMessage($node, "Cloning entity from database") if $verbose>1;
+          # clone deeply (argument = 1)
+          $merged->{$trbaddress}->{$base_address} = $db->{$ref}->{'Doc'}->cloneNode(1);
         }
-        my $e = $merged->{$trbaddress}->{$base_address};
+
+        # define a shortcut for the reference to the full entity (to be further modified!)
+        my $entity = $merged->{$trbaddress}->{$base_address};
 
         # now we apply the changes $entitynode (provided by elements
         # like field, register, group, ...) to the "full" TrbNetEntity
-        # in $e
-        foreach my $elem ($entitynode->findnodes('*')) {
+        # in $entity
+        foreach my $elem ($node->findnodes('*')) {
           # try to find the element in $e specified by its unique name
           # attribute
-          my $uniquename = $elem->getAttribute('name');
-          my $xpath = sprintf('//%s[@name="%s"]',
-                              $elem->nodeName,
-                              $uniquename);
-          my $e_node = $e->findnodes($xpath);
-          if ($e_node->size == 0) {
-            PrintMessage($elem, "Warning: XPath $xpath not found in entity <$ref>, skipping") if $warnings;
-            next;
-          } elsif ($e_node->size > 1) {
-            # this should never happen due to schema restrictions, but
-            # check again here...
-            PrintMessage($elem, "Fatal Error: XPath $xpath found more than once in entity <$ref>, ".
-                         "$uniquename not unique!", 1);
-          }
+          MergeElementIntoEntity($entity, $elem)
+        }
 
-          # now apply the changes to that single node
-          $e_node = $e_node->shift;
-          PrintMessage($elem, "Modifying entity <$ref> at $trbaddress:$base_address: $uniquename ") if $verbose;
-          #print "=== START:\n", $e_node, "\n";
-
-          # override the attributes (using nice tied hash functionality)
-          foreach my $attr (keys %$elem) {
-            next if $attr eq 'name';
-            $e_node->setAttribute($attr, $elem->{$attr});
-          }
-
-          # appending all additional elements
-          foreach my $subelem ($elem->findnodes('*')) {
-            $e_node->appendChild($subelem);
-          }
-          #print "====",$elem->textContent,"====\n";
-          # delete all text node, and add the new text (effectively overriding)
-          $e_node->findnodes('text()')->map(sub {$e_node->removeChild($_)});
-          $e_node->appendChild(XML::LibXML::Text->new($elem->textContent));
-
-          print "=== RESULT:\n", $e_node, "\n";
-
-          print $e;
-          #printf("%s %s\n", $xpath, $e_node->nodeName());
-          #print $db->{$ref};
-          #exit;
+        # after the merging, we can validate $entity again
+        # now having a nice schema really pays off!
+        eval { $db->{$ref}->{'Schema'}->validate($entity) };
+        if($@) {
+          print $entity->toString(2,1) if $verbose>2;
+          die "Cannot validate merged entity: $@";
         }
       }
     }
   }
-  # testing...
-  #DumpDatabase($db);
+}
+
+sub MergeElementIntoEntity($$) {
+  # note that merging two XML nodes is not simple and
+  # thus not in all cases well-defined
+  my $entity = shift;
+  my $elem = shift;
+
+  my $uniquename = $elem->getAttribute('name');
+  my $xpath = sprintf('//%s[@name="%s"]',
+                      $elem->nodeName,
+                      $uniquename);
+  my $e_node = $entity->findnodes($xpath);
+  if ($e_node->size == 0) {
+    PrintMessage($elem, "Warning: XPath $xpath not found in database entity, skipping") if $warnings;
+    next;
+  } elsif ($e_node->size > 1) {
+    # this should never happen due to schema restrictions, but
+    # check again here...
+    PrintMessage($elem, "Fatal Error: XPath $xpath found more than once in entity, i.e. ".
+                 "$uniquename not unique!", 1);
+  }
+
+  # now apply the changes to that single node
+  $e_node = $e_node->shift;
+  PrintMessage($elem, "Merging entity item <$uniquename>") if $verbose;
+  PrintMessage($elem, "Before merge:\n".$e_node->toString(2)) if $verbose>2;
+
+  # override the attributes (using nice tied hash functionality)
+  foreach my $attr (keys %$elem) {
+    next if $attr eq 'name';
+    $e_node->setAttribute($attr, $elem->{$attr});
+  }
+
+  # appending all additional elements
+  foreach my $subelem ($elem->findnodes('*')) {
+    $e_node->appendChild($subelem);
+  }
+
+  # delete all text node, and add the new text (effectively overriding)
+  $e_node->findnodes('text()')->map(sub {$e_node->removeChild($_)});
+  $e_node->appendChild(XML::LibXML::Text->new($elem->textContent));
+
+  PrintMessage($elem, "After merge:\n".$e_node->toString(2)) if $verbose>2;
 }
 
 sub PrintMessage($$) {
@@ -149,7 +163,7 @@ sub DumpDatabase($) {
   my $db = shift;
   foreach my $file (keys %$db) {
     print "Dumping $file...\n";
-    DumpDocument($db->{$file});
+    DumpDocument($db->{$file}->{'Doc'});
   }
 }
 
@@ -209,18 +223,19 @@ sub LoadDBAndFiles {
     # so we can validate the XML files
     while (<*.xsd>) {
       $schemas->{$_} = XML::LibXML::Schema->new(location => $_);
-      print STDERR "Loaded schema <$_> from database\n" if $verbose;
+      print STDERR "Loaded schema <$_> from database\n" if $verbose>1;
     }
 
     # load the xml files in the database
     while (<*.xml>) {
       my $doc = $parser->parse_file($_);
-      ValidateXML($doc, $schemas);
+      my $schema = ValidateXML($doc, $schemas);
       my $dbname = $doc->getDocumentElement->getAttribute('name');
       die "File <$_>: Entity with name $dbname already exists in database"
         if exists $db->{$dbname};
-      $db->{$dbname} = $doc;
-      print STDERR "Loaded and validated entity <$dbname> from database <$_>\n" if $verbose;
+      $db->{$dbname}->{'Doc'} = $doc;
+      $db->{$dbname}->{'Schema'} = $schema;
+      print STDERR "Loaded and validated entity <$dbname> from database <$_>\n" if $verbose>1;
     }
   }
 
@@ -231,7 +246,7 @@ sub LoadDBAndFiles {
     my $doc = $parser->parse_file($_);
     ValidateXML($doc, $schemas);
     push(@$files, [$_, $doc]);
-    print STDERR "Loaded and validated <$_>\n" if $verbose;
+    print STDERR "Loaded and validated <$_>\n" if $verbose>1;
     #print "Encoding: ", $doc->getEncoding, "\n";
   }
 
@@ -244,6 +259,7 @@ sub ValidateXML($$) {
   my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
   die "Schema $xsd_file not found to validate <$_>" unless defined $schemas->{$xsd_file};
   $schemas->{$xsd_file}->validate($doc);
+  return $schemas->{$xsd_file};
 }
 
 
