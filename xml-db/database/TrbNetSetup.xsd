@@ -44,7 +44,7 @@
       <xs:element ref="fifo" />
       <xs:element name="field" type="fieldtype" />
     </xs:choice>
-    <xs:attribute name="type" type="xs:string" use="required" />
+    <xs:attribute name="ref" type="nametype" use="required" />
     <xs:attribute name="address" type="addresstype" />
   </xs:complexType>
 

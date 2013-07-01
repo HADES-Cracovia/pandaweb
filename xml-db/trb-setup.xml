@@ -27,10 +27,10 @@
 
   <!-- we configure the trb endpoint with address 0x8000 -->
   <trb address="8000">
-    <entity type="TrbNet" />
+    <entity ref="TrbNet" />
 
     <!-- it has a TDC (at default register address) -->
-    <entity type="TDC">
+    <entity ref="TDC">
       <!-- this way we modify the number of channels to 5. This works
            since group/register/memory/fifo have unique names. It
            might be that there are several places where one should
@@ -39,29 +39,29 @@
     </entity>
 
     <!-- and it has a CTS -->
-    <entity type="CTS" />
+    <entity ref="CTS" />
   </trb>
 
 
   <trb address="0200">
     <!-- Standard TrbNet enpoint with standard 65ch TDC... -->
-    <entity type="TrbNet" />
-    <entity type="TDC" />
+    <entity ref="TrbNet" />
+    <entity ref="TDC" />
     <!-- ...but also some "external" PaDiWa frontends connected at
          chain 0 and 2. The fronend has some more registers which can
          be accessed via SPI. The idea is that there's also a
          PaDiWa.pm in the database which handles this access, usually
          via conventional TrbNet registers
          -->
-    <external type="PaDiWa" address="0000" />
-    <external type="PaDiWa" address="0002" />
+    <external ref="PaDiWa" address="0000" />
+    <external ref="PaDiWa" address="0002" />
   </trb>
 
 
   <!-- An example how to execute a setting. In general, the entities
        are identified by their type and address (if specified) -->
   <trb address="0200">
-    <entity type="TDC">
+    <entity ref="TDC">
       <!-- this field is a bitmask, so there's a converter to easily
            set single bits -->
       <field name="ChannelEnable">

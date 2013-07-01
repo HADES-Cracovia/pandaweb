@@ -43,20 +43,24 @@ sub Main {
   my ($db,$files) = &LoadDBAndFiles;
 
   #print Dumper($files);
+  my $merged = {};
   foreach my $item (@$files) {
     my $file = $item->[0];
     my $doc = $item->[1]; print "Working on $file...\n" if $verbose;
-    my $merged = {};
+    
     foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
       my $trbaddress = $trbnode->getAttribute('address');
       print $trbaddress,"\n";
       foreach my $entitynode ($trbnode->findnodes('entity')) {
-        my $type = $entitynode->getAttribute('type');
+        my $ref = $entitynode->getAttribute('ref');
+
         # check if we know this type
-        FatalError($entitynode, "Entity type $type not found in database")
-          unless defined $db->{"$type.xml"};
+        FatalError($entitynode, "Entity reference $ref not found in database")
+          unless defined $db->{$ref};
+
+        # check if there's 
         
-        print $type,"\n";
+        print $ref,"\n";
       }
     }
   }
@@ -144,8 +148,9 @@ sub LoadDBAndFiles {
     while (<*.xml>) {
       my $doc = $parser->parse_file($_);
       ValidateXML($doc, $schemas);
-      $db->{$_} = $doc;
-      print "Loaded and validated <$_> from database\n" if $verbose;
+      my $dbname = $doc->getDocumentElement->getAttribute('name');
+      $db->{$dbname} = $doc;
+      print "Loaded and validated entity <$dbname> from db/$_\n" if $verbose;
     }
   }
 
