@@ -42,7 +42,11 @@ sub Main {
   # load the unmerged database and the provided files
   my ($db,$files) = &LoadDBAndFiles;
 
-  foreach my $file (keys %$files) {
+  #print Dumper($files);
+  
+  foreach my $item (@$files) {
+    my $file = $item->[0];
+    my $doc = $item->[1];
     print "Working on $file...\n" if $verbose;
     
   }
@@ -51,11 +55,6 @@ sub Main {
   #DumpDatabase($db);
 }
 
-sub LoadFile() {
-  my $schema = XML::LibXML::Schema->new(location => "$db_dir/TrbNetSetup.xsd");
-
-
-}
 
 sub DumpDatabase($) {
   my $db = shift;
@@ -135,11 +134,11 @@ sub LoadDBAndFiles {
 
   # now, back in the normal working directoy, load and
   # validate the provided files
-  my $files = {};
+  my $files = [];
   for (@ARGV) {
     my $doc = $parser->parse_file($_);
     ValidateXML($doc, $schemas);
-    $files->{$_} = $doc;
+    push(@$files, [$_, $doc]);
     print "Loaded and validated <$_>\n" if $verbose;
   }
 
