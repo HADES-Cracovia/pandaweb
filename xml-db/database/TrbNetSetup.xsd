@@ -23,12 +23,72 @@
   </xs:element>
 
   <xs:element name="trb">
-    
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="entity" type="entitytype"/>
+        <xs:element ref="external" />
+      </xs:choice>
+      <xs:attribute ref="address" />
+    </xs:complexType>
   </xs:element>
+
+  <xs:complexType name="entitytype">
+    <!-- the entity may contain similar elements as the TrbNetEntity
+         element, but without a complex grouping mechanism. This is
+         why we defined some sparse elements in TrbNetCommon.xsd,
+         which are extended/redefined in TrbNetEntity.xsd -->
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="group" type="grouptype" />
+      <xs:element ref="register" />
+      <xs:element ref="memory" />
+      <xs:element ref="fifo" />
+      <xs:element name="field" type="fieldtype" />
+    </xs:choice>
+    <xs:attribute name="type" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:element name="external">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="entitytype">
+          <xs:attribute name="address" type="addresstype" use="required" />
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:attribute name="endpoint">
+    <xs:simpleType>
+      <xs:restriction base="xs:integer">
+        <xs:pattern value="[0-3]|5"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+
+  <xs:simpleType name="uidcontent">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{16}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="uidtype">
+    <xs:simpleContent>
+      <xs:extension base="uidcontent">
+        <xs:attribute ref="address" />
+        <xs:attribute ref="endpoint" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="uid" type="uidtype" />
 
   <xs:element name="uidMap">
-    
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="uid" />
+      </xs:choice>
+    </xs:complexType>
   </xs:element>
 
-  
+
 </xs:schema>

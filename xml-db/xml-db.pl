@@ -42,6 +42,10 @@ sub Main {
   # load the unmerged database and the provided files
   my ($db,$files) = &LoadDBAndFiles;
 
+  foreach my $file (keys %$files) {
+    print "Working on $file...\n" if $verbose;
+    
+  }
 
   # testing...
   #DumpDatabase($db);
@@ -57,11 +61,11 @@ sub DumpDatabase($) {
   my $db = shift;
   foreach my $file (keys %$db) {
     print "Dumping $file...\n";
-    DumpDatabaseFile($db->{$file});
+    DumpDocument($db->{$file});
   }
 }
 
-sub DumpDatabaseFile($) {
+sub DumpDocument($) {
   my $doc = shift;
   #my $doc = $db->{'testing.xml'};
   #my $doc = $db->{'jtag_registers_SPEC.xml'};
@@ -93,7 +97,9 @@ sub DumpDatabaseFile($) {
         printf("%04x:%02d:%02d %s/%s\n", $address,
                $field->getAttribute('start'),
                $field->getAttribute('size') || 1,
-               $name, $field->getAttribute('name'));
+               $name, $field->getAttribute('name')
+              );
+        
         #print $field->getAttribute('errorflag') || 'false',"\n";
       }
     }

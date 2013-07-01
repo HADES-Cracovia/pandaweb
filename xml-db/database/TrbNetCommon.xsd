@@ -116,47 +116,56 @@
   </xs:element>
 
 
-<!-- we define this as mixed to provide values to be written (or
-         extracted from it). It will be converted to hex (or binary)
-         according to format attribute -->
-    <xs:complexType name="fieldtype" mixed="true">
-      <xs:sequence>
-        <!-- description can be omitted if a register or alike only contains
-             one or several identical fields and the description of them can
-             be inherited from the register itself-->
-        <xs:choice minOccurs="0">
-          <xs:element   ref="description"/>
-        </xs:choice>
-        <!-- enum items are only meaningful for format="enum" fields,
-             however we don't complain if there are some for other
-             formats... -->
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element   ref="enumItem" />
-        </xs:choice>
-      </xs:sequence>
+  <xs:complexType name="grouptype">
+    <xs:attribute ref="name" use="required" />
+    <xs:attribute ref="address" />
+    <xs:attribute ref="size" />
+    <xs:attribute ref="purpose" />
+    <xs:attribute ref="continuous" />
+    <xs:attribute ref="mode" />
+    <xs:attribute ref="format" />
+    <xs:attribute ref="repeat" />
+  </xs:complexType>
 
-      <xs:attribute ref="name" use="required" />
-      <!-- start is defined in TrbNetEntity -->
-      <xs:attribute ref="size" />
-      <xs:attribute ref="purpose" />
-      <xs:attribute ref="mode" />
-      <!-- if the default value of that field is not 0x0 (in the
-           appropiate conversion according to format attribute), it
-           can be specified here -->
-      <xs:attribute ref="defaultValue" />
-      <xs:attribute ref="format" />
-      <xs:attribute ref="repeat" />
-      <xs:attribute ref="unit" />
-      <xs:attribute ref="scale" />
-      <!-- if PERL evaluates this field to true,
-           an error is indicated by this field -->
-      <xs:attribute ref="errorflag" />
-    </xs:complexType>
-  
+  <!-- we define this as mixed to provide values to be written (or
+       extracted from it). It will be converted to hex (or binary)
+       according to format attribute -->
+  <xs:complexType name="fieldtype" mixed="true">
+    <xs:sequence>
+      <!-- description can be omitted if a register or alike only contains
+           one or several identical fields and the description of them can
+           be inherited from the register itself-->
+      <xs:choice minOccurs="0">
+        <xs:element   ref="description"/>
+      </xs:choice>
+      <!-- enum items are only meaningful for format="enum" fields,
+           however we don't complain if there are some for other
+           formats... -->
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element   ref="enumItem" />
+      </xs:choice>
+    </xs:sequence>
+
+    <xs:attribute ref="name" use="required" />
+    <!-- start is defined in TrbNetEntity as required -->
+    <xs:attribute ref="size" />
+    <xs:attribute ref="purpose" />
+    <xs:attribute ref="mode" />
+    <!-- if the default value of that field is not 0x0 (in the
+         appropiate conversion according to format attribute), it
+         can be specified here -->
+    <xs:attribute ref="defaultValue" />
+    <xs:attribute ref="format" />
+    <xs:attribute ref="repeat" />
+    <xs:attribute ref="unit" />
+    <xs:attribute ref="scale" />
+    <!-- if PERL evaluates this field to true,
+         an error is indicated by this field -->
+    <xs:attribute ref="errorflag" />
+  </xs:complexType>
+
 
   <xs:element name="field" type="fieldtype">
-    
-
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
       <xs:field xpath="@value" />
@@ -164,7 +173,7 @@
   </xs:element>
 
   <xs:complexType name="basicTrbData">
-    
+
     <xs:attribute ref="name" use="required" />
     <!-- start is defined in TrbNetEntity as required attribute -->
     <xs:attribute ref="mode" />

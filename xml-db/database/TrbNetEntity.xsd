@@ -26,7 +26,7 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:redefine>
-  
+
   <xs:redefine schemaLocation="TrbNetCommon.xsd">
     <xs:complexType name="fieldtype">
       <xs:complexContent>
@@ -36,7 +36,7 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:redefine>
-  
+
   <xs:element name="TrbNetEntity">
     <xs:complexType>
       <xs:sequence>
@@ -81,30 +81,28 @@
     </xs:unique>
   </xs:element>
 
+
   <xs:element name="group">
     <xs:complexType>
-      <xs:sequence>
-        <!-- a group does not necessarily need a description -->
-        <xs:choice minOccurs="0">
-          <xs:element   ref="description"/>
-        </xs:choice>
-        <xs:choice maxOccurs="unbounded">
-          <xs:element   ref="group"       maxOccurs="unbounded" />
-          <xs:element   ref="register"    maxOccurs="unbounded" />
-          <xs:element   ref="memory"      maxOccurs="unbounded" />
-          <xs:element   ref="fifo"        maxOccurs="unbounded" />
-        </xs:choice>
-      </xs:sequence>
-      <xs:attribute ref="name" use="required" />
-      <xs:attribute ref="address" />
-      <xs:attribute ref="size" />
-      <xs:attribute ref="purpose" />
-      <xs:attribute ref="continuous" />
-      <xs:attribute ref="mode" />
-      <xs:attribute ref="format" />
-      <xs:attribute ref="repeat" />
+      <xs:complexContent>
+        <xs:extension base="grouptype">
+          <xs:sequence>
+            <!-- a group does not necessarily need a description -->
+            <xs:choice minOccurs="0">
+              <xs:element   ref="description"/>
+            </xs:choice>
+            <xs:choice maxOccurs="unbounded">
+              <xs:element   ref="group"       maxOccurs="unbounded" />
+              <xs:element   ref="register"    maxOccurs="unbounded" />
+              <xs:element   ref="memory"      maxOccurs="unbounded" />
+              <xs:element   ref="fifo"        maxOccurs="unbounded" />
+            </xs:choice>
+          </xs:sequence>
 
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
+
     <!-- consistency of addresses (and start, size of fields) is
          checked more precisely programmatically -->
     <xs:unique name="UniqueTrbDataAddressesInGroup">
