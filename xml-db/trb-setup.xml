@@ -34,7 +34,8 @@
       <!-- this way we modify the number of channels to 5. This works
            since group/register/memory/fifo have unique names. It
            might be that there are several places where one should
-           change the "repeat", but how does one know?  -->
+           change the "repeat" to get a consistent entity model, but
+           how does one know that programmitcally??? -->
       <register name="Channel" repeat="5" />
     </entity>
 

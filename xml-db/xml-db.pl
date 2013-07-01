@@ -46,11 +46,13 @@ sub Main {
   my $merged = {};
   foreach my $item (@$files) {
     my $file = $item->[0];
-    my $doc = $item->[1]; print "Working on $file...\n" if $verbose;
-    
+    my $doc = $item->[1];
+    #print "Working on $file...\n" if $verbose;
+
     foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
       my $trbaddress = $trbnode->getAttribute('address');
-      print $trbaddress,"\n";
+      printf("%s:%d: Evaluating trb node for 0x$trbaddress\n", $file,
+             $trbnode->line_number) if $verbose;
       foreach my $entitynode ($trbnode->findnodes('entity')) {
         my $ref = $entitynode->getAttribute('ref');
 
@@ -58,9 +60,27 @@ sub Main {
         FatalError($entitynode, "Entity reference $ref not found in database")
           unless defined $db->{$ref};
 
-        # check if there's 
-        
-        print $ref,"\n";
+        my $db_entitynode = $db->{$ref}->getDocumentElement;
+
+        # use the provided base address or the default one from the db
+        my $base_address = $entitynode->getAttribute('address') ||
+          $db_entitynode->getAttribute('address');
+        # check if we know already something about that entity at this
+        # trbaddress and base_address...then use this, otherwise use the
+        # a cloned entity from the database as a starting point
+        unless (defined $merged->{$trbaddress} and
+                defined $merged->{$trbaddress}->{$base_address}) {
+          # clone deeply
+          $merged->{$trbaddress}->{$base_address} = $db_entitynode->cloneNode(1);
+        }
+        my $e = $merged->{$trbaddress}->{$base_address};
+
+        # now we apply the changes $entitynode (provided by elements
+        # like field, register, group, ...) to the "full" TrbNetEntity
+        # in $e
+        foreach my $elem ($entitynode->findnodes('*')) {
+          print $elem->nodeName,"\n";
+        }
       }
     }
   }
