@@ -66,56 +66,17 @@
     <external ref="PaDiWa" address="0002" />
   </trb>
 
-
-  <!-- An example how to execute a setting. In general, the entities
-       are identified by their type and address (if specified) -->
-  <trb address="0200">
-    <broadcast address="fe48" />
-    <entity ref="TDC">
-      <!-- this field is a bitmask, so there's a converter to easily
-           set single bits -->
-      <field name="ChannelEnable">
-        0-15 => 1, <!-- enables channels 0-15 -->
-        34 => 1, <!-- enables channel 34 -->
-      </field>
-    </entity>
-  </trb>
-
-
-  <trb address="0200">
-    <broadcast address="fe48" />
-      <!-- this field is a bitmask, so there's a converter to easily
-           set single bits -->
-      <entity ref="TDC">
-      <field name="ReadoutFSM">
-        <enumItem value="0">Bla</enumItem>
-      </field>
-      <field name="ChannelEnable">
-        0-15 => 1, <!-- enables channels 0-15 -->
-        34 => 5, <!-- enables channel 34 -->
-      </field>
-    </entity>
-  </trb>
-  
   <trb address="ffff">
-    <entity ref="TrbNet">
+    <entity ref="TrbNet" />
   </trb>
   
   <trb address="fe48">
-    <entity ref="TDC">
-    <entity ref="RDO">
+    <entity ref="TDC" />
+    <entity ref="TrgRdo" />
   </trb>
 
   <trb address="fffe">
-    <entity ref="HUB">
+    <entity ref="Hub" />
   </trb>
-
-<!--
-  <trb address="ff7f">
-    <entity ref="GBE">
-  </trb>
--->
-
-  
-  
+ 
 </TrbNetSetup>

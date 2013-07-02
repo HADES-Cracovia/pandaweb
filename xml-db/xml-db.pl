@@ -151,9 +151,9 @@ sub EvaluateTrbNode($$$) {
     # and we can check some more required fields
     foreach my $n ($entity->findnodes('//field | //register | //memory | //fifo | //group')) {
       if ($n->nodeName eq 'field') {
-        PrintMessage($n, 'Fatal Error: "start" attribute is required', 0) unless exists $n->{'start'};
+        PrintMessage($n, 'Fatal Error: "start" attribute is required', 1) unless $n->hasAttribute('start');
       } else {
-        PrintMessage($n, 'Fatal Error: "address" attribute is required', 1) unless exists $n->{'address'};
+        PrintMessage($n, 'Fatal Error: "address" attribute is required', 1) unless $n->hasAttribute('address');
       }
     }
   }
@@ -189,10 +189,11 @@ sub MergeElementIntoEntity($$) {
   PrintMessage($elem, "Merging entity item <$uniquename>") if $verbose;
   PrintMessage($elem, "Before merge:\n".$e_node->toString(2)) if $verbose>2;
 
-  # override the attributes (using nice tied hash functionality)
+  # override the attributes (using tied hash functionality, which
+  # sometimes does not work when reading?)
   foreach my $attr (keys %$elem) {
     next if $attr eq 'name';
-    $e_node->setAttribute($attr, $elem->{$attr});
+    $e_node->setAttribute($attr, $elem->getAttribute($attr));
   }
 
   # appending all additional elements
