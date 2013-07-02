@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use XML::LibXML;
+use Storable;
 #use XML::LibXML::Debugging;
 #use XML::LibXML::Iterator;
 use Data::TreeDumper;
@@ -77,6 +78,8 @@ sub Main {
 
 sub WorkOnEntities($) {
   my $entities = shift;
+  # THIS IS NOT FINISHED AT ALL!
+
   # first, we need to expand the repeat/size statements and calculate
   # the "real" register address (but still relative to parent!). we do
   # this on a cloned copy of the document, since each trb node might
@@ -84,11 +87,11 @@ sub WorkOnEntities($) {
   foreach my $e (keys %$entities) {
     my $doc = $entities->{$e}->cloneNode(1);
     print $e,"\n";
+    # first expand registers. we replace the node with cloned copies
     foreach my $reg ($doc->findnodes('//register[@repeat]')) {
-      print $reg->getAttribute('repeat'),"\n";
+      my $repeat = $reg->getAttribute('repeat');
+      my $address = $reg->getAttribute('address'); # || PrintMessage($reg, 'Fatal Error: Register must have address attribute
     }
-    # first expand registers
-    
   }
 }
 
@@ -138,6 +141,15 @@ sub EvaluateTrbNode($$$) {
       print $entity->toString(2,1) if $verbose>2;
       PrintMessage($node,
                    "Fatal Error: Merged entity is not valid anymore:\n$@",1);
+    }
+
+    # and we can check some more required fields
+    foreach my $n ($entity->findnodes('//field | //register | //memory | //fifo | //group')) {
+      if ($n->nodeName eq 'field') {
+        PrintMessage($n, 'Fatal Error: "start" attribute is required', 1) unless exists $n->{'start'};
+      } else {
+        PrintMessage($n, 'Fatal Error: "address" attribute is required', 1) unless exists $n->{'address'};
+      }
     }
   }
 
