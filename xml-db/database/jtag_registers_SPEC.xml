@@ -78,7 +78,7 @@
            address="0020"  size="5"  purpose="config"  mode="rw"  continuous="true">
       <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
       <register name="JtagOverride"
-                address="0020"  repeat="5" purpose="config" mode="rw" >
+                address="0000"  repeat="5" purpose="config" mode="rw" >
         <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
         <field name="InvertTDO"
                start="0"   size="1"  mode="rw"  purpose="config"  format="boolean">
