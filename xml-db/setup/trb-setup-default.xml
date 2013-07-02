@@ -35,8 +35,6 @@
     <broadcast address="ff7e" />
     <broadcast address="fe35" />
     
-    <entity ref="TrbNet" />
-
     <!-- it has a TDC (at default register address) -->
     <entity ref="TDC">
       <!-- this way we modify the number of channels to 5. This works
@@ -53,7 +51,7 @@
 
 
   <trb address="0200">
-    <broadcast address="ff48" />
+    <broadcast address="fe48" />
 
     <!-- Standard TrbNet enpoint with standard 65ch TDC... -->
     <entity ref="TrbNet" />
@@ -72,8 +70,7 @@
   <!-- An example how to execute a setting. In general, the entities
        are identified by their type and address (if specified) -->
   <trb address="0200">
-    <broadcast address="ff48" />
-
+    <broadcast address="fe48" />
     <entity ref="TDC">
       <!-- this field is a bitmask, so there's a converter to easily
            set single bits -->
@@ -86,19 +83,39 @@
 
 
   <trb address="0200">
-    <broadcast address="ff48" />
-    <entity ref="TDC">
+    <broadcast address="fe48" />
       <!-- this field is a bitmask, so there's a converter to easily
            set single bits -->
+      <entity ref="TDC">
       <field name="ReadoutFSM">
         <enumItem value="0">Bla</enumItem>
+      </field>
+      <field name="ChannelEnable">
         0-15 => 1, <!-- enables channels 0-15 -->
         34 => 5, <!-- enables channel 34 -->
       </field>
     </entity>
   </trb>
   
+  <trb address="ffff">
+    <entity ref="TrbNet">
+  </trb>
   
+  <trb address="fe48">
+    <entity ref="TDC">
+    <entity ref="RDO">
+  </trb>
+
+  <trb address="fffe">
+    <entity ref="HUB">
+  </trb>
+
+<!--
+  <trb address="ff7f">
+    <entity ref="GBE">
+  </trb>
+-->
+
   
   
 </TrbNetSetup>
