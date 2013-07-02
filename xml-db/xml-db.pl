@@ -21,8 +21,7 @@ my $man = 0;
 my $help = 0;
 my $verbose = 0;
 my $warnings = 1;
-my $db_dir = "$RealBin/database";
-my $schema_dir = "$RealBin/schema";
+my $dir = $RealBin;
 my $dump_database = 0;
 
 Getopt::Long::Configure(qw(gnu_getopt));
@@ -31,12 +30,15 @@ GetOptions(
            'man' => \$man,
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
-           'db-dir=s' => \$db_dir,
-           'schema-dir=s' => \$schema_dir,
+           'dir=s' => \$dir,
            'dump' => \$dump_database
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
+
+my $db_dir = "$dir/database";
+my $schema_dir = "$dir/schema";
+
 
 # tell something about the configuration
 if ($verbose) {
@@ -363,7 +365,7 @@ xml-db.pl --dump [entity names]
    -h, --help     brief help message
    -v, --verbose  be verbose to STDERR
    -w, --warnings print warnings to STDERR
-   --db-dir       database directory
+   --dir          directory that contains database and schema subdirs
    -g, --generate generate config xml file (smart guessing from TrbNet)
    -s, --save     save all config fields from TrbNet in xml file
    -l, --restore  load config fields into TrbNet from xml file
@@ -381,9 +383,9 @@ Print a brief help message and exits.
 
 Print some information what is going on.
 
-=item B<--db-dir>
+=item B<--dir>
 
-Set the database directory where the default XML files can be found.
+Set the base directory where the default XML files can be found in sub-directories database and schema.
 
 =back
 
