@@ -22,6 +22,7 @@ my $help = 0;
 my $verbose = 0;
 my $warnings = 1;
 my $db_dir = "$RealBin/database";
+my $schema_dir = "$RealBin/schema";
 my $dump_database = 0;
 
 Getopt::Long::Configure(qw(gnu_getopt));
@@ -31,6 +32,7 @@ GetOptions(
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
            'db-dir=s' => \$db_dir,
+           'schema-dir=s' => \$schema_dir,
            'dump' => \$dump_database
           ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -39,6 +41,7 @@ pod2usage(-exitval => 0, -verbose => 2) if $man;
 # tell something about the configuration
 if ($verbose) {
   print STDERR "Database directory: $db_dir\n";
+  print STDERR "Schema directory: $schema_dir\n";
   # always enable warnings if verbose
   $warnings = 1;
 }
@@ -290,8 +293,8 @@ sub LoadDBAndFiles {
   my $parser = XML::LibXML->new(line_numbers => 1);
 
   {
-    # change to the db_dir in the first part
-    local $CWD = $db_dir;
+    # change to the schema_dir in the first part
+    local $CWD = $schema_dir;
 
 
     # we first load the schemas and parse them
@@ -302,6 +305,8 @@ sub LoadDBAndFiles {
     }
 
     # load the xml files in the database
+    # change to the db_dir in the first part
+    local $CWD = $db_dir;
     while (<*.xml>) {
       my $doc = $parser->parse_file($_);
       my $schema = ValidateXML($doc, $schemas);
@@ -332,6 +337,7 @@ sub ValidateXML($$) {
   my $doc = shift;
   my $schemas = shift;
   my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
+  ($xsd_file) = $xsd_file =~ m%.*/([^/]*)$%;
   die "Schema $xsd_file not found to validate <$_>" unless defined $schemas->{$xsd_file};
   $schemas->{$xsd_file}->validate($doc);
   return $schemas->{$xsd_file};

@@ -1,6 +1,6 @@
 <?xml version="1.0"  encoding="utf-8" ?>
 <TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
               name="TDC"
               address="c000"
               >
