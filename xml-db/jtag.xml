@@ -1,0 +1,14 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetSetup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="TrbNetSetup.xsd"
+             creator="Andreas Neiser"
+             date="2013-06-30T16:11:56"
+             version="0.1"
+             >
+  
+  <trb address="8000">
+    <entity ref="JtagController" />    
+  </trb>
+
+
+</TrbNetSetup>

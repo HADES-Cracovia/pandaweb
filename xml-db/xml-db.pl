@@ -56,58 +56,94 @@ sub Main {
   my ($db,$files) = &LoadDBAndFiles(@ARGV);
 
 
+  # this ref holds all the vital "information". There's a merged
+  # TrbNetEntity-based document at
+  # $merged->{$trbaddress}->{$base_address}
   my $merged = {};
 
   foreach my $item (@$files) {
     my $file = $item->[0];
     my $doc = $item->[1];
-    #print "Working on $file...\n" if $verbose;
 
     foreach my $trbnode ($doc->getDocumentElement->findnodes('trb')) {
-      my $trbaddress = $trbnode->getAttribute('address');
-      PrintMessage($trbnode, "Evaluating <trb> at 0x$trbaddress") if $verbose;
-      foreach my $node ($trbnode->findnodes('entity')) {
-        my $ref = $node->getAttribute('ref');
-        # check if we know this type
-        PrintMessage($node, "Fatal Error: Entity reference $ref not found in database", 1)
-          unless defined $db->{$ref};
-
-        # use the provided base address for the registers of the entity
-        # or the default one from the db
-        my $base_address = $node->getAttribute('address') ||
-          $db->{$ref}->{'Doc'}->getDocumentElement->getAttribute('address');
-        # check if we know already something about that entity at this
-        # trbaddress and base_address...then use this, otherwise use the
-        # a cloned entity from the database as a starting point
-        unless (defined $merged->{$trbaddress} and
-                defined $merged->{$trbaddress}->{$base_address}) {
-          PrintMessage($node, "Cloning entity from database") if $verbose>1;
-          # clone deeply (argument = 1)
-          $merged->{$trbaddress}->{$base_address} = $db->{$ref}->{'Doc'}->cloneNode(1);
-        }
-
-        # define a shortcut for the reference to the full entity (to be further modified!)
-        my $entity = $merged->{$trbaddress}->{$base_address};
-
-        # now we apply the changes $entitynode (provided by elements
-        # like field, register, group, ...) to the "full" TrbNetEntity
-        # in $entity
-        foreach my $elem ($node->findnodes('*')) {
-          # try to find the element in $e specified by its unique name
-          # attribute
-          MergeElementIntoEntity($entity, $elem)
-        }
-
-        # after the merging, we can validate $entity again
-        # now having a nice schema really pays off!
-        eval { $db->{$ref}->{'Schema'}->validate($entity) };
-        if ($@) {
-          print $entity->toString(2,1) if $verbose>2;
-          die "Cannot validate merged entity: $@";
-        }
-      }
+      # Note: we cannot first collect all the <trb> nodes and then
+      # work on them as a whole (this would limit the possibilites in
+      # a setup file...)
+      my $trbaddress = EvaluateTrbNode($db, $trbnode, $merged);
+      WorkOnEntities($merged->{$trbaddress});
     }
   }
+}
+
+sub WorkOnEntities($) {
+  my $entities = shift;
+  # first, we need to expand the repeat/size statements and calculate
+  # the "real" register address (but still relative to parent!). we do
+  # this on a cloned copy of the document, since each trb node might
+  # change this!
+  foreach my $e (keys %$entities) {
+    my $doc = $entities->{$e}->cloneNode(1);
+    print $e,"\n";
+    foreach my $reg ($doc->findnodes('//register[@repeat]')) {
+      print $reg->getAttribute('repeat'),"\n";
+    }
+    # first expand registers
+    
+  }
+}
+
+sub EvaluateTrbNode($$$) {
+  my $db = shift;
+  my $trbnode = shift;
+  my $merged = shift;
+
+  my $trbaddress = $trbnode->getAttribute('address');
+  PrintMessage($trbnode, "Evaluating <trb> at 0x$trbaddress") if $verbose;
+  foreach my $node ($trbnode->findnodes('entity')) {
+    my $ref = $node->getAttribute('ref');
+    # check if we know this type
+    PrintMessage($node, "Fatal Error: Entity reference $ref not found in database", 1)
+      unless defined $db->{$ref};
+
+    # use the provided base address for the registers of the entity
+    # or the default one from the db
+    my $base_address = $node->getAttribute('address') ||
+      $db->{$ref}->{'Doc'}->getDocumentElement->getAttribute('address');
+    # check if we know already something about that entity at this
+    # trbaddress and base_address...then use this, otherwise use the
+    # a cloned entity from the database as a starting point
+    unless (defined $merged->{$trbaddress} and
+            defined $merged->{$trbaddress}->{$base_address}) {
+      PrintMessage($node, "Cloning entity from database") if $verbose>1;
+      # clone deeply (argument = 1)
+      $merged->{$trbaddress}->{$base_address} = $db->{$ref}->{'Doc'}->cloneNode(1);
+    }
+
+    # define a shortcut for the reference to the full entity (to be further modified!)
+    my $entity = $merged->{$trbaddress}->{$base_address};
+
+    # now we apply the changes $entitynode (provided by elements
+    # like field, register, group, ...) to the "full" TrbNetEntity
+    # in $entity
+    foreach my $elem ($node->findnodes('*')) {
+      # try to find the element in $e specified by its unique name
+      # attribute
+      MergeElementIntoEntity($entity, $elem)
+    }
+
+    # after the merging, we can validate $entity again
+    # now having a nice schema really pays off!
+    eval { $db->{$ref}->{'Schema'}->validate($entity) };
+    if ($@) {
+      print $entity->toString(2,1) if $verbose>2;
+      PrintMessage($node,
+                   "Fatal Error: Merged entity is not valid anymore:\n$@",1);
+    }
+  }
+
+  # the really relevant information is in the reference $merged,
+  # so not returned here
+  return $trbaddress;
 }
 
 sub MergeElementIntoEntity($$) {
@@ -189,6 +225,7 @@ sub DumpDocument($) {
   print DumpTree($tree, $entityName,
                  USE_ASCII => 0, DISPLAY_OBJECT_TYPE => 0,
                  DISPLAY_ADDRESS => 0, NO_NO_ELEMENTS => 1);
+
 }
 
 sub IterateChildren {
