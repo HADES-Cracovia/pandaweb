@@ -8,6 +8,7 @@
         <!-- must contain either a uid map to setup the network
              initially, or a trb directive. otherwise it's useless :)
              -->
+        <xs:element   ref="description" />
         <xs:choice>
           <xs:element   ref="uidMap"/>
           <xs:element   ref="trb"/>

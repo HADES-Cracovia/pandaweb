@@ -149,7 +149,7 @@ sub EvaluateTrbNode($$$) {
     # and we can check some more required fields
     foreach my $n ($entity->findnodes('//field | //register | //memory | //fifo | //group')) {
       if ($n->nodeName eq 'field') {
-        PrintMessage($n, 'Fatal Error: "start" attribute is required', 1) unless exists $n->{'start'};
+        PrintMessage($n, 'Fatal Error: "start" attribute is required', 0) unless exists $n->{'start'};
       } else {
         PrintMessage($n, 'Fatal Error: "address" attribute is required', 1) unless exists $n->{'address'};
       }
@@ -337,6 +337,7 @@ sub ValidateXML($$) {
   my $doc = shift;
   my $schemas = shift;
   my $xsd_file = $doc->getDocumentElement->getAttribute('xsi:noNamespaceSchemaLocation');
+  # Strip filename from path to select proper schema
   ($xsd_file) = $xsd_file =~ m%.*/([^/]*)$%;
   die "Schema $xsd_file not found to validate <$_>" unless defined $schemas->{$xsd_file};
   $schemas->{$xsd_file}->validate($doc);

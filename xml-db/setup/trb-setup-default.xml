@@ -1,10 +1,13 @@
 <?xml version="1.0"  encoding="utf-8" ?>
 <TrbNetSetup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:noNamespaceSchemaLocation="../schema/TrbNetSetup.xsd"
+             xsi:noNamespaceSchemaLocation="schema/TrbNetSetup.xsd"
              creator="Andreas Neiser"
              date="2013-06-30T16:11:56"
              version="0.1"
              >
+  
+<description>A hypothetic TRB set-up that due to some strange coincidence exists in Mainz.</description>
+
   <!-- The order of the trb elements is respected and their content is
        evaluated after each one (if they specify a value). This is important if the resulting
        changes to the TrbNet must happen in a certain way. -->
@@ -14,7 +17,7 @@
        address, or sometimes it specifies the chain number of the
        external PaDiWa frontend -->
 
-  
+                
   <!-- this specifies the trbaddress from uid's, it can be omitted if
        the TrbNet is already set-up -->
   <uidMap>
