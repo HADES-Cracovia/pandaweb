@@ -187,7 +187,8 @@ sub DumpDocument($) {
   my $tree = {};
   IterateChildren($tree, $doc->getDocumentElement, $entityAddr);
   print DumpTree($tree, $entityName,
-                 USE_ASCII => 0, DISPLAY_ADDRESS => 0, NO_NO_ELEMENTS => 1);
+                 USE_ASCII => 0, DISPLAY_OBJECT_TYPE => 0,
+                 DISPLAY_ADDRESS => 0, NO_NO_ELEMENTS => 1);
 }
 
 sub IterateChildren {
@@ -218,13 +219,14 @@ sub IterateChildren {
       $key .= $name;
       $key .= $repeat>1 ? " x $repeat" : '';
 
-      $tree->{$key} = [];
+      $tree->{$key} = {};
 
       my $fields = $curNode->findnodes('field');
 
       next if $fields->size < 2;
       foreach my $field (@$fields) {
-        push(@{$tree->{$key}}, $field->getAttribute('name'));
+        my $fieldname = $field->getAttribute('name');
+        $tree->{$key}->{$fieldname} = [];
       }
     }
   }

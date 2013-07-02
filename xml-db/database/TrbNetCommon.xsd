@@ -236,7 +236,7 @@
       <xs:complexContent>
         <xs:extension base="basicTrbData">
           <!-- size specified in 32bit long words -->
-          <xs:attribute ref="size" />
+          <xs:attribute ref="size" use="required" />
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
