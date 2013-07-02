@@ -27,6 +27,11 @@
 
   <!-- we configure the trb endpoint with address 0x8000 -->
   <trb address="8000">
+    <broadcast address="fffe" />
+    <broadcast address="ff7f" />
+    <broadcast address="ff7e" />
+    <broadcast address="fe35" />
+    
     <entity ref="TrbNet" />
 
     <!-- it has a TDC (at default register address) -->
@@ -45,6 +50,8 @@
 
 
   <trb address="0200">
+    <broadcast address="ff48" />
+
     <!-- Standard TrbNet enpoint with standard 65ch TDC... -->
     <entity ref="TrbNet" />
     <entity ref="TDC" />
@@ -62,6 +69,8 @@
   <!-- An example how to execute a setting. In general, the entities
        are identified by their type and address (if specified) -->
   <trb address="0200">
+    <broadcast address="ff48" />
+
     <entity ref="TDC">
       <!-- this field is a bitmask, so there's a converter to easily
            set single bits -->
@@ -74,6 +83,7 @@
 
 
   <trb address="0200">
+    <broadcast address="ff48" />
     <entity ref="TDC">
       <!-- this field is a bitmask, so there's a converter to easily
            set single bits -->

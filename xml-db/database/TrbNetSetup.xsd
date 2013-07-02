@@ -28,10 +28,17 @@
       <xs:choice maxOccurs="unbounded">
         <xs:element name="entity" type="trbitemtype" />
         <xs:element name="external" type="trbitemtype" />
+        <xs:element name="broadcast" type="broadcasttype" maxOccurs="unbounded" minOccurs="0" />
       </xs:choice>
       <xs:attribute ref="address" use="required" />
     </xs:complexType>
   </xs:element>
+
+  <xs:complexType name="broadcasttype">
+    <!-- Assigns a broadcast address to a trb element. Broadcast 0xffff matches all
+         boards by default and does not need to be set explicitly. -->
+    <xs:attribute name="address" type="addresstype" />
+  </xs:complexType>
 
   <xs:complexType name="trbitemtype">
     <!-- the entity may contain similar elements as the TrbNetEntity

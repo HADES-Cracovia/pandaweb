@@ -1,12 +1,11 @@
 <?xml version="1.0"  encoding="utf-8" ?>
 <TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="TrbNetEntity.xsd"
-              name="TrbNet"
+              name="TrgRdo"
               address="7000"
               >
-  <description>Common Registers on allmost all endpoints</description>
+  <description>Register of the trigger and read-out handler in full_endpoint (on front-ends only)</description>
 
-  <!-- this is just a very minimal version -->
 
   <register name="IPUHandlerStatus" address="0202" purpose="status">
     <description>IPU handler status register</description>
