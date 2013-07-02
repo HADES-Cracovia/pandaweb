@@ -5,16 +5,8 @@
   <xs:element name="TrbNetSetup">
     <xs:complexType>
       <xs:sequence>
-        <!-- must contain either a uid map to setup the network
-             initially, or a trb directive. otherwise it's useless :)
-             -->
         <xs:element   ref="description" />
-        <xs:choice>
-          <xs:element   ref="uidMap"/>
-          <xs:element   ref="trb"/>
-        </xs:choice>
-        <!-- may contain even more trb directives -->
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:choice maxOccurs="unbounded">
           <xs:element   ref="trb"      />
         </xs:choice>
       </xs:sequence>
@@ -59,38 +51,5 @@
   </xs:complexType>
 
   
-  <xs:attribute name="endpoint">
-    <xs:simpleType>
-      <xs:restriction base="xs:integer">
-        <xs:pattern value="[0-3]|5"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:attribute>
-
-  <xs:simpleType name="uidcontent">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="[0-9a-fA-F]{16}"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:complexType name="uidtype">
-    <xs:simpleContent>
-      <xs:extension base="uidcontent">
-        <xs:attribute ref="address" />
-        <xs:attribute ref="endpoint" />
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
-  <xs:element name="uid" type="uidtype" />
-
-  <xs:element name="uidMap">
-    <xs:complexType>
-      <xs:choice maxOccurs="unbounded">
-        <xs:element ref="uid" />
-      </xs:choice>
-    </xs:complexType>
-  </xs:element>
-
 
 </xs:schema>
