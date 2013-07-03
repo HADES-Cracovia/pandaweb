@@ -51,8 +51,17 @@ if (!defined &trb_init_ports()) {
 my $db = lock_retrieve($file);
 die "Unable to read cache file\n" unless defined $db;
 
-
-
+unless(exists $db->{$name}) {
+  die "Name not found in entity file\n";
+  }
+  
+print DumpTree($db->{$name});  
+  
+if($db->{$name}->{type} eq "register" || $db->{$name}->{type} eq "registerfield") {
+  my $o = trb_register_read($netaddr,$db->{$name}->{address});
+  print DumpTree($o);
+  }
+  
 
 
 __END__
