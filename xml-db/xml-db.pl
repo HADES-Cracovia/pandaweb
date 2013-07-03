@@ -22,7 +22,6 @@ my $verbose = 0;
 my $warnings = 1;
 my $dir = $RealBin;
 my $dump = 0;
-my $force = 0;
 
 Getopt::Long::Configure(qw(gnu_getopt));
 GetOptions(
@@ -31,8 +30,7 @@ GetOptions(
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
            'dir=s' => \$dir,
-           'dump' => \$dump,
-           'force|f=s' => \$force
+           'dump' => \$dump
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
@@ -91,7 +89,7 @@ sub Main {
     my $cachefile = "cache/$name.entity";
     lock_store($db, $cachefile);
     print STDERR "Wrote $cachefile\n" if $verbose>0;
-    #print DumpTree($db);
+    print STDERR "\n",DumpTree($db,$name),"\n" if $verbose>2;
   }
 
 
@@ -325,7 +323,6 @@ xml-db.pl --dump [entity names]
    -v, --verbose  be verbose to STDERR
    -w, --warnings print warnings to STDERR
    --dir          directory that contains database and schema subdirs
-   -f, --force    update all cache entries, regardless of their timestamp
    --dump         dump the database as tree, restricted to given entity names
 
 =head1 OPTIONS
@@ -342,14 +339,17 @@ Print some information what is going on.
 
 =item B<--dir>
 
-Set the base directory where the default XML files can be found in sub-directories database and schema.
+Set the base directory where the default XML files can be found in
+sub-directories database and schema. In the same directory the cache
+will be created.
 
 =back
 
 =head1 DESCRIPTION
 
 B<This program> updates the cache directory from the provided XML
-files in the database directory. You can restrict the files being
-worked by stating them as arguments.
+files in the database directory (also validates them against the
+schema). You can restrict the files being worked by stating them as
+arguments, the extension .xml will be added for convenience.
 
 =cut
