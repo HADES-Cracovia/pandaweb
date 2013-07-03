@@ -14,6 +14,10 @@
       <xs:attribute name="date" type="xs:dateTime" use="required" />
       <xs:attribute name="version" type="xs:string" use="required" />
     </xs:complexType>
+    <xs:unique name="UniqueTrbElements">
+      <xs:selector xpath="trb" />
+      <xs:field xpath="@address" />
+    </xs:unique>
   </xs:element>
 
   <xs:element name="trb">
@@ -47,7 +51,6 @@
       <xs:element ref="field" />
     </xs:choice>
     <xs:attribute name="ref" type="nametype" use="required" />
-    <xs:attribute name="address" type="addresstype" />
   </xs:complexType>
 
   
