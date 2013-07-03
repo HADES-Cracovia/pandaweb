@@ -10,6 +10,8 @@ use Pod::Usage;
 use Getopt::Long;
 use File::chdir;
 use FindBin qw($RealBin);
+use Storable qw(lock_retrieve);
+
 
 my $help = 0;
 my $verbose = 0;
@@ -21,6 +23,21 @@ GetOptions(
           ) or pod2usage(2);
 pod2usage(1) if $help;
 
+my $file = "$RealBin/cache/$ARGV[0].entity";
+unless(-e $file) {
+  die "Entity $file not found.\n";
+  }
+  
+my $netaddr = $ARGV[1] || "";
+if    ($netaddr=~ m/0x([0-9a-fA-F]{4})/) {$netaddr = hex($1);}
+elsif ($netaddr=~ m/([0-9]{1,5})/) {$netaddr = $1;}
+else {die "Could not parse address $netaddr\n";}
+
+my $name = $ARGV[2] || "";
+my $slice = -1;
+if    ($name =~ m/^([a-zA-Z0-9]+)(.\d+)$/) {$name = $1; $slice = $2;}
+elsif ($name =~ m/^([a-zA-Z0-9]+)$/)       {$name = $1; $slice = -1;}
+else {die "Could not parse name $name \n";}
 
 
 if(!defined $ENV{'DAQOPSERVER'}) {
@@ -31,6 +48,12 @@ if (!defined &trb_init_ports()) {
   die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
 }
 
+my $db = lock_retrieve($file);
+die "Unable to read cache file\n" unless defined $db;
+
+
+
+
 
 __END__
 
@@ -40,8 +63,7 @@ get.pl - Access TrbNet elements with speaking names and formatted output
 
 =head1 SYNOPSIS
 
-get.pl
-get.pl address entity name
+get.pl entity address name
 
  Options:
    -h, --help     brief help message
