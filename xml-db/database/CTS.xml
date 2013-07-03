@@ -10,7 +10,7 @@
 
   <register name="TriggerAssertedCounter" address="0000" purpose="statistics">
     <description>Number of clock cycles with trigger asserted</description>
-    <field name="TriggerAssertedCounter" start="0" size="32" format="unsigned" />
+    <field name="TriggerAssertedCounter" start="0" bits="32" format="unsigned" />
   </register>
 
 </TrbNetEntity>

@@ -80,6 +80,7 @@
   <xs:attribute name="purpose"      type="purposetype" />
   <xs:attribute name="start"        type="bittype" />
   <xs:attribute name="size"         type="xs:positiveInteger" />
+  <xs:attribute name="bits"         type="xs:positiveInteger" />
   <xs:attribute name="defaultValue" type="xs:string" />
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
@@ -184,11 +185,9 @@
 
     <xs:attribute ref="name" use="required" />
     <!-- "start" (and "address" in basicTrbdata) should usually be
-         provided in the database, but this is verified only
-         programmatically. If it was required here, setup files
-         would become more complicated as they need to be... -->
-    <xs:attribute ref="start" />
-    <xs:attribute ref="size" />
+         provided in the database -->
+    <xs:attribute ref="start" use="required" />
+    <xs:attribute ref="bits" />
     <xs:attribute ref="purpose" />
     <xs:attribute ref="mode" />
     <!-- if the default value of that field is not 0x0 (in the

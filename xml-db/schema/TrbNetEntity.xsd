@@ -47,18 +47,14 @@
     </xs:complexType>
 
     <!-- although requiring "entity global" unique names usually leads
-         to redundant naming schemes, its makes minor modifications to
-         entities very easy to specify (which is desirable in setup files) -->
+         to redundant naming schemes, but addressing things gets less
+         confusing -->
     <xs:unique name="UniqueFieldNames">
       <xs:selector xpath=".//field" />
       <xs:field xpath="@name" />
     </xs:unique>
     <xs:unique name="UniqueTrbDataNames">
-      <xs:selector xpath=".//register | .//memory | .//fifo" />
-      <xs:field xpath="@name" />
-    </xs:unique>
-    <xs:unique name="UniqueGroupNames">
-      <xs:selector xpath=".//group" />
+      <xs:selector xpath=".//group | .//register | .//memory | .//fifo" />
       <xs:field xpath="@name" />
     </xs:unique>
 

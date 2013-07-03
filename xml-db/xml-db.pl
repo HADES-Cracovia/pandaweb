@@ -9,6 +9,7 @@ use Pod::Usage;
 use File::chdir;
 use FindBin qw($RealBin);
 use Data::Dumper;
+use Storable qw(lock_store);
 
 
 # some default config options
@@ -20,7 +21,7 @@ my $help = 0;
 my $verbose = 0;
 my $warnings = 1;
 my $dir = $RealBin;
-my $dump_database = 0;
+my $dump = 0;
 my $force = 0;
 
 Getopt::Long::Configure(qw(gnu_getopt));
@@ -30,7 +31,7 @@ GetOptions(
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
            'dir=s' => \$dir,
-           'dump' => \$dump_database,
+           'dump' => \$dump,
            'force|f=s' => \$force
           ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -51,18 +52,158 @@ if ($verbose) {
 # jump to subroutine which handles the job,
 # depending on the options
 
-if ($dump_database) {
-  &DumpDatabase;
-} else {
-  &Main;
-}
+&Main;
 
 sub Main {
+  # ensure a cache directory exists
+  local $CWD = $dir;
+  (mkdir 'cache' or die "Can't create cache directory") unless -d 'cache';
+
+  my @docs;
+  {
+    my %filter;
+    foreach (@ARGV) {
+      $_ = "$_.xml" unless /\.xml$/;
+      $filter{$_} = 1;
+    }
+    my $num = scalar @ARGV;
+    local $CWD = $db_dir;
+    while (<*.xml>) {
+      next if $num>0 and not defined $filter{$_};
+      my $doc = LoadXML($_);
+      if ($dump) {
+        DumpDocument($doc);
+        next;
+      }
+      push(@docs, $doc);
+    }
+  }
+
+  foreach my $doc (@docs) {
+    my $db = WorkOnDoc($doc);
+    #print Dumper($db->{'BasicStatus'});
+    #print Dumper($db->{'ChannelEnable'});
+    #print Dumper($db->{'ReadoutFSM'});
+    #print Dumper($db->{'JtagRunCounter'});
+    #print Dumper($db->{'TriggerStart'});
+    #print DumpTree($db);
+    my $name = $doc->getDocumentElement->getAttribute('name');
+    my $cachefile = "cache/$name.entity";
+    lock_store($db, $cachefile);
+    print STDERR "Wrote $cachefile\n" if $verbose>0;
+    #print DumpTree($db);
+  }
+
 
 }
 
+sub WorkOnDoc {
+  my $doc = shift;
+  my $db = {};
 
-sub PrintMessage($$) {
+  # we populate first the db. then we can check when adding the
+  # children that they exist, and we can also handle the special case
+  # when a node has the same name as the single field it contains
+  my $nodelist = $doc->findnodes('//register | //memory | //fifo | //group');
+  foreach my $node (@$nodelist) {
+    my $name = $node->getAttribute('name');
+    # this check should also be enforced by the schema, but
+    # double-check can't harm
+    PrintMessage($node, "Fatal Error: Name $name is not unique", 1) if defined $db->{$name};
+    $db->{$name} = MakeOrMergeDbItem($node);
+  }
+
+  # now add the children and the fields
+  foreach my $node (@$nodelist) {
+    my $name = $node->getAttribute('name');
+    my $dbitem = $db->{$name};
+
+    #print $n->nodeName," ",$name," ",$children->size,"\n";
+
+    my $children = $node->findnodes('group | register | memory | fifo | field');
+
+    # if there's only one child...
+    if ($children->size==1) {
+      my $childnode = $children->get_node(1);
+      my $childname = $childnode->getAttribute('name');
+      # ...and it's a field with the same name as the parent,
+      # we merge that
+      if ($childnode->nodeName eq 'field' and $childname eq $name) {
+        PrintMessage($childnode, "Merging field $childname into parent") if $verbose>1;
+        MakeOrMergeDbItem($childnode, $dbitem);
+        next;
+      }
+    }
+
+    foreach my $childnode (@$children) {
+      my $childname = $childnode->getAttribute('name');
+
+      if ($childnode->nodeName eq 'field') {
+        $db->{$childname} = MakeOrMergeDbItem($childnode);
+      } elsif (not defined $db->{$childname}) {
+        PrintMessage($childnode, "Fatal Error: Child $childname of $name not found in database", 1)
+      }
+      push(@{$dbitem->{'children'}}, $childname);
+    }
+  }
+  return $db;
+}
+
+
+sub MakeOrMergeDbItem {
+  my $n = shift;
+  # always append the type, start with an empty one
+  my $dbitem = shift || {type => ''};
+  $dbitem->{'type'} .= $n->nodeName;
+
+  # determine the absolute address, include node itself (not necessarily a group)
+  # default address is 0, and we start from the base_address in TrbNetEntity
+  $dbitem->{'address'} = hex($n->ownerDocument->getDocumentElement->getAttribute('address') || '0');
+  foreach my $anc (($n, $n->findnodes('ancestor::group'))) {
+    $dbitem->{'address'} += hex($anc->getAttribute('address') || '0');
+  }
+
+  # add all attributes
+  foreach my $a (keys %$n) {
+    next if $a eq 'name' or $a eq 'address';
+    $dbitem->{$a} = $n->getAttribute($a);
+  }
+
+  # find required attributes from first ancestor which knows
+  # something about it, if we don't know it already
+  foreach my $a (qw(purpose mode)) {
+    next if defined $dbitem->{$a};
+    my $value = $n->findnodes("ancestor::*[\@$a][1]/\@$a");
+    $dbitem->{$a} = $value->string_value if $value->string_value;
+  }
+
+  # set description
+  foreach my $elem ($n->findnodes('(ancestor-or-self::*/description)[last()]')) {
+    $dbitem->{'description'} = SanitizedContent($elem);
+  }
+
+  # save enumItems (if any)
+  foreach my $item ($n->findnodes('enumItem')) {
+    my $val = $item->getAttribute('value');
+    $dbitem->{'enumItems'}->{$val} = SanitizedContent($item);
+  }
+
+  PrintMessage($n, "Warning: Found enumItems although not format=enum")
+    if $warnings and defined $dbitem->{'enumItems'} and $n->getAttribute('format') ne 'enum';
+
+  # determine size for repeatable???
+
+  return $dbitem;
+}
+
+sub SanitizedContent {
+  my $n = shift;
+  my $text = $n->textContent;
+  $text =~ s/\s+/ /g;
+  return $text;
+}
+
+sub PrintMessage {
   my $node = shift;
   my $file = $node->ownerDocument->URI;
   my $line = $node->line_number;
@@ -73,18 +214,7 @@ sub PrintMessage($$) {
   exit 1 if shift;
 }
 
-sub DumpDatabase($) {
-  my %entities = map { $_.'.xml' => 1 } (@ARGV);
-  my $num = scalar keys %entities;
-  local $CWD = $db_dir;
-  while(<*.xml>) {
-    next if $num>0 and not defined $entities{$_};
-    my($doc,$name) = LoadXML($_);
-    DumpDocument($doc);
-  }
-}
-
-sub DumpDocument($) {
+sub DumpDocument {
   my $doc = shift;
 
   my $entityName = $doc->getDocumentElement->getAttribute('name');
@@ -151,9 +281,12 @@ BEGIN {
     local $CWD = $db_dir;
     my $doc = $parser->parse_file($filename);
     ValidateXML($doc);
-    my $dbname = $doc->getDocumentElement->getAttribute('name');
-    print STDERR "Loaded and validated entity <$dbname> from database <$filename>\n" if $verbose>1;
-    return ($doc, $dbname);
+    my $name = $doc->getDocumentElement->getAttribute('name');
+    print STDERR "Loaded and validated entity <$name> from database <$filename>\n"
+      if $verbose>1;
+    print STDERR "Warning: Filename not consistent with TrbNetEntity attribute"
+      if $warnings and "$name.xml" ne $filename;
+    return $doc;
   }
 
   sub ValidateXML {
@@ -184,7 +317,7 @@ xml-db.pl - Create cached data structures from the XML entities
 
 =head1 SYNOPSIS
 
-xml-db.pl
+xml-db.pl [entity names]
 xml-db.pl --dump [entity names]
 
  Options:
@@ -216,6 +349,7 @@ Set the base directory where the default XML files can be found in sub-directori
 =head1 DESCRIPTION
 
 B<This program> updates the cache directory from the provided XML
-files in the database directory.
+files in the database directory. You can restrict the files being
+worked by stating them as arguments.
 
 =cut
