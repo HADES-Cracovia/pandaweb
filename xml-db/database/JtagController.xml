@@ -14,7 +14,7 @@
               address="0007" mode="rw" purpose ="config" >
       <description>Wait time between write sequence and start signal.</description>
       <field name="WaitBeforeStart"
-             start="0"   size="20"  mode="rw"  purpose="config"  format="integer">
+             start="0"   bits="20"  mode="rw"  purpose="config"  format="integer">
         <description>The number of MAPS clock cycles to wait after last write before sending the start signal. </description>
       </field>
     </register>
@@ -22,7 +22,7 @@
               address="000c" mode="w" purpose ="trigger" >
       <description>Trigger the init sequence.</description>
       <field name="TriggerInitSeq"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask">
+             start="0"   bits="5"  mode="w"  purpose="trigger"  format="bitmask">
         <description>A bitmask to trigger the init sequence on individual JTAG chains. </description>
       </field>
     </register>
@@ -30,7 +30,7 @@
               address="000d" mode="w" purpose ="trigger" >
       <description>Trigger the init sequence.</description>
       <field name="TriggerReset"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask">
+             start="0"   bits="5"  mode="w"  purpose="trigger"  format="bitmask">
         <description>A bitmask to trigger sending a reset pulse on individual JTAG chains </description>
       </field>
     </register>
@@ -38,7 +38,7 @@
               address="000e" mode="w" purpose ="trigger" >
       <description>Trigger sending a start pulse.</description>
       <field name="TriggerStart"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask">
+             start="0"   bits="5"  mode="w"  purpose="trigger"  format="bitmask">
         <description>A bitmask to trigger sending a start pulse on individual JTAG chains </description>
       </field>
     </register>
@@ -46,7 +46,7 @@
               address="000f" mode="w" purpose ="trigger" >
       <description>Trigger running JTAG write.</description>
       <field name="TriggerJtagRun"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask">
+             start="0"   bits="5"  mode="w"  purpose="trigger"  format="bitmask">
         <description>A bitmask to trigger writing the JTAG registers three times on individual JTAG chains </description>
       </field>
     </register>
@@ -54,7 +54,7 @@
               address="0010" mode="rw" purpose="config" >
       <description>Generate a reset before doing init sequence</description>
       <field name="ResetBeforeInit"
-             start="0"   size="1"  mode="rw"  purpose="config"  format="boolean">
+             start="0" mode="rw"  purpose="config"  format="boolean">
         <description>Enable to send a reset pulse before starting init sequence</description>
       </field>
     </register>
@@ -62,7 +62,7 @@
               address="0011" mode="rw" purpose="config" >
       <description>Generate a reset after first register write sequence</description>
       <field name="ResetAfterFirstWrite"
-             start="0"   size="1"  mode="rw"  purpose="config"  format="boolean">
+             start="0" mode="rw"  purpose="config"  format="boolean">
         <description>Enable to send a reset pulse after the first writing of JTAG registers</description>
       </field>
     </register>
@@ -70,70 +70,70 @@
               address="0014" mode="w" purpose ="trigger" >
       <description>Trigger writing all JTAG registers once</description>
       <field name="TriggerWriteOnce"
-             start="0"   size="5"  mode="w"  purpose="trigger"  format="bitmask">
+             start="0" bits="5"  mode="w"  purpose="trigger"  format="bitmask">
         <description>Trigger writing all JTAG registers once on individual JTAG chains</description>
       </field>
     </register>
     <group name="JtagOverride"
            address="0020"  size="5"  purpose="config"  mode="rw"  continuous="true">
       <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
-      <register name="JtagOverride"
-                address="0000"  repeat="5" purpose="config" mode="rw" >
+      <register name="JtagOverrideRegister"
+                address="0000"  repeat="5" >
         <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
         <field name="InvertTDO"
-               start="0"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="0"  format="boolean">
           <description>Invert TDO input signal</description>
         </field>      
         <field name="InvertTDI"
-               start="2"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="2"  format="boolean">
           <description>Invert TDI output signal</description>
         </field>
         <field name="InvertTMS"
-               start="4"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="4"  format="boolean">
           <description>Invert TMS output signal</description>
         </field>
         <field name="InvertTCK"
-               start="6"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="6"  format="boolean">
           <description>Invert TCK output signal</description>
         </field>
         <field name="InvertStart"
-               start="8"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="8"  format="boolean">
           <description>Invert Start output signal</description>
         </field>
         <field name="InvertReset"
-               start="10"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="10" format="boolean">
           <description>Invert Reset output signal</description>
         </field>
         <field name="InvertClock"
-               start="12"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="12"  format="boolean">
           <description>Invert Clock output signal</description>
         </field>
         <field name="EnableTDO"
-               start="1"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="1" format="boolean">
           <description>Enable TDO input signal</description>
         </field>      
         <field name="EnableTDI"
-               start="3"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="3"  format="boolean">
           <description>Enable TDI output signal</description>
         </field>
         <field name="EnableTMS"
-               start="5"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="5"  format="boolean">
           <description>Enable TMS output signal</description>
         </field>
         <field name="EnableTCK"
-               start="7"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="7"  format="boolean">
           <description>Enable TCK output signal</description>
         </field>
         <field name="EnableStart"
-               start="9"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="9"  format="boolean">
           <description>Enable Start output signal</description>
         </field>
         <field name="EnableReset"
-               start="11"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="11" format="boolean">
           <description>Enable Reset output signal</description>
         </field>
         <field name="EnableClock"
-               start="13"   size="1"  mode="rw"  purpose="config"  format="boolean">
+               start="13" format="boolean">
           <description>Enable Clock output signal</description>
         </field>
       </register>
@@ -143,18 +143,18 @@
   <!--JTAG Status registers for each chain       -->
   <!--===========================================-->
   <group name="JtagStatus"
-         address="1800"  size="40"  purpose="status"  mode="r"  continuous="true">
+         address="1800"  size="40"  purpose="status"  mode="r" continuous="true">
     <group name="JtagStatusChain"
            address="0000"  size="8"  repeat="5"  purpose="status"  mode="r"  continuous="true">
       <register  name="JtagErrorCount1"
                 address="0002" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
-               start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"   bits="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of read errors during "read id" operation</description>
         </field>
         <field name="ErrorsWrite"
-               start="16"   size="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of read errors during write operation</description>
         </field>
       </register>
@@ -162,11 +162,11 @@
                 address="0003" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
-               start="0"   size="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"  bits="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
         </field>
         <field name="ErrorsSampling"
-               start="16"   size="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
           <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
         </field>
       </register>
@@ -174,34 +174,34 @@
                 address="0004" purpose="status" mode="r" >
         <description>Number of times the JTAG controller run a full sequence</description>
         <field name="JtagRunCounter"
-               start="0"   size="32"  mode="r"  purpose="status"  format="integer" >
+               start="0"  bits="32"  mode="r"  purpose="status"  format="integer" >
         </field>
       </register>
       <register  name="JtagStatusFlags"
                 address="0005" purpose="status" mode="r" >
         <description>Status flags of the JTAG chain</description>
         <field name="JtagStarted"
-               start="0"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="0"  mode="r"  purpose="status"  format="boolean" >
           <description>JTAG has been started</description>
         </field>
         <field name="JtagLastSuccesful"
-               start="4"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="4"  mode="r"  purpose="status"  format="boolean" >
           <description>Last JTAG run was successful</description>
         </field>
         <field name="JtagLastDataChanged"
-               start="8"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="8"  mode="r"  purpose="status"  format="boolean" >
           <description>Data in the sensor was corrupted at last JTAG run</description>
         </field>
         <field name="JtagLastWriteError"
-               start="12"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="12" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG write error</description>
         </field>
         <field name="JtagLastReadError"
-               start="16"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="16" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG read error</description>
         </field>
         <field name="JtagCrcError"
-               start="20"   size="1"  mode="r"  purpose="status"  format="boolean" >
+               start="20" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG CRC error</description>
         </field>
       </register>

@@ -14,7 +14,7 @@
                 address="0000"  repeat="4" purpose="status" mode="rw" >
         <description>Current status of each port of the hub on each channel.</description>
         <field  name="PortStatusChannels"
-             start="0"   size="17"  mode="r"  purpose="status"  format="bitmask">
+             start="0"   bits="17"  mode="r"  purpose="status"  format="bitmask">
         </field>
       </register>
     </group>
