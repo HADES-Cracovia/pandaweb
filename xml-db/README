@@ -14,3 +14,16 @@ reading "raw" hex values
 
 3) Automatically create configuration for third-party monitoring (e.g.
 EPICS)
+
+
+
+
+
+
+#Directory Structure
+####################
+
+cache		Temporary storage for parsed xml files
+database	xml files with register definitions
+schema		The xml schema files that define our register structure
+setup		The TrbNet setup files. One of those should be sym-linked to the top-level
