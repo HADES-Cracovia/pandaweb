@@ -54,7 +54,7 @@
               address="0010" mode="rw" purpose="config" >
       <description>Generate a reset before doing init sequence</description>
       <field name="ResetBeforeInit"
-             start="0" mode="rw"  purpose="config"  format="boolean">
+             start="0" bits="1" mode="rw"  purpose="config"  format="boolean">
         <description>Enable to send a reset pulse before starting init sequence</description>
       </field>
     </register>
@@ -62,7 +62,7 @@
               address="0011" mode="rw" purpose="config" >
       <description>Generate a reset after first register write sequence</description>
       <field name="ResetAfterFirstWrite"
-             start="0" mode="rw"  purpose="config"  format="boolean">
+             start="0" bits="1" mode="rw"  purpose="config"  format="boolean">
         <description>Enable to send a reset pulse after the first writing of JTAG registers</description>
       </field>
     </register>
@@ -81,59 +81,59 @@
                 address="0000"  repeat="5" >
         <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
         <field name="InvertTDO"
-               start="0"  format="boolean">
+               start="0" bits="1" format="boolean">
           <description>Invert TDO input signal</description>
         </field>      
         <field name="InvertTDI"
-               start="2"  format="boolean">
+               start="2" bits="1"  format="boolean">
           <description>Invert TDI output signal</description>
         </field>
         <field name="InvertTMS"
-               start="4"  format="boolean">
+               start="4" bits="1"  format="boolean">
           <description>Invert TMS output signal</description>
         </field>
         <field name="InvertTCK"
-               start="6"  format="boolean">
+               start="6" bits="1"  format="boolean">
           <description>Invert TCK output signal</description>
         </field>
         <field name="InvertStart"
-               start="8"  format="boolean">
+               start="8" bits="1"  format="boolean">
           <description>Invert Start output signal</description>
         </field>
         <field name="InvertReset"
-               start="10" format="boolean">
+               start="10" bits="1" format="boolean">
           <description>Invert Reset output signal</description>
         </field>
         <field name="InvertClock"
-               start="12"  format="boolean">
+               start="12" bits="1"  format="boolean">
           <description>Invert Clock output signal</description>
         </field>
         <field name="EnableTDO"
-               start="1" format="boolean">
+               start="1" bits="1" format="boolean">
           <description>Enable TDO input signal</description>
         </field>      
         <field name="EnableTDI"
-               start="3"  format="boolean">
+               start="3" bits="1"  format="boolean">
           <description>Enable TDI output signal</description>
         </field>
         <field name="EnableTMS"
-               start="5"  format="boolean">
+               start="5" bits="1"  format="boolean">
           <description>Enable TMS output signal</description>
         </field>
         <field name="EnableTCK"
-               start="7"  format="boolean">
+               start="7" bits="1"  format="boolean">
           <description>Enable TCK output signal</description>
         </field>
         <field name="EnableStart"
-               start="9"  format="boolean">
+               start="9" bits="1"  format="boolean">
           <description>Enable Start output signal</description>
         </field>
         <field name="EnableReset"
-               start="11" format="boolean">
+               start="11" bits="1" format="boolean">
           <description>Enable Reset output signal</description>
         </field>
         <field name="EnableClock"
-               start="13" format="boolean">
+               start="13" bits="1" format="boolean">
           <description>Enable Clock output signal</description>
         </field>
       </register>
@@ -181,27 +181,27 @@
                 address="0005" purpose="status" mode="r" >
         <description>Status flags of the JTAG chain</description>
         <field name="JtagStarted"
-               start="0"  mode="r"  purpose="status"  format="boolean" >
+               start="0" bits="1"  mode="r"  purpose="status"  format="boolean" >
           <description>JTAG has been started</description>
         </field>
         <field name="JtagLastSuccesful"
-               start="4"  mode="r"  purpose="status"  format="boolean" >
+               start="4" bits="1"  mode="r"  purpose="status"  format="boolean" >
           <description>Last JTAG run was successful</description>
         </field>
         <field name="JtagLastDataChanged"
-               start="8"  mode="r"  purpose="status"  format="boolean" >
+               start="8" bits="1"  mode="r"  purpose="status"  format="boolean" >
           <description>Data in the sensor was corrupted at last JTAG run</description>
         </field>
         <field name="JtagLastWriteError"
-               start="12" mode="r"  purpose="status"  format="boolean" >
+               start="12" bits="1" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG write error</description>
         </field>
         <field name="JtagLastReadError"
-               start="16" mode="r"  purpose="status"  format="boolean" >
+               start="16" bits="1" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG read error</description>
         </field>
         <field name="JtagCrcError"
-               start="20" mode="r"  purpose="status"  format="boolean" >
+               start="20" bits="1" mode="r"  purpose="status"  format="boolean" >
           <description>Last run had a JTAG CRC error</description>
         </field>
       </register>

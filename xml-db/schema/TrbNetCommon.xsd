@@ -187,7 +187,7 @@
     <!-- "start" (and "address" in basicTrbdata) should usually be
          provided in the database -->
     <xs:attribute ref="start" use="required" />
-    <xs:attribute ref="bits" />
+    <xs:attribute ref="bits" use="required" />
     <xs:attribute ref="purpose" />
     <xs:attribute ref="mode" />
     <!-- if the default value of that field is not 0x0 (in the

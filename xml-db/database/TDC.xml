@@ -52,11 +52,11 @@
       <field name="ChannelCount" start="8" bits="8" format="unsigned">
         <description>Number of implemented channels</description>
       </field>
-      <field name="RefTimeSyncedTo100" start="16" format="boolean">
+      <field name="RefTimeSyncedTo100" start="16" bits="1" format="boolean">
         <description>Reference time synchronised to 100 MHz Trb-Net
         clock</description>
       </field>
-      <field name="TriggerType" start="28" bits="4" format="boolean" mode="rw" purpose="config">
+      <field name="TriggerType" start="28" bits="4" format="hex" mode="rw" purpose="status">
         <description>Trigger type</description>
       </field>
     </register>
@@ -77,7 +77,7 @@
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="TriggerWindowEnabled" start="31" format="boolean">
+      <field name="TriggerWindowEnabled" start="31" bits="1" format="boolean">
         <description>Trigger window enabled?</description>
       </field>
     </register>
@@ -182,11 +182,11 @@
         <description>Enables different signals to the HPLA* output for
         debugging with logic analyser</description>
       </field>
-      <field name="DebugMode" start="4" format="boolean">
+      <field name="DebugMode" start="4" bits="1" format="boolean">
         <description>Enables the Debug Mode. Different statistics and
         debug words are sent after every trigger</description>
       </field>
-      <field name="ResetCounters" start="8" purpose="trigger" mode="w">
+      <field name="ResetCounters" start="8" bits="1" purpose="trigger" mode="w">
         <description>Resets the internal counters</description>
       </field>
       <field name="TriggerMode" start="0" bits="12" format="enum">
@@ -207,7 +207,7 @@
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns. ATTENTION: Minimum value is x"00f"!</description>
       </field>
-      <field name="TriggerWindowEnable" start="31" format="boolean">
+      <field name="TriggerWindowEnable" start="31" bits="1" format="boolean">
         <description>Trigger window enable</description>
       </field>
     </register>
