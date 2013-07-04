@@ -83,13 +83,14 @@ sub Main {
     #print Dumper($db->{'ChannelEnable'});
     #print Dumper($db->{'ReadoutFSM'});
     #print Dumper($db->{'JtagRunCounter'});
-    #print Dumper($db->{'TriggerStart'});
+    #print Dumper($db->{'IdleTime'});
     #print DumpTree($db);
     my $name = $doc->getDocumentElement->getAttribute('name');
     my $cachefile = "cache/$name.entity";
     lock_store($db, $cachefile);
     print STDERR "Wrote $cachefile\n" if $verbose>0;
     print STDERR "\n",DumpTree($db,$name),"\n" if $verbose>2;
+
   }
 
 
@@ -154,10 +155,11 @@ sub MakeOrMergeDbItem {
   my $dbitem = shift || {type => ''};
   $dbitem->{'type'} .= $n->nodeName;
 
-  # determine the absolute address, include node itself (not necessarily a group)
-  # default address is 0, and we start from the base_address in TrbNetEntity
-  $dbitem->{'address'} = hex($n->ownerDocument->getDocumentElement->getAttribute('address') || '0');
-  foreach my $anc (($n, $n->findnodes('ancestor::group'))) {
+  # determine the absolute address, include node itself (not
+  # necessarily a group) default address is 0, and we start always
+  # from 0, overwriting a previously determined address
+  $dbitem->{'address'} = 0;
+  foreach my $anc ($n->findnodes('ancestor-or-self::*')) {
     $dbitem->{'address'} += hex($anc->getAttribute('address') || '0');
   }
 
