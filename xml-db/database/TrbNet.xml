@@ -14,6 +14,12 @@
         <description>Board temperature</description>
       </field>
     </register>
-  </group>
+    
+    <register name="CompileTime" address="0040" purpose="status">
+      <description>Compilation Time</description>
+      <field name="CompileTime" start="0" bits="32" format="time" />
+    </register>
+
+</group>
 
 </TrbNetEntity>

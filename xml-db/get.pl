@@ -32,7 +32,7 @@ pod2usage(1) if $help;
 my $file = "$RealBin/cache/$ARGV[0].entity";
 die "Entity $file not found.\n" unless(-e $file) ;
 die "DAQOPSERVER not set in environment" unless (defined $ENV{'DAQOPSERVER'});
-die "can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}" unless (defined &trb_init_ports());
+die "can not connect to trbnet-daemon on $ENV{'DAQOPSERVER'}: ".trb_strerror() unless (defined &trb_init_ports());
   
 my $netaddr = $ARGV[1] || "";
 if    ($netaddr=~ m/0x([0-9a-fA-F]{4})/) {$netaddr = hex($1);}
@@ -88,9 +88,7 @@ sub FormatPretty {
   
   return $ret;
   }
-
 #       <xs:enumeration value="string"/>
-#       <xs:enumeration value="enum"/>
 
 ###############################
 #### Do Trbcmd access
