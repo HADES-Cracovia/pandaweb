@@ -82,7 +82,8 @@ sub Main {
     #print Dumper($db->{'BasicStatus'});
     #print Dumper($db->{'ChannelEnable'});
     #print Dumper($db->{'ReadoutFSM'});
-    #print Dumper($db->{'JtagRunCounter'});
+    #print Dumper($db->{'JtagErrorCount1'});
+    #print Dumper($db->{'JtagLastDataChanged'});
     #print Dumper($db->{'IdleTime'});
     #print DumpTree($db);
     my $name = $doc->getDocumentElement->getAttribute('name');
@@ -177,10 +178,12 @@ sub MakeOrMergeDbItem {
     $dbitem->{$a} = $value->string_value if $value->string_value;
   }
 
-  # set description
-  foreach my $elem ($n->findnodes('(ancestor-or-self::*/description)[last()]')) {
-    $dbitem->{'description'} = SanitizedContent($elem);
-  }
+  # set description, we should always find one, but not more due to
+  # last() predicate
+  my $desc = $n->findnodes('(ancestor-or-self::*/description)[last()]');
+  PrintMessage($n, "Warning: Found more than one description, taking first one.")
+    if $warnings and $desc->size>1;
+  $dbitem->{'description'} = SanitizedContent($desc->get_node(1));
 
   # save enumItems (if any)
   foreach my $item ($n->findnodes('enumItem')) {
@@ -191,7 +194,17 @@ sub MakeOrMergeDbItem {
   PrintMessage($n, "Warning: Found enumItems although not format=enum")
     if $warnings and defined $dbitem->{'enumItems'} and $n->getAttribute('format') ne 'enum';
 
-  # determine size for repeatable???
+  # is this node in something repeatable?
+  my $repeats = $n->findnodes('ancestor::*[@repeat>1]');
+  PrintMessage($n, "Warning: Found more than one ancestor with repeat attribute, taking first one.")
+    if $warnings and $repeats->size>1;
+
+  if ($repeats->size>0) {
+    my $repeat = $repeats->get_node(1);
+    $dbitem->{'stepsize'} = $repeat->getAttribute('size');
+    $dbitem->{'repeat'} = $repeat->getAttribute('repeat');
+  }
+
 
   return $dbitem;
 }
