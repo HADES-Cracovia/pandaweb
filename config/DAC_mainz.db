@@ -1,37 +1,34 @@
 # Board   Chain     ChainLen    DAC     Channel       Command       Value
+!Reference 2500
+  fe48    0xF         3           0       0             3             0000 #mV
+  fe48    0xF         3           0       1             3             0100 #mV
+  fe48    0xF         3           0       2             3             0200 #mV
+  fe48    0xF         3           0       3             3             0300 #mV
+  fe48    0xF         3           0       4             3             0400 #mV
+  fe48    0xF         3           0       5             3             0500 #mV
+  fe48    0xF         3           0       6             3             0600 #mV
+  fe48    0xF         3           0       7             3             0700 #mV
 !Reference 3300
-  fe48    1         4           0       0             3             0000 #mV
-  fe48    1         4           0       1             3             0330 #mV
-  fe48    1         4           0       2             3             0660 #mV
-  fe48    1         4           0       3             3             0990 #mV
-  fe48    1         4           0       4             3             1320 #mV
-  fe48    1         4           0       5             3             1650 #mV
-  fe48    1         4           0       6             3             1980 #mV
-  fe48    1         4           0       7             3             2310 #mV
+  fe48    0xF         3           1       0             3             0000 #mV
+  fe48    0xF         3           1       1             3             0100 #mV
+  fe48    0xF         3           1       2             3             0200 #mV
+  fe48    0xF         3           1       3             3             0300 #mV
+  fe48    0xF         3           1       4             3             0400 #mV
+  fe48    0xF         3           1       5             3             0500 #mV
+  fe48    0xF         3           1       6             3             0600 #mV
+  fe48    0xF         3           1       7             3             0700 #mV
 
-  fe48    1         4           1       0             3             0000 #mV
-  fe48    1         4           1       1             3             0330 #mV
-  fe48    1         4           1       2             3             0660 #mV
-  fe48    1         4           1       3             3             0990 #mV
-  fe48    1         4           1       4             3             1320 #mV
-  fe48    1         4           1       5             3             1650 #mV
-  fe48    1         4           1       6             3             1980 #mV
-  fe48    1         4           1       7             3             2310 #mV
+  fe48    0xF         3           2       0             3             0000 #mV
+  fe48    0xF         3           2       1             3             0100 #mV
+  fe48    0xF         3           2       2             3             0200 #mV
+  fe48    0xF         3           2       3             3             0300 #mV
+  fe48    0xF         3           2       4             3             0400 #mV
+  fe48    0xF         3           2       5             3             0500 #mV
+  fe48    0xF         3           2       6             3             0600 #mV
+  fe48    0xF         3           2       7             3             0700 #mV
 
-  fe48    1         4           2       0             3             0000 #mV
-  fe48    1         4           2       1             3             0330 #mV
-  fe48    1         4           2       2             3             0660 #mV
-  fe48    1         4           2       3             3             0990 #mV
-  fe48    1         4           2       4             3             1320 #mV
-  fe48    1         4           2       5             3             1650 #mV
-  fe48    1         4           2       6             3             1980 #mV
-  fe48    1         4           2       7             3             2310 #mV
 
-  fe48    1         4           3       0             3             0000 #mV
-  fe48    1         4           3       1             3             0330 #mV
-  fe48    1         4           3       2             3             0660 #mV
-  fe48    1         4           3       3             3             0990 #mV
-  fe48    1         4           3       4             3             1320 #mV
-  fe48    1         4           3       5             3             1650 #mV
-  fe48    1         4           3       6             3             1980 #mV
-  fe48    1         4           3       7             3             2310 #mV
+# The reference voltages of the DACs:
+# DAC1 = 2.5 V
+# DAC2 = 3.3 V
+# DAC3 = 3.3 V
