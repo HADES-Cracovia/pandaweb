@@ -40,7 +40,7 @@ $c=q|pkill -f "daq_netmem -S test"|;   qx($c); # if any, kill existing daq_netme
 $c=q|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S test -m 4 -d file -o ~/trbsoft/data'|;
 system("$c &");
 sleep 1;
-$c="xterm -geometry 82x10-0+210 -e bash -c 'daq_netmem -S test -m 4 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 '";
+$c="xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S test -m 4 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 '";
 system("$c &");
 
 
