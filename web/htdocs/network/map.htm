@@ -28,7 +28,7 @@ function update(data) {
   var b = data.split("&");
   var c = {};
   var lastlevel = 1;
-  o = "<tr class=\"head map\"><th>Board<th>Hardware<th>AddOn<th>Design<th>Compile Time";
+  o = "<tr class=\"head map\"><th>Board<th>Hardware<th>AddOn<th>Design<th>Compile Time<th>Temperature";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split("#");
@@ -91,6 +91,7 @@ function update(data) {
       }
 
     o += "<td>"+c[j][5];
+    o += "<td>"+c[j][6]+"°C";
     
     lastlevel = c[j][2];
     } 
