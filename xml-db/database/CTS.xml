@@ -1,0 +1,16 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="CTS"
+              address="a000"
+              >
+  <description>Registers for the Central Trigger System (CTS)</description>
+
+  <!-- this is just a very minimal version -->
+
+  <register name="TriggerAssertedCounter" address="0000" purpose="statistics">
+    <description>Number of clock cycles with trigger asserted</description>
+    <field name="TriggerAssertedCounter" start="0" bits="32" format="unsigned" />
+  </register>
+
+</TrbNetEntity>

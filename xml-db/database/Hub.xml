@@ -1,0 +1,31 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Hub"
+              address="0000"
+              >
+  <description>Register of the hub entity</description>
+
+  <group name="Status" purpose="status" address="0080"  mode="r" continuous="false">
+    <group name="PortStatus"
+           address="0000"  size="4"  purpose="config"  mode="rw"  continuous="true">
+      <description>Current status of each port of the hub on each channel.</description>
+      <register name="PortStatusChannels"
+                address="0000"  repeat="4" purpose="status" mode="rw" >
+        <description>Current status of each port of the hub on each channel.</description>
+        <field  name="PortStatusChannels"
+             start="0"   bits="17"  mode="r"  purpose="status"  format="bitmask">
+        </field>
+      </register>
+    </group>
+  </group>
+
+<!--
+  <group name="Status2" purpose="statistics" address="4000"  mode="r" continuous="true">
+  </group>
+
+  <group name="Control" purpose="config" address="00c0"  mode="rw" continuous="false">
+  </group>
+  -->
+
+</TrbNetEntity>
