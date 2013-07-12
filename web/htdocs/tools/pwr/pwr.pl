@@ -20,6 +20,10 @@ $ser_dev = "/dev/ttyUSB0" unless defined $ser_dev;
 my $ser_type = shift(@new_command);
 $ser_type = "PSP" unless defined $ser_type;
 
+my $ser_speed = shift(@new_command);
+$ser_speed = "2400" unless defined $ser_speed;
+
+
 my $port = new Device::SerialPort($ser_dev);
 unless ($port)
 {
@@ -28,8 +32,7 @@ unless ($port)
 }
 
 $port->user_msg('ON'); 
-$port->baudrate(2400) if $ser_type eq "PSP"; 
-$port->baudrate(115200) if $ser_type eq "HMP"; 
+$port->baudrate($ser_speed); 
 $port->parity("none"); 
 $port->databits(8); 
 $port->stopbits(1); 
@@ -154,7 +157,7 @@ sub receive_answer_HMP {
     $port->write("$command\r\n");
 #     print "i sent the command: $command\n";
     #print "\n\nokay.\n";
-    usleep 1E5;
+    usleep 5E4;
     while(my $a = $port->lookfor) {
       print $a."&"; # debug output
       }

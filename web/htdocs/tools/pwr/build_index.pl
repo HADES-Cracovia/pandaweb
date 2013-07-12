@@ -10,16 +10,17 @@ open(LESEN,"htdocs/tools/pwr/pwr.conf")
 
 while(defined(my $i = <LESEN>)) {
 
-	if( $i =~ /^PWRSPLY:([^:]+):([^:]+):([^:]+):([^:]+)/g ) {
+	if( $i =~ /^PWRSPLY:([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)/g ) {
 		my $ser_dev=$1;
-		my $dev_id=$2;
-		my $type=$3;
-		my $channels=$4;
+    my $speed=$2;
+		my $dev_id=$3;
+		my $type=$4;
+		my $channels=$5;
 
 if($type eq "PSP") {
 print <<EOF;
 <p>
-<iframe name="inlineframe" src="pwr.htm?device=$ser_dev&id=$dev_id" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
+<iframe name="inlineframe" src="pwr.htm?device=$ser_dev&id=$dev_id&speed=$speed" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
 </p>
 EOF
 }
@@ -27,7 +28,7 @@ EOF
 if($type =~ /HMP/) {
 print <<EOF;
 <p>
-<iframe name="inlineframe" src="pwr_hmp.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels" frameborder="0" scrolling="auto" width="1000" height="400" ></iframe>
+<iframe name="inlineframe" src="pwr_hmp.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels&speed=$speed" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
 </p>
 EOF
 }

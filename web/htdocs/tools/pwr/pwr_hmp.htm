@@ -15,7 +15,7 @@
 
 <form acion="">
 <table id="settings" class="smallboxes">
-<tr><th><th colspan=2>Chan 1<th colspan=2>Chan 2<th colspan=2>Chan 3<th colspan=2>Chan 4
+<tr><th><th colspan=2 id="chan1">Chan 1<th colspan=2 id="chan2">Chan 2<th colspan=2 id="chan3">Chan 3<th colspan=2 id="chan4">Chan 4
 <tr class="sep"><td align="right">Voltage [V]
   <td><input type="text" id="form_v1" name="voltage" value=""><td><input type="button" onClick="set_v(1)" value="set">
   <td><input type="text" id="form_v2" name="voltage" value=""><td><input type="button" onClick="set_v(2)" value="set">
@@ -59,9 +59,20 @@ var ser_dev = getParameterByName("device");
 var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
 var channels = getParameterByName("channels");
+var speed = getParameterByName("speed");
 
+if (channels<2) {
+  document.getElementById("chan2").style.color = "#eee";
+  }
+if (channels<3) {
+  document.getElementById("chan3").style.color = "#eee";
+  }
+if (channels<4) {
+  document.getElementById("chan4").style.color = "#eee";
+  }
 
 function set_v(chan) {
+  if (chan > channels) return;
 	var value = parseFloat(document.getElementById("form_v"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
@@ -69,6 +80,7 @@ function set_v(chan) {
 }
 
 function set_v_lim(chan) {
+  if (chan > channels) return;
 	var value = parseInt(document.getElementById("form_v_lim"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT:PROT "+value.toFixed(3);
@@ -76,6 +88,7 @@ function set_v_lim(chan) {
 }
 
 function set_c_lim(chan) {
+  if (chan > channels) return;
 	var value = parseFloat(document.getElementById("form_c_lim"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
@@ -83,10 +96,12 @@ function set_c_lim(chan) {
 }
 
 function turn_on(chan) {
+  if (chan > channels) return;
 	if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
 }
 
 function turn_off(chan) {
+  if (chan > channels) return;
   if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
 }
 
@@ -97,8 +112,6 @@ function update(data) {
 
   
 function updatereads(data) {
-  if(document.getElementById("readings"))
-    document.getElementById("readings").innerHTML=data;
   var e = data.split("&");
   for(i=0;i<channels;i++) {
     document.getElementById("vol"+(i+1)).value=e[i*2];
@@ -111,14 +124,14 @@ function communication() {
   cmds = new_commands.join('&');
   if (cmds != "") {
     clearInterval(updateTask);
-    getdata('pwr.pl?'+ser_dev+'&'+type+'&'+cmds,update);
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+'&'+cmds,update);
     }
   else if(document.getElementById("showreadings").checked) {
     clearInterval(updateTask);
     cmds = "";
     for(i=1;i<=channels;i++)
       cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F";
-    getdata('pwr.pl?'+ser_dev+'&'+type+cmds,updatereads);
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatereads);
     }
 	new_commands = new Array();
 }
