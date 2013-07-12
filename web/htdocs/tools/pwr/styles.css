@@ -1,48 +1,26 @@
 body {
     background:#eee;
 }
-
-
-table#content, table#contentregs {
- border:1px solid #aaa; 
- border-collapse:collapse;
+  
+.smallboxes {
+  border-collapse:collapse;
+  border:1px solid black;
 }
 
 
-table#content td, table#content th, table#contentregs td, table#contentregs th{
- border:1px solid #aaa; 
- width:100px;
- text-align:right;
- padding-right:15px;
+
+.smallboxes input {
+  width:50px;
+  }  
+  
+.smallboxes .sep {
+  border-bottom:1px solid black;
 }
 
-table#content, table#contentregs {
- border:1px solid #aaa; 
-}
-
-
-div#bar1 {
-  width:900px;
-  overflow-x:scroll;
+.smallboxes td:nth-child(even), .smallboxes th {
+  border-left:1px solid black;
   }
   
-div#bar1 div {
-  width:66500px;
-  height:0px;
+.smallboxes td {
+  padding:1px;
 }
-
-div#bar2 {
-  width:900px;
-  overflow-x:scroll;
-  }
-  
-div#bar2 div {
-  width:65536px;
-  height:0px;
-}
-
-
-#total {
-  text-align:center;
-  font-weight:bold;
-  }

@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Device::SerialPort;
 use feature 'state';
+use URI::Escape;
 use Time::HiRes qw( usleep);
 
 my $envstring = $ENV{'QUERY_STRING'};
@@ -16,7 +17,8 @@ my @new_command = split('&',$envstring);
 my $ser_dev = shift(@new_command);
 $ser_dev = "/dev/ttyUSB0" unless defined $ser_dev;
 
-
+my $ser_type = shift(@new_command);
+$ser_type = "PSP" unless defined $ser_type;
 
 my $port = new Device::SerialPort($ser_dev);
 unless ($port)
@@ -26,19 +28,25 @@ unless ($port)
 }
 
 $port->user_msg('ON'); 
-$port->baudrate(2400); 
+$port->baudrate(2400) if $ser_type eq "PSP"; 
+$port->baudrate(115200) if $ser_type eq "HMP"; 
 $port->parity("none"); 
 $port->databits(8); 
 $port->stopbits(1); 
-$port->handshake("xoff"); 
+$port->handshake("xoff");
+$port->handshake("none") if $ser_type eq "HMP"; 
 $port->write_settings;
 
 # debug output
 #print "attempting to communicate with power supply connected to interface:\n$ser_dev\n\n";
 
 
-transmit_command(); #if new command, send it!
-receive_answer(); # always called
+transmit_command() if $ser_type eq "PSP"; #if new command, send it!
+receive_answer() if $ser_type eq "PSP"; # always called
+
+
+receive_answer_HMP() if $ser_type eq "HMP"; # always called
+
 # transmit_command(); # send relais off in case current maximum is reached!
 
 
@@ -61,12 +69,12 @@ sub transmit_command {
 $port->lookclear; 
 
 while ( my $command = shift(@new_command) ) {
-
-		$port->write("$command\r");
-		#print "i sent the command: $command";
-		#print "\n\nokay.\n";
-		usleep 1E5;
-	}
+    $command = uri_unescape($command);
+    $port->write("$command\r\n");
+    print "i sent the command: $command";
+    #print "\n\nokay.\n";
+    usleep 1E5;
+  }
 }
 
 
@@ -136,24 +144,23 @@ sub receive_answer {
 	
 		}
 	}
-
-
-
-	
-	if($found) {
-
-		print "connection ok <br>";
-	} else {
-		print "!!! power supply not responding !!!<br>";
 	}
-	
-	print " \n";
-	
 
+sub receive_answer_HMP {
 
+  while ( my $command = shift(@new_command) ) {
+    $port->lookclear; 
+    $command = uri_unescape($command);
+    $port->write("$command\r\n");
+#     print "i sent the command: $command\n";
+    #print "\n\nokay.\n";
+    usleep 1E5;
+    while(my $a = $port->lookfor) {
+      print $a."&"; # debug output
+      }
+    }
+  }
 
-
-
-
-}
+print "\n";  
+  
 exit 1;
