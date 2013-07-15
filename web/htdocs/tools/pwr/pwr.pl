@@ -48,7 +48,7 @@ transmit_command() if $ser_type eq "PSP"; #if new command, send it!
 receive_answer() if $ser_type eq "PSP"; # always called
 
 
-receive_answer_HMP() if $ser_type eq "HMP"; # always called
+print receive_answer_HMP() if $ser_type eq "HMP"; # always called
 
 # transmit_command(); # send relais off in case current maximum is reached!
 
@@ -150,20 +150,37 @@ sub receive_answer {
 	}
 
 sub receive_answer_HMP {
-
+  my $ret ="";
   while ( my $command = shift(@new_command) ) {
     $port->lookclear; 
+    usleep(1000);
     $command = uri_unescape($command);
     $port->write("$command\r\n");
 #     print "i sent the command: $command\n";
     #print "\n\nokay.\n";
-    usleep 5E4;
-    while(my $a = $port->lookfor) {
-      print $a."&"; # debug output
+    usleep(1000);
+    if($command =~ m/\?/) {
+#       print "waiting...\n";
+      READBACK: for (my $i = 0; ($i<500) ;$i++) {
+        $a = $port->lookfor(3);
+        if ($a =~ m/\d/) {
+          print $a."&";
+          last READBACK;
+          }
+        usleep(1000);
+        }
+      }
+    else {
+      usleep(50000);
       }
     }
+  return $ret;
   }
 
-print "\n";  
+print "\n";
   
 exit 1;
+
+
+
+

@@ -24,3 +24,15 @@ body {
 .smallboxes td {
   padding:1px;
 }
+
+td.state {
+ padding-left:10px; 
+ text-align:center;
+ 
+}
+
+
+#info {
+font-size:70%;
+text-align:right;
+}

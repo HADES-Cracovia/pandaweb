@@ -35,12 +35,13 @@
   <td><input type="text" id="form_v_lim4" name="voltage_limit" onChange="set_v_lim(4)" value=""><td><input type="text" id="form_c_lim4" name="current_limit" onChange="set_c_lim(4)" value="">
 
 <tr class="sep"><td>Output Relais
-  <td><td><input type="button" onClick="turn_on(1)" value="on"><br><input type="button" onClick="turn_off(1)" value="off">
-  <td><td><input type="button" onClick="turn_on(2)" value="on"><br><input type="button" onClick="turn_off(2)" value="off">
-  <td><td><input type="button" onClick="turn_on(3)" value="on"><br><input type="button" onClick="turn_off(3)" value="off">
-  <td><td><input type="button" onClick="turn_on(4)" value="on"><br><input type="button" onClick="turn_off(4)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(1)" value="on"><td class="state"><input type="button" onClick="turn_off(1)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(2)" value="on"><td class="state"><input type="button" onClick="turn_off(2)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(3)" value="on"><td class="state"><input type="button" onClick="turn_off(3)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(4)" value="on"><td class="state"><input type="button" onClick="turn_off(4)" value="off">
 
-<tr><td colspan=9><input type="checkbox" value="1" id="showreadings">Enable read-back of values.
+<tr class="sep"><td colspan=5><input type="checkbox" value="1" id="showreadings">Enable read-back of values<td colspan=4>Read Settings<input type="button" onClick="readSettings()" value="Go">
+<tr><td colspan=9 id="info">&nbsp;
 </table>
 </form>
 
@@ -60,6 +61,8 @@ var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
 var channels = getParameterByName("channels");
 var speed = getParameterByName("speed");
+var readSettingsRequest = 1;
+var forceShowReadings = 1;
 
 if (channels<2) {
   document.getElementById("chan2").style.color = "#eee";
@@ -77,6 +80,7 @@ function set_v(chan) {
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
 	new_commands.push(command);
+  forceShowReadings = 1;
 }
 
 function set_v_lim(chan) {
@@ -85,6 +89,7 @@ function set_v_lim(chan) {
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT:PROT "+value.toFixed(3);
 	new_commands.push(command);
+  forceShowReadings = 1;
 }
 
 function set_c_lim(chan) {
@@ -93,45 +98,72 @@ function set_c_lim(chan) {
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
 	new_commands.push(command);
+  forceShowReadings = 1;
 }
 
 function turn_on(chan) {
   if (chan > channels) return;
 	if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
+  forceShowReadings = 1;
 }
 
 function turn_off(chan) {
   if (chan > channels) return;
   if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
+  forceShowReadings = 1;
 }
 
 
 function update(data) {
-  updateTask = setInterval("communication()",updaterate);
+  updateTask = setTimeout("communication()",updaterate);
   }
 
   
 function updatereads(data) {
   var e = data.split("&");
   for(i=0;i<channels;i++) {
-    document.getElementById("vol"+(i+1)).value=e[i*2];
-    document.getElementById("cur"+(i+1)).value=e[i*2+1];
+    document.getElementById("vol"+(i+1)).value=e[i*3];
+    document.getElementById("cur"+(i+1)).value=e[i*3+1];
+    document.getElementById("chan"+(i+1)).style.background=(e[i*3+2]=="1")?"limegreen":"#C00";
+//     document.getElementById("pwr"+(i+1)).innerHTML=(e[i*3+2]);
     }
-  updateTask = setInterval("communication()",updaterate);
+  updateTask = setTimeout("communication()",updaterate);
   }  
 
+function updatesettings(data) {
+  var e = data.split("&");
+  var id = e.shift();
+  document.getElementById("info").innerHTML = "Device Info: "+id;
+  for(i=0;i<channels;i++) {
+    document.getElementById("form_v"+(i+1)).value=e[i*3];
+    document.getElementById("form_c_lim"+(i+1)).value=e[i*3+1];
+    document.getElementById("form_v_lim"+(i+1)).value=e[i*3+1];
+//     document.getElementById("pwr"+(i+1)).innerHTML=(e[i*3+2]);
+    }
+  updateTask = setTimeout("communication()",updaterate);
+  }    
+  
 function communication() {
   cmds = new_commands.join('&');
   if (cmds != "") {
-    clearInterval(updateTask);
     getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+'&'+cmds,update);
     }
-  else if(document.getElementById("showreadings").checked) {
-    clearInterval(updateTask);
+  else if(readSettingsRequest == 1) {
+    readSettingsRequest = 0;
+    cmds = "&SYST:MIX&%2AIDN%3F";
+    for(i=1;i<=channels;i++)
+      cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatesettings);
+    }
+  else if(document.getElementById("showreadings").checked || forceShowReadings) {
+    forceShowReadings = 0;
     cmds = "";
     for(i=1;i<=channels;i++)
-      cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F";
+      cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F&OUTP:STAT%3F";
     getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatereads);
+    }
+  else {
+    updateTask = setTimeout("communication()",updaterate);
     }
 	new_commands = new Array();
 }
@@ -161,9 +193,11 @@ function getParameterByName(name)
 }
 
 
+function readSettings() {
+  readSettingsRequest = 1;
+  }
 
-
-updateTask = setInterval("communication()",updaterate);
+updateTask = setTimeout("update()",updaterate);
 document.getElementById("headline").innerHTML  = "Power Supply "+'<b>'+dev_id+'</b>'+" [connected to "+'<b>'+ser_dev+'</b>'+"]" ;
   
   
