@@ -48,7 +48,7 @@ transmit_command() if $ser_type eq "PSP"; #if new command, send it!
 receive_answer() if $ser_type eq "PSP"; # always called
 
 
-print receive_answer_HMP() if $ser_type eq "HMP"; # always called
+print receive_answer_HMP() if $ser_type eq "HMP" or $ser_type eq "PST"; # always called
 
 # transmit_command(); # send relais off in case current maximum is reached!
 
