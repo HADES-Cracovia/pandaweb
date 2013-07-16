@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+	<html>
+	  <head>
+	  <link href="../../layout/styles.css" rel="stylesheet" type="text/css"/>
+    <script src="../scripts.js" type="text/javascript"></script>
+	  <title>Access "all" Measuring Equipment</title>
+
+	  </head>
+
+	  <body>
+<h2>VXI-11 Lab Equipment Control</h2>
+<table>
+<tr><th>IP-Address<td><input type="text" id="dev_ip" name="voltage" value=""><td style="text-align:right"><input type="button" value="Who are you?" onClick="sendIDN()">
+<tr><th>Command(s)<td colspan=2><textarea rows=5 cols=80 id="commands"></textarea>
+<tr><th><td><td style="text-align:right" ><input type="button" value="Send" onClick="send()">
+<tr><th>Response<td colspan=2><textarea rows=5 cols=80 id="response"></textarea>
+</table>
+
+<p>
+This page allows to access any lab equipment that runs the VXI-11 protocol (such as (Tektronix|Agilent) (Scopes|SignalGenerators|MultiMeters)).
+The lib is C-based, so it needs to be recompiled if the available x64-binary does not work. The code was mainly downloaded from
+<a href="http://optics.eee.nottingham.ac.uk/vxi11">[VXI-11 library]</a>, but small changes were applied to the tool. The source code is included in the repository. Enter the IP of the device and any command and you'll receive the answer.
+
+
+
+
+
+
+
+<script language="javascript">
+function send() {
+  var cmd = "vxi.pl?";
+  cmd += document.getElementById("dev_ip").value + "&";
+  cmd += encodeURIComponent(document.getElementById("commands").value);
+  getdata(cmd,update,"response");
+  }
+
+
+function sendIDN() {
+  var cmd = "vxi.pl?";
+  cmd += document.getElementById("dev_ip").value + "&";
+  cmd += "*IDN%3F";
+  getdata(cmd,update,"response");
+  }
+
+  
+function update(data,id) {
+  document.getElementById(id).innerHTML = data;
+  }
+  
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

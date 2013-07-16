@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link href="styles.css" rel="stylesheet" type="text/css"/>
-<script src="scripts.js" type="text/javascript"></script>
+<link href="../styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts.js" type="text/javascript"></script>
 <title>Power Supply Monitor and Access</title>
 </head>
 <body style="font-family: sans-serif;" >
 
 
-<p style="bold" id="headline">Power Supply Access</p>
+<h3 id="headline">Power Supply Access</h3>
 
 
 
@@ -44,12 +44,6 @@
 <tr><td colspan=9 id="info">&nbsp;
 </table>
 </form>
-
-
-
-
-<div id="readings" width="300" >
-</div>
 
 
 <script language="javascript">
@@ -125,7 +119,6 @@ function updatereads(data) {
     document.getElementById("vol"+(i+1)).value=e[i*3];
     document.getElementById("cur"+(i+1)).value=e[i*3+1];
     document.getElementById("chan"+(i+1)).style.background=(e[i*3+2]=="1")?"limegreen":"#C00";
-//     document.getElementById("pwr"+(i+1)).innerHTML=(e[i*3+2]);
     }
   updateTask = setTimeout("communication()",updaterate);
   }  
@@ -138,7 +131,6 @@ function updatesettings(data) {
     document.getElementById("form_v"+(i+1)).value=e[i*3];
     document.getElementById("form_c_lim"+(i+1)).value=e[i*3+1];
     document.getElementById("form_v_lim"+(i+1)).value=e[i*3+1];
-//     document.getElementById("pwr"+(i+1)).innerHTML=(e[i*3+2]);
     }
   updateTask = setTimeout("communication()",updaterate);
   }    
@@ -168,16 +160,6 @@ function communication() {
 	new_commands = new Array();
 }
 
-
-function padZeros(theNumber, max) {
-    var numStr = String(theNumber);
-    
-    while ( numStr.length < max) {
-        numStr = '0' + numStr;
-    }
-    
-    return numStr;
-}
 
 
 function getParameterByName(name)

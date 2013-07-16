@@ -8,6 +8,11 @@ body {
 }
 
 
+#headline {
+font-weight:normal;
+font-size:90%;
+}
+
 
 .smallboxes input {
   width:50px;
