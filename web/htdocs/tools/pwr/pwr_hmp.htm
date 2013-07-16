@@ -100,15 +100,15 @@ function set_c_lim(chan) {
 
 function turn_on(chan) {
   if (chan > channels) return;
-	if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
-  if(type=="PST") command = ":OUTP:STAT 1";
+  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
+  if(type=="PST") new_commands.push(":OUTP:STAT ON");
   forceShowReadings = 1;
 }
 
 function turn_off(chan) {
   if (chan > channels) return;
   if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
-  if(type=="PST") command = ":OUTP:STAT 0";
+  if(type=="PST") new_commands.push(":OUTP:STAT OFF");
   forceShowReadings = 1;
 }
 
@@ -135,7 +135,7 @@ function updatesettings(data) {
   for(i=0;i<channels;i++) {
     document.getElementById("form_v"+(i+1)).value=e[i*3];
     document.getElementById("form_c_lim"+(i+1)).value=e[i*3+1];
-    document.getElementById("form_v_lim"+(i+1)).value=e[i*3+1];
+    document.getElementById("form_v_lim"+(i+1)).value=e[i*3+2];
     }
   updateTask = setTimeout("communication()",updaterate);
   }    
@@ -153,7 +153,7 @@ function communication() {
         cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
       }
     if(type=="PST") {
-      cmd="%2AIDN%3F";
+      cmds="&%2AIDN%3F";
       for(i=1;i<=channels;i++)
         cmds +="&:CHAN"+i+":VOLT%3F&:CHAN"+i+":CURR%3F&:CHAN"+i+":PROT:VOLT%3F";
       }

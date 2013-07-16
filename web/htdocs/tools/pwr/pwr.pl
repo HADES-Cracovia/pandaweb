@@ -37,7 +37,7 @@ $port->parity("none");
 $port->databits(8); 
 $port->stopbits(1); 
 $port->handshake("xoff");
-$port->handshake("none") if $ser_type eq "HMP"; 
+$port->handshake("none") if $ser_type eq "HMP" or $ser_type eq "PST"; 
 $port->write_settings;
 
 # debug output
@@ -154,20 +154,23 @@ sub receive_answer_HMP {
   while ( my $command = shift(@new_command) ) {
     $port->lookclear; 
     usleep(1000);
+    usleep(20000) if $ser_type eq "PST";
     $command = uri_unescape($command);
     $port->write("$command\r\n");
 #     print "i sent the command: $command\n";
     #print "\n\nokay.\n";
     usleep(1000);
+    usleep(20000) if $ser_type eq "PST";
     if($command =~ m/\?/) {
 #       print "waiting...\n";
       READBACK: for (my $i = 0; ($i<500) ;$i++) {
         $a = $port->lookfor(3);
-        if ($a =~ m/\d/) {
+        if (defined $a and $a ne "" and $a =~ m/\d/) {
           print $a."&";
           last READBACK;
           }
         usleep(1000);
+	usleep(20000) if $ser_type eq "PST";
         }
       }
     else {
