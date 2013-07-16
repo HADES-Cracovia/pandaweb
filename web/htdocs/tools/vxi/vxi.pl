@@ -12,10 +12,7 @@ if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
   $executable = "htdocs/tools/vxi/vxi11_cmd";
   }
 
-my $envstring = $ENV{'QUERY_STRING'};
-$envstring =~ s/%20/ /g;
-
-my @new_command = split('&',$envstring); 
+my @new_command = split('&',$ENV{'QUERY_STRING'}); 
 my $dev_ip = shift(@new_command);
 my $cmds   = shift(@new_command);
 

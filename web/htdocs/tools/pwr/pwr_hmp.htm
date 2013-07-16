@@ -73,6 +73,7 @@ function set_v(chan) {
 	var value = parseFloat(document.getElementById("form_v"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":VOLT "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
 }
@@ -82,6 +83,7 @@ function set_v_lim(chan) {
 	var value = parseInt(document.getElementById("form_v_lim"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT:PROT "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":PROT:VOLT "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
 }
@@ -91,6 +93,7 @@ function set_c_lim(chan) {
 	var value = parseFloat(document.getElementById("form_c_lim"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":PROT:CURR "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
 }
@@ -98,12 +101,14 @@ function set_c_lim(chan) {
 function turn_on(chan) {
   if (chan > channels) return;
 	if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
+  if(type=="PST") command = ":OUTP:STAT 1";
   forceShowReadings = 1;
 }
 
 function turn_off(chan) {
   if (chan > channels) return;
   if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
+  if(type=="PST") command = ":OUTP:STAT 0";
   forceShowReadings = 1;
 }
 
@@ -142,16 +147,29 @@ function communication() {
     }
   else if(readSettingsRequest == 1) {
     readSettingsRequest = 0;
-    cmds = "&SYST:MIX&%2AIDN%3F";
-    for(i=1;i<=channels;i++)
-      cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+    if(type=="HMP") {
+      cmds = "&SYST:MIX&%2AIDN%3F";
+      for(i=1;i<=channels;i++)
+        cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+      }
+    if(type=="PST") {
+      cmd="%2AIDN%3F";
+      for(i=1;i<=channels;i++)
+        cmds +="&:CHAN"+i+":VOLT%3F&:CHAN"+i+":CURR%3F&:CHAN"+i+":PROT:VOLT%3F";
+      }
     getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatesettings);
     }
   else if(document.getElementById("showreadings").checked || forceShowReadings) {
     forceShowReadings = 0;
     cmds = "";
-    for(i=1;i<=channels;i++)
-      cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F&OUTP:STAT%3F";
+    if(type=="HMP") {    
+      for(i=1;i<=channels;i++)
+        cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F&OUTP:STAT%3F";
+      }
+    if(type=="PST") {    
+      for(i=1;i<=channels;i++)
+        cmds +="&:CHAN"+i+":MEAS:VOLT%3F&:CHAN"+i+":MEAS:CURR%3F&OUTP:STAT%3F";
+      }
     getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatereads);
     }
   else {
