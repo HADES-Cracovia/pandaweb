@@ -37,7 +37,7 @@ $port->parity("none");
 $port->databits(8); 
 $port->stopbits(1); 
 $port->handshake("xoff");
-$port->handshake("none") if $ser_type eq "HMP"; 
+$port->handshake("none") if $ser_type eq "HMP" or $ser_type eq "PST"; 
 $port->write_settings;
 
 # debug output
@@ -48,7 +48,7 @@ transmit_command() if $ser_type eq "PSP"; #if new command, send it!
 receive_answer() if $ser_type eq "PSP"; # always called
 
 
-receive_answer_HMP() if $ser_type eq "HMP"; # always called
+print receive_answer_HMP() if $ser_type eq "HMP" or $ser_type eq "PST"; # always called
 
 # transmit_command(); # send relais off in case current maximum is reached!
 
@@ -99,11 +99,12 @@ sub receive_answer {
 	# clear buffers, then send the "list"-command to the power supply
 	$port->lookclear; 
 	$port->write("L\r");
-	# sleep a second to give the supply time to react
-	usleep 1E5;
 
-	# read what has accumulated in the serial buffer
-	while(my $a = $port->lookfor) {
+
+  # do polling for 5 seconds, break polling as soon as answer was received
+  my $i;
+  for ($i = 0; ($i<500) ;$i++) {
+    my $a = $port->lookfor;
 		#print $a."\n"; # debug output
 		if ($a =~ m/V(\d\d\.\d\d)A(\d\.\d\d\d)W(\d\d\d\.\d)U(\d\d)I(\d\.\d\d)P(\d\d\d)F(\d\d\d\d\d\d)/) {
 			$found = 1;
@@ -145,25 +146,47 @@ sub receive_answer {
 			
 			last;
 	
+		} else {
+      usleep 1E4; # 10 ms delay
 		}
 	}
-	}
+}
 
 sub receive_answer_HMP {
-
+  my $ret ="";
   while ( my $command = shift(@new_command) ) {
     $port->lookclear; 
+    usleep(1000);
+    usleep(20000) if $ser_type eq "PST";
     $command = uri_unescape($command);
     $port->write("$command\r\n");
 #     print "i sent the command: $command\n";
     #print "\n\nokay.\n";
-    usleep 5E4;
-    while(my $a = $port->lookfor) {
-      print $a."&"; # debug output
+    usleep(1000);
+    usleep(20000) if $ser_type eq "PST";
+    if($command =~ m/\?/) {
+#       print "waiting...\n";
+      READBACK: for (my $i = 0; ($i<500) ;$i++) {
+        $a = $port->lookfor(3);
+        if (defined $a and $a ne "" and $a =~ m/\d/) {
+          print $a."&";
+          last READBACK;
+          }
+        usleep(1000);
+	usleep(20000) if $ser_type eq "PST";
+        }
+      }
+    else {
+      usleep(50000);
       }
     }
+  return $ret;
   }
 
-print "\n";  
+print "\n";
   
 exit 1;
+
+
+
+

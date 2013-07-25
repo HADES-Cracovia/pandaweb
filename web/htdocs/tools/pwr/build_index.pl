@@ -25,7 +25,7 @@ print <<EOF;
 EOF
 }
 
-if($type =~ /HMP/) {
+if($type =~ /HMP/ or $type =~ /PST/) {
 print <<EOF;
 <p>
 <iframe name="inlineframe" src="pwr_hmp.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels&speed=$speed" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
