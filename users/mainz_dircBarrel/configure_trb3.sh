@@ -12,11 +12,11 @@ trbcmd w 0x8000 0x830b 0x7          # ??
 trbcmd w 0x8000 0x830d 0x1          # enable readout bit
 
 #mac address of the EB
-#kp1pc105 00:1b:21:43:97:ea
-trbcmd w 0x8000 0x8100 0x214397ea   # lower 4 bytes 
-trbcmd w 0x8000 0x8101 0x001b       # upper two bytes
+#mz-lab2 00:24:32:03:19:1a
+trbcmd w 0x8000 0x8100 0x3203191a   # lower 4 bytes 
+trbcmd w 0x8000 0x8101 0x0024       # upper two bytes
 
-trbcmd w 0x8000 0x8102 0xc0a80001   # destination IP-address: 192.168.0.1
+trbcmd w 0x8000 0x8102 0xc0a80002   # destination IP-address: 192.168.0.2 - mz-lab2
 trbcmd w 0x8000 0x8103 0xc350       # destination port 50000
 trbcmd w 0x8000 0x8104 0xdead0110   # source MAC-address
 trbcmd w 0x8000 0x8105 0x001b       # source MAC: upper bytes
@@ -40,11 +40,12 @@ trbcmd w 0x8001 0x830b 0x7          # ??
 trbcmd w 0x8001 0x830d 0x1          # enable readout bit
 
 #mac address of the EB
-#kp1pc105 00:1b:21:43:97:ea
-trbcmd w 0x8001 0x8100 0x214397ea   # lower 4 bytes 
-trbcmd w 0x8001 0x8101 0x001b       # upper two bytes
+#mz-lab2 00:24:32:03:19:1a
+trbcmd w 0x8001 0x8100 0x3203191a   # lower 4 bytes 
+trbcmd w 0x8001 0x8101 0x0024       # upper two bytes
 
-trbcmd w 0x8001 0x8102 0xc0a80001   # destination IP-address: 192.168.0.1
+
+trbcmd w 0x8001 0x8102 0xc0a80002   # destination IP-address: 192.168.0.2 - mz-lab2
 trbcmd w 0x8001 0x8103 0xc352       # destination port 50002
                                     # port 50001 is for debug messages from GbE
 trbcmd w 0x8001 0x8104 0xdead0110   # source MAC-address
@@ -68,11 +69,11 @@ trbcmd w 0x8002 0x830b 0x7          # ??
 trbcmd w 0x8002 0x830d 0x1          # enable readout bit
 
 #mac address of the EB
-#kp1pc105 00:1b:21:43:97:ea
-trbcmd w 0x8002 0x8100 0x214397ea   # lower 4 bytes 
-trbcmd w 0x8002 0x8101 0x001b       # upper two bytes
+#mz-lab2 00:24:32:03:19:1a
+trbcmd w 0x8002 0x8100 0x3203191a   # lower 4 bytes 
+trbcmd w 0x8002 0x8101 0x0024       # upper two bytes
 
-trbcmd w 0x8002 0x8102 0xc0a80001   # destination IP-address: 192.168.0.1
+trbcmd w 0x8002 0x8102 0xc0a80002   # destination IP-address: 192.168.0.2 - mz-lab2
 trbcmd w 0x8002 0x8103 0xc353       # destination port 50003
                                     # port 50001 is for debug messages from GbE
 trbcmd w 0x8002 0x8104 0xdead0110   # source MAC-address
@@ -96,11 +97,11 @@ trbcmd w 0x8003 0x830b 0x7          # ??
 trbcmd w 0x8003 0x830d 0x1          # enable readout bit
 
 #mac address of the EB
-#kp1pc105 00:1b:21:43:97:ea
-trbcmd w 0x8003 0x8100 0x214397ea   # lower 4 bytes 
-trbcmd w 0x8003 0x8101 0x001b       # upper two bytes
+#mz-lab2 00:24:32:03:19:1a
+trbcmd w 0x8003 0x8100 0x3203191a   # lower 4 bytes 
+trbcmd w 0x8003 0x8101 0x0024       # upper two bytes
 
-trbcmd w 0x8003 0x8102 0xc0a80001   # destination IP-address: 192.168.0.1
+trbcmd w 0x8003 0x8102 0xc0a80002   # destination IP-address: 192.168.0.2 - mz-lab2
 trbcmd w 0x8003 0x8103 0xc354       # destination port 50004
                                     # port 50001 is for debug messages from GbE
 trbcmd w 0x8003 0x8104 0xdead0110   # source MAC-address
