@@ -1,0 +1,43 @@
+body {
+    background:#eee;
+}
+  
+.smallboxes {
+  border-collapse:collapse;
+  border:1px solid black;
+}
+
+
+#headline {
+font-weight:normal;
+font-size:90%;
+}
+
+
+.smallboxes input {
+  width:50px;
+  }  
+  
+.smallboxes .sep {
+  border-bottom:1px solid black;
+}
+
+.smallboxes td:nth-child(even), .smallboxes th {
+  border-left:1px solid black;
+  }
+  
+.smallboxes td {
+  padding:1px;
+}
+
+td.state {
+ padding-left:10px; 
+ text-align:center;
+ 
+}
+
+
+#info {
+font-size:70%;
+text-align:right;
+}

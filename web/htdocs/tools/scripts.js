@@ -1,6 +1,6 @@
 
 
-function getdata(command,callback) {
+function getdata(command,callback,option) {
   var xmlhttp = null;
   var cb = null;
   xmlhttp=new XMLHttpRequest();
@@ -8,7 +8,9 @@ function getdata(command,callback) {
   
   xmlhttp.onreadystatechange = function() {
     if(xmlhttp.readyState == 4) {
-      if(cb)
+      if(cb && option)
+        cb(xmlhttp.responseText,option);
+      else if(cb)
         cb(xmlhttp.responseText);
       }
     }

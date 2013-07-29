@@ -1,0 +1,64 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetSetup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="schema/TrbNetSetup.xsd"
+             creator="Andreas Neiser"
+             date="2013-06-30T16:11:56"
+             version="0.1"
+             >
+  
+<description>A hypothetic TRB set-up that due to some strange coincidence exists in Mainz.</description>
+
+  <!-- also note the different uses of the address attribute:
+       sometimes it's a register address, sometimes a trbnet endpoint
+       address, or sometimes it specifies the chain number of the
+       external PaDiWa frontend -->
+
+  <!-- we configure the trb endpoint with address 0x8000 -->
+  <trb address="8000">
+    <broadcast address="fffe" />
+    <broadcast address="ff7f" />
+    <broadcast address="ff7e" />
+    <broadcast address="fe35" />
+    
+    <!-- it has a TDC (at default register address) -->
+    <entity ref="TDC">
+      <!-- this way we modify the number of channels to 5. This works
+           since group/register/memory/fifo have unique names. It
+           might be that there are several places where one should
+           change the "repeat" to get a consistent entity model, but
+           how does one know that programmitcally??? -->
+      <register name="Channel" repeat="5" />
+    </entity>
+
+    <!-- and it has a CTS -->
+    <entity ref="CTS" />
+  </trb>
+
+
+  <trb address="0200">
+    <broadcast address="fe48" />
+
+    <!-- ...but also some "external" PaDiWa frontends connected at
+         chain 0 and 2. The fronend has some more registers which can
+         be accessed via SPI. The idea is that there's also a
+         PaDiWa.pm in the database which handles this access, usually
+         via conventional TrbNet registers
+         -->
+    <external ref="PaDiWa" address="0000" />
+    <external ref="PaDiWa" address="0002" />
+  </trb>
+
+  <trb address="ffff">
+    <entity ref="TrbNet" />
+  </trb>
+  
+  <trb address="fe48">
+    <entity ref="TDC" />
+    <entity ref="TrgRdo" />
+  </trb>
+
+  <trb address="fffe">
+    <entity ref="Hub" />
+  </trb>
+ 
+</TrbNetSetup>

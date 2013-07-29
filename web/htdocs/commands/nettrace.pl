@@ -11,10 +11,10 @@ use Data::Dumper;
    die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
  }
 
-
+my $temps  = trb_register_read(0xffff,0);
 my $boards = trb_read_uid(0xffff);
-my $types = trb_register_read(0xffff,0x42);
-my $ctime = trb_register_read(0xffff,0x40);
+my $types  = trb_register_read(0xffff,0x42);
+my $ctime  = trb_register_read(0xffff,0x40);
 my @store;
 
 foreach my $id (sort keys %{$boards}) {
@@ -33,6 +33,7 @@ foreach my $id (sort keys %{$boards}) {
     $o->{ctime}  = $ctime->{$addr};
     $o->{type}   = $types->{$addr};
     $o->{addr}   = $addr;
+    $o->{temp}   = $temps->{$addr};
     push (@store,$o);
     }
   }
@@ -46,7 +47,7 @@ sub printlist {
   my @o;
   foreach my $b (@store) {
     if ($b->{parent} == $parent) {
-      push(@o,sprintf("%04x#%d#%d#%04x#%d#%s&",$b->{parent},$b->{port},$layer,$b->{addr},$b->{type},time2str('%Y-%m-%d %H:%M',$b->{ctime})));      
+      push(@o,sprintf("%04x#%d#%d#%04x#%d#%s#%.1f&",$b->{parent},$b->{port},$layer,$b->{addr},$b->{type},time2str('%Y-%m-%d %H:%M',$b->{ctime}),($b->{temp}>>20)/16));      
       $o[-1] .= printlist($b->{addr},$layer+1);
       }
     }

@@ -12,6 +12,9 @@ use HADES::TrbNet;
 
 use IPC::ShareLite qw( :lock );
 
+use constant false => 0;
+use constant true => 1;
+
 my $share = IPC::ShareLite->new(
     -key     => 3214,
     -create  => 'yes',
@@ -27,7 +30,6 @@ my @valid_interval = (0x8000, 0x9000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
-
 my $sleep_time = 0.2;
 my $accepted_dark_rate = 30;
 my $number_of_iterations = 40; # at least 15 are recommended
@@ -40,6 +42,7 @@ my $opt_skip = 99;
 my $polarity = 1;
 my @channels  = ();
 my $channel32 = undef;
+my $opt_finetune = false;
 
 our $chain = 0;
 
@@ -52,6 +55,7 @@ my $result = GetOptions (
     "o|offset=s" => \$offset,
     "32|32channel" => \$channel32,
     "s|skip=i" => \$opt_skip,
+    "f|finetune" => \$opt_finetune,
     );
 
 if($help) {
@@ -117,6 +121,15 @@ if (defined $opt_skip && $opt_skip < 15) {
   $best_thresh[$opt_skip] = 0x7000;
 }
 
+if ($opt_finetune == true) {
+    my $ra_thresh = read_thresholds("padiwa", $chain);
+    @current_thresh = @$ra_thresh;
+    #print Dumper \@current_thresh;
+
+    $interval_step = 4;
+
+}
+
 my $hit_diff = 0;
 
 my $number_of_steps = 0;
@@ -147,7 +160,7 @@ while ($number_of_steps < $number_of_iterations ||
 
 
     foreach my $i (0..15) {
-      $interval_step = $interval_step[$i];
+       $interval_step = $interval_step[$i];
 
       my $cur_hitreg = $rh_res->{$endpoint}->[$i*$hitchannel_multiplicator];
       my $old_hitreg = $old_rh_res->{$endpoint}->[$i*$hitchannel_multiplicator] & 0x7fffffff;
@@ -235,6 +248,51 @@ foreach my $i (0..15) {
 
 
 exit;
+
+
+sub read_thresholds {
+  (my $mode, my $chain) = @_;
+
+  my @thresh = ();
+
+  $share->store($chain);
+
+  my $res = $share->lock(LOCK_EX);
+  if(!defined $res || $res != 1) {
+      die "could not lock shared element";
+  }
+
+  my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+
+  foreach my $current_channel (0..15) {
+
+    my $command;
+    my $fixed_bits;
+    my $shift_bits;
+
+    if($mode eq "padiwa") {
+      $fixed_bits = 0x00000000;
+      $shift_bits = 0;
+    }
+    elsif ($mode eq "cbmrich") {
+      die "readout of channels in cbmrich is not implemented";
+      $fixed_bits = 0x00300000;
+      $shift_bits = 4;
+    }
+
+    $command = $fixed_bits | ($current_channel << 16) ;
+    my $rh_res = send_command($endpoint, $command);
+    push (@thresh , $rh_res->{$endpoint});
+  }
+
+  #sleep 10 if($current_channel == 15 && $chain==1);
+  #sleep 1;
+  $share->unlock();
+
+
+  return \@thresh;
+
+}
 
 
 sub write_thresholds {

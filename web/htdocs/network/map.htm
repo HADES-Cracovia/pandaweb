@@ -28,7 +28,7 @@ function update(data) {
   var b = data.split("&");
   var c = {};
   var lastlevel = 1;
-  o = "<tr class=\"head map\"><th>Board<th>Hardware<th>AddOn<th>Design<th>Compile Time";
+  o = "<tr class=\"head map\"><th>Board<th>Hardware<th>AddOn<th>Design<th>Compile Time<th>Temperature";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split("#");
@@ -61,6 +61,8 @@ function update(data) {
         case 2: o += "Multitest"; break;
         case 3: o += "SFP"; break;
         case 4: o += "Padiwa"; break;
+        case 5: o += "GPIN"; break;
+        case 6: o += "Nxyter"; break;     
         default: o+= "---";
         }
       }
@@ -69,7 +71,8 @@ function update(data) {
     o += "<td title=\"0x"+(c[j][4]*1).toString(16)+"\">";
     if(type == 0x91 || type == 0x92) {
       if((c[j][4] & 0x8000) == 0x8000) o += "RX sync, ";
-      if((c[j][4] & 0x0b00) == 0x000) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0x0b00) == 0x000 && (c[j][4]>>12 & 0x7) != 6 && (c[j][4]>>12 & 0x7) != 3) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0xf000) == 0x6000) {o += "Nxyter RDO, ";}
       if((c[j][4] & 0x0900) == 0x100) {o += "TDC, double, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0x0900) == 0x800) {o += "TDC, dbl-sep, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0x0200) == 0x200) o += "Hub, ";
@@ -90,6 +93,7 @@ function update(data) {
       }
 
     o += "<td>"+c[j][5];
+    o += "<td>"+c[j][6]+"°C";
     
     lastlevel = c[j][2];
     } 

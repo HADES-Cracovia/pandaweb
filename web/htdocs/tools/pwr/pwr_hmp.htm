@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="../styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts.js" type="text/javascript"></script>
+<title>Power Supply Monitor and Access</title>
+</head>
+<body style="font-family: sans-serif;" >
+
+
+<h3 id="headline">Power Supply Access</h3>
+
+
+
+<form acion="">
+<table id="settings" class="smallboxes">
+<tr><th><th colspan=2 id="chan1">Chan 1<th colspan=2 id="chan2">Chan 2<th colspan=2 id="chan3">Chan 3<th colspan=2 id="chan4">Chan 4
+<tr class="sep"><td align="right">Voltage [V]
+  <td><input type="text" id="form_v1" name="voltage" value=""><td><input type="button" onClick="set_v(1)" value="set">
+  <td><input type="text" id="form_v2" name="voltage" value=""><td><input type="button" onClick="set_v(2)" value="set">
+  <td><input type="text" id="form_v3" name="voltage" value=""><td><input type="button" onClick="set_v(3)" value="set">
+  <td><input type="text" id="form_v4" name="voltage" value=""><td><input type="button" onClick="set_v(4)" value="set">
+
+<tr><td align="right">Actual[V/A]
+  <td> <input type="text" id="vol1" disabled>  <td> <input type="text" id="cur1" disabled>
+  <td> <input type="text" id="vol2" disabled>  <td> <input type="text" id="cur2" disabled>
+  <td> <input type="text" id="vol3" disabled>  <td> <input type="text" id="cur3" disabled>
+  <td> <input type="text" id="vol4" disabled>  <td> <input type="text" id="cur4" disabled>
+
+<tr><td align="right">Limits[V/A]
+  <td><input type="text" id="form_v_lim1" name="voltage_limit" onChange="set_v_lim(1)" value=""><td><input type="text" id="form_c_lim1" name="current_limit" onChange="set_c_lim(1)" value="">
+  <td><input type="text" id="form_v_lim2" name="voltage_limit" onChange="set_v_lim(2)" value=""><td><input type="text" id="form_c_lim2" name="current_limit" onChange="set_c_lim(2)" value="">
+  <td><input type="text" id="form_v_lim3" name="voltage_limit" onChange="set_v_lim(3)" value=""><td><input type="text" id="form_c_lim3" name="current_limit" onChange="set_c_lim(3)" value="">
+  <td><input type="text" id="form_v_lim4" name="voltage_limit" onChange="set_v_lim(4)" value=""><td><input type="text" id="form_c_lim4" name="current_limit" onChange="set_c_lim(4)" value="">
+
+<tr class="sep"><td>Output Relais
+  <td class="state"><input type="button" onClick="turn_on(1)" value="on"><td class="state"><input type="button" onClick="turn_off(1)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(2)" value="on"><td class="state"><input type="button" onClick="turn_off(2)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(3)" value="on"><td class="state"><input type="button" onClick="turn_off(3)" value="off">
+  <td class="state"><input type="button" onClick="turn_on(4)" value="on"><td class="state"><input type="button" onClick="turn_off(4)" value="off">
+
+<tr class="sep"><td colspan=5><input type="checkbox" value="1" id="showreadings">Enable read-back of values<td colspan=4>Read Settings<input type="button" onClick="readSettings()" value="Go">
+<tr><td colspan=9 id="info">&nbsp;
+</table>
+</form>
+
+
+<script language="javascript">
+var updaterate = 500;
+var updateTask;
+var new_commands = new Array();
+var ser_dev = getParameterByName("device");
+var dev_id = getParameterByName("id");
+var type = getParameterByName("type");
+var channels = getParameterByName("channels");
+var speed = getParameterByName("speed");
+var readSettingsRequest = 1;
+var forceShowReadings = 1;
+
+if (channels<2) {
+  document.getElementById("chan2").style.color = "#eee";
+  }
+if (channels<3) {
+  document.getElementById("chan3").style.color = "#eee";
+  }
+if (channels<4) {
+  document.getElementById("chan4").style.color = "#eee";
+  }
+
+function set_v(chan) {
+  if (chan > channels) return;
+	var value = parseFloat(document.getElementById("form_v"+chan).value);
+	var command;
+  if(type=="HMP") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":VOLT "+value.toFixed(3);
+	new_commands.push(command);
+  forceShowReadings = 1;
+}
+
+function set_v_lim(chan) {
+  if (chan > channels) return;
+	var value = parseInt(document.getElementById("form_v_lim"+chan).value);
+	var command;
+  if(type=="HMP") command = "INST OUT"+chan+"&VOLT:PROT "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":PROT:VOLT "+value.toFixed(3);
+	new_commands.push(command);
+  forceShowReadings = 1;
+}
+
+function set_c_lim(chan) {
+  if (chan > channels) return;
+	var value = parseFloat(document.getElementById("form_c_lim"+chan).value);
+	var command;
+  if(type=="HMP") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
+  if(type=="PST") command = ":CHAN"+chan+":PROT:CURR "+value.toFixed(3);
+	new_commands.push(command);
+  forceShowReadings = 1;
+}
+
+function turn_on(chan) {
+  if (chan > channels) return;
+  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
+  if(type=="PST") new_commands.push(":OUTP:STAT ON");
+  forceShowReadings = 1;
+}
+
+function turn_off(chan) {
+  if (chan > channels) return;
+  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
+  if(type=="PST") new_commands.push(":OUTP:STAT OFF");
+  forceShowReadings = 1;
+}
+
+
+function update(data) {
+  updateTask = setTimeout("communication()",updaterate);
+  }
+
+  
+function updatereads(data) {
+  var e = data.split("&");
+  for(i=0;i<channels;i++) {
+    document.getElementById("vol"+(i+1)).value=e[i*3];
+    document.getElementById("cur"+(i+1)).value=e[i*3+1];
+    document.getElementById("chan"+(i+1)).style.background=(e[i*3+2]=="1")?"limegreen":"#C00";
+    }
+  updateTask = setTimeout("communication()",updaterate);
+  }  
+
+function updatesettings(data) {
+  var e = data.split("&");
+  var id = e.shift();
+  document.getElementById("info").innerHTML = "Device Info: "+id;
+  for(i=0;i<channels;i++) {
+    document.getElementById("form_v"+(i+1)).value=e[i*3];
+    document.getElementById("form_c_lim"+(i+1)).value=e[i*3+1];
+    document.getElementById("form_v_lim"+(i+1)).value=e[i*3+2];
+    }
+  updateTask = setTimeout("communication()",updaterate);
+  }    
+  
+function communication() {
+  cmds = new_commands.join('&');
+  if (cmds != "") {
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+'&'+cmds,update);
+    }
+  else if(readSettingsRequest == 1) {
+    readSettingsRequest = 0;
+    if(type=="HMP") {
+      cmds = "&SYST:MIX&%2AIDN%3F";
+      for(i=1;i<=channels;i++)
+        cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+      }
+    if(type=="PST") {
+      cmds="&%2AIDN%3F";
+      for(i=1;i<=channels;i++)
+        cmds +="&:CHAN"+i+":VOLT%3F&:CHAN"+i+":CURR%3F&:CHAN"+i+":PROT:VOLT%3F";
+      }
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatesettings);
+    }
+  else if(document.getElementById("showreadings").checked || forceShowReadings) {
+    forceShowReadings = 0;
+    cmds = "";
+    if(type=="HMP") {    
+      for(i=1;i<=channels;i++)
+        cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F&OUTP:STAT%3F";
+      }
+    if(type=="PST") {    
+      for(i=1;i<=channels;i++)
+        cmds +="&:CHAN"+i+":MEAS:VOLT%3F&:CHAN"+i+":MEAS:CURR%3F&OUTP:STAT%3F";
+      }
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+cmds,updatereads);
+    }
+  else {
+    updateTask = setTimeout("communication()",updaterate);
+    }
+	new_commands = new Array();
+}
+
+
+
+function getParameterByName(name)
+{
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.search);
+  if(results == null)
+    return "";
+  else
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+
+function readSettings() {
+  readSettingsRequest = 1;
+  }
+
+updateTask = setTimeout("update()",updaterate);
+document.getElementById("headline").innerHTML  = "Power Supply "+'<b>'+dev_id+'</b>'+" [connected to "+'<b>'+ser_dev+'</b>'+"]" ;
+  
+  
+</script>
+</body></html>

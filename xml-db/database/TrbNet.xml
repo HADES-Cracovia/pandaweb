@@ -1,0 +1,25 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="TrbNet"
+              address="0000"
+              >
+  <description>Common Registers on allmost all endpoints</description>
+
+  <!-- this is just a very minimal version -->
+  <group name="StatusRegisters" address="0000">
+    <register name="CommonStatus0" address="0000" purpose="status">
+      <description>Common Status Register 0</description>
+      <field name="Temperature" start="20" bits="12" format="integer" unit="°C" scale=".0625" >
+        <description>Board temperature</description>
+      </field>
+    </register>
+    
+    <register name="CompileTime" address="0040" purpose="status">
+      <description>Compilation Time</description>
+      <field name="CompileTime" start="0" bits="32" format="time" />
+    </register>
+
+</group>
+
+</TrbNetEntity>

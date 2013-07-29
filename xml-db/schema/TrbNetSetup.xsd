@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="TrbNetCommon.xsd"/>
+
+  <xs:element name="TrbNetSetup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element   ref="description" />
+        <xs:choice maxOccurs="unbounded">
+          <xs:element   ref="trb"      />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="creator" type="xs:string" use="required" />
+      <xs:attribute name="date" type="xs:dateTime" use="required" />
+      <xs:attribute name="version" type="xs:string" use="required" />
+    </xs:complexType>
+    <xs:unique name="UniqueTrbElements">
+      <xs:selector xpath="trb" />
+      <xs:field xpath="@address" />
+    </xs:unique>
+  </xs:element>
+
+  <xs:element name="trb">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="entity" type="trbitemtype" />
+        <xs:element name="external" type="trbitemtype" />
+        <xs:element name="broadcast" type="broadcasttype" maxOccurs="unbounded" minOccurs="0" />
+      </xs:choice>
+      <xs:attribute ref="address" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="broadcasttype">
+    <!-- Assigns a broadcast address to a trb element. Broadcast 0xffff matches all
+         boards by default and does not need to be set explicitly. -->
+    <xs:attribute name="address" type="addresstype" />
+  </xs:complexType>
+
+  <xs:complexType name="trbitemtype">
+    <!-- the entity may contain similar elements as the TrbNetEntity
+         element. They usually modify the "default" structure in an
+         entity and are programmtically merged. Note that the pedantic
+         grouping structure as in the database is not required here.
+         This works because we require unique "name" attributes. -->
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="group" />
+      <xs:element ref="register" />
+      <xs:element ref="memory" />
+      <xs:element ref="fifo" />
+      <xs:element ref="field" />
+    </xs:choice>
+    <xs:attribute name="ref" type="nametype" use="required" />
+  </xs:complexType>
+
+  
+
+</xs:schema>

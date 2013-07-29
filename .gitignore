@@ -2,3 +2,5 @@ web/htdocs/monitor-*
 web/htdocs/monitor
 *~
 *log
+.kateproject.d
+*swp

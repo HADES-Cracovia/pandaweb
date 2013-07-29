@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- many definitions are used by TrbNetSetup.xsd as well, so
+       they are collected in a common scheme -->
+  <xs:include schemaLocation="TrbNetCommon.xsd"/>
+
+  <!-- the next two extensions introduce required attributes and also
+       requires the description and fields *inside* registers -->
+  <xs:redefine schemaLocation="TrbNetCommon.xsd">
+    <xs:complexType name="basicTrbData">
+      <xs:complexContent>
+        <xs:extension base="basicTrbData">
+          <xs:sequence>
+            <!-- every TrbData must be described -->
+            <xs:choice>
+              <xs:element ref="description"/>
+            </xs:choice>
+            <!-- but a data without any fields does not make sense for this
+                 database, so the default minOccurs=1 is used -->
+            <xs:choice maxOccurs="unbounded">
+              <xs:element ref="field" />
+            </xs:choice>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+
+  <xs:element name="TrbNetEntity">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- we expect description to give a summary of this whole
+             entity, thus this field is required at the beginning -->
+        <xs:choice>
+          <xs:element   ref="description"/>
+        </xs:choice>
+        <!-- may also contain groups -->
+        <xs:choice maxOccurs="unbounded">
+          <xs:element   ref="group"    />
+          <xs:element   ref="register" />
+          <xs:element   ref="memory"   />
+          <xs:element   ref="fifo"     />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute ref="name" use="required" />
+      <xs:attribute ref="address" />
+    </xs:complexType>
+
+    <!-- although requiring "entity global" unique names usually leads
+         to redundant naming schemes, but addressing things gets less
+         confusing -->
+    <xs:unique name="UniqueFieldNames">
+      <xs:selector xpath=".//field" />
+      <xs:field xpath="@name" />
+    </xs:unique>
+    <xs:unique name="UniqueTrbDataNames">
+      <xs:selector xpath=".//group | .//register | .//memory | .//fifo" />
+      <xs:field xpath="@name" />
+    </xs:unique>
+
+    <!-- consistency of addresses (and start, size of fields) is
+         checked more precisely programmatically -->
+    <xs:unique name="UniqueTrbDataAddressesInTop">
+      <xs:selector xpath="register | memory | fifo" />
+      <xs:field xpath="@address" />
+    </xs:unique>
+  </xs:element>
+
+
+
+</xs:schema>
