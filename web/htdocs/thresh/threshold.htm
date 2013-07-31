@@ -63,6 +63,7 @@ var type       = document.getElementById("form_type").value;
 var reference  = document.getElementById("form_ref").value;
 var updateTask = 0;
 var total      = 0;
+var wasRead    = 0;
 
 
 function update(bar,scale) {
@@ -72,9 +73,14 @@ function update(bar,scale) {
   document.getElementById("total").innerHTML = total+" - "+Math.round(total/655.36*reference)/100+" mV";
   command = (type << 20) + (chan << 16) + (total);
   command = command.toString(16);
-  dataWaiting = 1;
-  if(updateTask == 0) {  
-    updateTask = setTimeout("doUpdate()",updaterate);
+  if(wasRead == 0) {
+    dataWaiting = 1;
+    if(updateTask == 0) {  
+      updateTask = setTimeout("doUpdate()",updaterate);
+      }
+    }
+  else {
+    wasRead--;
     }
   }
 
@@ -108,6 +114,7 @@ function anaret2(d) {
   var n=d.toLocaleTimeString(); 
   document.getElementById("timeget").innerHTML = n;
   document.getElementById("timeget").style.background = "transparent";
+  wasRead = 2;
   }
   
   
