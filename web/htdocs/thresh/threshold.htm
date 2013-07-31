@@ -46,6 +46,7 @@
     <li><b>Shift + Up/Down</b>: Increase/Decrease by 16
     <li><b>PageUp/PageDown</b>: Increase/Decrease by 256
     <li><b>Shift + PageUp/PageDown</b>: Increase/Decrease by 2048
+    <li><b>a/A</b>: Increase / Decrease board address
     <li><b>r</b>: Refresh values, read-back values from Padiwa
 </ul>
 
@@ -139,6 +140,9 @@ function setValues() {
     }
   }
 
+Mousetrap.bind('a', function() { board = (parseInt(board,16)+1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
+Mousetrap.bind('A', function() { board = (parseInt(board,16)-1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
+  
 Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan; setValues(); });  
 Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain; setValues(); });  
 Mousetrap.bind(['C','v'], function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan; setValues(); });  
