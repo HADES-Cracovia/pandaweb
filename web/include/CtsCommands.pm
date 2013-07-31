@@ -279,12 +279,16 @@ sub commandWrite {
    print "Done.\n";
 }
 
+# commandMonitor $cts $config
+# where $config is a hash-reference with the following properties
+#   dump_dir     Empty, or path to directory in which all results are to
+#   interval     Time between two monitoring cycles in milliseconds 
+#   quite        If True the output to stdout is strongly reduced
+#   log_path     Path to a cvs file in which current rate is dumped
+#   log_skip     Number of monitoring cycles to be skipped between two file accesses 
 sub commandMonitor {
    my $cts = shift;
-   my $filename = shift;
-   my $interval = shift;
-   my $rateNumber = shift;
-   my $quiet = shift;
+   my $config = shift;
    
    my $trb = $cts->getTrb;
    my @rateRegs = ();
@@ -292,7 +296,10 @@ sub commandMonitor {
    
    my @monRegs = ();
    
-   local $| = 1 if $quiet;
+   
+   my $logSkipCounter = 1;
+   
+   local $| = 1 if $config->{'quiet'};
 
 # gather all registers and slices that need to be monitored
    $trb->clearPrefetch();
@@ -323,8 +330,8 @@ sub commandMonitor {
    @rateRegs = sort @rateRegs;
    
 # write enumration + enviroment into cache
-   if ($filename) {
-      open FH, ">$filename/enum.js";
+   if ($config->{'dump_dir'}) {
+      open FH, ">$config->{'dump_dir'}/enum.js";
       print FH JSON_BIND->new->encode({
          'endpoint'  => sprintf("0x%04x", $trb->getEndpoint()),
          'daqop'     => $ENV{'DAQOPSERVER'},
@@ -368,7 +375,8 @@ EOF
          '-'
       ];
       
-      print chr(27) . "[1;1H" . chr(27) . "[2J" unless $quiet;
+      # clear screen
+      print chr(27) . "[1;1H" . chr(27) . "[2J" unless $config->{'quiet'};
    
       my $read = {};
       $trb->prefetch(1);
@@ -401,7 +409,7 @@ EOF
          }
       }
 
-      unless ($quiet) {
+      unless ($config->{'quiet'}) {
          printTable $tab;
          print "\n";
       }
@@ -451,20 +459,20 @@ EOF
          }
       }
       
-      printTable $tab unless $quiet;
+      printTable $tab unless $config->{'quiet'};
       
-      if ($filename) {
+      if ($config->{'dump_dir'}) {
       # store json
          my $json = JSON_BIND->new->encode({
             'time' => $time,
             'servertime' => time2str('%Y-%m-%d %H:%M', time),
-            'interval' => $interval,
+            'interval' => $config->{'interval'},
             'endpoint' => $trb->getEndpoint,
             'rates' => $rates,
             'monitor' => $monData
          });
 
-         open FH, ">$filename/dump.js";
+         open FH, ">$config->{'dump_dir'}/dump.js";
          print FH $json;
          close FH;
 
@@ -479,7 +487,7 @@ EOF
             ] if $rates->{'cts_cnt_trg_asserted.value'};
 
             if ($#{ $plotData } > 4) {
-               open FH, ">$filename/plot.data";
+               open FH, ">$config->{'dump_dir'}/plot.data";
                foreach (@{$plotData}) {
                   my @row = (@{ $_ });
                   $row[0] -= $plotData->[-1][0];
@@ -487,35 +495,54 @@ EOF
                }
                close FH;
 
+               # First plot into a different file and the issue a move command,
+               # in order to reduce the number of accesses from the webserver to
+               # a corrupt image file (works quite well !)
                print $gnuplot_fh <<"EOF"
 set xrange [*:0]
-set output "$filename/_tmp_plot.png"
+set output "$config->{'dump_dir'}/_tmp_plot.png"
 plot \\
-"$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-"$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+"$config->{'dump_dir'}/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
+"$config->{'dump_dir'}/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 set xrange [-5:0]
-set output "$filename/_tmp_plotshort.png"
+set output "$config->{'dump_dir'}/_tmp_plotshort.png"
 plot \\
-"$filename/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-"$filename/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+"$config->{'dump_dir'}/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
+"$config->{'dump_dir'}/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
 
 EOF
 ;
+               rename "$config->{'dump_dir'}/_tmp_plot.png",      "$config->{'dump_dir'}/plot.png";
+               rename "$config->{'dump_dir'}/_tmp_plotshort.png", "$config->{'dump_dir'}/plotshort.png";
 
-               rename "$filename/_tmp_plot.png",      "$filename/plot.png";
-               rename "$filename/_tmp_plotshort.png", "$filename/plotshort.png";
-               
-
-               print ($quiet ? "." : "Plot produced\n");
+               print ($config->{'quiet'} ? "." : "Plot produced\n");
             } else {
                print "Plotting delayed as too few points captured yet\n";
             }
          }
       }
       
+      if (0 == $logSkipCounter and $config->{'log_path'}) {
+         my $new_file = not (-e $config->{'log_path'});  # True if log file does not exists (yet)
+         my $log_fh = new FileHandle (">>$config->{'log_path'}");
+         if ($log_fh) {
+            print $log_fh "Timestamp,Trigger Asserted,Trigger Rising Edges,Trigger Accepted\n" if $new_file;
+            print $log_fh sprintf("%d,%.1f,%.1f,%.1f\n", 
+               scalar time,
+               $rates->{'cts_cnt_trg_asserted.value'}{'rate'},
+               $rates->{'cts_cnt_trg_edges.value'}{'rate'},
+               $rates->{'cts_cnt_trg_accepted.value'}{'rate'}
+            );
+         }
+         close $log_fh;
+         $logSkipCounter = $config->{'log_skip'};
+      } else {
+         $logSkipCounter--;
+      }
+      
       $lastRead = $read;
-      usleep($interval*1e3);
+      usleep($config->{'interval'}*1e3);
    }
 }
 
