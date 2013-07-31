@@ -48,7 +48,12 @@ Options:
    -e | --endpoint  Endpoint number of CTS
    -s | --sim       Simulate TrbNet
    -i | --interval  Interval of rate monitoring in milliseconds. Default: 1000
-   -q | --quiet     Prevent monitor from writing values to stdout            
+   -q | --quiet     Prevent monitor from writing values to stdout
+   -l | --log       [interval,]path-to-log-file
+                    Applicable only in monitoring mode, this option enables
+                    logging of the trigger rates into an cvs file. Example:
+                    cts -l 2,/dev/shm/cts-log m  
+                    Will write a message every 3 monitoring cycles (i.e. skip 2)
    
 Commands:
    l | list         Connect to CTS and list all named registers available
@@ -91,8 +96,9 @@ sub connectToCTS {
 my $endpoint = CtsConfig->getDefaultEndpoint;
 
 my $updateInterval = 1000;
-my $rateNumber     = 30;
 my $quiet = 0;
+my $logPath = "";
+my $logSkip = 1;
 
 for(my $i=0; $i < @ARGV; $i++) {
    my $arg = $ARGV[$i];
@@ -135,12 +141,18 @@ for(my $i=0; $i < @ARGV; $i++) {
       $quiet = 1;
       
    } elsif ($arg eq "-n") {
+      print "Support for the -n Option discontinued";
+      
+   } elsif ($arg eq "-l" or $arg eq "--log") {
       unless ($i < @ARGV) {
          print "last parameter expects value\n";
          exit();
       }
       
-      $rateNumber = $ARGV[++$i];
+      my @tmp = split /,/, $ARGV[++$i], 2;
+      $logPath = pop @tmp;
+      $logSkip = pop @tmp;
+      $logSkip = 0 if (not defined $logSkip or $logSkip < 0);
    
    } elsif ($arg eq "l" or $arg eq "list") {
       printTable commandList connectToCTS($endpoint);
@@ -172,7 +184,12 @@ for(my $i=0; $i < @ARGV; $i++) {
    
    } elsif ($arg eq "m" or $arg eq "monitor") {
       my $cts = connectToCTS($endpoint);
-      commandMonitor($cts, $ARGV[++$i], $updateInterval, $rateNumber, $quiet);
+      commandMonitor($cts, {
+         'dump_dir' => $ARGV[++$i],
+         'interval' => $updateInterval,
+         'quiet'    => $quiet,
+         'log_path' => $logPath,
+         'log_skip' => $logSkip});
       exit();
       
    } else {
