@@ -9,12 +9,16 @@ use Data::Dumper;
 
 use HADES::TrbNet;
 
+use constant false => 0;
+use constant true => 1;
 
 my $opt_help;
 my @opt_endpoints;
 my @opt_chains;
 my $opt_offset = 0;
 my $opt_polarity = 0;
+my $opt_32channel = 0;
+my $opt_finetune = false;
 my $opt_verb;
 
 GetOptions ('h|help'        => \$opt_help,
@@ -22,6 +26,8 @@ GetOptions ('h|help'        => \$opt_help,
             'c|chains=s'    => \@opt_chains,
             'o|offset=s'    => \$opt_offset,
             'p|polarity=i'  => \$opt_polarity,
+            '32|32channel'  => \$opt_32channel,
+            'f|finetune'    => \$opt_finetune,
             'v|verb'        => \$opt_verb);
 
 
@@ -37,6 +43,21 @@ if( $opt_help ) {
 #print Dumper $endpoints;
 #print Dumper $chains;
 
+if($opt_32channel == 1) {
+    $opt_32channel="--32channel";
+}
+else {
+    $opt_32channel="";
+}
+
+
+if($opt_finetune == true) {
+    $opt_finetune="--finetune";
+}
+else {
+    $opt_finetune="";
+}
+
 
 my $command;
 
@@ -46,7 +67,7 @@ my %pids;
 foreach my $endpoint (@$endpoints) {
   foreach my $chain (@$chains) {
     my $endpoint = sprintf("0x%04x", $endpoint);
-    $command = "./thresholds_automatic.pl -e $endpoint -o $opt_offset -c $chain -p $opt_polarity";
+    $command = "./thresholds_automatic.pl -e $endpoint -o $opt_offset -c $chain -p $opt_polarity $opt_32channel $opt_finetune";
     print "command: $command\n";
     my $pid = fork();
     if($pid==0) { #child
