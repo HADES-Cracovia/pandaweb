@@ -115,10 +115,10 @@ function setValues() {
     }
   }
 
-Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan });  
-Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain });  
-Mousetrap.bind(['C','v'], function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan });  
-Mousetrap.bind(['D','f'], function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain });  
+Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan; setValues(); });  
+Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain; setValues(); });  
+Mousetrap.bind(['C','v'], function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan; setValues(); });  
+Mousetrap.bind(['D','f'], function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain; setValues(); });  
  
 
 function changebar(i) {
