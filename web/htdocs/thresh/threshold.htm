@@ -17,6 +17,7 @@
 <tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI</select>
 <tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
 <tr><td>Reference (mV)<td><input onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
+<tr><td>Last read-back <td id="time">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
@@ -44,6 +45,7 @@
     <li><b>Shift + Up/Down</b>: Increase/Decrease by 16
     <li><b>PageUp/PageDown</b>: Increase/Decrease by 256
     <li><b>Shift + PageUp/PageDown</b>: Increase/Decrease by 2048
+    <li><b>r</b>: Refresh values, read-back values from Padiwa
 </ul>
 
 <script language="javascript">
@@ -95,6 +97,9 @@ function anaret2(d) {
   var t = s[0].split(" ");
   document.getElementById("bar2").scrollLeft = 128*256;
   document.getElementById("bar1").scrollLeft = t[1]-128;
+  var d=new Date();
+  var n=d.toLocaleTimeString(); 
+  document.getElementById("time").innerHTML = n;
   }
   
   
@@ -119,6 +124,7 @@ Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("fo
 Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain; setValues(); });  
 Mousetrap.bind(['C','v'], function() { --chan;  chan%=16;  if (chan<0)  chan=15;  document.getElementById("form_channel").value = chan; setValues(); });  
 Mousetrap.bind(['D','f'], function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain; setValues(); });  
+Mousetrap.bind('r', function() { setValues(); });  
  
 
 function changebar(i) {
