@@ -17,7 +17,8 @@
 <tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI</select>
 <tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
 <tr><td>Reference (mV)<td><input onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
-<tr><td>Last read-back <td id="time">
+<tr><td>Last read <td id="timeget">
+<tr><td>Last set <td id="timeset">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
 </table>
 </form>
@@ -60,7 +61,7 @@ var chain      = document.getElementById("form_chain").value;
 var chan       = document.getElementById("form_channel").value;
 var type       = document.getElementById("form_type").value;
 var reference  = document.getElementById("form_ref").value;
-var updateTask = setInterval("doUpdate()",updaterate);
+var updateTask = 0;
 var total      = 0;
 
 
@@ -73,7 +74,7 @@ function update(bar,scale) {
   command = command.toString(16);
   dataWaiting = 1;
   if(updateTask == 0) {  
-    updateTask = setInterval("doUpdate()",updaterate);
+    updateTask = setTimeout("doUpdate()",updaterate);
     }
   }
 
@@ -81,16 +82,22 @@ function update(bar,scale) {
 function doUpdate() {
   if(dataWaiting) {
     cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
+    document.getElementById("timeset").style.background = "#a55";    
     getdata(cmdstring,showret);
     dataWaiting = 0;
     }
   else {
-    clearInterval(updateTask);
     updateTask = 0;
     }
   }
   
-function showret(d)  {}
+function showret(d)  {
+  document.getElementById("timeset").style.background = "transparent";
+  var d=new Date();
+  var n=d.toLocaleTimeString(); 
+  document.getElementById("timeset").innerHTML = n;  
+  updateTask = setTimeout("doUpdate()",updaterate);
+  }
 
 function anaret2(d) {
   var s = d.split("&");
@@ -99,12 +106,16 @@ function anaret2(d) {
   document.getElementById("bar1").scrollLeft = t[1]-128;
   var d=new Date();
   var n=d.toLocaleTimeString(); 
-  document.getElementById("time").innerHTML = n;
+  document.getElementById("timeget").innerHTML = n;
+  document.getElementById("timeget").style.background = "transparent";
   }
   
   
 function setValues() {
-  clearInterval(updateTask);
+  if(updateTask != 0) {
+    clearTimeout(updateTask);
+    updateTask = 0;
+    }
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
   chain      = document.getElementById("form_chain").value;
@@ -113,10 +124,11 @@ function setValues() {
   reference  = document.getElementById("form_ref").value;
   if(type == 8) {
     cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
+    document.getElementById("timeget").style.background = "#a55";
     getdata(cmdstring,anaret2);
     }
   else{  
-    updateTask = setInterval("doUpdate()",updaterate);
+    updateTask = setTimeout("doUpdate()",updaterate);
     }
   }
 
@@ -128,13 +140,13 @@ Mousetrap.bind('r', function() { setValues(); });
  
 
 function changebar(i) {
-document.getElementById("bar1").scrollLeft+=i; 
-if(document.getElementById("bar1").scrollLeft > 65535) 
-  document.getElementById("bar1").scrollLeft = 65535; 
-if(document.getElementById("bar1").scrollLeft < 0) 
-  document.getElementById("bar1").scrollLeft = 0; 
-update(1,1);
-}
+  document.getElementById("bar1").scrollLeft+=i; 
+  if(document.getElementById("bar1").scrollLeft > 65535) 
+    document.getElementById("bar1").scrollLeft = 65535; 
+  if(document.getElementById("bar1").scrollLeft < 0) 
+    document.getElementById("bar1").scrollLeft = 0; 
+  update(1,1);
+  }
  
 Mousetrap.bind('pageup', function(){changebar(256); return false;});  
 Mousetrap.bind('pagedown', function(){changebar(-256); return false;});  
@@ -144,6 +156,10 @@ Mousetrap.bind('up', function(){changebar(1); return false;});
 Mousetrap.bind('down', function(){changebar(-1); return false;});  
 Mousetrap.bind('shift+up', function(){changebar(16); return false;});  
 Mousetrap.bind('shift+down', function(){changebar(-16); return false;});  
+
+
+setTimeout("setValues()",100);
+
 </script>
 
 </body></html>
