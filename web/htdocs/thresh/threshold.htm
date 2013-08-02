@@ -11,12 +11,13 @@
 
 <h2>Threshold Settings</h2>
 <form acion="">
-<table class="form"><tr class="head"><th colspan="2">Configuration<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fccc">
+<table class="form"><tr class="head"><th colspan="2">Configuration
+<tr><td><u>B</u>oard<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fccc">
 <tr><td>DAC-Chain<td><select onChange="setValues()"  id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
 <tr><td>Channel<td><select onChange="setValues()" id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
 <tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI</select>
-<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
-<tr><td>Reference (mV)<td><input onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
+<tr><td><u>U</u>pdate Interval (ms)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
+<tr><td><u>R</u>eference (mV)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
 <tr><td>Last read <td id="timeget">
 <tr><td>Last set <td id="timeset">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
@@ -47,6 +48,7 @@
     <li><b>PageUp/PageDown</b>: Increase/Decrease by 256
     <li><b>Shift + PageUp/PageDown</b>: Increase/Decrease by 2048
     <li><b>a/A</b>: Increase / Decrease board address
+    <li><b>B/U/R</b>: Select input field
     <li><b>r</b>: Refresh values, read-back values from Padiwa
 </ul>
 
@@ -66,6 +68,9 @@ var updateTask = 0;
 var total      = 0;
 var wasRead    = 0;
 
+function catchEnter(e) {
+  if(e.keyCode == 13) document.activeElement.blur();
+  }
 
 function update(bar,scale) {
   value[bar-1] = Math.round(document.getElementById("bar"+bar).scrollLeft/scale);
@@ -130,6 +135,7 @@ function setValues() {
   chan       = document.getElementById("form_channel").value;
   type       = document.getElementById("form_type").value;
   reference  = document.getElementById("form_ref").value;
+  document.activeElement.blur();
   if(type == 8) {
     cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
     document.getElementById("timeget").style.background = "#a55";
@@ -139,6 +145,11 @@ function setValues() {
     updateTask = setTimeout("doUpdate()",updaterate);
     }
   }
+
+Mousetrap.bind('B', function() {document.getElementById("form_board").focus();});  
+Mousetrap.bind('U', function() {document.getElementById("form_rate").focus();});  
+Mousetrap.bind('R', function() {document.getElementById("form_ref").focus();});  
+
 
 Mousetrap.bind('a', function() { board = (parseInt(board,16)+1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
 Mousetrap.bind('A', function() { board = (parseInt(board,16)-1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
