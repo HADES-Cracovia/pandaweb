@@ -143,11 +143,11 @@
   <!--JTAG Status registers for each chain       -->
   <!--===========================================-->
   <group name="JtagStatus"
-         address="1800"  size="40"  purpose="status"  mode="r" continuous="true">
+         address="1800"  size="8"  purpose="status"  mode="r" continuous="true">
     <group name="JtagStatusChain"
-           address="0000"  size="8"  repeat="5"  purpose="status"  mode="r"  continuous="true">
+           address="0000"  size="8"  purpose="status"  mode="r"  continuous="true">
       <register  name="JtagErrorCount1"
-                address="0002" purpose="status" mode="r" >
+                address="0000" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
                start="0"   bits="16"  mode="r"  purpose="status"  format="integer" >
@@ -159,7 +159,7 @@
         </field>
       </register>
       <register  name="JtagErrorCount2"
-                address="0003" purpose="status" mode="r" >
+                address="0001" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
                start="0"  bits="16"  mode="r"  purpose="status"  format="integer" >
@@ -171,14 +171,14 @@
         </field>
       </register>
       <register  name="JtagRunCounter"
-                address="0004" purpose="status" mode="r" >
+                address="0002" purpose="status" mode="r" >
         <description>Number of times the JTAG controller run a full sequence</description>
         <field name="JtagRunCounter"
                start="0"  bits="32"  mode="r"  purpose="status"  format="integer" >
         </field>
       </register>
       <register  name="JtagStatusFlags"
-                address="0005" purpose="status" mode="r" >
+                address="0003" purpose="status" mode="r" >
         <description>Status flags of the JTAG chain</description>
         <field name="JtagStarted"
                start="0" bits="1"  mode="r"  purpose="status"  format="boolean" >
@@ -371,14 +371,14 @@
         </register>  
         
         <register name="JtagRemoveSensor"
-                  address="0001" mode="rw" purpose ="config" >
+                  address="0001" mode="w" purpose ="config" >
           <description>Control register to insert or remove individual sensors from the chain</description>
           <field name="JtagRemoveSensorNumber"
-                start="0" bits="4"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="4"  mode="w"  purpose="config"  format="unsigned">
             <description>The number of the sensor that should be removed or inserted</description>
           </field>
           <field name="JtagRemoveSensorState"
-                start="31" bits="1"  mode="rw"  purpose="config"  format="boolean">
+                start="31" bits="1"  mode="w"  purpose="config"  format="boolean">
             <description>Selects whether the sensor should be removed (1) or inserted (0)</description>
           </field>
         </register>    
