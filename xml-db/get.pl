@@ -20,7 +20,7 @@ my $verbose = 0;
 my $isbrowser = 0;
 
 my ($file,$netaddr,$name, $option);
-
+$ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
 
 ###############################
 #### Check if browser or command line
