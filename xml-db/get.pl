@@ -13,36 +13,55 @@ use FindBin qw($RealBin);
 use Storable qw(lock_retrieve);
 use Text::TabularDisplay;
 use feature "switch";
-use CGI::Carp qw(fatalsToBrowser);
+
 
 my $help = 0;
 my $verbose = 0;
+my $isbrowser = 0;
 
-Getopt::Long::Configure(qw(gnu_getopt));
-GetOptions(
-           'help|h' => \$help,
-           'verbose|v+' => \$verbose,
-          ) or pod2usage(2);
-pod2usage(1) if $help;
+my ($file,$netaddr,$name, $option);
+
+
+###############################
+#### Check if browser or command line
+###############################
+if(defined $ENV{'QUERY_STRING'}) {
+  $isbrowser = 1;
+  ($file,$netaddr,$name,$option) = split("-",$ENV{'QUERY_STRING'});
+  $file = "$RealBin/cache/$file.entity";
+  use CGI::Carp qw(fatalsToBrowser);
+  print "Content-type: text/html\n\n";
+  }
+else {
+  Getopt::Long::Configure(qw(gnu_getopt));
+  GetOptions(
+            'help|h' => \$help,
+            'verbose|v+' => \$verbose,
+            ) or pod2usage(2);
+  pod2usage(1) if $help;
+  
+  $file    = "$RealBin/cache/$ARGV[0].entity";
+  $netaddr = $ARGV[1] || "";
+  $name    = $ARGV[2] || "";
+  }
 
 
 ###############################
 #### Check arguments for validity
 ###############################
-my $file = "$RealBin/cache/$ARGV[0].entity";
+
 die "Entity $file not found.\n" unless(-e $file) ;
 die "DAQOPSERVER not set in environment" unless (defined $ENV{'DAQOPSERVER'});
 die "can not connect to trbnet-daemon on $ENV{'DAQOPSERVER'}: ".trb_strerror() unless (defined &trb_init_ports());
   
-my $netaddr = $ARGV[1] || "";
 if    ($netaddr=~ m/0x([0-9a-fA-F]{4})/) {$netaddr = hex($1);}
 elsif ($netaddr=~ m/([0-9]{1,5})/) {$netaddr = $1;}
 else {die "Could not parse address $netaddr\n";}
 
-my $name = $ARGV[2] || "";
-my $slice = -1;
-if    ($name =~ m/^([a-zA-Z0-9]+)(\.\d+)$/) {$name = $1; $slice = $2;}
-elsif ($name =~ m/^([a-zA-Z0-9]+)$/)       {$name = $1; $slice = -1;}
+
+my $slice = undef;
+if    ($name =~ m/^([a-zA-Z0-9]+)\.(\d+)$/) {$name = $1; $slice = $2;}
+elsif ($name =~ m/^([a-zA-Z0-9]+)$/)       {$name = $1; $slice = undef;}
 else {die "Could not parse name $name \n";}
 
 my $db = lock_retrieve($file);
@@ -54,7 +73,8 @@ die "Name not found in entity file\n" unless(exists $db->{$name});
 #### Main "do the job"
 ###############################
 
-runandprint($db->{$name},$name);
+my $once = (defined $slice)?1:0;
+runandprint($db->{$name},$name,$slice,$once);
 
 
  
@@ -89,74 +109,100 @@ sub FormatPretty {
   
   return $ret;
   }
-#       <xs:enumeration value="string"/>
-
-
 
   
 ###############################
 #### Analyze Object & print contents
 ###############################
 sub runandprint {
-  my ($obj,$name) = @_;
+  my ($obj,$name,$slice,$once) = @_;
   my $o;
   print DumpTree($obj) if $verbose;  
   #### Iterate if group
   if($obj->{type} eq "group") {
     foreach my $c (@{$obj->{children}}) {
-      runandprint($db->{$c},$c);
+      runandprint($db->{$c},$c,$slice,$once);
       }
     }
   
   #### print if entry is a register or field
   elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
-    $o = trb_register_read($netaddr,$obj->{address});
     print DumpTree($o) if $verbose>1;
     
-    #### Prepare table header line
-    my @fieldlist;
-    push(@fieldlist,("Board","Reg."));
-    if($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+    my $stepsize = $obj->{stepsize} || 1;
+       $slice = 0 unless defined $slice;
+
+  
+    do {
+    
+      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      
+      #### Prepare table header line
+      my $t;
+      my @fieldlist;
+      push(@fieldlist,("Board","Reg."));
       push(@fieldlist,"raw");
-      }
 
-    if($obj->{type} eq "registerfield"){
-      push(@fieldlist,$name) ;
-      }
-
-    if($obj->{type} eq "field"){
-      push(@fieldlist,$name) ;
-      }
-      
-    if($obj->{type} eq "register"){
-      foreach my $c (@{$obj->{children}}){
-        push(@fieldlist,$c);
+      if($obj->{type} eq "registerfield"){
+        push(@fieldlist,$name);
         }
-      }
-      
-    my $t = Text::TabularDisplay->new(@fieldlist);
-
-    #### Fill table with information
-    foreach my $b (sort keys %$o) {
-      my @l;
-      push(@l,sprintf("%04x",$b));
-      push(@l,sprintf("%04x",$obj->{address}));
-      push(@l,sprintf("%08x",$o->{$b}));
-      if($obj->{type} eq "register") {
-        foreach my $c (@{$obj->{children}}) {
-          push(@l,FormatPretty($o->{$b},$db->{$c}));
+      elsif($obj->{type} eq "field"){
+        push(@fieldlist,$name) ;
+        }
+      elsif($obj->{type} eq "register"){
+        foreach my $c (@{$obj->{children}}){
+          push(@fieldlist,$c);
           }
         }
-      elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
-        push(@l,FormatPretty($o->{$b},$obj));
+        
+      if($isbrowser == 0) {
+        $t = Text::TabularDisplay->new(@fieldlist);
         }
-      $t->add(@l);
-      }
-    
-    #### Show the beautiful result...
-    print $t->render;
-    print "\n";    
+      else {
+        if($once == 1 || $slice == 0) {
+          $t = "<table class='queryresult'><tr><th>";
+          $t .= join("<th>",@fieldlist);
+          }
+        else{ 
+          $t = "";
+          }
+        }
+
+      #### Fill table with information
+      foreach my $b (sort keys %$o) {
+        my @l;
+        push(@l,sprintf("%04x",$b));
+        push(@l,sprintf("%04x",$obj->{address}+$slice*$stepsize));
+        push(@l,sprintf("%08x",$o->{$b}));
+        if($obj->{type} eq "register") {
+          foreach my $c (@{$obj->{children}}) {
+            push(@l,FormatPretty($o->{$b},$db->{$c}));
+            }
+          }
+        elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
+          push(@l,FormatPretty($o->{$b},$obj));
+          }
+        if($isbrowser == 0) {
+          $t->add(@l);
+          }
+        else {
+          $t .= "<tr>";
+          $t .= join("<td>",@l);
+          }
+        }
+      
+      #### Show the beautiful result...
+      if($isbrowser == 0) {
+        print $t->render;
+        }
+      else {
+        print $t;
+        print "</table>" if ($once == 1 || (defined $obj->{repeat} && $slice == $obj->{repeat}-1));
+        }
+      print "\n";    
+      } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat})
     }
+    
   }
   
   
