@@ -197,7 +197,7 @@ sub runandprint {
         }
       else {
         print $t;
-        print "</table>" if ($once == 1 || (defined $obj->{repeat} && $slice == $obj->{repeat}-1));
+        print "</table>" if ($once == 1 || !defined $obj->{repeat} || $slice == $obj->{repeat}-1));
         }
       print "\n";    
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat})
