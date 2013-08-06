@@ -13,7 +13,7 @@ use FindBin qw($RealBin);
 use Storable qw(lock_retrieve);
 use Text::TabularDisplay;
 use feature "switch";
-
+use CGI::Carp qw(fatalsToBrowser);
 
 my $help = 0;
 my $verbose = 0;
@@ -50,13 +50,14 @@ die "Unable to read cache file\n" unless defined $db;
 
 die "Name not found in entity file\n" unless(exists $db->{$name});
 
-my $obj = $db->{$name};  
+###############################
+#### Main "do the job"
+###############################
 
-print DumpTree($obj) if $verbose;  
+runandprint($db->{$name},$name);
 
 
-
-
+ 
 ###############################
 #### Formatting of values
 ###############################
@@ -90,73 +91,79 @@ sub FormatPretty {
   }
 #       <xs:enumeration value="string"/>
 
-###############################
-#### Do Trbcmd access
-###############################
-my $o;
-if($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
-  $o = trb_register_read($netaddr,$obj->{address});
-  print DumpTree($o) if $verbose>1;
-  }
+
 
   
-  
 ###############################
-#### Prepare table header line
+#### Analyze Object & print contents
 ###############################
-
-my @fieldlist;
-push(@fieldlist,("Board","Reg."));
-if($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
-  push(@fieldlist,"raw");
-  }
-
-if($obj->{type} eq "registerfield"){
-  push(@fieldlist,$name) ;
-  }
-
-if($obj->{type} eq "field"){
-  push(@fieldlist,$name) ;
-  }
-  
-if($obj->{type} eq "register"){
-  foreach my $c (@{$obj->{children}}){
-    push(@fieldlist,$c);
-    }
-  }
-  
-my $t = Text::TabularDisplay->new(@fieldlist);
-
-  
-  
-###############################
-#### Fill table with information
-###############################
-foreach my $b (sort keys %$o) {
-  my @l;
-  push(@l,sprintf("%04x",$b));
-  push(@l,sprintf("%04x",$obj->{address}));
-  push(@l,sprintf("%08x",$o->{$b}));
-  if($obj->{type} eq "register") {
+sub runandprint {
+  my ($obj,$name) = @_;
+  my $o;
+  print DumpTree($obj) if $verbose;  
+  #### Iterate if group
+  if($obj->{type} eq "group") {
     foreach my $c (@{$obj->{children}}) {
-      push(@l,FormatPretty($o->{$b},$db->{$c}));
+      runandprint($db->{$c},$c);
       }
     }
-  elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
-    push(@l,FormatPretty($o->{$b},$obj));
-    }
-  $t->add(@l);
-  }
-
   
-  
-###############################
-#### Show the beautiful result...
-###############################  
-print $t->render;
+  #### print if entry is a register or field
+  elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+    $o = trb_register_read($netaddr,$obj->{address});
+    print DumpTree($o) if $verbose>1;
     
-print "\n";    
+    #### Prepare table header line
+    my @fieldlist;
+    push(@fieldlist,("Board","Reg."));
+    if($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+      push(@fieldlist,"raw");
+      }
 
+    if($obj->{type} eq "registerfield"){
+      push(@fieldlist,$name) ;
+      }
+
+    if($obj->{type} eq "field"){
+      push(@fieldlist,$name) ;
+      }
+      
+    if($obj->{type} eq "register"){
+      foreach my $c (@{$obj->{children}}){
+        push(@fieldlist,$c);
+        }
+      }
+      
+    my $t = Text::TabularDisplay->new(@fieldlist);
+
+    #### Fill table with information
+    foreach my $b (sort keys %$o) {
+      my @l;
+      push(@l,sprintf("%04x",$b));
+      push(@l,sprintf("%04x",$obj->{address}));
+      push(@l,sprintf("%08x",$o->{$b}));
+      if($obj->{type} eq "register") {
+        foreach my $c (@{$obj->{children}}) {
+          push(@l,FormatPretty($o->{$b},$db->{$c}));
+          }
+        }
+      elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
+        push(@l,FormatPretty($o->{$b},$obj));
+        }
+      $t->add(@l);
+      }
+    
+    #### Show the beautiful result...
+    print $t->render;
+    print "\n";    
+    }
+  }
+  
+  
+  
+  
+  
+  
 ###############################
 #### Feierabend!
 ###############################     
