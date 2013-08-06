@@ -186,7 +186,7 @@ sub runandprint {
           $t->add(@l);
           }
         else {
-          $t .= "<tr>";
+          $t .= "<tr><td>";
           $t .= join("<td>",@l);
           }
         }
