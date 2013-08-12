@@ -19,7 +19,7 @@ my $help = 0;
 my $verbose = 0;
 my $isbrowser = 0;
 
-my ($file,$netaddr,$name, $option);
+my ($file,$netaddr,$name, $style);
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
 
 ###############################
@@ -27,7 +27,7 @@ $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
 ###############################
 if(defined $ENV{'QUERY_STRING'}) {
   $isbrowser = 1;
-  ($file,$netaddr,$name,$option) = split("-",$ENV{'QUERY_STRING'});
+  ($file,$netaddr,$name,$style) = split("-",$ENV{'QUERY_STRING'});
   $file = "$RealBin/cache/$file.entity";
   use CGI::Carp qw(fatalsToBrowser);
   print "Content-type: text/html\n\n";
@@ -43,8 +43,14 @@ else {
   $file    = "$RealBin/cache/$ARGV[0].entity";
   $netaddr = $ARGV[1] || "";
   $name    = $ARGV[2] || "";
+  $style   = $ARGV[3] || "";
   }
 
+  $style = "" unless $style;
+my $isInline = $style =~ /inline/i;  
+my $isColor  = $style =~ /color/i;  
+my $sortAddr = $style =~ /sortaddr/i;
+   $verbose  = ($style =~ /verbose/i) ||$verbose;
 
 ###############################
 #### Check arguments for validity
@@ -72,9 +78,17 @@ die "Name not found in entity file\n" unless(exists $db->{$name});
 ###############################
 #### Main "do the job"
 ###############################
-
+my $data;  
 my $once = (defined $slice)?1:0;
-runandprint($db->{$name},$name,$slice,$once);
+if ($isbrowser) {
+  requestdata($db->{$name},$name,$slice);
+  print DumpTree($data) if $verbose;
+  generateoutput($db->{$name},$name,$slice,$once);
+  writeoutput($db->{$name},$name,$slice,$once);
+  }
+else {
+  runandprint($db->{$name},$name,$slice,$once);
+  }
 
 
  
@@ -82,37 +96,165 @@ runandprint($db->{$name},$name,$slice,$once);
 #### Formatting of values
 ###############################
 sub FormatPretty {
-  my ($value,$obj) = @_;
+  my ($value,$obj,$cont) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
   
-  my $ret;
-  for($obj->{format}) {
-    when ("boolean")  {$ret = $value?"true":"false";}
-    when ("integer")  {$ret = sprintf("%i",$value);}
-    when ("unsigned") {$ret = sprintf("%u",$value);}
-    when ("signed")   {$ret = sprintf("%d",$value);}
-    when ("binary")   {$ret = sprintf("%b",$value);}
-    when ("bitmask")  {$ret = sprintf("%b",$value);}
-    when ("time")     {$ret = time2str('%Y-%m-%d %H:%M',$value);}
-    when ("hex")      {$ret = sprintf("%8x",$value);}
-    when ("enum")     { my $t = sprintf("%x",$value);
-                        if (exists $obj->{enumItems}->{$t}) {
-                          $ret = $obj->{enumItems}->{$t} 
+  my $ret, my $cl;
+  if (defined $cont) {
+    $cl = "class=\"".($value?"bad":"good")."\"" if     ($obj->{errorflag});
+    $cl = "class=\"".($value?"high":"low")."\"" unless ($obj->{errorflag});
+    $ret = "<$cont ";
+    for($obj->{format}) {    
+      when ("boolean") {
+        if($obj->{errorflag}) { $ret .= "$cl>".($value?"true":"false");}
+        else                  { $ret .= "$cl>".($value?"true":"false");}
+          }
+      when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
+      when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
+      when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
+      when ("binary"|"bitmask")   {$ret .= sprintf("%b",$value);}
+      when ("time")     {$ret .= time2str('>%Y-%m-%d %H:%M',$value);}
+      when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
+      when ("enum")     { my $t = sprintf(">%x",$value);
+                          if (exists $obj->{enumItems}->{$t}) {
+                            $ret .= $obj->{enumItems}->{$t} 
+                            }
+                          else {
+                            $ret .= $t;
+                            }
                           }
-                        else {
-                          $ret = $t;
-                          }
-                        }
-    default           {$ret = sprintf("%08x",$value);}
+      default           {$ret .= sprintf(">%08x",$value);}
+      }
     }
-  
+  else {
+    for($obj->{format}) {
+      when ("boolean")  {$ret = $value?"true":"false";}
+      when ("integer")  {$ret = sprintf("%i",$value);}
+      when ("unsigned") {$ret = sprintf("%u",$value);}
+      when ("signed")   {$ret = sprintf("%d",$value);}
+      when ("binary")   {$ret = sprintf("%b",$value);}
+      when ("bitmask")  {$ret = sprintf("%b",$value);}
+      when ("time")     {$ret = time2str('%Y-%m-%d %H:%M',$value);}
+      when ("hex")      {$ret = sprintf("%8x",$value);}
+      when ("enum")     { my $t = sprintf("%x",$value);
+                          if (exists $obj->{enumItems}->{$t}) {
+                            $ret = $obj->{enumItems}->{$t} 
+                            }
+                          else {
+                            $ret = $t;
+                            }
+                          }
+      default           {$ret = sprintf("%08x",$value);}
+      }
+    }
   return $ret;
   }
 
   
 ###############################
-#### Analyze Object & print contents
+#### Intelligent data reader
+###############################
+sub requestdata {
+  my ($obj,$name,$slice) = @_;
+  my $o;
+  print DumpTree($obj) if $verbose;
+  
+  if($obj->{type} eq "group") {
+    if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
+      my $size   = $obj->{size};
+      my $offset = 0;
+      
+      if (defined $slice) {
+        $offset = $size * $slice;
+        }
+      elsif (defined $obj->{repeat}) {
+        $size = $size * $obj->{repeat};
+        }
+      $o = trb_register_read_mem($netaddr,$obj->{address}+$offset,0,$size);
+      foreach my $k (keys $o) {
+        for(my $i = 0; $i < $size; $i++) {
+          $data->{$obj->{address}+$offset+$i}->{$k} = $o->{$k}->[$i];
+          }
+        }
+      }
+    else {      
+      foreach my $c (@{$obj->{children}}) {
+        requestdata($db->{$c},$c,$slice);
+        }
+      }
+    }
+  elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield") {
+    my $stepsize = $obj->{stepsize} || 1;
+    $slice = 0 unless defined $slice;
+    do {
+      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      foreach my $k (keys $o) {
+        $data->{$obj->{address}}->{$k} = $o->{$k};
+        }
+      } while(defined $obj->{repeat} && ++$slice < $obj->{repeat});
+    }
+  }
+
+  
+  
+  
+sub generateoutput {
+  my ($obj,$name,$slice,$once) = @_;
+  my $t = "";
+  if($obj->{type} eq "group") {
+    foreach my $c (@{$obj->{children}}) {
+      generateoutput($db->{$c},$c,$slice,$once);
+      }
+    }
+  elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+    my $stepsize = $obj->{stepsize} || 1;
+       $slice = 0 unless defined $slice;
+
+  
+    do {  
+      my $addr = $obj->{address}+$slice*$stepsize;
+      #### Prepare table header line
+      
+      $t = "<table class='queryresult'><tr>";
+      $t .= sprintf("<th title=\"(0x%04x)\n$obj->{description}\">".$name,$addr);
+
+      if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
+        $t .= "<th title=\"$obj->{description}\">$name";
+        }
+      elsif($obj->{type} eq "register"){
+        foreach my $c (@{$obj->{children}}){
+          $oc = $db->{$c};
+          $t .= sprintf("<th title=\"(%u Bit @ %u)\n$oc->{description}\">$c",$oc->{bits},$oc->{start});
+          }
+        }    
+#       print DumpTree($data->{$addr});
+      foreach my $b (sort keys %$data->{$addr}) {
+        $t .= sprintf("<tr><td title=\"raw: 0x%x\">%04x",$data->{$addr}->{$b},$b);
+        if($obj->{type} eq "register") {
+          foreach my $c (@{$obj->{children}}) {
+            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td");
+            }
+          }
+        elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
+          $t .= FormatPretty($data->{$addr}->{$b},$obj,"td");
+          }
+        }
+
+      } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
+    $t .= "</table>";
+    }
+  print $t;
+  }
+
+  
+sub writeoutput {
+  my ($obj,$name,$slice,$once) = @_;
+  }
+  
+  
+###############################
+#### Analyze Object & print contents (the simple minded way)
 ###############################
 sub runandprint {
   my ($obj,$name,$slice,$once) = @_;
@@ -197,10 +339,10 @@ sub runandprint {
         }
       else {
         print $t;
-        print "</table>" if ($once == 1 || !defined $obj->{repeat} || $slice == $obj->{repeat}-1);
         }
       print "\n";    
-      } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat})
+      } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
+    print "</table>" if $isbrowser;
     }
     
   }
@@ -221,7 +363,7 @@ get.pl - Access TrbNet elements with speaking names and formatted output
 
 =head1 SYNOPSIS
 
-get.pl entity address name
+get.pl entity address name style
 
  Options:
    -h, --help     brief help message
