@@ -45,9 +45,9 @@ foreach my $cur_ln (<$fh2>) {
 
 foreach my $serial_nr (keys %trb) {
     next if(!$trb{$serial_nr}->{'address'} || !defined $trb{$serial_nr}->{'uid'});
-    //printf "0x%4.4x  ", $trb{$serial_nr}->{'address'};
-    //print $trb{$serial_nr}->{'uid'} . "  ";
-    //printf "0x%2.2x\n", $trb{$serial_nr}->{'endpoint_nr'};
+    #printf "0x%4.4x  ", $trb{$serial_nr}->{'address'};
+    #print $trb{$serial_nr}->{'uid'} . "  ";
+    #printf "0x%2.2x\n", $trb{$serial_nr}->{'endpoint_nr'};
 
     no warnings 'portable';
     my $uid = hex($trb{$serial_nr}->{'uid'});
