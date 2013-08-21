@@ -15,7 +15,7 @@ while (my $a = <FILE>) {
     my @vals = split(/\s+/,$str);
     my $i = 0;
     foreach my $t (@vals) {
-       print "$t\n";
+#        print "$t\n";
       if($t =~ /0x(\w\w\w\w)/) {
         $reglist->{$set}->{$i++}=$1;
         }
@@ -23,7 +23,7 @@ while (my $a = <FILE>) {
     }
 #0x2000       1     0x38     0x38     0x38     0x38     0x38     0x38
   if(my ($addr,$set,$str) = $a =~ /^\s*0x(\w\w\w\w)\s+(\d)+((\s+0x\w+)+)/) {
-      print "$addr : $set : $str\n";
+#       print "$addr : $set : $str\n";
     my @vals = split(/\s+/,$str);
     shift(@vals) if($vals[0] eq '');
     my $i = 0;
@@ -60,5 +60,4 @@ while (my $a = <FILE>) {
 #$cmd .= "trbcmd w 0xfffd 0x20 0x200\n";
 # print $cmd;
 system($cmd);
-system("logger -p local1.info -t DAQ MDC \\<N\\> Loaded settings from file $ARGV[0]");
-print "Done.\n\n";
+# print "Done.\n\n";
