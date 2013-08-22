@@ -1,11 +1,17 @@
 #!/usr/bin/perl -w
 use Cwd;
-#print "Content-type: text/html\n\n";
+print "Content-type: text/html\n\n";
 
 my $pwd = &Cwd::cwd();
 
+my $file = "pwr.conf";
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  $file = "htdocs/tools/pwr/".$file;
+  }
 
-open(LESEN,"htdocs/tools/pwr/pwr.conf")
+
+
+open(LESEN,$file)
   or die "Fehler beim oeffnen von : $!\n";
 
 while(defined(my $i = <LESEN>)) {
