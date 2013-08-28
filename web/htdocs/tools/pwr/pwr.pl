@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#print "Content-type: text/html\n\n";
+print "Content-type: text/html\n\n";
 
 
 use strict;
@@ -177,7 +177,7 @@ sub receive_answer_HMP {
         }
       }
     else {
-      usleep(50000);
+      usleep(40000);
       }
     }
   return $ret;

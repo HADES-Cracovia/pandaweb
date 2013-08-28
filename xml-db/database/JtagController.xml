@@ -150,11 +150,11 @@
                 address="0000" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
-               start="0"   bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of read errors during "read id" operation</description>
         </field>
         <field name="ErrorsWrite"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of read errors during write operation</description>
         </field>
       </register>
@@ -162,11 +162,11 @@
                 address="0001" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
-               start="0"  bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
         </field>
         <field name="ErrorsSampling"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
         </field>
       </register>
@@ -189,19 +189,19 @@
           <description>Last JTAG run was successful</description>
         </field>
         <field name="JtagLastDataChanged"
-               start="8" bits="1"  mode="r"  purpose="status"  format="boolean" >
+               start="8" bits="1"  mode="r"  purpose="status"  format="boolean" errorflag="true">
           <description>Data in the sensor was corrupted at last JTAG run</description>
         </field>
         <field name="JtagLastWriteError"
-               start="12" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="12" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG write error</description>
         </field>
         <field name="JtagLastReadError"
-               start="16" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="16" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG read error</description>
         </field>
         <field name="JtagCrcError"
-               start="20" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="20" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG CRC error</description>
         </field>
       </register>
