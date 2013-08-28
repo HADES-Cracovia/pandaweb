@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#print "Content-type: text/html\n\n";
+print "Content-type: text/html\n\n";
 
 
 use strict;
@@ -99,11 +99,12 @@ sub receive_answer {
 	# clear buffers, then send the "list"-command to the power supply
 	$port->lookclear; 
 	$port->write("L\r");
-	# sleep a second to give the supply time to react
-	usleep 1E5;
 
-	# read what has accumulated in the serial buffer
-	while(my $a = $port->lookfor) {
+
+  # do polling for 5 seconds, break polling as soon as answer was received
+  my $i;
+  for ($i = 0; ($i<500) ;$i++) {
+    my $a = $port->lookfor;
 		#print $a."\n"; # debug output
 		if ($a =~ m/V(\d\d\.\d\d)A(\d\.\d\d\d)W(\d\d\d\.\d)U(\d\d)I(\d\.\d\d)P(\d\d\d)F(\d\d\d\d\d\d)/) {
 			$found = 1;
@@ -145,9 +146,11 @@ sub receive_answer {
 			
 			last;
 	
+		} else {
+      usleep 1E4; # 10 ms delay
 		}
 	}
-	}
+}
 
 sub receive_answer_HMP {
   my $ret ="";
@@ -174,7 +177,7 @@ sub receive_answer_HMP {
         }
       }
     else {
-      usleep(50000);
+      usleep(40000);
       }
     }
   return $ret;
