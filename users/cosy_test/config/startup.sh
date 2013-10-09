@@ -11,6 +11,6 @@ trbcmd reset
 ./hubconfig.sh
 
 #Front-end configuration
-./TrbStart.sh
+./trbstart.sh
 ./nxyter.sh
 ./cts.sh
