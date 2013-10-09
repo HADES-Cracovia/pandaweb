@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH=/home/rich/TRB/trbsoft/trbnettools/bin:${PATH}
+echo "Loading nxyter read-out configuration"
 
 # i2c_sm_reset
 trbcmd w 0x3800 0x8100 0x01
