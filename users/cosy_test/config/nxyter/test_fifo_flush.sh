@@ -9,7 +9,7 @@ export PATH=/home/rich/TRB/trbsoft/trbnettools/binlocal:${PATH}
 ./enable_channel.sh 2
 ./enable_channel.sh 3
 
-trbcmd w 0x8900 0x8180 4
+trbcmd w 0x3800 0x8180 4
 
 ./enable_testtrigger.sh
 ./display_channels.sh
