@@ -1,5 +1,7 @@
 #!/bin/bash
 
+tmpdir="/tmp/eventbuild"
+
 killpid() {
 	local pidf=$1
 
@@ -18,9 +20,9 @@ killpid() {
 	fi
 }
 
-pidf=${HOME}/trbsoft/.daq_evtbuild.pid
+pidf=$tmpdir/.daq_evtbuild.pid
 killpid $pidf
 
-pidf=${HOME}/trbsoft/.daq_netmem.pid
+pidf=$tmpdir/.daq_netmem.pid
 killpid $pidf
 

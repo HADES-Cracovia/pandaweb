@@ -2,6 +2,7 @@
 
 dest="/scratch/c/hldfiles"
 sdest="/scratch/c/shldfiles"
+tmpdir="/tmp/eventbuild"
 pref="te"
 sden=0
 
@@ -41,19 +42,24 @@ sdopts="--resdownscale 20 --resnumevents 2000 --respath ${sdest} --ressizelimit 
 extraopts=""
 [ ${sden} -eq 1 ] && extraopts="$sdopts"
 
-${HOME}/bin/evtbuilder_stop.sh
+./evtbuilder_stop.sh
 
-source ${HOME}/bin/trbnet_env.sh
+[ ! -e $tmpdir ] && mkdir -p $tmpdir
+cd $tmpdir
 
-exec uxterm -bg khaki -geometry 120x20+900+45 -e "/home/hadaq/bin/daq_evtbuild -m 3 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file ${extraopts}; read ; bash" &
+# source ${HOME}/bin/trbnet_env.sh
+
+exec uxterm -bg khaki -geometry 120x20+900+45 -e "/home/hadaq/bin/daq_evtbuild -m 2 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file ${extraopts}; read; bash" &
+# exec uxterm -bg khaki -geometry 120x20+900+45 -e "/home/hadaq/bin/daq_evtbuild -m 3 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file ${extraopts}; read ; bash" &
 pid=$!
-echo $pid > ~/trbsoft/.daq_evtbuild.pid
+echo $pid > $tmpdir/.daq_evtbuild.pid
 
 sleep 1
 
-exec uxterm -bg tan -geometry 120x20+900+345 -e "/home/hadaq/bin/daq_netmem -m 3 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50008 -i UDP:0.0.0.0:50009 -q 32 -d 1 -S test ; read ; bash " &
+exec uxterm -bg tan -geometry 120x20+900+345 -e "/home/hadaq/bin/daq_netmem -m 2 -i UDP:0.0.0.0:50008 -i UDP:0.0.0.0:50009 -q 32 -d 1 -S test ;  " &
+# exec uxterm -bg tan -geometry 120x20+900+345 -e "/home/hadaq/bin/daq_netmem -m 3 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50008 -i UDP:0.0.0.0:50009 -q 32 -d 1 -S test ; read ; bash " &
 pid=$!
-echo $pid > ~/trbsoft/.daq_netmem.pid
+echo $pid > $tmpdir/.daq_netmem.pid
 
-echo ${dest} > ${HOME}/trbsoft/.hldfilesdir
-echo ${sdest} > ${HOME}/trbsoft/.shldfilesdir
+echo ${dest} > $tmpdir/.hldfilesdir
+echo ${sdest} > $tmpdir/.shldfilesdir
