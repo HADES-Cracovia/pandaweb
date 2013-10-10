@@ -9,7 +9,6 @@ use Date::Format;
 use Pod::Usage;
 use Getopt::Long;
 use File::chdir;
-use FindBin qw($RealBin);
 use Storable qw(lock_retrieve);
 use Text::TabularDisplay;
 use feature "switch";
@@ -22,17 +21,31 @@ my $isbrowser = 0;
 my ($file,$netaddr,$name, $style);
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
 
+
+
 ###############################
 #### Check if browser or command line
 ###############################
 if(defined $ENV{'QUERY_STRING'}) {
-  $isbrowser = 1;
-  ($file,$netaddr,$name,$style) = split("-",$ENV{'QUERY_STRING'});
-  $file = "$RealBin/cache/$file.entity";
-  use CGI::Carp qw(fatalsToBrowser);
-  print "Content-type: text/html\n\n";
+  if($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+    $isbrowser = 1;
+    ($file,$netaddr,$name,$style) = split("-",$ENV{'QUERY_STRING'});
+    $file = "htdocs/xml-db/cache/$file.entity";
+    use CGI::Carp qw(fatalsToBrowser);
+    }
+  else {
+#     use FindBin qw($RealBin);
+    my $RealBin = ".";
+    $isbrowser = 1;
+    ($file,$netaddr,$name,$style) = split("-",$ENV{'QUERY_STRING'});
+    $file = "$RealBin/cache/$file.entity";
+    use CGI::Carp qw(fatalsToBrowser);
+    print "Content-type: text/html\n\n";
+    }
   }
 else {
+#   use FindBin qw($RealBin);
+  my $RealBin = ".";
   Getopt::Long::Configure(qw(gnu_getopt));
   GetOptions(
             'help|h' => \$help,
