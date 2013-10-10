@@ -99,6 +99,7 @@ sub FormatPretty {
   my ($value,$obj,$cont) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
+  $value = $value * ($obj->{scale}||1);
   
   my $ret, my $cl;
   if (defined $cont) {
@@ -110,6 +111,7 @@ sub FormatPretty {
         if($obj->{errorflag}) { $ret .= "$cl>".($value?"true":"false");}
         else                  { $ret .= "$cl>".($value?"true":"false");}
           }
+      when ("float")    {$ret = sprintf("$cl>%.2f",$value);}
       when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
       when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
@@ -130,6 +132,7 @@ sub FormatPretty {
   else {
     for($obj->{format}) {
       when ("boolean")  {$ret = $value?"true":"false";}
+      when ("float")  {$ret = sprintf("%.2f",$value);}
       when ("integer")  {$ret = sprintf("%i",$value);}
       when ("unsigned") {$ret = sprintf("%u",$value);}
       when ("signed")   {$ret = sprintf("%d",$value);}
@@ -148,6 +151,7 @@ sub FormatPretty {
       default           {$ret = sprintf("%08x",$value);}
       }
     }
+  $ret .= " ".$obj->{unit} if exists $obj->{unit};
   return $ret;
   }
 
