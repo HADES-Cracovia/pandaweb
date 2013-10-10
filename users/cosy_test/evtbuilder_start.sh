@@ -39,7 +39,7 @@ while getopts "d:s:p:th" opt; do
 done
 
 sdopts="--resdownscale 20 --resnumevents 2000 --respath ${sdest} --ressizelimit 80"
-extraopts=""
+extraopts="--online"
 [ ${sden} -eq 1 ] && extraopts="$sdopts"
 
 ./evtbuilder_stop.sh

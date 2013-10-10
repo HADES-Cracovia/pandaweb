@@ -115,7 +115,7 @@ sub FormatPretty {
       when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
       when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
-      when ("binary"|"bitmask")   {$ret .= sprintf("%b",$value);}
+      when ("binary"|"bitmask")   {$ret .= sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {$ret .= time2str('>%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
       when ("enum")     { my $t = sprintf(">%x",$value);
@@ -137,7 +137,7 @@ sub FormatPretty {
       when ("unsigned") {$ret = sprintf("%u",$value);}
       when ("signed")   {$ret = sprintf("%d",$value);}
       when ("binary")   {$ret = sprintf("%b",$value);}
-      when ("bitmask")  {$ret = sprintf("%b",$value);}
+      when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {$ret = time2str('%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret = sprintf("%8x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);

@@ -34,7 +34,7 @@ trbcmd w 0x3800 0x8102 0x01
 
 # reset counters, flush FIFO
 echo "clear data fifo"
-trbcmd rm 0x3800 0x8600 4000 1 > /dev/null
+trbcmd rm 0x3800 0x8600 4000 2>/dev/null
 
 # Set readout Mode
 trbcmd w 0x3800 0x8180 0x00   # normal mode
