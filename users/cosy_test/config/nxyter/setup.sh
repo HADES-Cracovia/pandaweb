@@ -45,3 +45,8 @@ trbcmd w 0x3800 0x8120 0       # reset all counters
 
 # Enable nxyter
 trbcmd w 0x3800 0x8103 0
+
+#Debugging to test ADC alignment / reset feature
+sleep 1;
+trbcmd w 0x3800 0x8501 1
+

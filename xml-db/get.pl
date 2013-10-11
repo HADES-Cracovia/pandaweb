@@ -128,15 +128,16 @@ sub FormatPretty {
       when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
       when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
-      when ("binary"|"bitmask")   {$ret .= sprintf("%0".$obj->{bits}."b",$value);}
+      when ("binary")   {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
+      when ("bitmask")  {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
       when ("time")     {$ret .= time2str('>%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
-      when ("enum")     { my $t = sprintf(">%x",$value);
+      when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
-                            $ret .= $obj->{enumItems}->{$t} 
+                            $ret .= '>'.$obj->{enumItems}->{$t} 
                             }
                           else {
-                            $ret .= $t;
+                            $ret .= '>'.$t;
                             }
                           }
       default           {$ret .= sprintf(">%08x",$value);}
@@ -219,6 +220,7 @@ sub requestdata {
 sub generateoutput {
   my ($obj,$name,$slice,$once) = @_;
   my $t = "";
+  $t = "<table class='queryresult'>";
   if($obj->{type} eq "group") {
     foreach my $c (@{$obj->{children}}) {
       generateoutput($db->{$c},$c,$slice,$once);
@@ -228,25 +230,25 @@ sub generateoutput {
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
 
-  
     do {  
       my $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
       
-      $t = "<table class='queryresult'><tr>";
-      $t .= sprintf("<th title=\"(0x%04x)\n$obj->{description}\">".$name,$addr);
+      $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$name,$addr);
 
       if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
         $t .= "<th title=\"$obj->{description}\">$name";
+        $t .= ".$slice" if(defined $obj->{repeat});
         }
       elsif($obj->{type} eq "register"){
         foreach my $c (@{$obj->{children}}){
           $oc = $db->{$c};
-          $t .= sprintf("<th title=\"(%u Bit @ %u)\n$oc->{description}\">$c",$oc->{bits},$oc->{start});
+          $t .= sprintf("<th title=\"%s (%u Bit @ %u)\n$oc->{description}\">$c",$c,$oc->{bits},$oc->{start});
           }
-        }    
+        }   
+
 #       print DumpTree($data->{$addr});
-      foreach my $b (sort keys %$data->{$addr}) {
+      foreach my $b (sort keys %{$data->{$addr}}) {
         $t .= sprintf("<tr><td title=\"raw: 0x%x\">%04x",$data->{$addr}->{$b},$b);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
@@ -257,10 +259,10 @@ sub generateoutput {
           $t .= FormatPretty($data->{$addr}->{$b},$obj,"td");
           }
         }
-
+      
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
-    $t .= "</table>";
     }
+    $t .= "</table><hr class=\"queryresult\">";
   print $t;
   }
 

@@ -25,14 +25,17 @@
       <description>Number of hit overflows</description>
       <field name="ParityErrorCount" start="0" bits="16" format="unsigned" />
     </register>
-    <register name="TriggerRate" address="0004" purpose="status">
-      <description>Trigger Rate</description>
-      <field name="TriggerRate" start="0" bits="32" format="unsigned" unit="Hz"/>
-    </register>
-    <register name="FrameRate" address="0005" purpose="status">
-      <description>Number of Hits on nxyter</description>
-      <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
-    </register>
+    <group name="NxyterRates"
+         address="0004"  size="2"  purpose="status"  mode="r"  continuous="true">
+      <register name="HitRate" address="0000" purpose="status">
+        <description>Total hit rate summed over all channels</description>
+        <field name="HitRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+      </register>
+      <register name="FrameRate" address="0001" purpose="status">
+        <description>Number of Hits on nxyter</description>
+        <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+      </register>
+    </group>
   </group>
 
 
