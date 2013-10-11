@@ -58,6 +58,7 @@
   <xs:simpleType name="formattype">
     <xs:restriction base="xs:string">
       <xs:enumeration value="raw"/>
+      <xs:enumeration value="float"/>
       <xs:enumeration value="integer"/>
       <xs:enumeration value="signed"/>
       <xs:enumeration value="unsigned"/>
@@ -93,6 +94,7 @@
   -->
   <xs:attribute name="unit"         type="xs:string" />
   <xs:attribute name="scale"        type="xs:double" />
+  <xs:attribute name="scaleoffset"  type="xs:double" />
 
 
   <!--==============================
@@ -198,6 +200,7 @@
     <xs:attribute ref="repeat" />
     <xs:attribute ref="unit" />
     <xs:attribute ref="scale" />
+    <xs:attribute ref="scaleoffset" />
     <!-- if PERL evaluates this field to true,
          an error is indicated by this field -->
     <xs:attribute ref="errorflag" />

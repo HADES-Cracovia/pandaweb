@@ -10,11 +10,90 @@
   <group name="StatusRegisters" address="0000">
     <register name="CommonStatus0" address="0000" purpose="status">
       <description>Common Status Register 0</description>
-      <field name="Temperature" start="20" bits="12" format="integer" unit="°C" scale=".0625" >
+      <field name="Temperature" start="20" bits="12" format="float" unit="°C" scale=".0625" >
         <description>Board temperature</description>
       </field>
     </register>
+
+    <register name="EventCounter" address="0001" purpose="status">
+      <description>Event counters for LVL1 and Data channel</description>
+      <field name="Lvl1Counter" start="0" bits="16" format="integer">
+        <description>Lvl1 event counter</description>
+      </field>
+      <field name="IpuCounter" start="16" bits="16" format="integer">
+        <description>Number of last read-out event</description>
+      </field>
+    </register>
+
+    <register name="Lvl1Status" address="0002" purpose="status">
+      <description>Lvl1 status information</description>
+      <field name="Lvl1State" start="0" bits="4" format="enum">
+        <description>Status of the LVL1 trigger handler state machine</description>
+        <enumItem value="0">Idle</enumItem>
+        <enumItem value="1">Timing found</enumItem>
+        <enumItem value="3">LVL1 received</enumItem>
+        <enumItem value="5">tmg and lvl1 dont match</enumItem>
+        <enumItem value="7">Done</enumItem>
+      </field>
+      <field name="ShortPulse" start="4" bits="1" format="boolean">
+        <description>Last reference time was too short</description>
+      </field>
+      <field name="MissingPulse" start="5" bits="1" format="boolean">
+        <description>Missing reference time</description>
+      </field>
+      <field name="SpuriousPulse" start="6" bits="1" format="boolean">
+        <description>Spurious reference time</description>
+      </field>
+      <field name="WrongPolarity" start="7" bits="1" format="boolean" errorflag="true">
+        <description>Wrong polarity of reference time</description>
+      </field>      
+      <field name="PulseTimeout" start="11" bits="1" format="boolean" errorflag="true">
+        <description>Reference time to LVL1 too long delay</description>
+      </field>      
+      <field name="TriggerNumberMatch" start="12" bits="1" format="boolean">
+        <description>Internal and received trigger number match</description>
+      </field>          
+      <field name="MultiplePulse" start="13" bits="1" format="boolean" errorflag="true">
+        <description>Multiple reference time pulses</description>
+      </field>      
+      <field name="Lvl1Valid" start="14" bits="1" format="boolean">
+        <description>LVL1 data valid</description>
+      </field>            
+      <field name="RefTimeFound" start="15" bits="1" format="boolean">
+        <description>Found reference time</description>
+      </field>  
+      <field name="TimeDelay" start="16" bits="11" format="integer" scale="10" unit="ns" >
+        <description>Delay between reference time and LVL1</description>
+      </field>  
+    </register>
+
+    <register name="TriggerInput" address="0003" purpose="status">
+      <description>Trigger input statistics</description>
+      <field name="TriggerInputCount" start="0" bits="16" format="integer">
+        <description>Number of edges on trigger input</description>
+      </field>
+      <field name="TriggerLength" start="16" bits="16" format="integer" scale="10" unit=" ns">
+        <description>Length of last reference time signal</description>
+      </field>
+    </register>
     
+    <register name="LinkResetStats" address="0004" purpose="status">
+      <description>Statistics on retransmits and resets</description>
+      <field name="ResetCount" start="0" bits="8" format="integer">
+        <description>Number of received network resets</description>
+      </field>
+      <field name="RetransmitRecv" start="16" bits="8" format="integer" >
+        <description>Number of retransmit requests received</description>
+      </field>
+      <field name="RetransmitSent" start="16" bits="8" format="integer" >
+        <description>Number of retransmit requests sent</description>
+      </field>
+    </register>
+
+
+
+
+
     <register name="CompileTime" address="0040" purpose="status">
       <description>Compilation Time</description>
       <field name="CompileTime" start="0" bits="32" format="time" />

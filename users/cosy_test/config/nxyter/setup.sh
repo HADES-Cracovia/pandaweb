@@ -34,7 +34,7 @@ trbcmd w 0x3800 0x8102 0x01
 
 # reset counters, flush FIFO
 echo "clear data fifo"
-trbcmd rm 0x3800 0x8600 4000 1 > /dev/null
+trbcmd rm 0x3800 0x8600 4000 2>/dev/null
 
 # Set readout Mode
 trbcmd w 0x3800 0x8180 0x00   # normal mode
@@ -45,3 +45,8 @@ trbcmd w 0x3800 0x8120 0       # reset all counters
 
 # Enable nxyter
 trbcmd w 0x3800 0x8103 0
+
+#Debugging to test ADC alignment / reset feature
+sleep 1;
+trbcmd w 0x3800 0x8501 1
+
