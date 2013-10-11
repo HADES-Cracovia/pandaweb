@@ -1,0 +1,179 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Nxyter"
+              address="8000"
+              >
+  <description>Registers for the Nxyter Readout</description>
+
+  <group name="DataValidate"
+         address="0120"  size="6"  purpose="status"  mode="r"  continuous="true">
+
+    <register name="InvalidFrames" address="0000" purpose="status">
+      <description>Number of invalid frames</description>
+      <field name="InvalidFrames" start="0" bits="16" format="unsigned" />
+    </register>
+    <register name="OverflowCount" address="0001" purpose="status">
+      <description>Number of hit overflows</description>
+      <field name="OverflowCount" start="0" bits="16" format="unsigned" />
+    </register>
+    <register name="PileupCount" address="0002" purpose="status">
+      <description>Number of hit overflows</description>
+      <field name="PileupCount" start="0" bits="16" format="unsigned" />
+    </register>
+    <register name="ParityErrorCount" address="0003" purpose="status">
+      <description>Number of hit overflows</description>
+      <field name="ParityErrorCount" start="0" bits="16" format="unsigned" />
+    </register>
+    <group name="NxyterRates"
+         address="0004"  size="2"  purpose="status"  mode="r"  continuous="true">
+      <register name="HitRate" address="0000" purpose="status">
+        <description>Total hit rate summed over all channels</description>
+        <field name="HitRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+      </register>
+      <register name="FrameRate" address="0001" purpose="status">
+        <description>Number of Hits on nxyter</description>
+        <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+      </register>
+    </group>
+  </group>
+
+
+  <group name="TestPulse"
+         address="0000"  size="2"  purpose="config"  mode="rw"  continuous="false">
+    <register name="TestPulseRate" address="0145" mode="r" purpose="status">
+      <description>Rate of test pulses</description>
+      <field name="TestPulseRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+    </register>   
+    <register name="TestPulseDelay" address="0160" purpose="config">
+      <description>Delay of the testpulse after Trigger</description>
+      <field name="TestPulseDelay" start="0" bits="8" format="unsigned" unit="ns" scale="10"/>
+    </register>   
+    <register name="TestPulseEnable" address="0161" purpose="config">
+      <description>Enable test pulse</description>
+      <field name="TestPulseEnable" start="0" bits="1" format="boolean"/>
+    </register>   
+  </group>  
+
+
+  <group name="TriggerValidate"
+         address="0180"  size="14"  purpose="config"  mode="r"  continuous="true">
+    <register name="ReadoutMode" address="0000" purpose="config">
+      <description>Readout mode selection</description>
+      <field name="ReadoutMode" start="0" bits="3" format="enum">
+        <enumItem value="0">Ref + Valid + Window</enumItem>
+        <enumItem value="1">Ref + Valid</enumItem>
+        <enumItem value="3">Raw + Time + Valid</enumItem>
+        <enumItem value="4">Raw</enumItem>
+        <enumItem value="5">Raw + Valid</enumItem>
+      </field>
+    </register>    
+    <register name="TriggerWindowDelay" address="0001" purpose="config">
+      <description>Delay of the trigger window</description>
+      <field name="TriggerWindowDelay" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>     
+    <register name="TriggerWindowWidth" address="0002" purpose="config">
+      <description>Width of the trigger window</description>
+      <field name="TriggerWindowWidth" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>     
+    <register name="CtsTriggerDelay" address="0003" purpose="config">
+      <description>CTS Trigger Delay</description>
+      <field name="CtsTriggerDelay" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>     
+    <register name="ReadoutTimeMax" address="0004" purpose="config">
+      <description>Maximal read-out time</description>
+      <field name="ReadoutTimeMax" start="0" bits="12" format="unsigned" unit="ns" scale="10"/>
+    </register>     
+    <register name="BusyTime" address="0005" purpose="config">
+      <description>Maximal read-out time</description>
+      <field name="BusyTime" start="0" bits="12" format="unsigned" unit="ns" scale="10"/>
+    </register>  
+    <register name="TimestampRef" address="0006" purpose="config">
+      <description>Internal reference timestamp of current event</description>
+      <field name="TimestampRef" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>  
+    <register name="WindowLowerThreshold" address="0007" purpose="config">
+      <description>Lower timestamp limit of data selection window</description>
+      <field name="WindowLowerThreshold" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>  
+    <register name="WindowUpperThreshold" address="0008" purpose="config">
+      <description>Upper timestamp limit of data selection window</description>
+      <field name="WindowUpperThreshold" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    </register>  
+    <register name="DataFifoDelay" address="0009" purpose="config">
+      <description>Data Fifo data delay</description>
+      <field name="DataFifoDelay" start="0" bits="7" format="unsigned" unit="ns" scale="32"/>
+    </register>  
+    <register name="ChannelDone" address="000a" purpose="config" repeat="4">
+      <description>Data channel read-out finished</description>
+      <field name="ChannelDone" start="0" bits="32" format="bitmask"/>
+    </register>  
+
+
+</group>
+
+
+
+  <group name="DataReceiver"
+         address="0500"  size="9"  purpose="status"  mode="rw"  continuous="true">
+
+    <register name="CurrentTimestamp" address="0000" purpose="status">
+      <description>Current Timestamp Value read from Fifo</description>
+      <field name="CurrentTimestamp" start="0" bits="32" format="unsigned" />
+    </register>
+    
+    <register name="TimestampFifoStatus" address="0001" purpose="status">
+      <description>Status of the timestamp Fifo</description>
+      <field name="TSFifoFull" start="0" bits="1" format="boolean" errorflag="true">
+        <description>Timestamp Fifo full</description>
+      </field>  
+      <field name="TSFifoEmpty" start="1" bits="1" format="boolean">
+        <description>Timestamp Fifo Empty</description>
+      </field>  
+      <field name="TSFifoAlmostEmpty" start="2" bits="1" format="boolean">
+        <description>Timestamp Fifo Almost Empty</description>
+      </field>        
+      <field name="NxFrameSynced" start="31" bits="1" format="boolean">
+        <description>Synchronized to Nxyter Frame</description>
+      </field>        
+    </register>   
+    
+    <register name="ResyncCounter" address="0002" purpose="status">
+      <description>Number of Resyncs</description>
+      <field name="ResyncCounter" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="ParityErrorCounter" address="0003" purpose="status">
+      <description>Number of Parity Errors</description>
+      <field name="ParityErrorCounter" start="0" bits="32" format="unsigned" errorflag="true" />
+    </register>
+
+    <register name="AdcClkDelay" address="0005" purpose="status">
+      <description>Number of Parity Errors (add 4 ns until bugfix is done)</description>
+      <field name="AdcClkDelay" start="0" bits="3" format="unsigned" scale="4" scaleoffset="4" unit="ns" />
+    </register>
+
+    <register name="AdcResetCounter" address="0006" purpose="status">
+      <description>Number of ADC Resets</description>
+      <field name="AdcResetCounter" start="0" bits="32" format="unsigned"/>
+    </register>
+
+    <register name="DebugMux" address="0007" purpose="config">
+      <description>Debug Multiplexer selection</description>
+      <field name="DebugMux" start="0" bits="2" format="enum">
+        <enumItem value="0">Normal Debug</enumItem>
+        <enumItem value="1">ADC Nxyter</enumItem>
+        <enumItem value="2">ADC Testchannel</enumItem>
+        <enumItem value="3">ADC Reset Handler</enumItem>
+      </field>
+    </register>
+
+    <register name="AdcValue" address="0008" purpose="status">
+      <description>Current ADC Fifo value</description>
+      <field name="AdcValue" start="0" bits="32" format="unsigned"/>
+    </register>
+
+  </group>
+
+
+</TrbNetEntity>

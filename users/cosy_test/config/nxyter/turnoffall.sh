@@ -1,0 +1,5 @@
+trbcmd clearbit 0x8111 0xc0 0xe   ##trigger off for hub channel 1-3
+trbcmd clearbit 0x8111 0xc1 0xe
+trbcmd clearbit 0x8111 0xc3 0xe
+
+## never turn of bit 1 in hub!

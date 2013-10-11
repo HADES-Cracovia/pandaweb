@@ -1,0 +1,14 @@
+# addresses.db
+# maps trbnet-addresses to serial number + FPGA numbers
+
+# Address #  S/N  #  FPGA
+
+
+0x3800 	    33     0
+0x3801 	    33 	   1
+0x3802 	    33	   2
+0x3803 	    33	   3
+0x8900      33 	   5
+
+0x8000      69     5
+0x8001      69     0

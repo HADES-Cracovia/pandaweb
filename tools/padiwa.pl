@@ -24,6 +24,8 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t dac \t\t set LTC-DAC value. options: \$channel, \$value\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
   print "\t  \t\t read PWM value. options: \$channel\n";
+  print "\t comp \t\t set temperature compensation value. options: \$value\n";
+  print "\t  \t\t read temperature compensation value. no options\n";
   print "\t disable \t set input diable. options: \$mask\n";
   print "\t \t\t read input disable. no options\n";
   print "\t input \t\t read input status. no options\n";
@@ -41,7 +43,7 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t enablecfg\t enable or disable access to configuration flash, options: 1/0\n";
   print "\t dumpcfg \t Dump content of configuration flash. Pipe output to file\n";
   print "\t writecfg \t Write content of configuration flash. options: \$filename\n";
-  
+  print "\t fifo \t\t Read a byte from the test fifo (if present, no options\n";  
   exit;
   }
 my $board, my $value, my $mask;
@@ -93,7 +95,7 @@ if($ARGV[2] eq "temp") {
 if($ARGV[2] eq "resettemp") {
   sendcmd(0x10800001);
   usleep(100000);
-  sendcmd(0x10800001);
+  sendcmd(0x10800000);
   }
 
   
@@ -127,7 +129,18 @@ if($ARGV[2] eq "pwm") {
     printf("0x%04x\t%d\t%d\t0x%04x\t%4.2f\n",$e,$chain,$ARGV[3],$b->{$e}&0xffff,($b->{$e}&0xffff)*3300/65536);
     }
   }  
+
+if($ARGV[2] eq "comp" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20860000+($mask&0xffff));
+  print "Wrote Temperature Compensation settings.\n";
+  }    
   
+if($ARGV[2] eq "comp") {
+  my $b = sendcmd(0x20060000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }   
   
 if($ARGV[2] eq "disable" && defined $ARGV[3]) {
   my $b = sendcmd(0x20800000+($mask&0xffff));
@@ -273,3 +286,11 @@ if($ARGV[2] eq "writecfg" && defined $ARGV[3]) {
     printf(STDERR "\r%d / 5760",$p) if(!($p%10)); 
     }
   }  
+
+if($ARGV[2] eq "fifo" || $ARGV[2] eq "ffarr") {
+  my $b = sendcmd(0x200a0000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    }
+  }    
+
