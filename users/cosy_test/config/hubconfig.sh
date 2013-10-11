@@ -10,7 +10,11 @@ echo "Loading hub configuration"
 #Timeouts
   trbcmd w 0xfffe 0xc5 0x40ff
 
-
+#Trb3 for nxyter
+  trbcmd w 0x8900 0xc0 0xfff1
+  trbcmd w 0x8900 0xc1 0xfff1
+  trbcmd w 0x8900 0xc3 0xfff5
+  
 #Gbe configuration
 echo "Load GbE configuration"
 ../../../tools/loadregisterdb.pl gbe/register_configgbe.db

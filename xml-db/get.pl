@@ -124,7 +124,7 @@ sub FormatPretty {
         if($obj->{errorflag}) { $ret .= "$cl>".($value?"true":"false");}
         else                  { $ret .= "$cl>".($value?"true":"false");}
           }
-      when ("float")    {$ret = sprintf("$cl>%.2f",$value);}
+      when ("float")    {$ret .= sprintf("$cl>%.2f",$value);}
       when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
       when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
@@ -146,7 +146,7 @@ sub FormatPretty {
   else {
     for($obj->{format}) {
       when ("boolean")  {$ret = $value?"true":"false";}
-      when ("float")  {$ret = sprintf("%.2f",$value);}
+      when ("float")    {$ret = sprintf("%.2f",$value);}
       when ("integer")  {$ret = sprintf("%i",$value);}
       when ("unsigned") {$ret = sprintf("%u",$value);}
       when ("signed")   {$ret = sprintf("%d",$value);}
@@ -220,13 +220,13 @@ sub requestdata {
 sub generateoutput {
   my ($obj,$name,$slice,$once) = @_;
   my $t = "";
-  $t = "<table class='queryresult'>";
   if($obj->{type} eq "group") {
     foreach my $c (@{$obj->{children}}) {
       generateoutput($db->{$c},$c,$slice,$once);
       }
     }
   elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+    $t = "<table class='queryresult'>";
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
 
@@ -261,8 +261,8 @@ sub generateoutput {
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
-    }
     $t .= "</table><hr class=\"queryresult\">";
+    }
   print $t;
   }
 

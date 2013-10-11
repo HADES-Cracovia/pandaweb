@@ -8,7 +8,7 @@ body {
 #roterBereich, #blauerBereich, #fileSelection, #debug, #overview, #debugpane {
   float:left;
   position:relative;
-  width:320px;
+/*   width:320px; */
   padding:10px;
   margin:50px 10px 0 30px;
   border-radius:5px;
@@ -42,7 +42,7 @@ body {
 }
 
 #overview {
-  width:1000px;
+  min-width:1000px;
   margin:50px 0 0 20px;  
   }
 
@@ -284,6 +284,7 @@ table.queryresult td:first-child, table.queryresult th:first-child{
   max-width:100px;
   overflow:hidden;
   text-align:left;
+  background:#dde;
 }
 
 hr.queryresult  {
