@@ -199,6 +199,7 @@
          can be specified here -->
     <xs:attribute ref="defaultValue" />
     <xs:attribute ref="format" />
+    <xs:attribute ref="formatstring" />
     <xs:attribute ref="repeat" />
     <xs:attribute ref="unit" />
     <xs:attribute ref="scale" />
