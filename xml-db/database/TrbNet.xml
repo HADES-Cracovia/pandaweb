@@ -82,13 +82,57 @@
       <field name="ResetCount" start="0" bits="8" format="integer">
         <description>Number of received network resets</description>
       </field>
-      <field name="RetransmitRecv" start="16" bits="8" format="integer" >
+      <field name="RetransmitRecv" start="16" bits="8" format="integer" invertflag="true">
         <description>Number of retransmit requests received</description>
       </field>
-      <field name="RetransmitSent" start="16" bits="8" format="integer" >
+      <field name="RetransmitSent" start="16" bits="8" format="integer" invertflag="true">
         <description>Number of retransmit requests sent</description>
       </field>
     </register>
+    
+    <register name="TriggerInformation" address="0005" purpose="status">
+      <description>Information abotu the last received trigger</description>
+      <field name="LastTriggerInfo" start="0" bits="16" format="hex">
+        <description>The lower 16 Bit of the trigger information</description>
+      </field>
+      <field name="LastTriggerType" start="16" bits="4" format="hex" >
+        <description>The last trigger type</description>
+      </field>
+      <field name="LastTriggerNumber" start="20" bits="4" format="integer" >
+        <description>Lower four bits of last trigger number</description>
+      </field>
+      <field name="LastTriggerCode" start="24" bits="8" format="hex" >
+        <description>The last trigger code</description>
+      </field>
+    </register>    
+    
+    <register name="TriggerInput1" address="0006" purpose="status">
+      <description>Trigger input statistics</description>
+      <field name="InvalidCount" start="0" bits="16" format="integer" invertflag="true">
+        <description>Number of invalid triggers. I.e. LVL1 triggers not preceeded by a reference time signal</description>
+      </field>
+      <field name="MultipleCount" start="16" bits="16" format="integer" invertflag="true">
+        <description>Count of multiple reference time signals before a LVL1 trigger, i.e. additional edges on the input which were not sent by the CTS</description>
+      </field>
+    </register>
+
+    <register name="TriggerInput2" address="0007" purpose="status">
+      <description>Trigger input statistics</description>
+      <field name="SpikeCount" start="0" bits="16" format="integer" invertflag="true">
+        <description>Number of short signals on the reference time input. E.g. signals detected by the synchronous logic, but shorter than the 100 ns reference time signal</description>
+      </field>
+      <field name="SpuriousCount" start="16" bits="16" format="integer" invertflag="true">
+        <description>Number of occurences of reference time signals before a calibration trigger which should not sent a reference time</description>
+      </field>
+    </register>    
+
+    <register name="TriggerInput3" address="0008" purpose="status">
+      <description>Trigger input statistics</description>
+      <field name="EdgeCount" start="0" bits="16" format="integer">
+        <description>Number of edges on the reference time input. Sampled using asynchronous circuitry. Not available in all designs</description>
+      </field>
+    </register>        
+    
   </group>
 
 

@@ -2,17 +2,18 @@
 package xmlpage;
 
 
-my $active = -1;
+my $active = 0;
+my $n = 0;
 my @setup;
 
 sub getView {
   my ($n) = @_;
-  $active = $n;
+#   $active = $n;
 
   if($setup[$n]->{refresh}) {
     print qq|<input type="button" class="stdbutton" onClick="getdataprint('../xml-db/get.pl?|.$setup[$n]->{cmd}.qq|','content',false);" value="Refresh">|;
     }
-  print qq|<script language="javascript">setTimeout("getdataprint('../xml-db/get.pl?|.$setup[$n]->{cmd}.qq|','content',false)",400);</script>|;
+  print qq|<script language="javascript">setTimeout("getdataprint('../xml-db/get.pl?|.$setup[$n]->{cmd}.qq|','content',false,|.$setup[$n]->{period}.qq|)",400);</script>|;
   print qq|<div id="content"></div>|;
   
   
@@ -49,7 +50,7 @@ EOF
 <div class="header">);
 
 for ( my $s = 0; $s < scalar @setup; $s++) {
-  print qq|<span class="|.(($n == $s)?"selected":"inactive").qq|"><a href="?|.$setup[$s]->{name}.qq|">|.$setup[$s]->{name}.qq|</a></span>|;
+  print qq|<span class="|.(($active == $s)?"selected":"inactive").qq|"><a href="?|.$setup[$s]->{name}.qq|">|.$setup[$s]->{name}.qq|</a></span>|;
   }
 print qq(</div>);
 

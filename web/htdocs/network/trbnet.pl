@@ -14,7 +14,7 @@ my @setup;
 $setup[0]->{name}    = "StatusRegisters";
 $setup[0]->{cmd}     = "TrbNet-0xffff-StatusRegisters";
 $setup[0]->{refresh} = 1;
-$setup[0]->{period}  = 0;
+$setup[0]->{period}  = 10000;
 
 $setup[1]->{name}    = "BoardInfo";
 $setup[1]->{cmd}     = "TrbNet-0xffff-BoardInformation";

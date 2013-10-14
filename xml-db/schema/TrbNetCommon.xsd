@@ -85,9 +85,11 @@
   <xs:attribute name="defaultValue" type="xs:string" />
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
+  <xs:attribute name="formatstring" type="xs:string" />
   <xs:attribute name="continuous"   type="xs:boolean" />
   <xs:attribute name="repeat"       type="xs:positiveInteger" />
   <xs:attribute name="errorflag"    type="xs:boolean" />
+  <xs:attribute name="invertflag"   type="xs:boolean" />
   <!-- unit and scale give information about how to interpret data. a
        numerical scaling factor and/or a physical unit. E.g.
        temperature measured in 1/16th degrees will be ".0625" and "°C"
@@ -204,7 +206,8 @@
     <!-- if PERL evaluates this field to true,
          an error is indicated by this field -->
     <xs:attribute ref="errorflag" />
-      </xs:complexType>
+    <xs:attribute ref="invertflag" />
+    </xs:complexType>
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
       <xs:field xpath="@value" />
