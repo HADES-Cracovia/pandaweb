@@ -89,9 +89,12 @@ sub Main {
     #print Dumper($db->{'JtagLastDataChanged'});
     my $name = $doc->getDocumentElement->getAttribute('name');
     if($dumpitem) {
-      my $item = $db->{$dumpitem};
-      next unless defined $item;
-      MyDumpTree($item,"$dumpitem (in entity $name)");
+      foreach my $key (keys $db) {
+        next unless $key =~ /$dumpitem/;
+        my $item = $db->{$key};
+        $item->{address} = sprintf("0x%04x",$item->{address});
+        MyDumpTree($item,"$key (in entity $name)");
+      }
       next;
     }
     #print DumpTree($db);
@@ -342,7 +345,7 @@ xml-db.pl - Create cached data structures from the XML entities
 
 xml-db.pl [entity names]
 xml-db.pl --dump [entity names]
-xml-db.pl --dumpitem=<name> [entity names]
+xml-db.pl --dumpitem=<regex> [entity names]
 
  Options:
    -h, --help     brief help message
@@ -372,12 +375,15 @@ will be created.
 
 =item B<--dump>
 
-Dump the Database.
+Dump the tree-structured database of the specified entity.
 
 =item B<--dumpitem>
 
-Dump a given item (specify the unique name) to be found in the
-database of the given entities.
+Dump items matching the specified regex to be found in the database of
+the given entities (if no entity is given, all are searched). Don't
+forget to enquote your regex with 'single quotes' to prevent your
+shell fiddling around with that expression. If you want to have an
+exact match, use somthing like '^MyExactName$'.
 
 =back
 
