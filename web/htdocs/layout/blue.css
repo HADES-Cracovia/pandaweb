@@ -220,10 +220,10 @@ div.header span{
   float:left;
   position:relative;
   top:-2px;
-  margin:0 10px 0 0;
+  margin:0 25px 0 0;
   padding:2px 0px 0 0px;
   border:0px solid transparent;
-  width:100px;
+/*   width:100px; */
   list-style:none;
   cursor:hand;
 /*   text-align:center; */

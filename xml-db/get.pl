@@ -112,7 +112,7 @@ sub FormatPretty {
   my ($value,$obj,$cont) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
-  $value = $value * ($obj->{scale}||1);
+  $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
   my $ret, my $cl;
   if (defined $cont) {
@@ -226,7 +226,7 @@ sub generateoutput {
       }
     }
   elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
-    $t = "<table class='queryresult'>";
+    $t = "<hr class=\"queryresult\"><table class='queryresult'>";
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
 
@@ -261,7 +261,7 @@ sub generateoutput {
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
-    $t .= "</table><hr class=\"queryresult\">";
+    $t .= "</table>";
     }
   print $t;
   }

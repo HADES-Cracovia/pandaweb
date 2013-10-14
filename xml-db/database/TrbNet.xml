@@ -89,16 +89,23 @@
         <description>Number of retransmit requests sent</description>
       </field>
     </register>
+  </group>
 
 
 
-
-
-    <register name="CompileTime" address="0040" purpose="status">
+  <group name="BoardInformation" address="0040">
+    <register name="CompileTime" address="0000" purpose="status">
       <description>Compilation Time</description>
       <field name="CompileTime" start="0" bits="32" format="time" />
     </register>
-
-</group>
+    <register name="DesignVersion" address="0001" purpose="status">
+      <description>Version identifier of the design</description>
+      <field name="DesignVersion" start="0" bits="32" format="hex" />
+    </register>
+    <register name="HardwareInfo" address="0002" purpose="status">
+      <description>Definition of the board hardware the design is intended to be load onto and basic design information</description>
+      <field name="HardwareInfo" start="0" bits="32" format="hex" />
+    </register>
+  </group>
 
 </TrbNetEntity>
