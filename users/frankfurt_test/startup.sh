@@ -22,5 +22,8 @@ echo "cts"
 trbcmd w 0x8000 0xa137  1000000
 
 
-echo "tdc"
+echo "tdc" 
 trbcmd w 0xfe48 0xc801 0x000f0000
+trbcmd w 0x8000 0xc801 0x000f0000
+
+
