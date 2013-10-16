@@ -21,7 +21,7 @@ sub getView {
 
 
 sub initPage {
-  my ($ref_setup) = @_;
+  my ($ref_setup,$page) = @_;
   @setup = @$ref_setup;
   
   my ($command,$style) = split("-",$ENV{'QUERY_STRING'});
@@ -37,7 +37,7 @@ sub initPage {
   print <<EOF;
 <HTML>
 <HEAD>
-<title>TrbNet Overview</title>
+<title>$page->{title}</title>
 <link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
 <link href="../layout/blue.css" rel="stylesheet" title="Light Blue" type="text/css"/>
 EOF
@@ -45,7 +45,7 @@ EOF
   print qq(
 </HEAD>
 <BODY>
-<h2>TrbNet Overview</h2>
+<h2><a href="$page->{link}">).$page->{title}.qq(</a></h2>
 <div id="overview">
 <div class="header">);
 
