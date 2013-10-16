@@ -110,7 +110,6 @@ foreach my $req (@request) {
   $once = (defined $slice)?1:0;
   if ($isbrowser) {
     requestdata($db->{$name},$name,$slice);
-    print DumpTree($data) if $verbose;
     generateoutput($db->{$name},$name,$slice,$once);
     writeoutput($db->{$name},$name,$slice,$once);
     }
@@ -124,17 +123,18 @@ foreach my $req (@request) {
 #### Formatting of values
 ###############################
 sub FormatPretty {
-  my ($value,$obj,$cont) = @_;
+  my ($value,$obj,$cont,$class) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
   $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
+  $class = "" unless $class;
   my $ret, my $cl;
   if (defined $cont) {
-    $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag});
-    $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag});
-    $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag});
-    $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag});
+    $cl = "class=\"$class ".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag});
+    $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag});
+    $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag});
+    $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag});
     $ret = "<$cont ";
     for($obj->{format}) {    
       when ("boolean") {
@@ -151,10 +151,10 @@ sub FormatPretty {
       when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
-                            $ret .= '>'.$obj->{enumItems}->{$t} 
+                            $ret .= "$cl>".$obj->{enumItems}->{$t} 
                             }
                           else {
-                            $ret .= '>'.$t;
+                            $ret .= "$cl>".$t;
                             }
                           }
       default           {$ret .= sprintf(">%08x",$value);}
@@ -227,7 +227,7 @@ sub requestdata {
       $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       foreach my $k (keys $o) {
-        $data->{$obj->{address}}->{$k} = $o->{$k};
+        $data->{$obj->{address}+$slice*$stepsize}->{$k} = $o->{$k};
         }
       } while(defined $obj->{repeat} && ++$slice < $obj->{repeat});
     }
@@ -253,7 +253,10 @@ sub generateoutput {
       my $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
       
-      $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$name,$addr);
+      my $fullname = $name;
+      $fullname .= ".$slice" if ($once != 1 && defined $obj->{repeat});
+      
+      $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$fullname,$addr);
 
       if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
         $t .= "<th title=\"$obj->{description}\">$name";
@@ -267,11 +270,12 @@ sub generateoutput {
         }   
 
 #       print DumpTree($data->{$addr});
+      my $wr = 1 if $obj->{mode} =~ /w/;
       foreach my $b (sort keys %{$data->{$addr}}) {
         $t .= sprintf("<tr><td title=\"raw: 0x%x\">%04x",$data->{$addr}->{$b},$b);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
-            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td");
+            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""));
             }
           }
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {

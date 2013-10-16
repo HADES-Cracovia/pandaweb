@@ -254,17 +254,17 @@ div.header span a:hover {
 
 
 .high {
-  background:#ded;
+  background-color:#ded;
 }
 .low {
-  background:#edd;
+  background-color:#edd;
 }
 
 .good {
-  background:#cfc;
+  background-color:#cfc;
 }
 .bad {
-  background:#fcc;
+  background-color:#fcc;
 }
 
 
@@ -287,8 +287,19 @@ table.queryresult td:first-child, table.queryresult th:first-child{
   background:#dde;
 }
 
+table.queryresult td {
+  text-align:right;
+  }
+
 hr.queryresult  {
   border:none;
   width:100%;
   border-top:1px solid #aaa;
+}
+
+
+td.editable {
+  background-image:url("edit.png");
+  background-repeat:no-repeat;
+  background-position:fixed;
 }
