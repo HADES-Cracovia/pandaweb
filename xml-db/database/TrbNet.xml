@@ -7,7 +7,7 @@
   <description>Common Registers on allmost all endpoints</description>
 
   <!-- this is just a very minimal version -->
-  <group name="StatusRegisters" address="0000">
+  <group name="StatusRegisters" address="0000" mode="r" >
     <register name="CommonStatus0" address="0000" purpose="status">
       <description>Common Status Register 0</description>
       <field name="Temperature" start="20" bits="12" format="float" unit="°C" scale=".0625" >
@@ -137,7 +137,7 @@
 
 
 
-  <group name="BoardInformation" address="0040">
+  <group name="BoardInformation" address="0040" mode="r" >
     <register name="CompileTime" address="0000" purpose="status">
       <description>Compilation Time</description>
       <field name="CompileTime" start="0" bits="32" format="time" />

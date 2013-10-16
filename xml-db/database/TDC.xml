@@ -27,7 +27,7 @@
   <!-- TDC Status registers (mostly statistics)  -->
   <!--===========================================-->
 
-  <group name="Status" purpose="statistics" address="0100"  mode="r" continuous="true">
+  <group name="Status" purpose="statistics" address="0100"  mode="r" continuous="true" size="19" >
     <register name="BasicStatus" address="0000" purpose="status">
       <description>Basic config and status information for all channels</description>
       <field name="ReadoutFSM" start="0"   bits="4" format="enum" purpose="status">
@@ -69,11 +69,11 @@
 
     <register name="TriggerWindowStatus" address="0003" purpose="status">
       <description>Status of the TriggerWindow feature</description>
-      <field name="TriggerWindowBeforeValue" start="0" bits="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowBeforeValue" start="0" bits="11" format="unsigned" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="TriggerWindowAfterValue" start="16" bits="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowAfterValue" start="16" bits="11" format="unsigned" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns</description>
       </field>
@@ -132,13 +132,13 @@
     <register name="IdleTime" address="000c">
       <description>Total time length, that the readout FSM waited in
       the idle state (with granularity of 10 ns)</description>
-      <field name="IdleTime" start="0" bits="24" format="time" unit="ns" scale="10" />
+      <field name="IdleTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
     </register>
 
     <register name="WaitTime" address="000d">
       <description>Total time length, that the readout FSM waited in
       the wait states (with granularity of 10 ns)</description>
-      <field name="WaitTime" start="0" bits="24" format="time" unit="ns" scale="10" />
+      <field name="WaitTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
     </register>
 
     <register name="TotalEmptyChannelsCounter" address="000e">
@@ -155,7 +155,7 @@
     <register name="ReadoutTime" address="0010">
       <description>Total time length of the readout process (with
       granularity of 10 ns)</description>
-      <field name="ReadoutTime" start="0" bits="24" format="time" unit="ns" scale="10" />
+      <field name="ReadoutTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
     </register>
 
     <register name="TimeoutCounter" address="0011">
@@ -175,21 +175,21 @@
   <!-- TDC control registers                     -->
   <!--===========================================-->
   <group name="Control"
-         address="0800" purpose="config"  mode="rw"  continuous="true">
+         address="0800" purpose="config"  mode="rw"  continuous="true" size="5">
     <register name="BasicControl" address="0000">
       <description>Basic control for all channels</description>
       <field name="DebugOutput" start="0" bits="4" format="enum">
         <description>Enables different signals to the HPLA* output for
         debugging with logic analyser</description>
       </field>
-      <field name="DebugMode" start="4" bits="1" format="boolean">
+      <field name="DebugMode" start="4" bits="1" format="boolean" invertflag="true">
         <description>Enables the Debug Mode. Different statistics and
         debug words are sent after every trigger</description>
       </field>
-      <field name="ResetCounters" start="8" bits="1" purpose="trigger" mode="w">
+      <field name="ResetCounters" start="8" bits="1" purpose="trigger" mode="w" format="boolean">
         <description>Resets the internal counters</description>
       </field>
-      <field name="TriggerMode" start="0" bits="12" format="enum">
+      <field name="TriggerMode" start="0" bits="12" mode="rw" format="enum">
         <description>Select the trigger mode: With trigger mode or
         trigger-less mode</description>
         <enumItem value="0">TRIGGERED</enumItem>
@@ -199,11 +199,11 @@
 
     <register name="TriggerWindowConfig" address="0001">
       <description>Configuration of the TriggerWindow feature</description>
-      <field name="TriggerWindowBefore" start="0" bits="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowBefore" start="0" bits="11" format="unsigned" unit="ns" scale="5">
         <description>Trigger window width BEFORE the trigger with
         granularity of 5 ns</description>
       </field>
-      <field name="TriggerWindowAfter" start="16" bits="11" format="time" unit="ns" scale="5">
+      <field name="TriggerWindowAfter" start="16" bits="11" format="unsigned" unit="ns" scale="5">
         <description>Trigger window width AFTER the trigger with
         granularity of 5 ns. ATTENTION: Minimum value is x"00f"!</description>
       </field>
