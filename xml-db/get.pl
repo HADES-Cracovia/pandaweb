@@ -2,8 +2,8 @@
 use HADES::TrbNet;
 use Storable qw(lock_retrieve);
 use feature "switch";
-
 use CGI::Carp qw(fatalsToBrowser);
+
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
 use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
@@ -124,6 +124,7 @@ sub FormatPretty {
   my ($value,$obj,$cont,$class,$cstr) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
+  my $rawvalue = $value;
   $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
   $class = "" unless $class;
@@ -134,8 +135,8 @@ sub FormatPretty {
     $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag});
     $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag});
     $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag});
-    $cl .= sprintf(" title=\"raw: 0x%x\n$cstr\"",$value);
-    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"",$value);
+    $cl .= sprintf(" title=\"raw: 0x%x\n$cstr\"",$rawvalue);
+    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"",$rawvalue);
     
     $ret = "<$cont ";
     for($obj->{format}) {    
