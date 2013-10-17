@@ -2,8 +2,8 @@
 use HADES::TrbNet;
 use Storable qw(lock_retrieve);
 use feature "switch";
-use CGI::Carp qw(fatalsToBrowser);
 
+use if ( defined $ENV{'QUERY_STRING'}), CGI::Carp qw(fatalsToBrowser);
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
 use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
