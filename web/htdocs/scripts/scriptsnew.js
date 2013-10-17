@@ -17,7 +17,7 @@ function getdata(command,callback) {
   }
 
   
-function getdataprint(command,dId,async,time) {
+function getdataprint(command,dId,async,time,callback) {
   //async==true : do what you can when you can do it :D
   //async==false : do the task after you finished the previous task!
   
@@ -25,9 +25,9 @@ function getdataprint(command,dId,async,time) {
 //   alert("caller is " + arguments.callee.caller.toString());
   
   var xmlhttp = null;
-  //var cb = null;
+  var cb = null;
   xmlhttp=new XMLHttpRequest();
-  //cb = callback;
+  cb = callback;
   var destId = dId;
   var cmd = command;
   var asynci = async;
@@ -38,6 +38,9 @@ function getdataprint(command,dId,async,time) {
       //if(cb)
       if(document.getElementById(destId)){
         document.getElementById(destId).innerHTML  = xmlhttp.responseText;  
+        }
+      if(cb) {
+        cb();
         }
       if(time) {  
         setTimeout("getdataprint('"+cmd+"','"+destId+"','"+asynci+"','"+timei+"')",timei);
