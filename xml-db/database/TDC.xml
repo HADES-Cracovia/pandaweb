@@ -189,7 +189,7 @@
       <field name="ResetCounters" start="8" bits="1" purpose="trigger" mode="w" format="boolean">
         <description>Resets the internal counters</description>
       </field>
-      <field name="TriggerMode" start="0" bits="12" mode="rw" format="enum">
+      <field name="TriggerMode" start="12" bits="1" mode="rw" format="enum">
         <description>Select the trigger mode: With trigger mode or
         trigger-less mode</description>
         <enumItem value="0">TRIGGERED</enumItem>
@@ -212,11 +212,11 @@
       </field>
     </register>
 
-    <memory name="ChannelEnable" address="0002" size="2">
+    <register name="ChannelEnable" address="0002" repeat="2">
       <description>Enable signals/hits of the specific channel. LSB is
       channel 1.</description>
-      <field name="ChannelEnable" start="0" bits="64" format="bitmask" />
-    </memory>
+      <field name="ChannelEnable" start="0" bits="32" format="bitmask" />
+    </register>
 
     <register name="DataTransferLimit" address="0004">
       <description>Configuration of the data transfer limit feature</description>

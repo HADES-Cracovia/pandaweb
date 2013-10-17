@@ -1,18 +1,15 @@
 #!/usr/bin/perl -w
-use warnings;
-use FileHandle;
-use Time::HiRes qw( usleep );
-use Data::Dumper;
-use Data::TreeDumper;
 use HADES::TrbNet;
-use Date::Format;
-use Pod::Usage;
-use Getopt::Long;
-use File::chdir;
 use Storable qw(lock_retrieve);
-use Text::TabularDisplay;
 use feature "switch";
 use CGI::Carp qw(fatalsToBrowser);
+
+use if (!defined $ENV{'QUERY_STRING'}), warnings;
+use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
+use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
+use if (!defined $ENV{'QUERY_STRING'}), Data::Dumper;
+use if (!defined $ENV{'QUERY_STRING'}), Data::TreeDumper;
+use if (!defined $ENV{'QUERY_STRING'}), Getopt::Long;
 
 
 my ($db,$data,$once,$slice);
@@ -21,7 +18,7 @@ my $verbose = 0;
 my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
-my ($file,$netaddr,$name, $style);
+my ($file,$entity,$netaddr,$name, $style);
 
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
@@ -50,15 +47,15 @@ foreach my $req (@request) {
   if(defined $ENV{'QUERY_STRING'}) {
     if($server =~ /HTTPi/i) {
       $isbrowser = 1;
-      ($file,$netaddr,$name,$style) = split("-",$req);
-      $file = "htdocs/xml-db/cache/$file.entity";
+      ($entity,$netaddr,$name,$style) = split("-",$req);
+      $file = "htdocs/xml-db/cache/$entity.entity";
       }
     else {
   #     use FindBin qw($RealBin);
       my $RealBin = ".";
       $isbrowser = 1;
-      ($file,$netaddr,$name,$style) = split("-",$req);
-      $file = "$RealBin/cache/$file.entity";
+      ($entity,$netaddr,$name,$style) = split("-",$req);
+      $file = "$RealBin/cache/$entity.entity";
       }
     }
   else {
@@ -70,7 +67,7 @@ foreach my $req (@request) {
               'verbose|v+' => \$verbose,
               ) or pod2usage(2);
     pod2usage(1) if $help;
-    
+    $entity  = $ARGV[0] || "";
     $file    = "$RealBin/cache/$ARGV[0].entity";
     $netaddr = $ARGV[1] || "";
     $name    = $ARGV[2] || "";
@@ -83,6 +80,8 @@ foreach my $req (@request) {
   my $sortAddr = $style =~ /sortaddr/i;
      $verbose  = ($style =~ /verbose/i) ||$verbose;
 
+    
+     
 ###############################
 #### Check arguments for validity
 ###############################
@@ -116,25 +115,28 @@ foreach my $req (@request) {
   else {
     runandprint($db->{$name},$name,$slice,$once);
     }
-
 }
  
 ###############################
 #### Formatting of values
 ###############################
 sub FormatPretty {
-  my ($value,$obj,$cont,$class) = @_;
+  my ($value,$obj,$cont,$class,$cstr) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
   $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
   $class = "" unless $class;
+  $cstr  = "" unless $cstr;
   my $ret, my $cl;
   if (defined $cont) {
     $cl = "class=\"$class ".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag});
     $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag});
     $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag});
     $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag});
+    $cl .= sprintf(" title=\"raw: 0x%x\n$cstr\"",$value);
+    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"",$value);
+    
     $ret = "<$cont ";
     for($obj->{format}) {    
       when ("boolean") {
@@ -147,7 +149,7 @@ sub FormatPretty {
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
       when ("binary")   {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
       when ("bitmask")  {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
-      when ("time")     {$ret .= time2str('>%Y-%m-%d %H:%M',$value);}
+      when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
@@ -169,7 +171,7 @@ sub FormatPretty {
       when ("signed")   {$ret = sprintf("%d",$value);}
       when ("binary")   {$ret = sprintf("%b",$value);}
       when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
-      when ("time")     {$ret = time2str('%Y-%m-%d %H:%M',$value);}
+      when ("time")     {require Date::Format; $ret = Date::Format::time2str('%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret = sprintf("%8x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
@@ -229,7 +231,7 @@ sub requestdata {
       foreach my $k (keys $o) {
         $data->{$obj->{address}+$slice*$stepsize}->{$k} = $o->{$k};
         }
-      } while(defined $obj->{repeat} && ++$slice < $obj->{repeat});
+      } while(!$once && defined $obj->{repeat} && ++$slice < $obj->{repeat});
     }
   }
 
@@ -275,11 +277,17 @@ sub generateoutput {
         $t .= sprintf("<tr><td title=\"raw: 0x%x\">%04x",$data->{$addr}->{$b},$b);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
-            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""));
+            my $fullc = $c;
+            $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
+            my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""),$cstr);
             }
           }
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
-          $t .= FormatPretty($data->{$addr}->{$b},$obj,"td");
+          my $fullc = $name;
+          $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
+          my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+        $t .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
           }
         }
       
