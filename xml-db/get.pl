@@ -110,7 +110,6 @@ foreach my $req (@request) {
   if ($isbrowser) {
     requestdata($db->{$name},$name,$slice);
     generateoutput($db->{$name},$name,$slice,$once);
-    writeoutput($db->{$name},$name,$slice,$once);
     }
   else {
     runandprint($db->{$name},$name,$slice,$once);
@@ -197,12 +196,12 @@ sub requestdata {
   my ($obj,$name,$slice) = @_;
   my $o;
   print DumpTree($obj) if $verbose;
-  if ($slice >= $obj->{repeat}) {
+  if (defined  $obj->{repeat} && $slice >= $obj->{repeat}) {
     print "Slice number out of range.\n";
     return -1;
     }
   
-  if($obj->{type} eq "group") {
+  if($obj->{type} eq "group" && $obj->{mode} =~ /r/) {
     if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
       my $size   = $obj->{size};
       my $offset = 0;
@@ -227,7 +226,7 @@ sub requestdata {
         }
       }
     }
-  elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field")  && $obj->{mode} =~ /r/) {
     my $stepsize = $obj->{stepsize} || 1;
     $slice = 0 unless defined $slice;
     do {
@@ -251,7 +250,7 @@ sub generateoutput {
       generateoutput($db->{$c},$c,$slice,$once);
       }
     }
-  elsif($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") {
+  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") && $obj->{mode} =~ /r/) {
     $t = "<hr class=\"queryresult\"><table class='queryresult'>";
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
@@ -292,7 +291,7 @@ sub generateoutput {
           my $fullc = $name;
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
           my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
-        $t .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
+          $t .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
           }
         }
       
@@ -302,11 +301,7 @@ sub generateoutput {
   print $t;
   }
 
-  
-sub writeoutput {
-  my ($obj,$name,$slice,$once) = @_;
-  }
-  
+
   
 ###############################
 #### Analyze Object & print contents (the simple minded way)
@@ -331,7 +326,7 @@ sub runandprint {
 
   
     do {
-      if ($slice >= $obj->{repeat}) {
+      if (defined  $obj->{repeat} && $slice >= $obj->{repeat}) {
         print "Slice number out of range.\n";
         return -1;
         }
