@@ -197,6 +197,10 @@ sub requestdata {
   my ($obj,$name,$slice) = @_;
   my $o;
   print DumpTree($obj) if $verbose;
+  if ($slice >= $obj->{repeat}) {
+    print "Slice number out of range.\n";
+    return -1;
+    }
   
   if($obj->{type} eq "group") {
     if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
@@ -327,7 +331,10 @@ sub runandprint {
 
   
     do {
-    
+      if ($slice >= $obj->{repeat}) {
+        print "Slice number out of range.\n";
+        return -1;
+        }
       $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       
