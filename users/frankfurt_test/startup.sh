@@ -13,6 +13,8 @@ trbcmd s  0x48000002e2e36028  0x03 0xf003
 
 echo "Hubs"
 trbcmd w 0xfffe 0xc5 0x50ff
+trbcmd w 0xfffe 0xc0 0x0fef
+trbcmd w 0xfffe 0xc1 0x0fef
 
 ../../tools/loadregisterdb.pl register_configgbe.db
 ../../tools/loadregisterdb.pl register_configgbe_ip.db
