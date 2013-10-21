@@ -40,10 +40,7 @@ function getdataprint(command,dId,async,time,callback) {
         document.getElementById(destId).innerHTML  = xmlhttp.responseText;  
         }
       if(cb) {
-        cb();
-        }
-      if(time) {  
-        setTimeout("getdataprint('"+cmd+"','"+destId+"','"+asynci+"','"+timei+"')",timei);
+        cb(time);
         }
         //cb(xmlhttp.responseText);
   //document.getElementById(destId).innerHTML  = xmlhttp.responseText;  

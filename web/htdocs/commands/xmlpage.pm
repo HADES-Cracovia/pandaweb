@@ -20,6 +20,12 @@ sub initPage {
       }
     }
   
+  my $cmd    = $setup[$active]->{cmd};
+  my $period = $setup[$active]->{period};
+  my $name = $setup[$active]->{name};
+  my ($cmdMod,$cmdAddr,$cmdReg) = split('-',$setup[$active]->{cmd});
+
+  
   print <<EOF;
 <HTML>
 <HEAD>
@@ -36,21 +42,33 @@ EOF
 <div class="header">);
 
 for ( my $s = 0; $s < scalar @setup; $s++) {
-  print qq|<span class="|.(($active == $s)?"selected":"inactive").qq|"><a href="?|.$setup[$s]->{name}.qq|">|.$setup[$s]->{name}.qq|</a></span>|;
+  print qq|<span class="|.(($active == $s)?"selected":"inactive").qq|"><a href="?$setup[$s]->{name}">$setup[$s]->{name}</a></span>|;
   }
 print qq(</div>);
 
-if ($active!=-1) {
-
-  if($setup[$active]->{refresh}) {
-    print qq|<input type="button" class="stdbutton" onClick="refresh();" value="Refresh">|;
-    }
-  print qq|<div id="content"></div>|;
-  print qq|<script language="javascript">
-    setTimeout("refresh()",400);
-    document.getElementById("content").addEventListener("click",editsetting,0);
-  </script>|;
+print '<div class="head">';
+if($setup[$active]->{generic} == 1) {
+  print qq|
+  <input type="text" id="target" title="Enter any valid command in the form Module-Address-Name" 
+  value="$cmd" onChange="settarget()" onLoad="settarget()"
+  style="width:150px;text-align:left">
+  |;
   }
+
+if($setup[$active]->{address} == 1) {
+  print qq|
+  <input type="text" id="address" title="Enter any valid TrbNet address" 
+         value="$cmdAddr" onChange="setaddress()" onLoad="setaddress()"
+         style="text-align:left">
+  |;
+  }  
+  
+print qq|
+<input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
+       value="$period" onChange="setperiod()" onLoad="setperiod()">
+<input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh">
+</div>
+<div id="content"></div>|;
 
 print <<EOF ;
 
@@ -74,24 +92,21 @@ sub printJavaScripts {
 
   print qq|
 <script language="javascript" src="../scripts/scriptsnew.js"></script>
-
+<script language="javascript" src="../scripts/xmlpage.js"></script>
 <script language="javascript">
-
+  var period = |.$setup[$n]->{period}.qq|;
+  var command="|.$setup[$n]->{cmd}.qq|";
+  var Timeoutvar;
   
-  function editsetting(e) {
-    if(e.target.getAttribute("class") && e.target.getAttribute("class").indexOf("editable")!=-1) {
-      var text = e.target.getAttribute("cstr");
-          text += "\\nCurrent Value: "+e.target.innerHTML+" ("+e.target.getAttribute("raw")+")\\n ";
-      var newval = prompt(text,e.target.getAttribute("raw"));
-      if (newval != null) {
-        getdataprint('../xml-db/put.pl?'+e.target.getAttribute("cstr")+'-'+newval,'returntext',false,0,refresh);
-        }
-      }
+  
+  if(period != -1) {
+    Timeoutvar = setTimeout("refresh(0)",400);
     }
-    
-  function refresh() {
-    getdataprint('../xml-db/get.pl?|.$setup[$n]->{cmd}.qq|','content',false,|.$setup[$n]->{period}.qq|);
+  else {
+    Timeoutvar = setTimeout("refresh(-1)",400);
     }
+  setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);
+  setTimeout('document.getElementById("period").value = period;',300);
   
 </script>
 |;

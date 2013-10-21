@@ -15,23 +15,18 @@ my $page;
 $page->{title} = "Jtag Controller Register";
 $page->{link}  = "../";
 
-#address should be 0xfe4d
-
 my @setup;
 $setup[0]->{name}    = "Status";
-$setup[0]->{cmd}     = "JtagController-0xf308-JtagStatus";
-$setup[0]->{refresh} = 1;
-$setup[0]->{period}  = 0;
+$setup[0]->{cmd}     = "JtagController-0xfe4d-JtagStatus";
+$setup[0]->{period}  = 5000;
 
 $setup[1]->{name}    = "CommonCtrl";
-$setup[1]->{cmd}     = "JtagController-0xf308-JtagCommonControl";
-$setup[1]->{refresh} = 1;
-$setup[1]->{period}  = 0;
+$setup[1]->{cmd}     = "JtagController-0xfe4d-JtagCommonControl";
+$setup[1]->{period}  = -1;
 
 $setup[2]->{name}    = "Control";
-$setup[2]->{cmd}     = "JtagController-0xf308-JtagControl";
-$setup[2]->{refresh} = 1;
-$setup[2]->{period}  = 0;
+$setup[2]->{cmd}     = "JtagController-0xfe4d-JtagControl";
+$setup[2]->{period}  = -1;
 
 xmlpage::initPage(\@setup,$page);
  

@@ -47,13 +47,13 @@ extraopts="--online"
 cd $tmpdir
 
 
-exec uxterm -bg khaki -geometry 120x20+0+45 -e "/home/hadaq/bin/daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file ${extraopts}; read; bash" &
+exec uxterm -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file ${extraopts}; read; bash" &
 pid=$!
 echo $pid > $tmpdir/.daq_evtbuild.pid
 
 sleep 1
 
-exec uxterm -bg tan -geometry 120x20+0+345 -e "/home/hadaq/bin/daq_netmem -m 1 -i UDP:0.0.0.0:50000 -q 32 -d 1 -S test ;  " &
+exec uxterm -bg tan -geometry 120x20+0+345 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_netmem -m 1 -i UDP:0.0.0.0:50000 -q 32 -d 1 -S test ;  " &
 pid=$!
 echo $pid > $tmpdir/.daq_netmem.pid
 
