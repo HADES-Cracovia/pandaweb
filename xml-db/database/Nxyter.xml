@@ -100,11 +100,11 @@
       <description>Upper timestamp limit of data selection window</description>
       <field name="WindowUpperThreshold" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>  
-    <register name="DataFifoDelay" address="0009" purpose="config">
+    <register name="DataFifoDelay" address="0009" purpose="status" mode="r">
       <description>Data Fifo data delay</description>
       <field name="DataFifoDelay" start="0" bits="7" format="unsigned" unit="ns" scale="32"/>
     </register>  
-    <register name="ChannelDone" address="000a" purpose="config" repeat="4">
+    <register name="ChannelDone" address="000a" purpose="status" mode="r" repeat="4">
       <description>Data channel read-out finished</description>
       <field name="ChannelDone" start="0" bits="32" format="bitmask"/>
     </register>  
