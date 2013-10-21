@@ -1,16 +1,23 @@
 #!/bin/bash
 
-echo "Using Daqopserver $DAQOPSERVER."
+echo "================================"
+echo "++ Using Daqopserver $DAQOPSERVER."
 
-echo "Run Reset"
+echo "++ Run Reset"
 trbcmd reset
 
-
 #Network configuration
+echo "++ DHCP"
 ./dhcp.sh
+echo "++ HUB"
 ./hubconfig.sh
 
 #Front-end configuration
+echo "++ TRB"
 ./trbstart.sh
+echo "++ nXYTER"
 ./nxyter.sh
+echo "++ CTS"
 ./cts.sh
+echo "================================"
+echo "done, hit Enter to exit"
