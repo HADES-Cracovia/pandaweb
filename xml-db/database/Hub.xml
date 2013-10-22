@@ -6,24 +6,149 @@
               >
   <description>Register of the hub entity</description>
 
-  <group name="Status" purpose="status" address="0080"  mode="r" continuous="false">
+  <group name="BasicStatus" purpose="status" address="0080"  mode="r" continuous="false">
     <group name="PortStatus"
-           address="0000"  size="4"  purpose="config"  mode="rw"  continuous="true">
+           address="0000"  size="4"  purpose="config">
       <description>Current status of each port of the hub on each channel.</description>
       <register name="PortStatusChannels"
-                address="0000"  repeat="4" purpose="status" mode="rw" >
+                address="0000"  repeat="4" purpose="status" >
         <description>Current status of each port of the hub on each channel.</description>
         <field  name="PortStatusChannels"
-             start="0"   bits="17"  mode="r"  purpose="status"  format="bitmask">
+             start="0"   bits="17"   purpose="status"  format="bitmask">
         </field>
       </register>
     </group>
-  </group>
+
+    <register name="ActivePorts" address="0004"  purpose="status" >
+      <description>Current status of each physical port of the hub. '1': active, '0': not connected</description>
+      <field  name="ActivePorts"
+            start="0"   bits="13"  purpose="status"  format="bitmask">
+      </field>
+    </register>    
+
+    <register name="UplinkPorts" address="0005"  purpose="status" >
+      <description>Ports that are currently configured as uplinks</description>
+      <field  name="UplinkPorts"
+            start="0"   bits="13"  purpose="status"  format="bitmask">
+      </field>
+    </register>    
+    <register name="DownlinkPorts" address="0006"  purpose="status" >
+      <description>Ports that are currently configured as downlinks</description>
+      <field  name="DownlinkPorts"
+            start="0"   bits="13"  purpose="status"  format="bitmask">
+      </field>
+    </register>    
+    
+    <register name="IpuState" address="0007" purpose="status">
+      <description>Current status of the event data handling logic</description>
+      <field name="State" start="0" bits="4" format="enum">
+        <description>Status of the central Ipu handling state machine</description>
+        <enumItem value="0">Idle</enumItem>
+        <enumItem value="1">Waiting for reply</enumItem>
+        <enumItem value="2">Waiting for HDR</enumItem>
+        <enumItem value="3">Checking Information</enumItem>
+        <enumItem value="4">Calculating length</enumItem>
+        <enumItem value="5">Wait for DHDR</enumItem>
+        <enumItem value="6">Checking DHDR</enumItem>
+        <enumItem value="7">Sending data</enumItem>
+        <enumItem value="8">Switching endpoint</enumItem>
+        <enumItem value="9">Sending padding</enumItem>
+        <enumItem value="A">Sending TRM</enumItem>
+        <enumItem value="B">Wait for init</enumItem>
+        <enumItem value="F">default</enumItem>
+      </field>
+      <field name="PacketCounter" start="10" bits="3" format="hex" >
+        <description>Current status of the internal packet counter</description>
+      </field>
+      <field name="DhdrMemoryPointer" start="13" bits="3" format="hex" >
+        <description>Read pointer to DHDR memory</description>
+      </field>
+         
+    </register>       
+    <group name="Timeouts"
+           address="0008"  size="4"  purpose="status">
+      <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port.</description>
+      <register name="Timeout" address="0000" repeat="4" purpose="status">
+        <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port.</description>
+        <field name="CurrentTimeout" start="0" bits="13" errorflag="true" format="bitmask">
+          <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port during the last transfer.</description>
+        </field>
+        <field name="TimeoutExtra" start="16" bits="13" errorflag="true" format="bitmask">
+          <description>For old hubs: Counts the number of timeouts seen. For MDC and TRB3 Hubs: Ports currently disable due to a timeout.</description>
+        </field>
+      </register>
+    </group>
+    <group name="AckWaitingChannels"
+           address="000C"  size="4"  purpose="status">
+      <description>Bits set, when the corresponding port is waiting for an acknowledge on the corresponding channel.</description>
+      <register name="AckWaiting" address="0000" repeat="4" purpose="status">
+        <description>One bit for each port, is set if the corresponding port is currently waiting for an acknowledge</description>
+        <field name="AckWaiting" start="0" bits="13" format="bitmask">
+        </field>
+      </register>
+    </group>    
+    
+    <register name="LinkErrorStatus" address="0010" purpose="status">
+      <description>One bit for each port, is set if the corresponding port is currently waiting for an acknowledge</description>
+      <field name="LinkErrorStatus" start="0" bits="13" format="bitmask">
+      </field>
+    </register>
+
+    <register name="LogicStatus1" address="0018"  purpose="status">
+      <description>Status of the hub logic. 16 Bit per channel</description>
+      <field name="LogicStatusChan0" start="0" bits="16"  format="hex">
+        <description>Status of the hub logic on channel 0</description>
+      </field>
+      <field name="LogicStatusChan1" start="16" bits="16"  format="hex">
+        <description>Status of the hub logic on channel 1</description>
+      </field>
+    </register>
+    <register name="LogicStatus2" address="0019"  purpose="status">
+      <description>Status of the hub logic. 16 Bit per channel</description>
+      <field name="LogicStatusChan3" start="16" bits="16"  format="hex">
+        <description>Status of the hub logic on channel 3</description>
+      </field>
+    </register>
+    
+    <register name="IpuMismatch" address="001f"  purpose="status">
+      <description>Mismatch of trigger number, information or code on the data channel. One bit for each port.</description>
+      <field name="IpuMismatch" start="0" bits="16"  format="bitmask" errorflag="true" >
+      </field>
+    </register>
+
+    <group name="ErrorBitsChannels"
+           address="0020"  size="4"  purpose="status">
+      <description>Errorbits for all channels, after combination of individual ports</description>
+      <register name="ErrorBits" address="0000" repeat="4" purpose="status">
+        <description>Errorbits on the corresponding channel, after combination of individual ports</description>
+        <field name="ErrorBits" start="0" bits="32" format="hex">
+        </field>
+      </register>
+    </group>    
+
+    <register name="SlowControlError" address="0024"  purpose="status">
+      <description>An error occurred on the slow control channel. One bit for each port, set when either bit 1,3 or 6 was set in the last slow-control access. Cleared after being read</description>
+      <field name="SlowControlError" start="0" bits="13"  format="hex" errorflag="true" >
+      </field>
+    </register>    
+
+    <register name="NetTrace" address="0025"  purpose="status">
+      <description>This register is used for the nettrace operation. A bit is set if the board connected to the corresponding port answered with a don't understand errorbit. </description>
+      <field name="NetTrace" start="0" bits="32"  format="bitmask" >
+      </field>
+    </register>    
+
+    <register name="PacketTimeout" address="0026"  purpose="status">
+      <description>A TrbNet was started, but not all five words were received within the given time limit. One bit for each port.</description>
+      <field name="PacketTimeout" start="0" bits="13"  format="bitmask" errorflag="true">
+      </field>
+    </register>    
+        
+    
+    
+</group>
 
 <!--
-  <group name="Status2" purpose="statistics" address="4000"  mode="r" continuous="true">
-  </group>
-
   <group name="Control" purpose="config" address="00c0"  mode="rw" continuous="false">
   </group>
   -->
