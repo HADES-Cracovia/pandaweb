@@ -65,10 +65,10 @@
       </field>
          
     </register>       
-    <group name="Timeouts"
+    <group name="TimeoutChannels"
            address="0008"  size="4"  purpose="status">
       <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port.</description>
-      <register name="Timeout" address="0000" repeat="4" purpose="status">
+      <register name="Timeouts" address="0000" repeat="4" purpose="status">
         <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port.</description>
         <field name="CurrentTimeout" start="0" bits="13" errorflag="true" format="bitmask">
           <description>Timeout registers. If a bit is set, there was a timeout on the corresponding port during the last transfer.</description>
@@ -223,9 +223,79 @@
   </group>
 
 
-<!--
-  <group name="Control" purpose="config" address="00c0"  mode="rw" continuous="false">
+
+  <group name="Control" purpose="config" address="00c0" size="8" mode="rw" continuous="false">
+    <description>Control registers of the hub</description>
+     <register name="PortSwitch"
+              address="0000"  repeat="4" purpose="config" >
+      <description>Switches for each port used to disable an individual port on the respective channel</description>
+      <field  name="PortSwitch"
+            start="0"   bits="32"   purpose="config"  format="bitmask" >
+      </field>
+    </register>    
+
+     <register name="Timeout"
+              address="0005"  purpose="config" >
+      <description>Configures the timeout setting of the hub</description>
+      <field  name="TimeLimit0" start="0"   bits="4"   purpose="config"  format="enum" >
+        <description>Sets the time limit on the LVL1 channel</description>
+        <enumItem value="0">Off</enumItem>
+        <enumItem value="1">64ms</enumItem>
+        <enumItem value="2">128ms</enumItem>
+        <enumItem value="3">256ms</enumItem>
+        <enumItem value="4">1s</enumItem>
+        <enumItem value="5">2s</enumItem>
+        <enumItem value="6">4s</enumItem>
+        <enumItem value="7">8s</enumItem>
+        <enumItem value="f">Off</enumItem>
+      </field>
+      <field  name="TimeLimit1" start="4"   bits="4"   purpose="config"  format="enum" >
+        <description>Sets the time limit on the data channel</description>
+        <enumItem value="0">Off</enumItem>
+        <enumItem value="1">64ms</enumItem>
+        <enumItem value="2">128ms</enumItem>
+        <enumItem value="3">256ms</enumItem>
+        <enumItem value="4">1s</enumItem>
+        <enumItem value="5">2s</enumItem>
+        <enumItem value="6">4s</enumItem>
+        <enumItem value="7">8s</enumItem>
+        <enumItem value="f">Off</enumItem>
+      </field>
+      <field  name="TimeLimit3" start="12"   bits="4"   purpose="config"  format="enum" >
+        <description>Sets the time limit on the slow control channel</description>
+        <enumItem value="0">Off</enumItem>
+        <enumItem value="1">64ms</enumItem>
+        <enumItem value="2">128ms</enumItem>
+        <enumItem value="3">256ms</enumItem>
+        <enumItem value="4">1s</enumItem>
+        <enumItem value="5">2s</enumItem>
+        <enumItem value="6">4s</enumItem>
+        <enumItem value="7">8s</enumItem>
+        <enumItem value="f">Off</enumItem>
+      </field>
+      <field  name="TimeLimitAdjust"
+            start="16"   bits="4"   purpose="config"  format="integer" unit="ms" scale="-2" >
+        <description>Adjusts the exact time limit in steps of 2 ms.</description>
+      </field>      
+    </register>           
+    
+     <register name="PortReset"
+              address="0006"  purpose="config" >
+      <description>Sends a network reset on the selected port. One bit for each port. Has to be cleared by the user to make port operational again.</description>
+      <field  name="PortReset"
+            start="0"   bits="32"   purpose="config"  format="bitmask" >
+      </field>
+    </register>       
+    
+     <register name="LinkLookup"
+              address="0007"  purpose="config" >
+      <description>Makes the LED on the corresponding port flash. One bit for each port. Not implemented in all hubs.</description>
+      <field  name="LinkLookup"
+            start="0"   bits="32"   purpose="config"  format="bitmask" >
+      </field>
+    </register>       
+    
   </group>
-  -->
+  
 
 </TrbNetEntity>

@@ -27,8 +27,8 @@ $setup[1]->{period}  = -1;
 $setup[1]->{address} = 1;
 
 
-$setup[2]->{name}    = "Config";
-$setup[2]->{cmd}     = "Hub-0xfffe-Config";
+$setup[2]->{name}    = "Control";
+$setup[2]->{cmd}     = "Hub-0xfffe-Control";
 $setup[2]->{period}  = -1;
 $setup[2]->{address} = 1;
 
