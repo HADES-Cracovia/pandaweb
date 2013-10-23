@@ -148,15 +148,19 @@ sub FormatPretty {
       when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
       when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
       when ("binary")   {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
-      when ("bitmask")  {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
+      when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
+                          $tmp =~ s/0/\&#9633\;/g;
+                          $tmp =~ s/1/\&#9632\;/g;
+                          $ret .="$cl>".$tmp;
+                          }
       when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
-      when ("hex")      {$ret .= sprintf("$cl>%8x",$value);}
+      when ("hex")      {$ret .= sprintf("$cl>0x%0".(int(($obj->{bits}+3)/4))."x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
                             $ret .= "$cl>".$obj->{enumItems}->{$t} 
                             }
                           else {
-                            $ret .= "$cl>".$t;
+                            $ret .= "$cl>0x".$t;
                             }
                           }
       default           {$ret .= sprintf(">%08x",$value);}
@@ -172,16 +176,16 @@ sub FormatPretty {
       when ("binary")   {$ret = sprintf("%b",$value);}
       when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {require Date::Format; $ret = Date::Format::time2str('%Y-%m-%d %H:%M',$value);}
-      when ("hex")      {$ret = sprintf("%8x",$value);}
+      when ("hex")      {$ret = sprintf("0x%0".(($obj->{bits}+3)/4)."x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
                             $ret = $obj->{enumItems}->{$t} 
                             }
                           else {
-                            $ret = $t;
+                            $ret = "0x".$t;
                             }
                           }
-      default           {$ret = sprintf("%08x",$value);}
+      default           {$ret = sprintf("0x%08x",$value);}
       }
     }
   $ret .= " ".$obj->{unit} if exists $obj->{unit};
@@ -255,47 +259,52 @@ sub generateoutput {
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
 
+    my $addr = $obj->{address};   
+
+    $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$name,$addr);
+    if($once != 1 && defined $obj->{repeat}) {
+      $t .= "<th class=\"slice\">Slice";
+      }
+    if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
+      $t .= "<th title=\"$obj->{description}\">$name";
+      }
+    elsif($obj->{type} eq "register"){
+      foreach my $c (@{$obj->{children}}){
+        $oc = $db->{$c};
+        $t .= sprintf("<th title=\"%s (%u Bit @ %u)\n$oc->{description}\">$c",$c,$oc->{bits},$oc->{start});
+        }
+      }   
+    my @tarr;
     do {  
-      my $addr = $obj->{address}+$slice*$stepsize;
+      $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
       
-      my $fullname = $name;
-      $fullname .= ".$slice" if ($once != 1 && defined $obj->{repeat});
-      
-      $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$fullname,$addr);
-
-      if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
-        $t .= "<th title=\"$obj->{description}\">$name";
-        $t .= ".$slice" if(defined $obj->{repeat});
-        }
-      elsif($obj->{type} eq "register"){
-        foreach my $c (@{$obj->{children}}){
-          $oc = $db->{$c};
-          $t .= sprintf("<th title=\"%s (%u Bit @ %u)\n$oc->{description}\">$c",$c,$oc->{bits},$oc->{start});
-          }
-        }   
-
-#       print DumpTree($data->{$addr});
       my $wr = 1 if $obj->{mode} =~ /w/;
       foreach my $b (sort keys %{$data->{$addr}}) {
-        $t .= sprintf("<tr><td title=\"raw: 0x%x\">%04x",$data->{$addr}->{$b},$b);
+        my $ttmp = "";
+        my $sl;
+        $sl = sprintf("<td class=\"slice\" title=\"$name.$slice (0x%04x)\">%i",$addr,$slice) if ($once != 1 && defined $obj->{repeat});
+        
+        $ttmp .= sprintf("<tr><td title=\"raw: 0x%x\">%04x%s",$data->{$addr}->{$b},$b,$sl);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
             my $fullc = $c;
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
             my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
-            $t .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""),$cstr);
+            $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""),$cstr);
             }
           }
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
           my $fullc = $name;
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
           my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
-          $t .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
+          $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
           }
+        push (@tarr,$ttmp);
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
+    $t .= join(' ',@tarr);
     $t .= "</table>";
     }
   print $t;
