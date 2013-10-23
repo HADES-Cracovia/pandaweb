@@ -176,7 +176,7 @@ sub FormatPretty {
       when ("binary")   {$ret = sprintf("%b",$value);}
       when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {require Date::Format; $ret = Date::Format::time2str('%Y-%m-%d %H:%M',$value);}
-      when ("hex")      {$ret = sprintf("0x%0".(($obj->{bits}+3)/4)."x",$value);}
+      when ("hex")      {$ret = sprintf("0x%0".int(($obj->{bits}+3)/4)."x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
                             $ret = $obj->{enumItems}->{$t} 

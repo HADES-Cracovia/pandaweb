@@ -90,7 +90,7 @@
     
     <register name="LinkErrorStatus" address="0010" purpose="status">
       <description>One bit for each port, is set if the corresponding port is currently waiting for an acknowledge</description>
-      <field name="LinkErrorStatus" start="0" bits="13" format="bitmask">
+      <field name="LinkErrorStatus" start="0" bits="13" invertflag="true" format="bitmask">
       </field>
     </register>
 
@@ -128,13 +128,13 @@
 
     <register name="SlowControlError" address="0024"  purpose="status">
       <description>An error occurred on the slow control channel. One bit for each port, set when either bit 1,3 or 6 was set in the last slow-control access. Cleared after being read</description>
-      <field name="SlowControlError" start="0" bits="13"  format="hex" errorflag="true" >
+      <field name="SlowControlError" start="0" bits="13"  format="bitmask" errorflag="true" >
       </field>
     </register>    
 
-    <register name="NetTrace" address="0025"  purpose="status">
+    <register name="NetTrace" address="0025" purpose="status">
       <description>This register is used for the nettrace operation. A bit is set if the board connected to the corresponding port answered with a don't understand errorbit. </description>
-      <field name="NetTrace" start="0" bits="32"  format="bitmask" >
+      <field name="NetTrace" start="0" bits="32" invertflag="true"  format="bitmask" >
       </field>
     </register>    
 
@@ -143,10 +143,85 @@
       <field name="PacketTimeout" start="0" bits="13"  format="bitmask" errorflag="true">
       </field>
     </register>    
-        
-    
-    
 </group>
+
+
+  <group name="Status" purpose="status" address="4000"  size="112" mode="r" continuous="false">
+    <description>Details status information</description>
+    <register name="IpuPacketCount"
+              address="0000"  repeat="16" purpose="status" >
+      <description>Packet counter on the IPU channel for each individual port</description>
+      <field  name="IpuPacketCount"
+            start="0"   bits="32"   purpose="status"  format="integer">
+      </field>
+    </register>
+    <register name="SlowControlCount"
+              address="0010"  repeat="16" purpose="status" >
+      <description>Packet counter on the slow control channel for each individual port</description>
+      <field  name="SlowControlCount"
+            start="0"   bits="32"   purpose="status"  format="integer">
+      </field>
+    </register>
+    <register name="ErrorBitsPorts"
+              address="0020"  repeat="16" purpose="status" >
+      <description>Some part of errorbits on Lvl1 and data channel for each port</description>
+      <field  name="Lvl1ErrorHigh" start="8"   bits="8"   purpose="status"  format="bitmask">
+        <description>Lower 8 Bit of errorbits on Lvl1 channel</description>
+      </field>
+      <field  name="Lvl1ErrorLow" start="0"   bits="8"   purpose="status"  format="bitmask">
+        <description>Lower 8 Bit of errorbits on Lvl1 channel</description>
+      </field>
+      <field  name="DataErrorHigh" start="24"   bits="8"   purpose="status"  format="bitmask">
+        <description>Lower 8 Bit of errorbits on Lvl1 channel</description>
+      </field>
+      <field  name="DataErrorLow" start="16"   bits="8"   purpose="status"  format="bitmask">
+        <description>Lower 8 Bit of errorbits on Lvl1 channel</description>
+      </field>
+    </register>
+    <register name="InclusiveBusy"
+              address="0030"  repeat="16" purpose="status" >
+      <description>Total busy time on Lvl1 channel for each individual port</description>
+      <field  name="InclusiveBusy"
+            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns">
+      </field>
+    </register>   
+    <register name="ExclusiveBusy"
+              address="0040"  repeat="16" purpose="status" >
+      <description>Busy time on Lvl1 channel for each individual port, counts only if only this one port is busy and others are idle</description>
+      <field  name="ExclusiveBusy"
+            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns" >
+      </field>
+    </register>   
+    
+    <register name="GlobalTime"
+              address="0050" purpose="status" >
+      <description>Global time, counting in microseconds</description>
+      <field  name="GlobalTime"
+            start="0"   bits="32"   purpose="status"  format="integer"  unit="us" >
+      </field>
+    </register>      
+
+    <register name="LsmStatus"
+              address="0060" purpose="status" repeat="16">
+      <description>Status of link state machines</description>
+      <field  name="MedError" start="0"   bits="3"   purpose="status" invertflag="true" format="enum" >
+        <description>General status of the link</description>
+        <enumItem value="0">OK</enumItem>
+        <enumItem value="7">Inactive</enumItem>
+      </field>
+      <field  name="LinkStateMachine" start="4"   bits="4"   purpose="status"  format="hex"  >
+        <description>Status of the link state machine</description>
+      </field>      
+      <field  name="RetransmitReceived" start="16"   bits="8"   purpose="status" invertflag="true" format="integer"  >
+        <description>Number of retransmit requests received</description>
+      </field>      
+      <field  name="RetransmitSent" start="24"   bits="8"   purpose="status" invertflag="true" format="integer"  >
+        <description>Number of retransmit requests sent</description>
+      </field>      
+    </register>     
+    
+  </group>
+
 
 <!--
   <group name="Control" purpose="config" address="00c0"  mode="rw" continuous="false">
