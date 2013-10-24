@@ -88,7 +88,7 @@ sub Main {
     #print Dumper($db->{'JtagLastDataChanged'});
     my $name = $doc->getDocumentElement->getAttribute('name');
     if($dumpitem) {
-      foreach my $key (keys $db) {
+      foreach my $key (keys %$db) {
         next unless $key =~ /$dumpitem/;
         my $item = $db->{$key};
         $item->{address} = sprintf("0x%04x",$item->{address});
@@ -164,7 +164,6 @@ sub MakeOrMergeDbItem {
   # always append the type, start with an empty one
   my $dbitem = shift || {type => ''};
   $dbitem->{'type'} .= $n->nodeName;
-
   # determine the absolute address, include node itself (not
   # necessarily a group) default address is 0, and we start always
   # from 0, overwriting a previously determined address

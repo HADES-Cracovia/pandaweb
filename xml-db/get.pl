@@ -218,7 +218,7 @@ sub requestdata {
         }
       $o = trb_register_read_mem($netaddr,$obj->{address}+$offset,0,$size);
       next unless defined $o;
-      foreach my $k (keys $o) {
+      foreach my $k (keys %$o) {
         for(my $i = 0; $i < $size; $i++) {
           $data->{$obj->{address}+$offset+$i}->{$k} = $o->{$k}->[$i];
           }
@@ -236,7 +236,7 @@ sub requestdata {
     do {
       $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
-      foreach my $k (keys $o) {
+      foreach my $k (keys %$o) {
         $data->{$obj->{address}+$slice*$stepsize}->{$k} = $o->{$k};
         }
       } while(!$once && defined $obj->{repeat} && ++$slice < $obj->{repeat});
