@@ -11,7 +11,6 @@ use FindBin qw($RealBin);
 use Data::Dumper;
 use Storable qw(lock_store);
 
-
 # some default config options
 # and provide nice help documentation
 # some global variables, needed everywhere
@@ -175,9 +174,10 @@ sub MakeOrMergeDbItem {
   }
 
   # add all attributes
-  foreach my $a (keys %$n) {
-    next if $a eq 'name' or $a eq 'address';
-    $dbitem->{$a} = $n->getAttribute($a);
+  foreach my $a ($n->attributes()) {
+    my $a_name = $a->getName();
+    next if $a_name eq 'name' or $a_name eq 'address';
+    $dbitem->{$a_name} = $a->getValue();
   }
 
   # find required attributes from first ancestor which knows
