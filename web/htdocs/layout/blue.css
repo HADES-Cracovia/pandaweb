@@ -8,7 +8,7 @@ body {
 #roterBereich, #blauerBereich, #fileSelection, #debug, #overview, #debugpane {
   float:left;
   position:relative;
-  width:320px;
+/*   width:320px; */
   padding:10px;
   margin:50px 10px 0 30px;
   border-radius:5px;
@@ -42,7 +42,7 @@ body {
 }
 
 #overview {
-  width:1000px;
+  min-width:1000px;
   margin:50px 0 0 20px;  
   }
 
@@ -220,10 +220,10 @@ div.header span{
   float:left;
   position:relative;
   top:-2px;
-  margin:0 10px 0 0;
+  margin:0 25px 0 0;
   padding:2px 0px 0 0px;
   border:0px solid transparent;
-  width:100px;
+/*   width:100px; */
   list-style:none;
   cursor:hand;
 /*   text-align:center; */
@@ -254,17 +254,17 @@ div.header span a:hover {
 
 
 .high {
-  background:#ded;
+  background-color:#e0eae0;
 }
 .low {
-  background:#edd;
+  background-color:#eae0e0;
 }
 
 .good {
-  background:#cfc;
+  background-color:#cfc;
 }
 .bad {
-  background:#fcc;
+  background-color:#fcc;
 }
 
 
@@ -284,10 +284,27 @@ table.queryresult td:first-child, table.queryresult th:first-child{
   max-width:100px;
   overflow:hidden;
   text-align:left;
+  background:#dde;
 }
+
+table.queryresult td {
+  text-align:right;
+  }
 
 hr.queryresult  {
   border:none;
   width:100%;
   border-top:1px solid #aaa;
+}
+
+
+td.editable {
+  background-image:url("edit.png");
+  background-repeat:no-repeat;
+  background-position:fixed;
+}
+
+table.queryresult td.slice, table.queryresult th.slice {
+  text-align:center;
+  background:#eee;
 }

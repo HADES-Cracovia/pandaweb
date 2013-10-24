@@ -37,8 +37,10 @@ echo "clear data fifo"
 trbcmd rm 0x3800 0x8600 4000 2>/dev/null
 
 # Set readout Mode
-trbcmd w 0x3800 0x8180 0x00   # normal mode
+trbcmd w 0x3800 0x8180 0x01   # was: 0: normal mode
 trbcmd w 0x3800 0x8182 100    # window width = 100 * 4ns
+trbcmd w 0x3800 0x8184 0xffe  # read-out time max
+
 
 # Decoder Settings
 trbcmd w 0x3800 0x8120 0       # reset all counters
@@ -47,6 +49,6 @@ trbcmd w 0x3800 0x8120 0       # reset all counters
 trbcmd w 0x3800 0x8103 0
 
 #Debugging to test ADC alignment / reset feature
-sleep 1;
-trbcmd w 0x3800 0x8501 1
+# sleep 1;
+# trbcmd w 0x3800 0x8501 1
 

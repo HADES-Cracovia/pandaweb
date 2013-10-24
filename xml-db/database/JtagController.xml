@@ -9,7 +9,7 @@
   <!-- Common JTAG control registers             -->
   <!--===========================================-->
   <group name="JtagCommonControl"
-         address="1000"  size="37"  purpose="config"  mode="rw"  continuous="true">
+         address="1000"  size="37"  purpose="config"  mode="rw"  continuous="false">
     <register name="WaitBeforeStart"
               address="0007" mode="rw" purpose ="config" >
       <description>Wait time between write sequence and start signal.</description>
@@ -74,11 +74,11 @@
         <description>Trigger writing all JTAG registers once on individual JTAG chains</description>
       </field>
     </register>
-    <group name="JtagOverride"
-           address="0020"  size="5"  purpose="config"  mode="rw"  continuous="true">
-      <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
+<!--     <group name="JtagOverride" -->
+<!--            address="0020"  size="1"  purpose="config"  mode="rw"  continuous="true"> -->
+<!--       <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description> -->
       <register name="JtagOverrideRegister"
-                address="0000"  repeat="5" >
+                address="0020">
         <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
         <field name="InvertTDO"
                start="0" bits="1" format="boolean">
@@ -137,7 +137,7 @@
           <description>Enable Clock output signal</description>
         </field>
       </register>
-    </group>
+<!--     </group> -->
   </group>
   <!--===========================================-->
   <!--JTAG Status registers for each chain       -->

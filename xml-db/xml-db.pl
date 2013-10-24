@@ -11,7 +11,6 @@ use FindBin qw($RealBin);
 use Data::Dumper;
 use Storable qw(lock_store);
 
-
 # some default config options
 # and provide nice help documentation
 # some global variables, needed everywhere
@@ -22,6 +21,7 @@ my $verbose = 0;
 my $warnings = 1;
 my $dir = $RealBin;
 my $dump = 0;
+my $dumpitem;
 
 Getopt::Long::Configure(qw(gnu_getopt));
 GetOptions(
@@ -30,7 +30,8 @@ GetOptions(
            'verbose|v+' => \$verbose,
            'warnings|w!' => \$warnings,
            'dir=s' => \$dir,
-           'dump' => \$dump
+           'dump' => \$dump,
+           'dumpitem|i=s' => \$dumpitem
           ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
@@ -50,6 +51,7 @@ if ($verbose) {
 # jump to subroutine which handles the job,
 # depending on the options
 
+
 &Main;
 
 sub Main {
@@ -59,13 +61,13 @@ sub Main {
 
   my @docs;
   {
+    local $CWD = $db_dir;
     my %filter;
     foreach (@ARGV) {
       $_ = "$_.xml" unless /\.xml$/;
       $filter{$_} = 1;
     }
     my $num = scalar @ARGV;
-    local $CWD = $db_dir;
     while (<*.xml>) {
       next if $num>0 and not defined $filter{$_};
       my $doc = LoadXML($_);
@@ -84,14 +86,21 @@ sub Main {
     #print Dumper($db->{'ReadoutFSM'});
     #print Dumper($db->{'JtagErrorCount1'});
     #print Dumper($db->{'JtagLastDataChanged'});
-    #print Dumper($db->{'IdleTime'});
-    #print DumpTree($db);
     my $name = $doc->getDocumentElement->getAttribute('name');
+    if($dumpitem) {
+      foreach my $key (keys $db) {
+        next unless $key =~ /$dumpitem/;
+        my $item = $db->{$key};
+        $item->{address} = sprintf("0x%04x",$item->{address});
+        MyDumpTree($item,"$key (in entity $name)");
+      }
+      next;
+    }
+    #print DumpTree($db);
     my $cachefile = "cache/$name.entity";
     lock_store($db, $cachefile);
     print STDERR "Wrote $cachefile\n" if $verbose>0;
     print STDERR "\n",DumpTree($db,$name),"\n" if $verbose>2;
-
   }
 
 
@@ -165,9 +174,10 @@ sub MakeOrMergeDbItem {
   }
 
   # add all attributes
-  foreach my $a (keys %$n) {
-    next if $a eq 'name' or $a eq 'address';
-    $dbitem->{$a} = $n->getAttribute($a);
+  foreach my $a ($n->attributes()) {
+    my $a_name = $a->getName();
+    next if $a_name eq 'name' or $a_name eq 'address';
+    $dbitem->{$a_name} = $a->getValue();
   }
 
   # find required attributes from first ancestor which knows
@@ -236,10 +246,13 @@ sub DumpDocument {
   # recursively populate tree and print it
   my $tree = {};
   IterateChildren($tree, $doc->getDocumentElement, $entityAddr);
-  print DumpTree($tree, $entityName,
+  MyDumpTree($tree, $entityName);
+}
+
+sub MyDumpTree {
+  print DumpTree(shift, shift,
                  USE_ASCII => 0, DISPLAY_OBJECT_TYPE => 0,
                  DISPLAY_ADDRESS => 0, NO_NO_ELEMENTS => 1);
-
 }
 
 sub IterateChildren {
@@ -332,6 +345,7 @@ xml-db.pl - Create cached data structures from the XML entities
 
 xml-db.pl [entity names]
 xml-db.pl --dump [entity names]
+xml-db.pl --dumpitem=<regex> [entity names]
 
  Options:
    -h, --help     brief help message
@@ -339,6 +353,7 @@ xml-db.pl --dump [entity names]
    -w, --warnings print warnings to STDERR
    --dir          directory that contains database and schema subdirs
    --dump         dump the database as tree, restricted to given entity names
+   -i, --dumpitem dump a given named item as tree
 
 =head1 OPTIONS
 
@@ -358,13 +373,25 @@ Set the base directory where the default XML files can be found in
 sub-directories database and schema. In the same directory the cache
 will be created.
 
+=item B<--dump>
+
+Dump the tree-structured database of the specified entity.
+
+=item B<--dumpitem>
+
+Dump items matching the specified regex to be found in the database of
+the given entities (if no entity is given, all are searched). Don't
+forget to enquote your regex with 'single quotes' to prevent your
+shell fiddling around with that expression. If you want to have an
+exact match, use somthing like '^MyExactName$'.
+
 =back
 
 =head1 DESCRIPTION
 
-B<This program> updates the cache directory from the provided XML
-files in the database directory (also validates them against the
-schema). You can restrict the files being worked by stating them as
-arguments, the extension .xml will be added for convenience.
+This program updates the cache directory from the provided XML files
+in the database directory (also validates them against the schema).
+You can restrict the files being worked by stating them as arguments,
+the extension .xml will be added for convenience.
 
 =cut

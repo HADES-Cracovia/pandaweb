@@ -57,7 +57,7 @@
 
 
   <group name="TriggerValidate"
-         address="0180"  size="14"  purpose="config"  mode="r"  continuous="true">
+         address="0180"  size="14"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
       <field name="ReadoutMode" start="0" bits="3" format="enum">
@@ -88,7 +88,7 @@
       <description>Maximal read-out time</description>
       <field name="BusyTime" start="0" bits="12" format="unsigned" unit="ns" scale="10"/>
     </register>  
-    <register name="TimestampRef" address="0006" purpose="config">
+    <register name="TimestampRef" address="0006" purpose="config" mode="r" >
       <description>Internal reference timestamp of current event</description>
       <field name="TimestampRef" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>  
@@ -100,11 +100,11 @@
       <description>Upper timestamp limit of data selection window</description>
       <field name="WindowUpperThreshold" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>  
-    <register name="DataFifoDelay" address="0009" purpose="config">
+    <register name="DataFifoDelay" address="0009" purpose="status" mode="r">
       <description>Data Fifo data delay</description>
       <field name="DataFifoDelay" start="0" bits="7" format="unsigned" unit="ns" scale="32"/>
     </register>  
-    <register name="ChannelDone" address="000a" purpose="config" repeat="4">
+    <register name="ChannelDone" address="000a" purpose="status" mode="r" repeat="4">
       <description>Data channel read-out finished</description>
       <field name="ChannelDone" start="0" bits="32" format="bitmask"/>
     </register>  
@@ -117,43 +117,43 @@
   <group name="DataReceiver"
          address="0500"  size="9"  purpose="status"  mode="rw"  continuous="true">
 
-    <register name="CurrentTimestamp" address="0000" purpose="status">
+    <register name="CurrentTimestamp" address="0000" purpose="status" mode="r">
       <description>Current Timestamp Value read from Fifo</description>
       <field name="CurrentTimestamp" start="0" bits="32" format="unsigned" />
     </register>
     
     <register name="TimestampFifoStatus" address="0001" purpose="status">
       <description>Status of the timestamp Fifo</description>
-      <field name="TSFifoFull" start="0" bits="1" format="boolean" errorflag="true">
+      <field name="TSFifoFull" start="0" bits="1" format="boolean" errorflag="true" mode="r">
         <description>Timestamp Fifo full</description>
       </field>  
-      <field name="TSFifoEmpty" start="1" bits="1" format="boolean">
+      <field name="TSFifoEmpty" start="1" bits="1" format="boolean" mode="r">
         <description>Timestamp Fifo Empty</description>
       </field>  
-      <field name="TSFifoAlmostEmpty" start="2" bits="1" format="boolean">
+      <field name="TSFifoAlmostEmpty" start="2" bits="1" format="boolean" mode="r">
         <description>Timestamp Fifo Almost Empty</description>
       </field>        
-      <field name="NxFrameSynced" start="31" bits="1" format="boolean">
+      <field name="NxFrameSynced" start="31" bits="1" format="boolean" mode="r">
         <description>Synchronized to Nxyter Frame</description>
       </field>        
     </register>   
     
-    <register name="ResyncCounter" address="0002" purpose="status">
+    <register name="ResyncCounter" address="0002" purpose="status" mode="r">
       <description>Number of Resyncs</description>
       <field name="ResyncCounter" start="0" bits="32" format="unsigned" />
     </register>
 
-    <register name="ParityErrorCounter" address="0003" purpose="status">
+    <register name="ParityErrorCounter" address="0003" purpose="status" mode="r">
       <description>Number of Parity Errors</description>
       <field name="ParityErrorCounter" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
 
     <register name="AdcClkDelay" address="0005" purpose="status">
-      <description>Number of Parity Errors (add 4 ns until bugfix is done)</description>
+      <description>Delay setting for ADC sample clock</description>
       <field name="AdcClkDelay" start="0" bits="3" format="unsigned" scale="4" scaleoffset="4" unit="ns" />
     </register>
 
-    <register name="AdcResetCounter" address="0006" purpose="status">
+    <register name="AdcResetCounter" address="0006" purpose="status" mode="r">
       <description>Number of ADC Resets</description>
       <field name="AdcResetCounter" start="0" bits="32" format="unsigned"/>
     </register>
@@ -168,7 +168,7 @@
       </field>
     </register>
 
-    <register name="AdcValue" address="0008" purpose="status">
+    <register name="AdcValue" address="0008" purpose="status" mode="r">
       <description>Current ADC Fifo value</description>
       <field name="AdcValue" start="0" bits="32" format="unsigned"/>
     </register>

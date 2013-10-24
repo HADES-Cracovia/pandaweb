@@ -19,7 +19,7 @@
 0x00000000    # 15  Channel Masks END
 0x000000a0    # 16  
 0x000000ff    # 17
-0x0000003c    # 18  Common Threshold, default 0x80
+0x000000aa    # 18  Common Threshold, default 0x80
 0x0000001e    # 19
 0x0000005f    # 20
 0x00000057    # 21
@@ -33,8 +33,8 @@
 0x00000045    # 29
 0x000000be    # 30
 0x000000be    # 31
-0x00000004    # 32  TestTrigger setup etc. , default 0x00
-0x00000008    # 33  clock input 256A, set bit #3, default 0x08 (normal mode)
+0x00000000    # 32  TestTrigger setup etc. , default 0x00
+0x0000000c    # 33  clock input 256A, set bit #3, default 0x08 (normal mode)
 0x000000be    # 34
 0x000000be    # 35
 0x000000be    # 36
