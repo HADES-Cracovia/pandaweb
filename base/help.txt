@@ -27,7 +27,7 @@ Ping the trb for connectivity test (on the kp1pc105).
 
 
 6. Write the unique ids of the endpoints in the serials_trb3.db
-> ~/trbsoft/daqtools/tools/generate_serial_table.pl 70
+> ~/trbsoft/daqtools/tools/generate_serial_table.pl 70 >> ~/trbsoft/daqtools/base/serials_trb3.db 
 
 
 7. Enter network addresses to the addresses_trb3.db file for the correct trb3
