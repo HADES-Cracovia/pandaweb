@@ -1,0 +1,57 @@
+################################################################################
+##              The Procedure for Registering the new TRB3 Boards             ##
+################################################################################
+
+1. Connect the programming cable to the jtag pins and programm the fpgas and
+the clock manager using the programmer software.
+
+
+2. Watch the /var/log/messages for dhcp request (in the dhcp server hadeb05)
+and copy the mac address to the /etc/dhcp_conf file for the correct trb3. 
+> tail -f /var/log/messages
+
+
+3. Restart the dhcp server and the trb3 and watch the log file for ip
+assignment. Ping the trb for connectivity test.
+>/etc/init.d/dhcpd restart
+>ping trb070
+
+
+4. Start trbnet deamon (change the trb numbers)
+>TRB3_SERVER=trb070 ~/trbsoft/trbnettools/binlocal/trbnetd -i 70
+
+
+5. Set right environment
+>export DAQOPSERVER=localhost:70
+
+
+6. Write the unique ids of the endpoints in the serials_trb3.db
+>generate_serial_table.pl 70
+
+
+7. Enter network addresses to the addresses_trb3.db file for the correct trb3
+number.
+
+
+8. Run merge_serials script and test the correctness of the network address
+>./merge_serial_address.pl ~/trbsoft/daqtools/base/serials_trb3.db ~/trbsoft/daqtools/base/addresses_trb3.db
+
+
+9. Program the central flash with the following command
+>trbflash program 0xff7f ~/trbsoft/bitfiles/trb3_central_cts_20121116.bit
+
+
+10. Program the peripheral flashes with the following command
+>trbflash program 0xfe48 ~/trbsoft/bitfiles/trb3_periph_padiwa_dbl_alt_20130710.bit
+
+
+11. Reload the fpgas from the flashes
+trbcmd reload 0xffff
+
+
+12. Check if all of the fpgas are programmed with the designs from the flashes
+>trbcmd reset
+>i
+
+
+13. Enter a log in wiki
