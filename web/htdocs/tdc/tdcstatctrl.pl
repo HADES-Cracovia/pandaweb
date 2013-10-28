@@ -24,13 +24,13 @@ $setup[0]->{period}  = 10000;
 $setup[1]->{name}    = "Control";
 $setup[1]->{cmd}     = "TDC-0xfe48-Control";
 $setup[1]->{refresh} = 1;
-$setup[1]->{period}  = 0;
+$setup[1]->{period}  = -1;
 
 
 $setup[2]->{name}    = "Inputs";
 $setup[2]->{cmd}     = "TDC-0xfe48-Channel";
 $setup[2]->{refresh} = 1;
-$setup[2]->{period}  = 0;
+$setup[2]->{period}  = 1000;
 
 xmlpage::initPage(\@setup,$page);
  

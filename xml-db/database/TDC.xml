@@ -52,7 +52,7 @@
       <field name="ChannelCount" start="8" bits="8" format="unsigned">
         <description>Number of implemented channels</description>
       </field>
-      <field name="RefTimeSyncedTo100" start="16" bits="1" format="boolean">
+      <field name="RefTimeSyncedTo100" start="16" bits="1" invertflag="true" format="boolean">
         <description>Reference time synchronised to 100 MHz Trb-Net
         clock</description>
       </field>
