@@ -34,7 +34,7 @@ sub execServerAndMonitor {
       print "\n\n\nIf you willingly killed the monitoring script press CTRL+C again! \n\n\n\n\n\n\n\n\n";
       
       for(my $i=5; $i; $i--) {
-         print "\n  Monitor will restart in $i second(s)\a";
+         print "\n  Monitor will restart in $i second(s)";
          sleep 1;
       }
    }

@@ -11,7 +11,6 @@ use FindBin qw($RealBin);
 use Data::Dumper;
 use Storable qw(lock_store);
 
-
 # some default config options
 # and provide nice help documentation
 # some global variables, needed everywhere
@@ -89,7 +88,7 @@ sub Main {
     #print Dumper($db->{'JtagLastDataChanged'});
     my $name = $doc->getDocumentElement->getAttribute('name');
     if($dumpitem) {
-      foreach my $key (keys $db) {
+      foreach my $key (keys %$db) {
         next unless $key =~ /$dumpitem/;
         my $item = $db->{$key};
         $item->{address} = sprintf("0x%04x",$item->{address});
@@ -165,7 +164,6 @@ sub MakeOrMergeDbItem {
   # always append the type, start with an empty one
   my $dbitem = shift || {type => ''};
   $dbitem->{'type'} .= $n->nodeName;
-
   # determine the absolute address, include node itself (not
   # necessarily a group) default address is 0, and we start always
   # from 0, overwriting a previously determined address
@@ -175,9 +173,10 @@ sub MakeOrMergeDbItem {
   }
 
   # add all attributes
-  foreach my $a (keys %$n) {
-    next if $a eq 'name' or $a eq 'address';
-    $dbitem->{$a} = $n->getAttribute($a);
+  foreach my $a ($n->attributes()) {
+    my $a_name = $a->getName();
+    next if $a_name eq 'name' or $a_name eq 'address';
+    $dbitem->{$a_name} = $a->getValue();
   }
 
   # find required attributes from first ancestor which knows
