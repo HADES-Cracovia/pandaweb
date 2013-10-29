@@ -1,0 +1,105 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Readout"
+              address="7000"
+              >
+  <description>Register of the trigger and read-out handler in full_endpoint (on front-ends only)</description>
+
+  <group name="Status" address="0000" mode="r" continuous="false">
+    <register name="DataBufferStatus" address="0100" repeat="4" purpose="status">
+      <description>Status of the event data buffers</description>
+      <field name="DataFifoLevel" start="0" bits="16" format="unsigned" >
+        <description>Fill level of the data Fifo in 32 Bit words</description>
+      </field>
+      <field name="DataFifoEmpty" start="16" bits="1" format="boolean" invertflag="true">
+        <description>The data buffer is empty</description>
+      </field>
+      <field name="DataFifoAlmostFull" start="17" bits="1" format="boolean"  invertflag="true">
+        <description>The data buffer is almost full - no new events can be accepted</description>
+      </field>
+      <field name="DataFifoFull" start="18" bits="1" format="boolean" errorflag="true">
+        <description>The data buffer is completly full. This must not happen.</description>
+      </field>
+      <field name="DataFifoWrite" start="19" bits="1" format="boolean" invertflag="true">
+        <description>Data buffer write strobe.</description>
+      </field>
+      <field name="DataHandlerState" start="20" bits="3" format="enum">
+        <description>State machine of the data handler</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">Data writing</enumItem>
+        <enumItem value="4">Wait for release</enumItem>
+      </field>       
+      <field name="LengthFifoEmpty" start="24" bits="1" format="boolean" invertflag="true">
+        <description>The event header buffer is empty</description>
+      </field>
+      <field name="LengthFifoAlmostFull" start="25" bits="1" format="boolean"  invertflag="true">
+        <description>The event header buffer is almost full - no new events can be accepted</description>
+      </field>
+      <field name="LengthFifoFull" start="26" bits="1" format="boolean" errorflag="true">
+        <description>The event header buffer is completly full. This must not happen.</description>
+      </field>
+      <field name="LengthFifoWrite" start="27" bits="1" format="boolean" invertflag="true">
+        <description>Event header buffer write strobe.</description>
+      </field>
+    </register>
+
+    <register name="Lvl1BufferStatus" address="0110"  purpose="status">
+      <description>Status of the event header buffers</description>
+      <field name="Lvl1FifoLevel" start="0" bits="16" format="unsigned" >
+        <description>Fill level of the Lvl1 Fifo in 32 Bit words</description>
+      </field>
+      <field name="Lvl1FifoEmpty" start="16" bits="1" format="boolean" invertflag="true">
+        <description>The Lvl1 buffer is empty</description>
+      </field>
+      <field name="Lvl1FifoAlmostFull" start="17" bits="1" format="boolean"  invertflag="true">
+        <description>The Lvl1 buffer is almost full - no new events can be accepted</description>
+      </field>
+      <field name="Lvl1FifoFull" start="18" bits="1" format="boolean" errorflag="true">
+        <description>The Lvl1 buffer is completly full. This must not happen.</description>
+      </field>
+      <field name="Lvl1FifoWrite" start="19" bits="1" format="boolean" invertflag="true">
+        <description>Lvl1 buffer write strobe.</description>
+      </field>
+      <field name="Lvl1HandlerState" start="20" bits="3" format="enum">
+        <description>State machine of the Lvl1 handler</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">Data writing</enumItem>
+        <enumItem value="4">Wait for release</enumItem>
+      </field>       
+    </register>    
+
+    <register name="Lvl1ReleaseStatus" address="0200"  purpose="status">
+      <description>Status of the individual data handlers. Bit is set if the handler did not get a release from the data handler. Content is only valid while the handler is not idle.</description>
+      <field name="Lvl1ReleaseStatus" start="0" bits="6" format="bitmask" >
+      </field>
+    </register>
+    
+    
+    <register name="IPUHandlerStatus" address="0202" purpose="status">
+      <description>IPU handler status register</description>
+      <field name="IPUHandlerStatusState" start="0" bits="4" format="enum"  invertflag="true">
+        <description>FSM state bits</description>
+        <enumItem value="0">IDLE</enumItem>
+        <enumItem value="1">WaitForLength</enumItem>
+        <enumItem value="2">GotLength</enumItem>
+        <enumItem value="3">SendDHDR</enumItem>
+        <enumItem value="4">ReadData</enumItem>
+        <enumItem value="5">EndReadout</enumItem>
+      </field>
+      <field name="EventNotFound" start="12" bits="1" format="boolean" errorflag="true">
+        <description>Error Flag - the event was not found</description>
+      </field>
+      <field name="EventMissingData" start="13" bits="1" format="boolean" errorflag="true">
+        <description>Error Flag - the event has some missing data</description>
+      </field>
+      <field name="ErrorSynchornization" start="14" bits="1" format="boolean" errorflag="true">
+        <description>Error Flag - the syncronization of buffers is not correct</description>
+      </field>
+      <field name="ErrorNotConfigured" start="15" bits="1" format="boolean" errorflag="true">
+        <description>Error Flag - the FEE is not configured to comply with read-out requests</description>
+      </field>
+    </register>
+  </group>
+
+</TrbNetEntity>

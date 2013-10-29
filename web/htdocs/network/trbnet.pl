@@ -26,6 +26,12 @@ $setup[1]->{cmd}     = "TrbNet-0xffff-BoardInformation";
 $setup[1]->{period}  = -1;
 $setup[1]->{address} = 1;
 
+$setup[2]->{name}    = "Readout";
+$setup[2]->{cmd}     = "Readout-0xffff-Status";
+$setup[2]->{period}  = -1;
+$setup[2]->{address} = 1;
+
+
 
 xmlpage::initPage(\@setup,$page);
  
