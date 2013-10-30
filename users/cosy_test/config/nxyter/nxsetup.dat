@@ -27,14 +27,14 @@
 0x00000089    # 23
 0x000000ff    # 24  Testpulse Strength, default 0x80
 0x00000045    # 25
-0x0000000f    # 26
+0x00000080    # 26  iDUR (26) Analog dead time (changes nxtimer CVT)
 0x00000036    # 27
 0x0000005c    # 28
 0x00000045    # 29
 0x000000be    # 30
 0x000000be    # 31
-0x00000000    # 32  TestTrigger setup etc. , default 0x00
-0x0000000c    # 33  clock input 256A, set bit #3, default 0x08 (normal mode)
+0x00000004    # 32  TestTrigger setup etc. , default 0x00
+0x00000008    # 33  clock input 256A, set bit #3, default 0x08 (normal mode)
 0x000000be    # 34
 0x000000be    # 35
 0x000000be    # 36

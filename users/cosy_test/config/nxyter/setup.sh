@@ -22,13 +22,6 @@ trbcmd w 0x3800 0x8241 1
 # Threshold setting
 #trb_i2c w 0x3800 0x08 18 0x80
 
-# Setup Trigger Generator
-trbcmd w 0x3800 0x8141  200    # 500 * 10ns = 5mus Period
-trbcmd w 0x3800 0x8142  1      # one Trigger per cycle
-trbcmd w 0x3800 0x8143  16     # 200ns trigger length, disable it
-trbcmd w 0x3800 0x8144  0      # reset before trigger
-
-
 # nx_ts_reset_start
 trbcmd w 0x3800 0x8102 0x01
 
@@ -37,10 +30,10 @@ echo "clear data fifo"
 trbcmd rm 0x3800 0x8600 4000 2>/dev/null
 
 # Set readout Mode
-trbcmd w 0x3800 0x8180 0x01   # was: 0: normal mode
-trbcmd w 0x3800 0x8182 100    # window width = 100 * 4ns
-trbcmd w 0x3800 0x8184 0xffe  # read-out time max
-
+trbcmd w 0x3800 0x8180 0x00   # 0: normal mode 4: no TS Window mode
+trbcmd w 0x3800 0x8181 50     # window  offset 200ns
+trbcmd w 0x3800 0x8182 200    # window width 800ns
+trbcmd w 0x3800 0x8183 100    # CTS-Delay 400ns
 
 # Decoder Settings
 trbcmd w 0x3800 0x8120 0       # reset all counters

@@ -102,7 +102,7 @@
         <enumItem value="7">ignore TS Status Bits</enumItem>
       </field>
     </register>    
-    
+
     <register name="TriggerWindowOffset" address="0001" purpose="config">
       <description>Delay of the trigger window</description>
       <field name="TriggerWindowOffset" start="0" bits="11" format="signed" unit="ns" scale="4"/>
@@ -153,6 +153,7 @@
       <field name="DataFifoDelay" start="0" bits="7" format="unsigned" unit="ns" scale="32"/>
     </register>
     
+
     <register name="ChannelDone" address="000b" purpose="status" mode="r" repeat="4">
       <description>Data channel read-out finished</description>
       <field name="ChannelDone" start="0" bits="32" format="bitmask"/>
