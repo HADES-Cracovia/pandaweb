@@ -23,6 +23,10 @@ sub init {
    my $trb = $self->{'_cts'}->{'_trb'};
    
    my $debug_block = 0xa000;
+
+   $prop->{'cts_clock_frq'} = 1e8;
+   $prop->{'trb_endpoint'} = $trb->getEndpoint;
+   $prop->{'trb_compiletime'} = $trb->read(0x40);
    
    $regs->{'cts_cnt_trg_asserted'} = TrbRegister->new(0x00 + $debug_block, $trb, {}, {
       'accessmode' => "ro",
@@ -156,10 +160,30 @@ sub init {
       'monitor' => 1,
       'export' => 1
    });
+   
+   if ($prop->{'trb_compiletime'} > 1366287468) {
+      eval {
+         # really ugly solution, but we currently have to read the register in order
+         # to verify its existing ...
+         $regs->{'cts_eventbuilder'} = TrbRegister->new(0x0d + $debug_block, $trb, {
+            'mask'         => {'lower' =>  0, 'len' => 16,'type' => 'mask'},
+            'rr_interval'  => {'lower' => 16, 'len' => 8, 'type' => 'uint'},
+            'cal_eb'       => {'lower' => 24, 'len' => 4, 'type' => 'uint'},
+            'use_cal_eb'   => {'lower' => 28, 'len' => 1, 'type' => 'bool'}
+         
+         }, {
+            'accessmode' => "rw",
+            'label' => "Event Builder Selection",
+            'monitor' => 1,
+            'export' => 1
+         });
+         $regs->{'cts_eventbuilder'}->read();
+         1;
+      } and do {
+         $prop->{'cts_eventbuilder_rr'} = 1;
+      }
+   }
 
-   $prop->{'cts_clock_frq'} = 1e8;
-   $prop->{'trb_endpoint'} = $trb->getEndpoint;
-   $prop->{'trb_compiletime'} = $trb->read(0x40);
 }
 
 1;

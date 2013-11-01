@@ -40,7 +40,9 @@ sub init {
    }
 
    for(my $i = 0; $i < $header->{'itc_len'}; $i++) {
-      $self->{'_cts'}->getProperties->{'itc_assignments'}[$i + $header->{'itc_base'}] = "Trigger Input $i";
+      if ($self->{'_cts'}->getProperties->{'itc_assignments'}[$i + $header->{'itc_base'}] eq 'unconnected') {
+        $self->{'_cts'}->getProperties->{'itc_assignments'}[$i + $header->{'itc_base'}] = "Trigger Input $i";
+      }
    }
 
 # properties

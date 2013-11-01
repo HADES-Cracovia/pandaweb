@@ -5,7 +5,7 @@
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
       <link href="layout/base.css" rel="Stylesheet" type="text/css" />
       <script src="scripts/mootools-core-1.4.5.js" type="text/javascript"></script>
-      <script src="scripts/base.js" type="text/javascript"></script>
+      <script src="scripts/cts.js" type="text/javascript"></script>
    </head>
 
    <body lang="en">
@@ -154,6 +154,24 @@
             </div>
          </div>
 
+         <div class="expandable expanded" id="addon-board-expander">
+            <div class="header"><span class="indicator"></span> AddOn-Board Input Multiplexer</div>
+            
+            <div class="content">
+                  <table id="addon-board-tab">
+                     <tr>
+                        <th class="num">#</th>
+                        <th class="source">Source</th>
+                        <th class="rate">Inp. Rate</th>
+                        <th class="invert">Invert</th>
+                        <th class="delay">Delay</th>
+                        <th class="spike"><abbr title="Noise reducing. High pulses shorter than this values are rejeted">Spike Rej.</abbr></th>
+                        <th class="override">Override</th>
+                     </tr>
+                  </table>
+            </div>
+         </div>
+         
          <div class="expandable expanded" id="coin-expander">
             <div class="header"><span class="indicator"></span> Pulsers</div>
             
@@ -208,28 +226,50 @@
                         <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.trg_cnt" /> Trigger statistics</td>
                      </tr>
 
-                     <tr class="alt">
+                     <tr class="">
                         <td> </td>
                         <td class="value"><input type="checkbox" class="autoupdate autocommit" slice="cts_readout_config.timestamp" /> Timestamp</td>
                      </tr>
                      
-                     <tr class="alt">
-                        <td class="label">TD FSM Limit (debug only):</td>
+                     <tr class="eventbuilder_rr alt"><td colspan="2">&nbsp;</td><tr>
+<!--                     
+                     <tr class="eventbuilder_rr">
+                        <td>Active Event Builder</td>
                         <td class="value">
-                           <input class="autocommit autoupdate text" slice="cts_fsm_limits.td" 
-                                  format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"
-                                  interpret="var f=function(x){return (x.trim() == '' || x.match(/disabled|off/)) ? 0xffff : (isNaN(parseInt(x))?0:parseInt(x))}; f" />
+                           <pre>15</pre> <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[15]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[14]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[13]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[12]">&nbsp;&nbsp;&nbsp;
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[11]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[10]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[9]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[8]"> <pre>8</pre> <br />
+                           <pre> 7</pre> <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[7]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[6]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[5]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[4]">&nbsp;&nbsp;&nbsp;
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[3]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[2]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[1]">
+                           <input type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.mask[0]"> <pre>0</pre> 
+                        </td>
+                     </tr>
+                     
+                     <tr class="alt eventbuilder_rr">
+                        <td>Round-Robin Bin Size</td>
+                        <td class="value">
+                           <input class="text autoupdate autocommit" slice="cts_eventbuilder.rr_interval" /> events
                         </td>
                      </tr>
 
-                     <tr>
-                        <td class="label">RO FSM Limit (debug only):</td>
+                     <tr class="eventbuilder_rr">
+                        <td>Event Builder for Calibration <br /> Trigger (Type 0xe)</td>
                         <td class="value">
-                           <input class="autocommit autoupdate text" slice="cts_fsm_limits.ro" 
-                                  format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"
-                                  interpret="var f=function(x){return (x.trim() == '' || x.match(/disabled|off/)) ? 0xffff : (isNaN(parseInt(x))?0:parseInt(x))}; f" />
+                           <input id="eb_rr_use" type="checkbox" class="autoupdate autocommit" slice="cts_eventbuilder.use_cal_eb" /> use dedicated EB with Id:
+                           <input id="eb_rr" class="text autoupdate autocommit" slice="cts_eventbuilder.cal_eb"  />  
                         </td>
                      </tr>                     
+-->                     
                   </table>               
                </div>
                
@@ -276,6 +316,26 @@
                         <td class="label">Buffered Trigger (15:0)</td>
                         <td class="value autoupdate" slice="cts_buf_trg_state" format="var x=function(x,data){return '<pre>'+ data.f.mask + '</pre>, Type: '+data.f.type}; x">n/a</td>
                      </tr>
+
+                     <tr><td colspan="2">&nbsp;</td><tr>
+                     
+                     <tr class="alt">
+                        <td class="label">TD FSM Limit (debug only):</td>
+                        <td class="value">
+                           <input class="autocommit autoupdate text" slice="cts_fsm_limits.td" 
+                                  format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"
+                                  interpret="var f=function(x){return (x.trim() == '' || x.match(/disabled|off/)) ? 0xffff : (isNaN(parseInt(x))?0:parseInt(x))}; f" />
+                        </td>
+                     </tr>
+
+                     <tr>
+                        <td class="label">RO FSM Limit (debug only):</td>
+                        <td class="value">
+                           <input class="autocommit autoupdate text" slice="cts_fsm_limits.ro" 
+                                  format="var f=function(x){return parseInt(x)==0xffff ? 'disabled' : (parseInt(x) ? x + ' events' : 'active')}; f"
+                                  interpret="var f=function(x){return (x.trim() == '' || x.match(/disabled|off/)) ? 0xffff : (isNaN(parseInt(x))?0:parseInt(x))}; f" />
+                        </td>
+                     </tr>                     
                   </table>
                </div>
             </div>
