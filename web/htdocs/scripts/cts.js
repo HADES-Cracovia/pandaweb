@@ -114,12 +114,17 @@ var CTS = new Class({
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
-      console.debug(values, arrValues);
       (new Request.JSON({
          url: 'cts.pl?write,' + arrValues.join(','),
          onSuccess: function(json, text) {
+            console.log(json)
+            console.log(text)
+            
             if (!json) {
                var m = text.match(/<pre>(.*)<\/pre>/i);
+               
+               console.log(m)
+               
                if (m) alert("Server send error response:\n"+m[1]);
                else  alert("An unknown error occured while writing register");
             }
@@ -152,9 +157,7 @@ var CTS = new Class({
       
       // hard-reset. if request's timeout fails, this is the last resort ...
       var manualTimeout = (function(e) {
-        if (console) 
-          console.log(e.stack);
-        window.location.reload.delay(10000);
+        window.location.reload();
       }).delay(10000, this, new Error());
       
       new Request.JSON({
@@ -753,9 +756,20 @@ var CTS = new Class({
 });
 
 function xhrFailure(xhr){
-   console.log(xhr.responseText);
+   console.log(xhr);
    var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
-   if (m) alert("Server send error response:\n"+m[1].trim());
+   
+   
+   if (m) {
+      text = m[1];
+      m = text.match(/^\s*-+ More[\w\s]+ -+\s+(.+)$/im)
+      if (m) text = m[1];
+      
+      alert("Server send error response:\n"+text.trim());
+   }
+   
+   
+   
    else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?");
 }
 
