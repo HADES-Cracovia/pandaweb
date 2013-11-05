@@ -76,6 +76,7 @@ var CTS = new Class({
       this.renderTriggerChannels();
       this.renderTriggerInputs();
       this.renderCoins();
+      this.renderTriggerAddOnInputs();
       this.renderRegularPulsers();
       this.renderRandPulsers();
       this.renderCTSDetails();
@@ -90,9 +91,11 @@ var CTS = new Class({
       });
       
       this.addEvent('dataUpdate', this.updateStatusIndicator.bind(this));
+      //this.addEvent('dataUpdate', function() {$('eb_rr').set('disabled', !this.currentData.
+
+      this.initEventBuilderRR();
       
       this.initAutoCommit();
-      
       this.initSliceTitle();
    },
    
@@ -107,15 +110,21 @@ var CTS = new Class({
       }
    },
    
+   
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
-      console.debug(values, arrValues);
       (new Request.JSON({
          url: 'cts.pl?write,' + arrValues.join(','),
          onSuccess: function(json, text) {
+            console.log(json)
+            console.log(text)
+            
             if (!json) {
                var m = text.match(/<pre>(.*)<\/pre>/i);
+               
+               console.log(m)
+               
                if (m) alert("Server send error response:\n"+m[1]);
                else  alert("An unknown error occured while writing register");
             }
@@ -147,7 +156,9 @@ var CTS = new Class({
       dup.removeClass('error').set('text', 'Update').setStyle('display', 'block');
       
       // hard-reset. if request's timeout fails, this is the last resort ...
-      var manualTimeout = window.location.reload.delay(10000);
+      var manualTimeout = (function(e) {
+        window.location.reload();
+      }).delay(10000, this, new Error());
       
       new Request.JSON({
          url: this.monitorPrefix + 'dump.js',
@@ -193,6 +204,11 @@ var CTS = new Class({
             $('status-indicator').set('class', 'error');
          }.bind(this)
       }).send();
+   },
+   
+   initEventBuilderRR: function() {
+      if (!this.defs.properties.cts_eventbuilder_rr) return;
+      $$('.eventbuilder_rr').setStyle('visibility', 'visible');
    },
 
 /**
@@ -358,7 +374,9 @@ var CTS = new Class({
  * should not by called manually.
  */
    renderTriggerInputs: function() {
-      for(var i=0; i < this.defs.properties.trg_input_count; i++) {
+      var num = this.defs.properties.trg_input_count;
+      num -= (this.defs.properties.trg_addon_count) ? this.defs.properties.trg_addon_count : 0;
+      for(var i=0; i < num; i++) {
          var reg = 'trg_input_config' + i;
          $('inputs-tab')
          .adopt(
@@ -403,6 +421,74 @@ var CTS = new Class({
       }
    },
 
+/**
+ * Creates all active elements of the AddOn Multiplexer Input Configuration
+ * section. It is called by the class' constructor and hence
+ * should not by called manually.
+ */
+   renderTriggerAddOnInputs: function() {
+      if (!this.defs.properties.trg_addon_count) {
+         $('addon-board-expander').setStyle('display', 'none');
+         return;
+      }
+      
+      var from = this.defs.properties.trg_input_count - this.defs.properties.trg_addon_count;
+      var to = this.defs.properties.trg_input_count;
+      
+      for(var i=from; i < to; i++) {
+         var reg = 'trg_input_config' + i;
+         var areg = 'trg_addon_config' + (i-from);
+         var en = this.defs.registers[areg]._defs.input.enum;
+         $('addon-board-tab')
+         .adopt(
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
+            .adopt(
+               new Element('td', {'class': 'num', 'text': i}),
+               
+               new Element('td', {'class': 'source'})
+               .adopt(
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
+                  .adopt(
+                     Object.values(en).map(function (r) {
+                        return new Element('option', {'value': r, 'text': r})
+                     })
+                   )
+               ),
+               
+               new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i}),
+               
+               new Element('td', {'class': 'invert'})
+               .adopt(
+                  new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': reg + '.invert'})
+               ),
+
+               new Element('td', {'class': 'delay'})
+               .adopt([
+                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.delay', 'format': 'countToTime', 'interpret': 'timeToCount'}),
+                  new Element('span', {'text': ' ns'})
+               ]),
+
+               new Element('td', {'class': 'spike'})
+               .adopt([
+                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.spike_rej', 'format': 'countToTime', 'interpret': 'timeToCount'}),
+                  new Element('span', {'text': ' ns'})
+               ]),
+               
+               new Element('td', {'class': 'override'})
+               .adopt(
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': reg + '.override'})
+                  .adopt([
+                     new Element('option', {'value': 'off', 'text': 'bypass'}),
+                     new Element('option', {'value': 'to_low', 'text': '-> 0'}),
+                     new Element('option', {'value': 'to_high', 'text': '-> 1'}),
+                  ])
+               )
+            )
+         );
+      }
+   },
+   
+   
 /**
  * Creates all active elements of the Trigger Channel Configuration
  * section. It is called by the class' constructor and hence
@@ -670,8 +756,20 @@ var CTS = new Class({
 });
 
 function xhrFailure(xhr){
+   console.log(xhr);
    var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
-   if (m) alert("Server send error response:\n"+m[1].trim());
+   
+   
+   if (m) {
+      text = m[1];
+      m = text.match(/^\s*-+ More[\w\s]+ -+\s+(.+)$/im)
+      if (m) text = m[1];
+      
+      alert("Server send error response:\n"+text.trim());
+   }
+   
+   
+   
    else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?");
 }
 

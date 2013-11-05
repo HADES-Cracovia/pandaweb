@@ -241,4 +241,11 @@
       text-align: right;
    }
 
-      
+   .eventbuilder_rr {visibility: hidden;}
+   
+   #rr_warning {
+      font-size: 90%;
+      font-style: italic;
+      color: #a03010;
+      display: none;
+   }

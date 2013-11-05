@@ -15,7 +15,7 @@ trbcmd w 0x8000 0x830d 0x1          # enable readout bit
 trbcmd w 0x8000 0x8100 0x214397ea   # lower 4 bytes 
 trbcmd w 0x8000 0x8101 0x001b       # upper two bytes
 
-trbcmd w 0x8000 0x8102 0xc0a80101   # destination IP-address: 192.168.1.1
+trbcmd w 0x8000 0x8102 0xc0a80002   # destination IP-address: 192.168.1.1
 trbcmd w 0x8000 0x8103 0xc352       # destination port
 trbcmd w 0x8000 0x8104 0xdead0110   # source MAC-address
 trbcmd w 0x8000 0x8105 0x001b       # source MAC: upper bytes

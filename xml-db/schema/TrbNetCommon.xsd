@@ -64,6 +64,7 @@
       <xs:enumeration value="unsigned"/>
       <xs:enumeration value="hex"/>
       <xs:enumeration value="bitmask"/>
+      <xs:enumeration value="binary"/>
       <xs:enumeration value="boolean"/>
       <xs:enumeration value="time"/>
       <xs:enumeration value="string"/>
