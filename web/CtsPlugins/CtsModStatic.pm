@@ -161,7 +161,7 @@ sub init {
       'export' => 1
    });
    
-   if ($prop->{'trb_compiletime'} > 1366287468) {
+   if ($prop->{'trb_compiletime'} >  1383523200) {
       eval {
          # really ugly solution, but we currently have to read the register in order
          # to verify its existing ...
