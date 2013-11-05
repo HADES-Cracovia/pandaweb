@@ -11,7 +11,7 @@
 
 <h2>Hit Counters &amp; TDC Registers</h2>
 <form acion="">
-<table class="form"><tr class="head"><th colspan=2>Configuration
+<table class="form"><tr class="head"><th colspan=4>Configuration
 <tr title="4-digit hex board address for data query"><td>Board
     <td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe48">
 <tr title="list of 4-digit hex addresses of boards to show"><td>Filter
@@ -21,15 +21,20 @@
 <tr title="Update interval in milliseconds, separate for first and second table"><td>Update Interval (ms)
     <td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000">
         <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
-<tr title="For huge set-ups, enable this to split data queries in several smaller chunks"><td>Split Table
-    <td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
-<tr title="Show only the difference of input signal counters since the last read-out, not absolute value"><td>Differences
-    <td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
-<tr title="1. Enable display of current input status. 2. Show control buttons for channel enable/disable"><td>Input Status/Enable
-    <td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">&nbsp;
-        <input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
-<tr title="Just for your convenience, you actually don't need this button..."><td>
-    <td><input type="button" onClick="setValues()" value="OK">
+
+<tr><td title="For huge set-ups, enable this to split data queries in several smaller chunks">Split Table
+    <td title="For huge set-ups, enable this to split data queries in several smaller chunks"><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
+    <td title="Show only the difference of input signal counters since the last read-out, not absolute value">Differences
+    <td title="Show only the difference of input signal counters since the last read-out, not absolute value"><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
+
+
+<tr><td title="Enable display of current input status.">Input Status
+    <td title="Enable display of current input status."><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">&nbsp;
+    <td title="Show control buttons for channel enable/disable">Enable
+    <td title="Show control buttons for channel enable/disable"><input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
+
+<tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
+
 </table>
 </form>
 
@@ -62,8 +67,9 @@ var regctrlnames = new Array("Logic Anal.<br>Debug Mode<br>Run Mode",
 
 var tooltiptriggerless = "\"Current run mode is triggerless. The epoch and coarse counters are never reset.\"";
 var tooltiptriggered   = "\"Current run mode is triggered. The epoch and coarse counters are reset after every trigger window.\"";
+var tooltipstatus      = "\"Green\tpositive pulse \nRed\t\tnegative pulse\"";
        
-       
+
 var updateTask;
 var updateStatRegsTask;
 var updateCtrlRegsTask;
@@ -138,7 +144,7 @@ function update(data) {
           val = c[j][i] & 0xFFFFFF;
           }
         if(showstatus)
-          o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
+          o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
         else
           o += "<td>";
         o += (val);
