@@ -279,7 +279,6 @@ sub generateoutput {
       $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
       
-      my $wr = 1 if $obj->{mode} =~ /w/;
       foreach my $b (sort keys %{$data->{$addr}}) {
         my $ttmp = "";
         my $sl;
@@ -291,6 +290,7 @@ sub generateoutput {
             my $fullc = $c;
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
             my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+            my $wr = 1 if $db->{$c}->{mode} =~ /w/;
             $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""),$cstr);
             }
           }
@@ -298,6 +298,7 @@ sub generateoutput {
           my $fullc = $name;
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
           my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+          my $wr = 1 if $obj->{mode} =~ /w/;
           $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
           }
         push (@tarr,$ttmp);

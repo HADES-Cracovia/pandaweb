@@ -123,7 +123,7 @@ sub writedata {
     return -2;
     }
     
-  foreach my $b (keys $o) {
+  foreach my $b (keys %$o) {
     $old  = $o->{$b};
     my $mask = ~(((1<<$obj->{bits})-1) << $obj->{start});
     $old = $old & $mask;
