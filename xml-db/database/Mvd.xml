@@ -6,17 +6,13 @@
               >
   <description>Registers for the MVD ROC</description>
 
-  <!-- this is just a very minimal version -->
   <group name="RocStatus"
-         address="0000"  size="4"  purpose="status"  mode="r"  continuous="true">
+         address="0000"  size="6"  purpose="status"  mode="r"  continuous="true">
 
     <register name="RocInput" address="0000" purpose="status">
       <description>Status information of the ROC input buffer</description>
       <field name="FifoEmpty" start="0" bits="1" format="boolean" >
         <description>The input data fifo is empty</description>
-      </field>
-      <field name="FifoAlmostFull" start="1" bits="1" format="boolean" errorflag="true" >
-        <description>The input data fifo is almost full</description>
       </field>
       <field name="FifoFull" start="2" bits="1" format="boolean" errorflag="true" >
         <description>The input data fifo is full</description>
@@ -27,31 +23,118 @@
       <field name="DataValid" start="7" bits="1" format="boolean" >
         <description>The input data is valid</description>
       </field>
-      <field name="ClockActive" start="11" bits="1" format="boolean" invertflag="true" errorflag="true" >
+      <field name="ClockActive" start="8" bits="1" format="boolean" invertflag="true" errorflag="true" >
         <description>The input clock is active</description>
       </field>
-      <field name="ClockCounter" start="11" bits="4" format="unsigned"  >
+      <field name="ClockCounter" start="12" bits="4" format="unsigned"  >
         <description>Counter to check activity of the input data clock</description>
       </field>
       <field name="ToggleFF" start="16" bits="1" format="bitmask"  >
         <description>Toggle Flipflop monitoring changes on the input data clock</description>
       </field>
-      
     </register>
+    
+    <register name="RocShiftReg" address="0001" purpose="status">
+      <description>Content of the two data shift registers to parallelize MAPS data</description>
+      <field name="ShiftReg0" start="0" bits="16" format="hex"  >
+        <description>Content of the first data shift register</description>
+      </field>      
+      <field name="ShiftReg1" start="16" bits="16" format="hex"  >
+        <description>Content of the second data shift register</description>
+      </field>      
+    </register>
+
+    <register name="RocRawData" address="0002" purpose="status">
+      <description>MAPS data after detection of 16 bit boundary</description>
+      <field name="RawData0" start="0" bits="16" format="hex"  >
+        <description>Data word on the first data channel</description>
+      </field>      
+      <field name="RawData1" start="16" bits="16" format="hex"  >
+        <description>Data word on the second data channel</description>
+      </field>      
+    </register>
+    
+    <register name="RocWordStatus" address="0003" purpose="status">
+      <description>Status of the data parallelization</description>
+      <field name="RawValid" start="0" bits="1" format="boolean"  >
+        <description>Dataready flag for data word output</description>
+      </field>      
+      <field name="RawBitPos" start="4" bits="4" format="hex"  >
+        <description>Bit counter for word alignment</description>
+      </field>
+      <field name="RawStart" start="8" bits="1" format="boolean"  >
+        <description>Word Aligner is started</description>
+      </field>
+      <field name="RawRun" start="9" bits="1" format="boolean"  >
+        <description>Word Aligner is running</description>
+      </field>
+      <field name="RawTrailer" start="12" bits="1" format="boolean"  >
+        <description>Frame trailer has been detected</description>
+      </field>           
+      <field name="RawHeader" start="13" bits="1" format="boolean"  >
+        <description>Frame header has been detected</description>
+      </field>
+      <field name="RawTrailerLate" start="15" bits="1" format="boolean" errorflag="true" >
+        <description>Frame trailer is too late</description>
+      </field>
+      <field name="RawTimer" start="16" bits="16" format="unsigned" >
+        <description>Bit count since start of frame</description>
+      </field>
+    </register>    
+    
+    <register name="RocDataHandler1" address="0004" purpose="status">
+      <description>Status of the ROC data handler</description>
+      <field name="DataHandlerState" start="0" bits="4" format="enum"  >
+        <description>Status of the data handler state machine</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">Data</enumItem>
+      </field>      
+      <field name="FrameTooLong" start="4" bits="1" format="boolean" errorflag="true" >
+        <description>The current frame contains too many data words</description>
+      </field>      
+      <field name="WordDistance" start="8" bits="8" format="unsigned"  >
+        <description>Counter for time between two data words from sensor</description>
+      </field>
+      <field name="DataLength" start="16" bits="16" format="unsigned"  >
+        <description>Number of data words of the current frame</description>
+      </field>
+    </register>
+
+    <register name="RocDataHandler2" address="0005" purpose="status">
+      <description>Status of the ROC data handler</description>
+      <field name="DataHandlerBusy" start="0" bits="1" format="boolean"  >
+        <description>Data Handler is busy</description>
+      </field>      
+      <field name="DlenWrite" start="4" bits="1" format="boolean"  >
+        <description>Data length valid strobe</description>
+      </field>      
+      <field name="DataTimeout" start="8" bits="1" format="boolean" errorflag="true" >
+        <description>Strobe signal if distance between two words is too long</description>
+      </field> 
+    </register>
+    
   </group>
-
-</TrbNetEntity>
-
 <!--
-  STATUS(15 downto  0) <= sr0;
-  STATUS(31 downto 16) <= sr1;
-  STATUS(47 downto 32) <= buf_data_0;
-  STATUS(63 downto 48) <= buf_data_1;
   
-  STATUS(67 downto 64) <= "000" & buf_dataready;
-  STATUS(71 downto 68) <= std_logic_vector(pos);
-  STATUS(75 downto 72) <= "00" & start & run; 
-  STATUS(79 downto 76) <= trailer_too_late & "0" & header_detected & trailer_detected;
-  STATUS(95 downto 80) <= std_logic_vector(wait_cycles);
+  roc_data_checker
+    STATUS_OUT(7 downto 0)   <= errorcode(7 downto 0);
+  STATUS_OUT(11 downto 8)  <= state_bits;
+  STATUS_OUT(15 downto 12) <= std_logic_vector(pcounter);
+  STATUS_OUT(31 downto 16) <= std_logic_vector(dcounter);
   
+  STATUS_OUT(63 downto 32) <= status;
+  
+  
+  roc_chain_controller
+    STATUS_OUT(3 downto 0)  <= state_bits;
+  STATUS_OUT(7 downto 4)  <= std_logic_vector(frbuf);
+  STATUS_OUT(8)           <= frbuf_error;  --needs a level
+  STATUS_OUT(9)           <= frbuf_ovf;    --needs a level
+  STATUS_OUT(10)          <= hdr_timeout;  --needs a level
+  STATUS_OUT(11)          <= reset_detected; --needs a level
+  STATUS_OUT(12)          <= hdr;
+  STATUS_OUT(15 downto 13) <= "000";
+  STATUS_OUT(31 downto 16) <= counter;
+  STATUS_OUT(63 downto 32) <= status;
   -->
+</TrbNetEntity>
