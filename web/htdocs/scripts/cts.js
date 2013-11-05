@@ -207,8 +207,11 @@ var CTS = new Class({
    },
    
    initEventBuilderRR: function() {
-      if (!this.defs.properties.cts_eventbuilder_rr) return;
-      $$('.eventbuilder_rr').setStyle('visibility', 'visible');
+      if (!this.defs.properties.cts_eventbuilder_rr) {
+	 $$('.eventbuilder_rr').destroy();
+      } else {
+	 $$('.eventbuilder_rr').setStyle('visibility', 'visible');
+      }
    },
 
 /**
@@ -222,7 +225,8 @@ var CTS = new Class({
       this.autoRateElems = $$('.autorate');
       this.addEvent('dataUpdate', function(data) {
          this.autoRateElems.each(function(e) {
-            if (e.hasClass('autoratevalue')) {
+            if (undefined == data.rates[ e.get('slice') ]) return;
+	    if (e.hasClass('autoratevalue')) {
                var count = data.rates[ e.get('slice') ].value;
                
                count = parseCallback(e, 'format')(count);
@@ -268,6 +272,8 @@ var CTS = new Class({
             var s = parseSlice(e.get('slice'));
             if (!s.slice) s.slice = "_compact";
          
+            if (undefined == data.monitor[s.reg]) return;
+				   
             var value = data.monitor[s.reg][e.get('type') == 'checkbox' || s.bit != undefined || e.hasClass('autoupdate-value') ? 'v' : 'f'][s.slice];
             if (s.bit != undefined) value = (parseInt(value) >> s.bit) & 1;
                                  
