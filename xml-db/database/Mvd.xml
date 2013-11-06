@@ -7,7 +7,7 @@
   <description>Registers for the MVD ROC</description>
 
   <group name="RocStatus"
-         address="0000"  size="6"  purpose="status"  mode="r"  continuous="true">
+         address="0000"  size="9"  purpose="status"  mode="r"  continuous="true">
 
     <register name="RocInput" address="0000" purpose="status">
       <description>Status information of the ROC input buffer</description>
@@ -29,17 +29,17 @@
       <field name="ClockCounter" start="12" bits="4" format="unsigned"  >
         <description>Counter to check activity of the input data clock</description>
       </field>
-      <field name="ToggleFF" start="16" bits="1" format="bitmask"  >
+      <field name="ToggleFF" start="16" bits="1" format="bitmask" noflag="true" >
         <description>Toggle Flipflop monitoring changes on the input data clock</description>
       </field>
     </register>
     
     <register name="RocShiftReg" address="0001" purpose="status">
       <description>Content of the two data shift registers to parallelize MAPS data</description>
-      <field name="ShiftReg0" start="0" bits="16" format="hex"  >
+      <field name="ShiftReg0" start="0" bits="16" format="hex" noflag="true" >
         <description>Content of the first data shift register</description>
       </field>      
-      <field name="ShiftReg1" start="16" bits="16" format="hex"  >
+      <field name="ShiftReg1" start="16" bits="16" format="hex" noflag="true" >
         <description>Content of the second data shift register</description>
       </field>      
     </register>
@@ -56,10 +56,10 @@
     
     <register name="RocWordStatus" address="0003" purpose="status">
       <description>Status of the data parallelization</description>
-      <field name="RawValid" start="0" bits="1" format="boolean"  >
+      <field name="RawValid" start="0" bits="1" format="boolean" noflag="true" >
         <description>Dataready flag for data word output</description>
       </field>      
-      <field name="RawBitPos" start="4" bits="4" format="hex"  >
+      <field name="RawBitPos" start="4" bits="4" format="hex" noflag="true" >
         <description>Bit counter for word alignment</description>
       </field>
       <field name="RawStart" start="8" bits="1" format="boolean"  >
@@ -112,29 +112,144 @@
         <description>Strobe signal if distance between two words is too long</description>
       </field> 
     </register>
+
+    <register name="RocDataChecker" address="0006" purpose="status">
+      <description>Status of the ROC data checker</description>
+      <field name="DataErrorCode" start="0" bits="8" format="enum"  >
+        <description>Code of the last found error</description>
+        <enumItem value="1">NoHeader</enumItem>
+        <enumItem value="2">FrameNumberError</enumItem>
+        <enumItem value="3">LengthMismatch</enumItem>
+        <enumItem value="4">LengthBroken</enumItem>
+        <enumItem value="5">PCountNotZero</enumItem>
+        <enumItem value="6">DCountNotZero</enumItem>
+        <enumItem value="7">DCountBroken</enumItem>
+        <enumItem value="8">BadStateCount</enumItem>
+        <enumItem value="9">BadRowNumber</enumItem>
+        <enumItem value="a">BadRowHeader</enumItem>
+        <enumItem value="b">BadColumnNumber</enumItem>
+        <enumItem value="c">RowsNotOrdered</enumItem>
+        <enumItem value="e">PCountNotZero</enumItem>
+        <enumItem value="f">DCountNotZero</enumItem>
+        <enumItem value="11">BadStateCount</enumItem>
+        <enumItem value="12">BadRowNumber</enumItem>
+        <enumItem value="13">BadRowHeader</enumItem>
+        <enumItem value="14">BadColumnNumber</enumItem>
+        <enumItem value="15">RowsNotOrdered</enumItem>
+        <enumItem value="16">ColumnNotOrdered</enumItem>
+        <enumItem value="17">PCountBroken</enumItem>
+        <enumItem value="18">CountBroken</enumItem>
+        <enumItem value="19">BadColumnNumber1</enumItem>
+        <enumItem value="1a">BadColumnNumber2</enumItem>
+        <enumItem value="1b">ColumnNotOrdered1</enumItem>
+        <enumItem value="1c">ColumnNotOrdered2</enumItem>
+        <enumItem value="1d">Error</enumItem>
+      </field>      
+     <field name="DataCheckerState" start="8" bits="4" format="enum"  >
+        <description>State of the data checker</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">FrameNum</enumItem>
+        <enumItem value="3">Dlen</enumItem>
+        <enumItem value="4">RowCol</enumItem>
+        <enumItem value="5">ColRow</enumItem>
+        <enumItem value="6">ColCol</enumItem>
+      </field>
+      <field name="PCount" start="12" bits="4" format="unsigned"  >
+        <description>State counter</description>
+      </field>
+      <field name="DCount" start="16" bits="16" format="unsigned"  >
+        <description>Data word counter</description>
+      </field>
+    </register>    
+
+    <register name="RocChainController" address="0007" purpose="status">
+      <description>Status of the ROC data checker</description>
+      <field name="ChainControllerState" start="0" bits="4" format="enum"  >
+        <description>State of the data checker</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">Start</enumItem>
+        <enumItem value="3">TriggerData</enumItem>
+        <enumItem value="4">WaitMDH</enumItem>
+        <enumItem value="5">WaitBusy</enumItem>
+        <enumItem value="6">Discard</enumItem>
+      </field>
+      <field name="FramesBuffered" start="4" bits="4" format="unsigned"  >
+        <description>Number of buffered frames</description>
+      </field>    
+      <field name="FrameBufferUnderflow" start="8" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Underflow</description>
+      </field> 
+      <field name="FrameBufferOverflow" start="9" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Overflow</description>
+      </field> 
+      <field name="HeaderTimeout" start="10" bits="1" format="boolean" errorflag="true"  >
+        <description>Header Timeout</description>
+      </field> 
+      <field name="ResetDetected" start="11" bits="1" format="boolean" errorflag="true"  >
+        <description>There was a header, but the trailer of the last frame was not seen before</description>
+      </field> 
+      <field name="HeaderFound" start="12" bits="1" format="boolean"  >
+        <description>Header found, frame active</description>
+      </field>       
+      <field name="FrameTime" start="16" bits="16" format="unsigned"  >
+        <description>Clock cycles since last header</description>
+      </field>        
+    </register>
+    
+    <register name="FrameStatus" address="0008" purpose="status">
+      <description>Status flags for the current frame</description>
+      
+      <field name="IsActive" start="0" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>Roc was active during the full frame</description>
+      </field>  
+      <field name="WasActive" start="1" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>Roc was active at the beginning of the frame</description>
+      </field>  
+      <field name="BufStop" start="2" bits="1" format="boolean"  errorflag="true">
+        <description>Data discarding was requested</description>
+      </field>  
+      <field name="Completed" start="3" bits="1" format="boolean"  invertflag="true">
+        <description>Frame completed</description>
+      </field>  
+      <field name="CheckerError" start="4" bits="1" format="boolean"  errorflag="true" >
+        <description>Data checker discovered errors</description>
+      </field>        
+      <field name="DataWordTimeout" start="5" bits="1" format="boolean"  errorflag="true" >
+        <description>Distance between two words too long</description>
+      </field>        
+      <field name="TrailerTimeout" start="6" bits="1" format="boolean"  errorflag="true" >
+        <description>Distance between header and trailer too long</description>
+      </field>        
+      <field name="ResetFound" start="7" bits="1" format="boolean"  errorflag="true" >
+        <description>Sensor was resetted. It sent two headers but no trailer in between</description>
+      </field>   
+      
+      
+      <field name="DlenBufferError" start="23" bits="1" format="boolean"  errorflag="true" >
+        <description>Error in data length buffer</description>
+      </field>      
+      <field name="BuffersStop" start="24" bits="1" format="boolean"  errorflag="true" >
+        <description>Buffers Stop</description>
+      </field>
+      <field name="HeaderDistTimeout" start="25" bits="1" format="boolean" errorflag="true" >
+        <description>Distance between header and header too long</description>
+      </field>  
+      <field name="FrameOverflow" start="26" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Overflow</description>
+      </field> 
+      <field name="FrameUnderflow" start="27" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Underflow</description>
+      </field>
+      <field name="CheckerStatus" start="30" bits="1" format="boolean" invertflag="true" >
+        <description>Frame Checker OK</description>
+      </field> 
+      <field name="FrameReady" start="31" bits="1" format="boolean"  invertflag="true" >
+        <description>Frame Ready</description>
+      </field> 
+    
+      
+    </register>    
     
   </group>
-<!--
-  
-  roc_data_checker
-    STATUS_OUT(7 downto 0)   <= errorcode(7 downto 0);
-  STATUS_OUT(11 downto 8)  <= state_bits;
-  STATUS_OUT(15 downto 12) <= std_logic_vector(pcounter);
-  STATUS_OUT(31 downto 16) <= std_logic_vector(dcounter);
-  
-  STATUS_OUT(63 downto 32) <= status;
-  
-  
-  roc_chain_controller
-    STATUS_OUT(3 downto 0)  <= state_bits;
-  STATUS_OUT(7 downto 4)  <= std_logic_vector(frbuf);
-  STATUS_OUT(8)           <= frbuf_error;  --needs a level
-  STATUS_OUT(9)           <= frbuf_ovf;    --needs a level
-  STATUS_OUT(10)          <= hdr_timeout;  --needs a level
-  STATUS_OUT(11)          <= reset_detected; --needs a level
-  STATUS_OUT(12)          <= hdr;
-  STATUS_OUT(15 downto 13) <= "000";
-  STATUS_OUT(31 downto 16) <= counter;
-  STATUS_OUT(63 downto 32) <= status;
-  -->
+
 </TrbNetEntity>

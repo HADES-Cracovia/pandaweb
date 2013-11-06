@@ -91,6 +91,8 @@
   <xs:attribute name="repeat"       type="xs:positiveInteger" />
   <xs:attribute name="errorflag"    type="xs:boolean" />
   <xs:attribute name="invertflag"   type="xs:boolean" />
+  <xs:attribute name="noflag"       type="xs:boolean" />  <!--Don't put green/red color-->
+  <xs:attribute name="rate"         type="xs:boolean" />  <!--This value shows a rate -->
   <!-- unit and scale give information about how to interpret data. a
        numerical scaling factor and/or a physical unit. E.g.
        temperature measured in 1/16th degrees will be ".0625" and "°C"
@@ -209,6 +211,8 @@
          an error is indicated by this field -->
     <xs:attribute ref="errorflag" />
     <xs:attribute ref="invertflag" />
+    <xs:attribute ref="noflag" />    
+    <xs:attribute ref="rate" />
     </xs:complexType>
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
