@@ -1,10 +1,11 @@
   function editsetting(e) {
     if(e.target.getAttribute("class") && e.target.getAttribute("class").indexOf("editable")!=-1) {
-      var text = e.target.getAttribute("cstr");
-          text += "\nCurrent Value: "+e.target.innerHTML+" ("+e.target.getAttribute("raw")+")\n ";
-      var newval = prompt(text,e.target.getAttribute("raw"));
+      var text = e.target.parentNode.getAttribute("cstr");
+      var curr = e.target.innerHTML.split('<',1);
+          text += "\nCurrent Value: "+curr+" ("+e.target.parentNode.getAttribute("raw")+")\n ";
+      var newval = prompt(text,e.target.parentNode.getAttribute("raw"));
       if (newval != null) {
-        getdataprint('../xml-db/put.pl?'+e.target.getAttribute("cstr")+'-'+newval,'returntext',false,-1,refresh);
+        getdataprint('../xml-db/put.pl?'+e.target.parentNode.getAttribute("cstr")+'-'+newval,'returntext',false,-1,refresh);
         }
       }
     }

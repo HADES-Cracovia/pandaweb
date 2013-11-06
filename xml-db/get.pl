@@ -131,11 +131,11 @@ sub FormatPretty {
   my $ret, my $cl;
   if (defined $cont) {
     my $isflag = 1; $isflag = 0 if $obj->{noflag};
-    $cl = "class=\"$class ".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
-    $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
-    $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
-    $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
-    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"><div>",$rawvalue);
+    $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
+    $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
+    $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
+    $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
+    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"><div class=\"$class\">",$rawvalue);
     
     $ret = "<$cont ";
     for($obj->{format}) {    
