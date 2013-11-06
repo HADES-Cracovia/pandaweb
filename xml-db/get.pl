@@ -120,7 +120,7 @@ foreach my $req (@request) {
 #### Formatting of values
 ###############################
 sub FormatPretty {
-  my ($value,$obj,$cont,$class,$cstr) = @_;
+  my ($value,$obj,$name,$cont,$class,$cstr) = @_;
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
   my $rawvalue = $value;
@@ -130,41 +130,46 @@ sub FormatPretty {
   $cstr  = "" unless $cstr;
   my $ret, my $cl;
   if (defined $cont) {
-    $cl = "class=\"$class ".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag});
-    $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag});
-    $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag});
-    $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag});
-    $cl .= sprintf(" title=\"raw: 0x%x\n$cstr\"",$rawvalue);
-    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"",$rawvalue);
+    my $isflag = 1; $isflag = 0 if $obj->{noflag};
+    $cl = "class=\"$class ".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
+    $cl = "class=\"$class ".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
+    $cl = "class=\"$class ".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
+    $cl = "class=\"$class ".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
+    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"><div>",$rawvalue);
     
     $ret = "<$cont ";
     for($obj->{format}) {    
       when ("boolean") {
-        if($obj->{errorflag}) { $ret .= "$cl>".($value?"true":"false");}
-        else                  { $ret .= "$cl>".($value?"true":"false");}
+        if($obj->{errorflag}) { $ret .= "$cl".($value?"true":"false");}
+        else                  { $ret .= "$cl".($value?"true":"false");}
           }
-      when ("float")    {$ret .= sprintf("$cl>%.2f",$value);}
-      when ("integer")  {$ret .= sprintf("$cl>%i",$value);}
-      when ("unsigned") {$ret .= sprintf("$cl>%u",$value);}
-      when ("signed")   {$ret .= sprintf("$cl>%d",$value);}
-      when ("binary")   {$ret .= sprintf("$cl>%0".$obj->{bits}."b",$value);}
+      when ("float")    {$ret .= sprintf("$cl%.2f",$value);}
+      when ("integer")  {$ret .= sprintf("$cl%i",$value);}
+      when ("unsigned") {$ret .= sprintf("$cl%u",$value);}
+      when ("signed")   {$ret .= sprintf("$cl%d",$value);}
+      when ("binary")   {$ret .= sprintf("$cl%0".$obj->{bits}."b",$value);}
       when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
                           $tmp =~ s/0/\&#9633\;/g;
                           $tmp =~ s/1/\&#9632\;/g;
-                          $ret .="$cl>".$tmp;
+                          $ret .= $cl.$tmp;
                           }
       when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
-      when ("hex")      {$ret .= sprintf("$cl>0x%0".(int(($obj->{bits}+3)/4))."x",$value);}
+      when ("hex")      {$ret .= sprintf($cl."0x%0".(int(($obj->{bits}+3)/4))."x",$value);}
       when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
-                            $ret .= "$cl>".$obj->{enumItems}->{$t} 
+                            $ret .= $cl.$obj->{enumItems}->{$t} 
                             }
                           else {
-                            $ret .= "$cl>0x".$t;
+                            $ret .= $cl."0x".$t;
                             }
                           }
       default           {$ret .= sprintf(">%08x",$value);}
       }
+    my $range = $obj->{start}+$obj->{bits}-1;
+    $range .= "..".$obj->{start} if ($obj->{bits}>1);
+    $ret .= " ".$obj->{unit} if exists $obj->{unit};
+    $ret .= sprintf("<span class=\"tooltip\"><b>$name</b> (Bit $range)<br>raw: 0x%x<br>$cstr</span></div>",$rawvalue);
+
     }
   else {
     for($obj->{format}) {
@@ -187,8 +192,8 @@ sub FormatPretty {
                           }
       default           {$ret = sprintf("0x%08x",$value);}
       }
+    $ret .= " ".$obj->{unit} if exists $obj->{unit};
     }
-  $ret .= " ".$obj->{unit} if exists $obj->{unit};
   return $ret;
   }
 
@@ -261,17 +266,21 @@ sub generateoutput {
 
     my $addr = $obj->{address};   
 
-    $t .= sprintf("<tr><th title=\"$name (0x%04x)\n$obj->{description}\">".$name,$addr);
+    $t .= sprintf("<tr><th><div>$name<span class=\"tooltip\"><b>$name</b> (0x%04x)<br>$obj->{description}</span></div>",$addr);
     if($once != 1 && defined $obj->{repeat}) {
       $t .= "<th class=\"slice\">Slice";
       }
     if($obj->{type} eq "registerfield" || $obj->{type} eq "field"){
-      $t .= "<th title=\"$obj->{description}\">$name";
+      my $range = $obj->{start}+$obj->{bits}-1;
+      $range .= "..".$obj->{start} if ($obj->{bits}>1);
+      $t .= "<th><div>$name<span class=\"tooltip\"><b>$name</b> (Bit $range)<br>$obj->{description}</span></div>";
       }
     elsif($obj->{type} eq "register"){
       foreach my $c (@{$obj->{children}}){
         $oc = $db->{$c};
-        $t .= sprintf("<th title=\"%s (%u Bit @ %u)\n$oc->{description}\">$c",$c,$oc->{bits},$oc->{start});
+        my $range = $oc->{start}+$oc->{bits}-1;
+        $range .= "..".$oc->{start} if ($oc->{bits}>1);
+        $t .= "<th><div>$c<span class=\"tooltip\"><b>$c</b> (Bit $range)<br>$oc->{description}</span></div>";
         }
       }   
     my @tarr;
@@ -282,16 +291,16 @@ sub generateoutput {
       foreach my $b (sort keys %{$data->{$addr}}) {
         my $ttmp = "";
         my $sl;
-        $sl = sprintf("<td class=\"slice\" title=\"$name.$slice (0x%04x)\">%i",$addr,$slice) if ($once != 1 && defined $obj->{repeat});
+        $sl = sprintf("<td class=\"slice\"><div>%i<span class=\"tooltip\"><b>$name.$slice</b> (0x%04x)</span></div>",$slice,$addr) if ($once != 1 && defined $obj->{repeat});
         
-        $ttmp .= sprintf("<tr><td title=\"raw: 0x%x\">%04x%s",$data->{$addr}->{$b},$b,$sl);
+        $ttmp .= sprintf("<tr><td><div>%04x<span class=\"tooltip\"><b>$name</b> on 0x%04x<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
             my $fullc = $c;
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
             my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
             my $wr = 1 if $db->{$c}->{mode} =~ /w/;
-            $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},"td",($wr?"editable":""),$cstr);
+            $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},$c,"td",($wr?"editable":""),$cstr);
             }
           }
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
@@ -299,7 +308,7 @@ sub generateoutput {
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
           my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
           my $wr = 1 if $obj->{mode} =~ /w/;
-          $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,"td",($wr?"editable":""),$cstr);
+          $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr);
           }
         push (@tarr,$ttmp);
         }

@@ -1,6 +1,7 @@
 body {
     background:#efeff5;
     color:#445;
+     transition: background .4s, color .4s, border .4s, box-shadow .4s;
 }
 
 
@@ -44,6 +45,8 @@ body {
 #overview {
   min-width:1000px;
   margin:50px 0 0 20px;  
+  resize:horizontal;
+  overflow:auto;
   }
 
   
@@ -252,18 +255,18 @@ div.header span a {
 div.header span a:hover {
 }
 
-
-.high {
+  
+table.queryresult td.high {
   background-color:#e0eae0;
 }
-.low {
+table.queryresult td.low {
   background-color:#eae0e0;
 }
 
-.good {
+table.queryresult td.good {
   background-color:#cfc;
 }
-.bad {
+table.queryresult td.bad {
   background-color:#fcc;
 }
 
@@ -280,9 +283,9 @@ table.conversion tr td{
 }
 
 table.queryresult td:first-child, table.queryresult th:first-child{
-  width:130px;
-  max-width:100px;
-  overflow:hidden;
+  width:160px;
+/*   max-width:100px; */
+/*   overflow:hidden; */
   text-align:left;
   background:#dde;
 }
@@ -307,4 +310,41 @@ td.editable {
 table.queryresult td.slice, table.queryresult th.slice {
   text-align:center;
   background:#eee;
+}
+
+table.queryresult td {
+  background:#e0e0e0;
+}
+
+
+span.tooltip  {
+  margin-left: -999em;
+  margin-top: -999em;
+  z-index: 99;
+  position: absolute;
+  left: 1em;
+  top: 2em;  
+  padding:3px 5px 5px 5px;
+/*   background:#ffe; */
+  background: linear-gradient(135deg, rgba(245,245,238,1) 0%,rgba(255,255,230,1) 100%);
+  border:2px solid #fff;
+  color:black;
+  text-align:left;
+  font-weight:normal;
+  min-width: 250px;
+  border-radius:5px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+  opacity:0;
+}
+
+th:hover .tooltip, td:hover .tooltip {
+  margin: 0;
+  opacity:1;
+  transition: opacity .4s;
+  }
+  
+table.queryresult th div, table.queryresult td div {
+  position:relative;
+  cursor:default;
+  min-width:80px;
 }
