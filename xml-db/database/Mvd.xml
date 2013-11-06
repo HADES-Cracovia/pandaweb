@@ -7,7 +7,7 @@
   <description>Registers for the MVD ROC</description>
 
   <group name="RocStatus"
-         address="0000"  size="9"  purpose="status"  mode="r"  continuous="true">
+         address="0000"  size="13"  purpose="status"  mode="r"  continuous="true">
 
     <register name="RocInput" address="0000" purpose="status">
       <description>Status information of the ROC input buffer</description>
@@ -46,10 +46,10 @@
 
     <register name="RocRawData" address="0002" purpose="status">
       <description>MAPS data after detection of 16 bit boundary</description>
-      <field name="RawData0" start="0" bits="16" format="hex"  >
+      <field name="RawData0" start="0" bits="16" format="hex"  noflag="true" >
         <description>Data word on the first data channel</description>
       </field>      
-      <field name="RawData1" start="16" bits="16" format="hex"  >
+      <field name="RawData1" start="16" bits="16" format="hex"  noflag="true" >
         <description>Data word on the second data channel</description>
       </field>      
     </register>
@@ -68,10 +68,10 @@
       <field name="RawRun" start="9" bits="1" format="boolean"  >
         <description>Word Aligner is running</description>
       </field>
-      <field name="RawTrailer" start="12" bits="1" format="boolean"  >
+      <field name="RawTrailer" start="12" bits="1" format="boolean" noflag="true" >
         <description>Frame trailer has been detected</description>
       </field>           
-      <field name="RawHeader" start="13" bits="1" format="boolean"  >
+      <field name="RawHeader" start="13" bits="1" format="boolean" noflag="true" >
         <description>Frame header has been detected</description>
       </field>
       <field name="RawTrailerLate" start="15" bits="1" format="boolean" errorflag="true" >
@@ -102,10 +102,10 @@
 
     <register name="RocDataHandler2" address="0005" purpose="status">
       <description>Status of the ROC data handler</description>
-      <field name="DataHandlerBusy" start="0" bits="1" format="boolean"  >
+      <field name="DataHandlerBusy" start="0" bits="1" format="boolean" noflag="true" >
         <description>Data Handler is busy</description>
       </field>      
-      <field name="DlenWrite" start="4" bits="1" format="boolean"  >
+      <field name="DlenWrite" start="4" bits="1" format="boolean" noflag="true" >
         <description>Data length valid strobe</description>
       </field>      
       <field name="DataTimeout" start="8" bits="1" format="boolean" errorflag="true" >
@@ -182,7 +182,7 @@
       <field name="FrameBufferOverflow" start="9" bits="1" format="boolean" errorflag="true"  >
         <description>Frame Buffer Overflow</description>
       </field> 
-      <field name="HeaderTimeout" start="10" bits="1" format="boolean" errorflag="true"  >
+      <field name="HeaderDistTimeout" start="10" bits="1" format="boolean" errorflag="true"  >
         <description>Header Timeout</description>
       </field> 
       <field name="ResetDetected" start="11" bits="1" format="boolean" errorflag="true"  >
@@ -192,46 +192,92 @@
         <description>Header found, frame active</description>
       </field>       
       <field name="FrameTime" start="16" bits="16" format="unsigned"  >
-        <description>Clock cycles since last header</description>
+        <description>Clock cycles between the last two header words</description>
       </field>        
     </register>
     
-    <register name="FrameStatus" address="0008" purpose="status">
-      <description>Status flags for the current frame</description>
-      
+    <register name="FrameStatus1" address="0008" purpose="status">
+      <description>Status flags for the last frame. Values are updated after a frame as been finished. This register contains bits 0 to 15 of the status word also present in the data files.</description>
       <field name="IsActive" start="0" bits="1" format="boolean"  errorflag="true" invertflag="true">
-        <description>Roc was active during the full frame</description>
+        <description>Sensor was all the time active during readout</description>
       </field>  
       <field name="WasActive" start="1" bits="1" format="boolean"  errorflag="true" invertflag="true">
-        <description>Roc was active at the beginning of the frame</description>
+        <description>Sensor is currently active</description>
       </field>  
-      <field name="BufStop" start="2" bits="1" format="boolean"  errorflag="true">
-        <description>Data discarding was requested</description>
+      <field name="BufStop" start="2" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>The TrbNet buffers are OK</description>
       </field>  
-      <field name="Completed" start="3" bits="1" format="boolean"  invertflag="true">
-        <description>Frame completed</description>
+      <field name="Completed" start="3" bits="1" format="boolean" >
+        <description>Frame Complete (Data Checker status bit 31)</description>
       </field>  
       <field name="CheckerError" start="4" bits="1" format="boolean"  errorflag="true" >
         <description>Data checker discovered errors</description>
       </field>        
-      <field name="DataWordTimeout" start="5" bits="1" format="boolean"  errorflag="true" >
+      <field name="WordTimeout" start="5" bits="1" format="boolean"  errorflag="true" >
         <description>Distance between two words too long</description>
       </field>        
       <field name="TrailerTimeout" start="6" bits="1" format="boolean"  errorflag="true" >
         <description>Distance between header and trailer too long</description>
       </field>        
       <field name="ResetFound" start="7" bits="1" format="boolean"  errorflag="true" >
-        <description>Sensor was resetted. It sent two headers but no trailer in between</description>
+        <description>Reset Detected (2x Header and no Trailer in between)</description>
       </field>   
+      <field name="NoHeader" start="8 " bits="1" format="boolean"  errorflag="true" > 
+        <description>Received package is not a Header in IDLE state (Data Checker 1)</description>
+      </field>
+      <field name="WrongFrame" start="9 " bits="1" format="boolean"  errorflag="true" > 
+        <description>Frame number is not in the ascending order (Data Checker 2)</description>
+      </field>
+      <field name="DlenMismatch" start="10" bits="1" format="boolean"  errorflag="true" > 
+        <description>Datalengths are not same on both channels (Data Checker 3)</description>
+      </field>
+      <field name="DlenTooLarge" start="11" bits="1" format="boolean"  errorflag="true" > 
+        <description>Datalength is larger than 570 (Data Checker 4)</description>
+      </field>
+      <field name="StateMismatch" start="12" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter is 0, but the 'state' counter is not 0 (Data Checker 5)</description>
+      </field>
+      <field name="DlenWrong1" start="13" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter is not 0 on Trailer package (Data Checker 6)</description>
+      </field>
+      <field name="DlenWrong2" start="14" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter turned 0 during normal package readout (Data Checker 7)</description>
+      </field>
+      <field name="WrongState" start="15" bits="1" format="boolean"  errorflag="true" > 
+        <description>Number of states is not between 1 and 9 (Data Checker 8)</description>
+      </field>
+    </register>         
       
-      
-      <field name="DlenBufferError" start="23" bits="1" format="boolean"  errorflag="true" >
-        <description>Error in data length buffer</description>
+    <register name="FrameStatus2" address="0009" purpose="status">
+      <description>Status flags for the last frame. Values are updated after a frame as been finished. This register contains bits 16 to 31 of the status word also present in the data files.</description>
+      <field name="WrongRow" start="16" bits="1" format="boolean"  errorflag="true" > 
+        <description>Matrix row address is larger than 575 (Data Checker 9)</description>
+      </field>
+      <field name="WrongOverflow" start="17" bits="1" format="boolean"  errorflag="true" > 
+        <description>Overflow bit is set, but less than 9 states are present (Data Checker 10)</description>
+      </field>
+      <field name="WrongColumn" start="18" bits="1" format="boolean"  errorflag="true" > 
+        <description>Matrix column address is larger than 1151 (Data Checker 11)</description>
+      </field>
+      <field name="RowUnsorted" start="19" bits="1" format="boolean"  errorflag="true" > 
+        <description>Row address inconsistent (row is lower than the one before) (Data Checker 12)</description>
+      </field>
+      <field name="ColumnUnsorted" start="20" bits="1" format="boolean"  errorflag="true" > 
+        <description>Column address inconsistent (column is lower than the one before) (Data Checker 13)</description>
+      </field>
+      <field name="StateError" start="21" bits="1" format="boolean"  errorflag="true" > 
+        <description>State counter is not 1 in the COLROW state (Data Checker 14)</description>
+      </field>
+      <field name="WrongColumn2" start="22" bits="1" format="boolean"  errorflag="true" > 
+        <description>Wrong column address on channel 2 in COLCOL state (Data Checker 15)</description>
+      </field>
+      <field name="DlenBufError" start="23" bits="1" format="boolean"  errorflag="true" >
+        <description>Frame Writer datalength error - FIFO empty</description>
       </field>      
       <field name="BuffersStop" start="24" bits="1" format="boolean"  errorflag="true" >
         <description>Buffers Stop</description>
       </field>
-      <field name="HeaderDistTimeout" start="25" bits="1" format="boolean" errorflag="true" >
+      <field name="HeaderTimeout" start="25" bits="1" format="boolean" errorflag="true" >
         <description>Distance between header and header too long</description>
       </field>  
       <field name="FrameOverflow" start="26" bits="1" format="boolean" errorflag="true"  >
@@ -240,16 +286,64 @@
       <field name="FrameUnderflow" start="27" bits="1" format="boolean" errorflag="true"  >
         <description>Frame Buffer Underflow</description>
       </field>
-      <field name="CheckerStatus" start="30" bits="1" format="boolean" invertflag="true" >
-        <description>Frame Checker OK</description>
+      <field name="CheckerStatus" start="30" bits="1" format="boolean" noflag="true" >
+        <description>Trailer detected, going back to IDLE (Data Checker 30)</description>
       </field> 
-      <field name="FrameReady" start="31" bits="1" format="boolean"  invertflag="true" >
-        <description>Frame Ready</description>
+      <field name="FrameReady" start="31" bits="1" format="boolean" >
+        <description>Status is ready</description>
       </field> 
-    
-      
     </register>    
     
+    <register name="FrameBufferLevel" address="000a" purpose="status">
+      <description>Fill-level of the frame buffer</description>
+      <field name="DataLevel" start="0" bits="16" format="unsigned" noflag="true" >
+        <description>Number of data words stored in the frame data buffer</description>
+      </field>        
+      <field name="LengthLevel" start="16" bits="4" format="unsigned" noflag="true" >
+        <description>Number of data words stored in the frame length buffer</description>
+      </field>        
+    </register>
+
+    <register name="FrameBufferStatus" address="000b" purpose="status">
+      <description>Status flags for the frame buffer</description>
+      <field name="DataBufferFull" start="0" bits="1" format="boolean"  errorflag="true" > 
+        <description>The frame data buffer is full</description>
+      </field>
+      <field name="LengthBufferFull" start="1" bits="1" format="boolean"  errorflag="true" > 
+        <description>The frame length buffer is full</description>
+      </field>
+      <field name="DataBufferEmpty" start="2" bits="1" format="boolean"  > 
+        <description>The frame data buffer is full</description>
+      </field>
+      <field name="LengthBufferEmpty" start="3" bits="1" format="boolean"  > 
+        <description>The frame length buffer is full</description>
+      </field>
+      <field name="FrameBufferStop" start="4" bits="1" format="boolean" errorflag="true" > 
+        <description>The buffers are almost full, no more frames can be stored. Data will be discarded</description>
+      </field>
+    </register>
+  
+    <register name="DataFormatter" address="000c" purpose="status">
+      <description>Status of the data formatter</description>
+      <field name="DataFormatter" start="0" bits="5" format="enum" >
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">GetDlen</enumItem>
+        <enumItem value="3">Format1</enumItem>
+        <enumItem value="4">Format2</enumItem>
+        <enumItem value="5">Format3</enumItem>
+        <enumItem value="6">Format4</enumItem>
+        <enumItem value="7">Format5</enumItem>
+        <enumItem value="8">Format6</enumItem>
+        <enumItem value="9">Format7</enumItem>
+        <enumItem value="a">Read</enumItem>
+        <enumItem value="b">Write1</enumItem>
+        <enumItem value="c">Write2</enumItem>
+        <enumItem value="d">Finish</enumItem>
+        <enumItem value="e">Done</enumItem>
+      </field>
+    </register>
+
+  
   </group>
 
 </TrbNetEntity>
