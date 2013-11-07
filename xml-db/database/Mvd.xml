@@ -5,7 +5,7 @@
               address="8000"
               >
   <description>Registers for the MVD ROC</description>
-
+  <group name="ReadoutController" address="0000" size="1024" repeat="2">
   <group name="RocStatus"
          address="0000"  size="13"  purpose="status"  mode="r"  continuous="true">
 
@@ -386,6 +386,15 @@
       <description>Number of released frame triggers</description>
       <field name="TrgReleases" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register> 
+    <register name="TrgReceived" address="000a" >
+      <description>Number of frame triggers received</description>
+      <field name="TrgReceived" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
+    <register name="DataWords" address="000b" >
+      <description>Number of data words written to frame buffer</description>
+      <field name="DataWords" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
   </group>
   
+  </group>
 </TrbNetEntity>

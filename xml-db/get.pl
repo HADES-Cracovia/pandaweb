@@ -205,29 +205,25 @@ sub requestdata {
   my ($obj,$name,$slice) = @_;
   my $o;
   print DumpTree($obj) if $verbose;
-  if (defined  $obj->{repeat} && $slice >= $obj->{repeat}) {
+  if (defined $slice && defined  $obj->{repeat} && $slice >= $obj->{repeat}) {
     print "Slice number out of range.\n";
     return -1;
     }
   
   if($obj->{type} eq "group" && $obj->{mode} =~ /r/) {
     if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
+      my $stepsize = $obj->{stepsize} || 1;
       my $size   = $obj->{size};
-      my $offset = 0;
-      
-      if (defined $slice) {
-        $offset = $size * $slice;
-        }
-      elsif (defined $obj->{repeat}) {
-        $size = $size * $obj->{repeat};
-        }
-      $o = trb_register_read_mem($netaddr,$obj->{address}+$offset,0,$size);
-      next unless defined $o;
-      foreach my $k (keys %$o) {
-        for(my $i = 0; $i < $size; $i++) {
-          $data->{$obj->{address}+$offset+$i}->{$k} = $o->{$k}->[$i];
+      $slice = $slice || 0;
+      do{
+        $o = trb_register_read_mem($netaddr,$obj->{address}+$slice*$stepsize,0,$size);
+        next unless defined $o;
+        foreach my $k (keys %$o) {
+          for(my $i = 0; $i < $size; $i++) {
+            $data->{$obj->{address}+$slice*$stepsize+$i}->{$k} = $o->{$k}->[$i];
+            }
           }
-        }
+        } while(!$once && defined $obj->{repeat} && ++$slice < $obj->{repeat});  
       }
     else {      
       foreach my $c (@{$obj->{children}}) {
