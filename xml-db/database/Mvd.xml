@@ -342,8 +342,50 @@
         <enumItem value="e">Done</enumItem>
       </field>
     </register>
-
-  
   </group>
-
+  
+  <group name="RocStatistics"
+         address="0010"  size="16"  purpose="status"  mode="r"  continuous="true">
+    <register name="HeadersDetected" address="0000" >
+      <description>Number of detected headers</description>
+      <field name="HeadersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>
+    <register name="TrailersDetected" address="0001" >
+      <description>Number of detected trailers</description>
+      <field name="TrailersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>  
+    <register name="TrailersLate" address="0002" >
+      <description>Number of time-outs waiting for a trailer</description>
+      <field name="TrailersLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>  
+    <register name="DataWordsLate" address="0003" >
+      <description>Number of time-outs waiting for the next data word</description>
+      <field name="DataWordsLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>  
+    <register name="TooMuchData" address="0004" >
+      <description>Too many data words in one frame. Trailer was expected!</description>
+      <field name="TooMuchData" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>      
+    <register name="ResetsDetected" address="0005" >
+      <description>Number of resets of the sensor detected</description>
+      <field name="ResetsDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>      
+    <register name="HeadersTimeout" address="0006" >
+      <description>Number of timeouts waiting for the next header</description>
+      <field name="HeadersTimeout" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>     
+    <register name="DlengthsWrong" address="0007" >
+      <description>Number of wrong data lengths</description>
+      <field name="DlengthsWrong" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>     
+    <register name="FramesCompleted" address="0008" >
+      <description>Number of completed frames</description>
+      <field name="FramesCompleted" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>        
+    <register name="TrgReleases" address="0009" >
+      <description>Number of released frame triggers</description>
+      <field name="TrgReleases" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
+  </group>
+  
 </TrbNetEntity>
