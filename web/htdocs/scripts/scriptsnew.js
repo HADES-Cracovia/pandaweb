@@ -38,6 +38,10 @@ function getdataprint(command,dId,async,time,callback) {
       //if(cb)
       if(document.getElementById(destId)){
         document.getElementById(destId).innerHTML  = xmlhttp.responseText;  
+//         t = document.getElementsByClassName('sortable');
+//         for (var i=0; i<t.length; i++) {       
+//           sorttable.makeSortable(t[i]);
+//           }
         }
       if(cb) {
         cb(time);

@@ -14,7 +14,7 @@
                 address="0000"  repeat="4" purpose="status" >
         <description>Current status of each port of the hub on each channel.</description>
         <field  name="PortStatusChannels"
-             start="0"   bits="17"   purpose="status"  format="bitmask">
+             start="0"   bits="17"   purpose="status"  format="bitmask"  noflag="true">
         </field>
       </register>
     </group>
@@ -83,7 +83,7 @@
       <description>Bits set, when the corresponding port is waiting for an acknowledge on the corresponding channel.</description>
       <register name="AckWaiting" address="0000" repeat="4" purpose="status">
         <description>One bit for each port, is set if the corresponding port is currently waiting for an acknowledge</description>
-        <field name="AckWaiting" start="0" bits="13" format="bitmask">
+        <field name="AckWaiting" start="0" bits="13" format="bitmask"  invertflag="true">
         </field>
       </register>
     </group>    

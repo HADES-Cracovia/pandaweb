@@ -137,6 +137,7 @@ sub FormatPretty {
     $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
     $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"><div class=\"$class\">",$rawvalue);
     
+    my $t = "";
     $ret = "<$cont ";
     for($obj->{format}) {    
       when ("boolean") {
@@ -144,13 +145,16 @@ sub FormatPretty {
         else                  { $ret .= "$cl".($value?"true":"false");}
           }
       when ("float")    {$ret .= sprintf("$cl%.2f",$value);}
-      when ("integer")  {$ret .= sprintf("$cl%i",$value);}
-      when ("unsigned") {$ret .= sprintf("$cl%u",$value);}
+      when ("integer")  {$t    = sprintf("$cl%i",$value); $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; $ret .= $t;}
+      when ("unsigned") {$t    = sprintf("$cl%u",$value); $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; $ret .= $t;}
       when ("signed")   {$ret .= sprintf("$cl%d",$value);}
-      when ("binary")   {$ret .= sprintf("$cl%0".$obj->{bits}."b",$value);}
+      when ("binary")   {$t    = sprintf("$cl%0".$obj->{bits}."b",$value); $t =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/&#8198;/g; $ret .= $t;}
       when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
+                          $tmp =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/ /g;
                           $tmp =~ s/0/\&#9633\;/g;
                           $tmp =~ s/1/\&#9632\;/g;
+                          $tmp =~ s/\s/\&#8198\;/g;
+                          
                           $ret .= $cl.$tmp;
                           }
       when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
@@ -256,7 +260,7 @@ sub generateoutput {
       }
     }
   elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") && $obj->{mode} =~ /r/) {
-    $t = "<hr class=\"queryresult\"><table class='queryresult'>";
+    $t = "<hr class=\"queryresult\"><table class='queryresult'><thead>";
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
 
@@ -279,7 +283,8 @@ sub generateoutput {
         $t .= "<th><div>$c<span class=\"tooltip\"><b>$c</b> (Bit $range)<br>$oc->{description}</span></div>";
         }
       }   
-    my @tarr;
+    $t .= "</thead>";
+    my %tarr;
     do {  
       $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
@@ -306,11 +311,11 @@ sub generateoutput {
           my $wr = 1 if $obj->{mode} =~ /w/;
           $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr);
           }
-        push (@tarr,$ttmp);
+        $tarr{sprintf("%05i%04i",$b,$slice)}=$ttmp;
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
-    $t .= join(' ',@tarr);
+    $t .= $tarr{$_} for sort keys %tarr;
     $t .= "</table>";
     }
   print $t;
