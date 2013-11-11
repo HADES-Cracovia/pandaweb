@@ -9,7 +9,7 @@
 <body>
 
 
-<h2><a href="../">GbE Registers</a></h2>
+<h2>GbE Registers</h2>
 <form acion="">
 <table class="form"><tr class="head"><th colspan=2>Configuration
 <tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="ff7f">
@@ -19,71 +19,70 @@
 </form>
 
 <div style="float:left"><table class="content" id="contentregs"><tr><th>Register<th>Values</table></div>
+<div style="float:left"><table class="content" id="sctrlRegs"><tr><th>Register<th>Values</table></div>
+<div style="float:left"><table class="content" id="dataRegs"><tr><th>Register<th>Values</table></div>
 
 
 <script language="javascript">
 var updaterate = document.getElementById("form_rate").value;
 var board      = document.getElementById("form_board").value;
 var oldvalues = {};
-
+var sctrlOldValues = {};
+var dataOldValues = {};
 //var regnames = new Array("ipu2gbe1","ipu2gbe2","pckConstr1","pckConstr2","frameConstr1","frameConstr2",
 //                         "tsmac","sgmii","pcSubSize","IncDatCnt","droppedSmall<br>droppedLarge","invHeaders","cts1","cts2","int1","savedEvt<br>loadedEvt","constrEvt<br>droppedEvt","InvSize");
-var regnames = new Array("Bytes","sent","dropped","small","large","headers","status","","","empty");  
+//var regnames = new Array("Bytes","sent","dropped","small","large","headers","status","","","empty");
+var regnames = new Array("RxBytes", "RxFrames", "TxBytes", "TxFrames", "TxPackets", "RxDropped");    
+var sctrlRegNames = new Array("RxFrames", "RxBytes", "TxFrames", "TxBytes");
+var dataRegNames = new Array("RxFrames", "RxBytes", "TxFrames", "TxBytes");
 
 var updateRegsTask;
-
+var updateSctrlRegTask;
+var updateDataTask;
   
 function setValues() {
   updaterate = document.getElementById("form_rate").value;
   board      = document.getElementById("form_board").value;
   clearInterval(updateRegsTask);
-  updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83f3-10',updateregs)",updaterate);
-  
+  updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83e0-6',updateregs)",updaterate);
+  updateSctrlRegTask = setInterval("getdata('../commands/get.pl?"+board+"-83a0-4',updateSctrlRegs)",updaterate);
+  updateDataRegTask = setInterval("getdata('../commands/get.pl?"+board+"-83b0-4',updateDataRegs)",updaterate);
   }
 
 function updateregs(data) {
   if(!document.getElementById("contentregs").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr class=\"head\"><th>Reg<th>Content";
+  o = "<tr colspan=3>General Statistics</tr><tr class=\"head\"><th>Reg<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
     if(!oldvalues[j]) oldvalues[j] = c[j];
     o += "<th>"+c[j][0];
     } 
-/*  
-  for(i = 0; i < 18; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83E0).toString(16))+"<td>"+regnames[i];
-    for(j=0;j<b.length-1;j++) {
-      val = c[j][i+1];
-      o += "<td>";
-      if(i<=4) {
-        o += val.toString(16);
-        }
-      else if(i==10){
-        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xff).toString(16));
-        }
-      else if(i>=12 && i<=16) {
-        o += ((val&0xffff).toString(16))+"<br>"+(((val>>16)&0xffff).toString(16));
-        }
-      else{
-        o += val;
-        }
-      }
-    }
-*/
-  for(i = 0; i < 10; i++) {
-    if(i==7 || i==8) {continue;}
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83F3).toString(16))+"<td>"+regnames[i];
+
+  for(i = 0; i < 6; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83e0).toString(16))+"<td>"+regnames[i];
     for(j=0;j<b.length-1;j++) {
       val = c[j][i+1];
       o += "<td>";
       if(i==0) {
-         o += SciNotation(val)+"<br>"+SciNotation((val-(oldvalues[j][i+1])))+"B";
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"B/s";
          }
       else if(i==1) {
-         o += SciNotation(val)+"<br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck";
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck/s";
+         }
+      else if(i==2) {
+  o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"B/s";
+  }
+      else if(i==3) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck/s";
+         }
+      else if(i==4) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck/s";
+         }
+      else if(i==5) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(oldvalues[j][i+1])))+"pck/s";
          }
       else {
          o += val;
@@ -95,9 +94,87 @@ function updateregs(data) {
   document.getElementById("contentregs").innerHTML  = o;
   }
 
-    
-updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83f3-10',updateregs)",updaterate);
+function updateSctrlRegs(data) {
+  if(!document.getElementById("sctrlRegs").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr colspan=3>SlowControl Protocol</tr><tr class=\"head\"><th>Reg<th>Content";
 
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!sctrlOldValues[j]) sctrlOldValues[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+
+  for(i = 0; i < 4; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83a0).toString(16))+"<td>"+sctrlRegNames[i];
+    for(j=0;j<b.length-1;j++) {
+      val = c[j][i+1];
+      o += "<td>";
+      if(i==0) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(sctrlOldValues[j][i+1])))+"pck/s";
+         }
+      else if(i==1) {
+   o += SciNotation(val)+" total <br>"+SciNotation((val-(sctrlOldValues[j][i+1])))+"B/s";
+         }
+      else if(i==2) {
+  o += SciNotation(val)+" total <br>"+SciNotation((val-(sctrlOldValues[j][i+1])))+"pck/s";
+  }
+      else if(i==3) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(sctrlOldValues[j][i+1])))+"B/s";
+         }
+      else {
+         o += val;
+         }
+      }
+    }
+
+  sctrlOldValues=c;
+  document.getElementById("sctrlRegs").innerHTML  = o;
+  }
+
+function updateDataRegs(data) {
+  if(!document.getElementById("dataRegs").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  o = "<tr colspan=3>TrbNet Data Protocol</tr><tr class=\"head\"><th>Reg<th>Content";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    if(!dataOldValues[j]) dataOldValues[j] = c[j];
+    o += "<th>"+c[j][0];
+    } 
+
+  for(i = 0; i < 4; i++) {
+    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+((i+0x83b0).toString(16))+"<td>"+dataRegNames[i];
+    for(j=0;j<b.length-1;j++) {
+      val = c[j][i+1];
+      o += "<td>";
+      if(i==0) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(dataOldValues[j][i+1])))+"pck/s";
+         }
+      else if(i==1) {
+   o += SciNotation(val)+" total <br>"+SciNotation((val-(dataOldValues[j][i+1])))+"B/s";
+         }
+      else if(i==2) {
+  o += SciNotation(val)+" total <br>"+SciNotation((val-(dataOldValues[j][i+1])))+"pck/s";
+  }
+      else if(i==3) {
+         o += SciNotation(val)+" total <br>"+SciNotation((val-(dataOldValues[j][i+1])))+"B/s";
+         }
+      else {
+         o += val;
+         }
+      }
+    }
+
+  dataOldValues=c;
+  document.getElementById("dataRegs").innerHTML  = o;
+  }
+    
+updateRegsTask = setInterval("getdata('../commands/get.pl?"+board+"-83e0-6',updateregs)",updaterate);
+updateSctrlRegTask = setInterval("getdata('../commands/get.pl?"+board+"-83a0-4',updateSctrlRegs)",updaterate);
+updateDataRegTask = setInterval("getdata('../commands/get.pl?"+board+"-83b0-4',updateDataRegs)",updaterate);
   
   
 </script>
