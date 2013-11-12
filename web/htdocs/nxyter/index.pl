@@ -46,16 +46,17 @@ $setup[5]->{cmd}     = "Nxyter-0x3800-NxyterI2C";
 $setup[5]->{period}  = -1;
 $setup[5]->{address} = 1;
 
-$setup[6]->{name}    = "OtherStuff";
-$setup[6]->{cmd}     = "Nxyter-0x3800-TriggerValidate";
+$setup[6]->{name}    = "DACRegister";
+$setup[6]->{cmd}     = "Nxyter-0x3800-NxyterDAC";
 $setup[6]->{period}  = -1;
-$setup[6]->{generic} = 1;
+$setup[6]->{address} = 1;
+
+
+$setup[7]->{name}    = "OtherStuff";
+$setup[7]->{cmd}     = "Nxyter-0x3800-TriggerValidate";
+$setup[7]->{period}  = -1;
+$setup[7]->{generic} = 1;
 
 xmlpage::initPage(\@setup,$page);
- 
-
- 
 
 1;
-
-

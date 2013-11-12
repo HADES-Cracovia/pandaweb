@@ -239,27 +239,95 @@
 
   </group>
   
-  
   <group name="NxyterI2C"
-         address="0200"  size="46"  purpose="status"  mode="rw" continuous="true">
+         address="0200" purpose="config"  mode="rw"  continuous="false">
 
-    <register name="I2CRegister" address="0000" purpose="config" repeat="46">
-      <description>Nxyter I2C Register</description>
+    <group name="NxMainReg"
+           address="0050"  size="7"  purpose="config"  mode="rw" continuous="true">
       
-      <field name="I2CWToken" start="31" bits="1" format="bitmask" purpose="status" mode="r">
-        <description>I2C Write Token</description>
+      <register name="NxyterClock" address="0000" purpose="config" mode="rw" >
+        <description>Nxyter Main Clock enable</description>
+        <field name="NxyterClock" start="0" bits="1" format="boolean"/>
+      </register> 
+      
+      <register name="NxPolarity" address="0001" purpose="config" mode="rw" >
+        <description>Nxyter Input Polarity (0 = negative, 1 = positive)</description>
+        <field name="NxPolarity" start="0" bits="1" format="unsigned"/>
+      </register>
+      
+      <register name="NxTestPol" address="0002" purpose="status" mode="r" >
+        <description>Nxyter Testpulse Polarity (1 = negative, 0 = positive)</description>
+        <field name="NxTestPol" start="0" bits="1" format="unsigned"/>
+      </register>
+
+      <register name="NxTestPulse" address="0003" purpose="config" mode="rw" >
+        <description>Nxyter Testpulse enable</description>
+        <field name="NxTestPulse" start="0" bits="1" format="boolean"/>
+      </register>
+
+      <register name="NxTestTrigger" address="0004" purpose="config" mode="rw" >
+        <description>Nxyter Testtrigger enable</description>
+        <field name="NxTestTrigger" start="0" bits="1" format="boolean"/>
+      </register>
+      
+      <register name="NxTestChannel" address="0005" purpose="config" mode="rw" >
+        <description>Nxyter Testpulse Channel Group (0=0,4,.. 1=1,5,.. 2=2,6,.. 3=3,7,..)</description>
+        <field name="NxTestChannel" start="0" bits="2" format="unsigned"/>
+      </register>
+      
+      <register name="I2COnline" address="0006" purpose="status" mode="r" >
+        <description>I2C Online, i.e. Nxyter is connected</description>
+        <field name="I2COnline" start="0" bits="1" format="boolean"/>
+      </register>
+    
+    </group>
+  
+    <group name="I2CRegs"
+           address="0000"  size="46"  purpose="status"  mode="rw" continuous="true">
+      
+      <register name="I2CRegister" address="0000" purpose="config" repeat="46">
+        <description>Nxyter I2C Register</description>
+        
+        <field name="I2CWToken" start="31" bits="1" format="bitmask" purpose="status" mode="r">
+          <description>I2C Write Token</description>
+        </field> 
+        
+        <field name="I2CRToken" start="30" bits="1" format="bitmask" purpose="status" mode="r">
+          <description>I2C Read Token</description>
+        </field> 
+        
+        <field name="I2CReserved" start="29" bits="1" format="bitmask" purpose="status" mode="r">
+          <description>Dummy Register</description>
+        </field> 
+      
+        <field name="I2CValue" start="0" bits="8" format="unsigned" purpose="config" mode="rw">
+          <description>I2C Register Value</description>
+        </field>
+        
+      </register>
+    </group>
+  </group>
+
+  <group name="NxyterDAC"
+         address="0300"  size="129"  purpose="status"  mode="rw" continuous="true">
+
+    <register name="DACRegister" address="0000" purpose="config" repeat="129">
+      <description>Nxyter DAC Register</description>
+      
+      <field name="DACWToken" start="31" bits="1" format="bitmask" purpose="status" mode="r">
+        <description>DAC Write Token</description>
       </field> 
       
-      <field name="I2CRToken" start="30" bits="1" format="bitmask" purpose="status" mode="r">
-        <description>I2C Read Token</description>
+      <field name="DACRToken" start="30" bits="1" format="bitmask" purpose="status" mode="r">
+        <description>DAC Read Token</description>
       </field> 
       
-      <field name="I2CReserved" start="29" bits="1" format="bitmask" purpose="status" mode="r">
-        <description>I2C Write Token</description>
+      <field name="ChannelDown" start="5" bits="1" format="bitmask" purpose="config" mode="rw">
+        <description>Channel Down</description>
       </field> 
       
-      <field name="I2CValue" start="0" bits="8" format="unsigned" purpose="config" mode="rw">
-        <description>I2c Register Value</description>
+      <field name="TrimValue" start="0" bits="5" format="unsigned" purpose="config" mode="rw">
+        <description>DAC Trim Value</description>
       </field> 
       
     </register>
