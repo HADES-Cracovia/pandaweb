@@ -91,15 +91,21 @@
          address="0180"  size="15"  purpose="config"  mode="rw"  continuous="false">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
-      <field name="ReadoutMode" start="0" bits="3" format="enum">
-        <enumItem value="0">TS Select + TS Ovfl,Parity valid</enumItem>
-        <enumItem value="1">TS Select + TS Ovfl,Parity,Pileup valid</enumItem>
-        <enumItem value="2">TS Select + ignore TS Status Bits</enumItem>
-        <enumItem value="3">TS Select + ignore TS Status Bits</enumItem>
-        <enumItem value="4">TS Ovfl,Parity valid</enumItem>
-        <enumItem value="5">TS Ovfl,Parity,Pileup valid</enumItem>
-        <enumItem value="6">ignore TS Status Bits</enumItem>
-        <enumItem value="7">ignore TS Status Bits</enumItem>
+      
+      <field name="SelfTrigger" start="3" bits="1" format="boolean">
+        <description>Self Trigger Mode</description>
+      </field>
+      
+      <field name="TSSelectOff" start="2" bits="1" format="boolean">
+        <description>TimeStamp Selection Filter Off</description>
+      </field>
+
+      <field name="StatusSelect" start="0" bits="2" format="enum">
+        <description>Timestamp Selection Mode</description>
+        <enumItem value="0">Ovfl, Parity Bits valid</enumItem>
+        <enumItem value="1">Ovfl, Parity, Pileup Bits valid</enumItem>
+        <enumItem value="2">ignore Status Bits</enumItem>
+        <enumItem value="3">ignore Status Bits</enumItem>
       </field>
     </register>    
 
@@ -163,14 +169,14 @@
 
 
   <group name="DataReceiver"
-         address="0500"  size="9"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="13"  purpose="status"  mode="rw"  continuous="true">
 
     <register name="CurrentTimestamp" address="0000" purpose="status" mode="r">
       <description>Current Timestamp Value read from Fifo</description>
       <field name="CurrentTimestamp" start="0" bits="32" format="unsigned" />
     </register>
     
-    <register name="TimestampFifoStatus" address="0001" purpose="status">
+    <register name="TimestampFifoStatus" address="0001" purpose="status" mode="r">
       <description>Status of the timestamp Fifo</description>
       
       <field name="TSFifoFull" start="0" bits="1" format="boolean" errorflag="true" mode="r">
@@ -205,17 +211,17 @@
       <field name="PLLNotLockCount" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
 
-    <register name="JohnsonCtrSync" address="0005" purpose="config">
+    <register name="JohnsonCtrSync" address="0005" purpose="config" mode="rw">
       <description>johnson_counter_sync (experts only)</description>
       <field name="JohnsonCtrSync" start="0" bits="2" format="unsigned"/>
     </register>
 
-    <register name="PllDPhase" address="0006" purpose="config">
+    <register name="PllDPhase" address="0006" purpose="config" mode="rw">
       <description>PLL ADC Sampling Clock DPHASE</description>
       <field name="PllDPhase" start="0" bits="4" format="unsigned" scale="2" unit="ns" />
     </register>
     
-    <register name="PllFineDelb" address="0007" purpose="config">
+    <register name="PllFineDelb" address="0007" purpose="config" mode="rw">
       <description>PLL ADC Sampling Clock FINEDELB</description>
       <field name="PllFineDelb" start="0" bits="4" format="unsigned" scale="125" unit="ps" />
     </register>
@@ -224,19 +230,26 @@
       <description>Current ADC value</description>
       <field name="ADCValue" start="0" bits="32" format="unsigned"/>
     </register>
-   
+    
+    <register name="ADCInputErrorEnable" address="0009" purpose="status" mode="rw">
+      <description>"ADC Input Error Enable</description>
+      <field name="ADCInputErrorEnable" start="0" bits="1" format="boolean" />
+    </register>
+    
+    <register name="ADCInputErrorCtr" address="000a" purpose="status" mode="r">
+      <description>ADC Input Error Counter</description>
+      <field name="ADCInputErrorCtr" start="0" bits="16" format="unsigned" />
+    </register>
 
-    <!--
-       <register name="DebugMux" address="000f" purpose="config">
-         <description>Debug Multiplexer selection</description>
-         <field name="DebugMux" start="0" bits="2" format="enum">
-           <enumItem value="0">Normal Debug</enumItem>
-           <enumItem value="1">ADC Nxyter</enumItem>
-           <enumItem value="2">ADC Testchannel</enumItem>
-           <enumItem value="3">ADC Reset Handler</enumItem>
-         </field>
-       </register>
-       -->
+    <register name="NXDataClkOK" address="000b" purpose="status" mode="r">
+      <description>Nyxter Data Clock OK</description>
+      <field name="NXDataClkOK" start="0" bits="1" format="boolean" />
+    </register>
+
+    <register name="ADCResetCounter" address="000c" purpose="status" mode="r">
+      <description>ADC Handler Reset Counter</description>
+      <field name="ADCResetCounter" start="0" bits="16" format="unsigned" />
+    </register>
 
   </group>
   
