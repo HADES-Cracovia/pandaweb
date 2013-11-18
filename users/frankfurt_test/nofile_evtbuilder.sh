@@ -48,7 +48,7 @@ cd $tmpdir
 
 
 #exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 2 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file 
-exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file 
+exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d null
 ${extraopts}; 
 read; bash" &
 pid=$!

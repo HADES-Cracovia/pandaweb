@@ -144,7 +144,7 @@ sub FormatPretty {
         if($obj->{errorflag}) { $ret .= "$cl".($value?"true":"false");}
         else                  { $ret .= "$cl".($value?"true":"false");}
           }
-      when ("float")    {$ret .= sprintf("$cl%.2f",$value);}
+      when ("float")    { $ret .= sprintf("$cl%.2f",$value);}
       when ("integer")  { $t    = sprintf("%i",$value); 
                           $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
                           $ret .= $cl.$t;
@@ -156,7 +156,8 @@ sub FormatPretty {
       when ("signed")   { $ret .= sprintf("$cl%d",$value);}
       when ("binary")   { $t    = sprintf("%0".$obj->{bits}."b",$value); 
                           $t =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/&#8198;/g; 
-                          $ret .= $cl.$t;}
+                          $ret .= $cl.$t;
+                          }
       when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
                           $tmp =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/ /g;
                           $tmp =~ s/0/\&#9633\;/g;
