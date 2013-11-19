@@ -28,6 +28,7 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t  \t\t read temperature compensation value. no options\n";
   print "\t disable \t set input diable. options: \$mask\n";
   print "\t \t\t read input disable. no options\n";
+  print "\t discharge \t Disables the discharge circuit if set. options: \$mask\n";
   print "\t input \t\t read input status. no options\n";
   print "\t invert \t set invert status. options: \$mask\n";
   print "\t  \t\t read invert status. no options\n";
@@ -141,6 +142,18 @@ if($ARGV[2] eq "comp") {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
   }   
+
+if($ARGV[2] eq "discharge" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20870000+($mask&0x00ff));
+  print "Wrote Discharge Disable settings.\n";
+  }    
+  
+if($ARGV[2] eq "discharge") {
+  my $b = sendcmd(0x20070000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xff);
+    }
+  }    
   
 if($ARGV[2] eq "disable" && defined $ARGV[3]) {
   my $b = sendcmd(0x20800000+($mask&0xffff));
