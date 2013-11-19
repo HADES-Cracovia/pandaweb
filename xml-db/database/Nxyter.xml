@@ -366,4 +366,34 @@
     </register>
   </group>
 
+  <group name="NXControl"
+         address="0100"  size="5"  purpose="status"  mode="rw" continuous="false">
+    
+    <register name="NxOffline" address="0103" purpose="config" mode="rw" >
+      <description>Nxyter Offline Mode</description>
+      <field name="NxOffline" start="0" bits="1" format="boolean"/>
+    </register>
+    
+    <register name="MainClkLock" address="0104" purpose="status" mode="r" >
+      <description>Nxyter Main Clock Lock (250 MHz)</description>
+      <field name="MainClkLock" start="0" bits="1" format="boolean"/>
+    </register>
+    
+    <register name="AdcClkLock" address="0105" purpose="status" mode="r" >
+      <description>ADC Data Clock Lock</description>
+      <field name="AdcClkLock" start="0" bits="1" format="boolean"/>
+    </register>
+
+    <register name="MainNotLockCtr" address="010a" purpose="status" mode="r" >
+      <description>PLL Nxyter Main Clock NotLock Counter</description>
+      <field name="MainNotLockCtr" start="0" bits="16" format="unsigned"/>
+    </register>
+    
+    <register name="AdcNotLockCtr" address="010b" purpose="status" mode="r" >
+      <description>PLL ADC Data Clock NotLock Counter</description>
+      <field name="AdcNotLockCtr" start="0" bits="16" format="unsigned"/>
+    </register>
+  
+  </group>
+
 </TrbNetEntity>
