@@ -88,7 +88,7 @@
 
 
   <group name="TriggerValidate"
-         address="0180"  size="15"  purpose="config"  mode="rw"  continuous="false">
+         address="0400"  size="25"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
       
@@ -158,12 +158,31 @@
       <description>Current Data-Fifo delay value</description>
       <field name="DataFifoDelay" start="0" bits="7" format="unsigned" unit="ns" scale="32"/>
     </register>
-    
 
-    <register name="ChannelDone" address="000b" purpose="status" mode="r" repeat="4">
-      <description>Data channel read-out finished</description>
+    <register name="ChannelWait" address="000b" purpose="status" mode="r" repeat="4">
+      <description>Data channel WAIT Flags</description>
+      <field name="ChannelWait" start="0" bits="32" format="bitmask"/>
+    </register> 
+    
+    <register name="ChannelHit" address="000f" purpose="status" mode="r" repeat="4">
+      <description>Data channel HIT Flags</description>
+      <field name="ChannelHit" start="0" bits="32" format="bitmask"/>
+    </register> 
+    
+    <register name="ChannelDone" address="0013" purpose="status" mode="r" repeat="4">
+      <description>Data channel DONE Flags</description>
       <field name="ChannelDone" start="0" bits="32" format="bitmask"/>
     </register>  
+    
+    <register name="ChannelAllDone" address="0017" purpose="status" mode="r">
+      <description>Data channel All-Done Flag</description>
+      <field name="ChannelAllDone" start="0" bits="1" format="boolean"/>
+    </register>
+
+    <register name="FIFOFull" address="0018" purpose="status" mode="r">
+      <description>Event Buffer full Flag</description>
+      <field name="FIFOFull" start="0" bits="1" format="boolean"/>
+    </register>
 
   </group>
 
