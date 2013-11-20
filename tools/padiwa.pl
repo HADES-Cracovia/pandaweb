@@ -26,9 +26,12 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t  \t\t read PWM value. options: \$channel\n";
   print "\t comp \t\t set temperature compensation value. options: \$value\n";
   print "\t  \t\t read temperature compensation value. no options\n";
-  print "\t disable \t set input diable. options: \$mask\n";
+  print "\t discdisable \t set input diable. options: \$mask\n";
   print "\t \t\t read input disable. no options\n";
-  print "\t discharge \t Disables the discharge circuit if set. options: \$mask\n";
+  print "\t discharge \t Disables the discharge signal if set. options: \$mask\n";
+  print "\t discoverride \t Set discharge signal if disabled. options: \$mask\n";
+  print "\t dischighz \t Set discharge signal to highZ. options: \$mask\n";
+  print "\t discdelayinvert \t Invert signal used for delay generation. options: \$mask\n";
   print "\t input \t\t read input status. no options\n";
   print "\t invert \t set invert status. options: \$mask\n";
   print "\t  \t\t read invert status. no options\n";
@@ -143,17 +146,55 @@ if($ARGV[2] eq "comp") {
     }
   }   
 
-if($ARGV[2] eq "discharge" && defined $ARGV[3]) {
+if($ARGV[2] eq "discdisable" && defined $ARGV[3]) {
   my $b = sendcmd(0x20870000+($mask&0x00ff));
   print "Wrote Discharge Disable settings.\n";
   }    
   
-if($ARGV[2] eq "discharge") {
+if($ARGV[2] eq "discdisable") {
   my $b = sendcmd(0x20070000);
   foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xff);
     }
   }    
+
+if($ARGV[2] eq "discoverride" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20880000+($mask&0x00ff));
+  print "Wrote Discharge Disable settings.\n";
+  }    
+  
+if($ARGV[2] eq "discoverride") {
+  my $b = sendcmd(0x20080000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xff);
+    }
+  }   
+ 
+if($ARGV[2] eq "dischighz" && defined $ARGV[3]) {
+  my $b = sendcmd(0x20890000+($mask&0x00ff));
+  print "Wrote Discharge Disable settings.\n";
+  }    
+  
+if($ARGV[2] eq "dischighz") {
+  my $b = sendcmd(0x20090000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xff);
+    }
+  }   
+
+ 
+if($ARGV[2] eq "discdelayinvert" && defined $ARGV[3]) {
+  my $b = sendcmd(0x208a0000+($mask&0x00ff));
+  print "Wrote Discharge Disable settings.\n";
+  }    
+  
+if($ARGV[2] eq "discdelayinvert") {
+  my $b = sendcmd(0x200a0000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xff);
+    }
+  }    
+
   
 if($ARGV[2] eq "disable" && defined $ARGV[3]) {
   my $b = sendcmd(0x20800000+($mask&0xffff));
@@ -201,14 +242,14 @@ if($ARGV[2] eq "input") {
   }    
 
 if($ARGV[2] eq "led" && defined $ARGV[3]) {
-  my $b = sendcmd(0x20820000+($mask&0xffff));
+  my $b = sendcmd(0x20820000+($mask&0x1ff));
   print "Wrote LED settings.\n";
   }    
   
 if($ARGV[2] eq "led") {
   my $b = sendcmd(0x20020000);
   foreach my $e (sort keys %$b) {
-    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
+    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1ff);
     }
   }     
 
@@ -224,6 +265,7 @@ if($ARGV[2] eq "monitor") {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0x1f);
     }
   }     
+
 
 if($ARGV[2] eq "time") {
   my $ids;
