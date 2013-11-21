@@ -1,5 +1,8 @@
 #!/bin/bash
 
 cd nxyter
-./setup.sh
+
+./trb3_setup.sh 0x3800
+./trb3_setup.sh 0x3801
+
 cd ..

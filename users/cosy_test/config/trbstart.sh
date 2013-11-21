@@ -8,7 +8,8 @@ echo "Setting up Start TRB"
 TRBNUM=129
 
 #../../../tools/command_client.pl -e etraxp$TRBNUM -c 'spi_trbv2_rl /home/hadaq/start_and_veto/thresholds_test'
-../../../tools/command_client.pl -e etraxp$TRBNUM -c 'spi_trbv2_rl /home/hadaq/start/run.cfg'
+#../../../tools/command_client.pl -e etraxp$TRBNUM -c 'spi_trbv2_rl /home/hadaq/start/run.cfg'
+../../../tools/command_client.pl -e etraxp$TRBNUM -c 'spi_trbv2_rl /home/hadaq/start/all_pmt.cfg'
 
 ../../../tools/command_client.pl -e etraxp$TRBNUM -c "cd /home/hadaq/scripts/; ./trbv2_TDCs_configure.sh ${TRBNUM}"
 

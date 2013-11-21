@@ -20,4 +20,7 @@ echo "++ nXYTER"
 echo "++ CTS"
 ./cts.sh
 echo "================================"
+trbcmd i 0xffff
+echo "================================"
+
 echo "done, hit Enter to exit"
