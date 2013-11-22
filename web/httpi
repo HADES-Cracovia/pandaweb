@@ -431,7 +431,7 @@ exit;
 sub nsecmodel {
 	&log;
 	($x,$x,$x,$x,$uid,$gid) = stat(S);
-	(!$uid || !$gid || $uid < 100) &&
+	(!$uid || !$gid || $uid < 2 ) &&
 		die "resource is root-owned, secured or not stat-able\n";
 	if (!$<) {
 		($) = "$gid $gid") || die "can't set egid to $gid";
