@@ -41,6 +41,7 @@ EOF
 <div id="overview">
 <div class="header">);
 
+
 for ( my $s = 0; $s < scalar @setup; $s++) {
   print qq|<span class="|.(($active == $s)?"selected":"inactive").qq|"><a href="?$setup[$s]->{name}">$setup[$s]->{name}</a></span>|;
   }

@@ -188,7 +188,7 @@
 
 
   <group name="DataReceiver"
-         address="0500"  size="13"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="15"  purpose="status"  mode="rw"  continuous="true">
 
     <register name="CurrentTimestamp" address="0000" purpose="status" mode="r">
       <description>Current Timestamp Value read from Fifo</description>
@@ -225,9 +225,9 @@
       <field name="ParityErrorCounter" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
     
-    <register name="PLLNotLockCount" address="0004" purpose="status" mode="r">
+    <register name="ADCSNotLockCount" address="0004" purpose="status" mode="r">
       <description>ADC Sampling PLL Clock Not Lock Counter</description>
-      <field name="PLLNotLockCount" start="0" bits="32" format="unsigned" errorflag="true" />
+      <field name="ADCSNotLockCount" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
 
     <register name="JohnsonCtrSync" address="0005" purpose="config" mode="rw">
@@ -250,7 +250,7 @@
       <field name="ADCValue" start="0" bits="32" format="unsigned"/>
     </register>
     
-    <register name="ADCInputErrorEnable" address="0009" purpose="status" mode="rw">
+    <register name="ADCInputErrorEnable" address="0009" purpose="config" mode="rw">
       <description>"ADC Input Error Enable</description>
       <field name="ADCInputErrorEnable" start="0" bits="1" format="boolean" />
     </register>
@@ -260,14 +260,31 @@
       <field name="ADCInputErrorCtr" start="0" bits="16" format="unsigned" />
     </register>
 
-    <register name="NXDataClkOK" address="000b" purpose="status" mode="r">
-      <description>Nyxter Data Clock OK</description>
-      <field name="NXDataClkOK" start="0" bits="1" format="boolean" />
+    <register name="ADCClockOK" address="000b" purpose="status" mode="r">
+      <description>ADC Clock OK, Johnson counter is synced</description>
+      <field name="ADCClockOK" start="0" bits="1" format="boolean" />
     </register>
 
     <register name="ADCResetCounter" address="000c" purpose="status" mode="r">
       <description>ADC Handler Reset Counter</description>
       <field name="ADCResetCounter" start="0" bits="16" format="unsigned" />
+    </register>
+    
+    <register name="TSDelay" address="000d" purpose="config" mode="rw">
+      <description>nx_fifo_threshold</description>
+      <field name="TSDelay" start="0" bits="4" format="unsigned" />
+    </register>
+    
+    <register name="ADCBShift" address="000e" purpose="config" mode="rw">
+      <description>ADC Bit Shift</description>
+      
+      <field name="ShiftDir" start="3" bits="1" format="unsigned">
+        <description>ADC Bit Shift Direction (0=ror, 1=rol)</description>
+      </field>
+      <field name="ShiftValue" start="0" bits="3" format="unsigned">
+        <description>ADC Bit Shift value</description>    
+      </field>
+      
     </register>
 
   </group>
@@ -367,31 +384,51 @@
   </group>
 
   <group name="NXControl"
-         address="0100"  size="5"  purpose="status"  mode="rw" continuous="false">
+         address="0103"  size="9"  purpose="status"  mode="rw" continuous="true">
     
-    <register name="NxOffline" address="0103" purpose="config" mode="rw" >
-      <description>Nxyter Offline Mode</description>
+    <register name="SetOffline" address="0000" purpose="config" mode="rw" >
+      <description>Force Nxyter Offline Mode</description>
+      <field name="SetOffline" start="0" bits="1" format="boolean"/>
+    </register>
+
+    <register name="I2COnlineS" address="0001" purpose="status" mode="r" >
+      <description>Nxyter I2C Online Status</description>
+      <field name="I2COnlineS" start="0" bits="1" format="boolean"/>
+    </register>
+
+    <register name="NxOffline" address="0002" purpose="status" mode="r" >
+      <description>Nxyter Offline Status</description>
       <field name="NxOffline" start="0" bits="1" format="boolean"/>
     </register>
     
-    <register name="MainClkLock" address="0104" purpose="status" mode="r" >
+    <register name="MainClkLock" address="0003" purpose="status" mode="r" >
       <description>Nxyter Main Clock Lock (250 MHz)</description>
       <field name="MainClkLock" start="0" bits="1" format="boolean"/>
     </register>
     
-    <register name="AdcClkLock" address="0105" purpose="status" mode="r" >
+    <register name="AdcDClkLock" address="0004" purpose="status" mode="r" >
       <description>ADC Data Clock Lock</description>
-      <field name="AdcClkLock" start="0" bits="1" format="boolean"/>
+      <field name="AdcDClkLock" start="0" bits="1" format="boolean"/>
+    </register>
+    
+    <register name="AdcSClkLock" address="0005" purpose="status" mode="r" >
+      <description>ADC Sample Clock Lock</description>
+      <field name="AdcSClkLock" start="0" bits="1" format="boolean"/>
     </register>
 
-    <register name="MainNotLockCtr" address="010a" purpose="status" mode="r" >
+    <register name="MainNotLockCtr" address="0006" purpose="status" mode="r" >
       <description>PLL Nxyter Main Clock NotLock Counter</description>
       <field name="MainNotLockCtr" start="0" bits="16" format="unsigned"/>
     </register>
     
-    <register name="AdcNotLockCtr" address="010b" purpose="status" mode="r" >
+    <register name="AdcDNotLockCtr" address="0007" purpose="status" mode="r" >
       <description>PLL ADC Data Clock NotLock Counter</description>
-      <field name="AdcNotLockCtr" start="0" bits="16" format="unsigned"/>
+      <field name="AdcDNotLockCtr" start="0" bits="16" format="unsigned"/>
+    </register>
+
+    <register name="AdcSNotLockCtr" address="0008" purpose="status" mode="r" >
+      <description>PLL ADC Sample Clock NotLock Counter</description>
+      <field name="AdcSNotLockCtr" start="0" bits="16" format="unsigned"/>
     </register>
   
   </group>

@@ -43,7 +43,7 @@ body {
 }
 
 #overview {
-  min-width:1000px;
+  min-width:1100px;
   margin:50px 0 0 20px;  
   resize:horizontal;
 /*   overflow:auto; */
@@ -208,6 +208,7 @@ table.fields td.button_move:hover, table.registers td.button_move:hover{
 
 
 div.header {
+  white-space:nowrap;
   font-size:13pt;
   position:absolute;
   font-weight:bold;
