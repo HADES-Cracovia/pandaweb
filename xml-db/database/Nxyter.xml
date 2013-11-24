@@ -37,7 +37,7 @@
       </register>
 
       <register name="FrameRate" address="0001" purpose="status">
-        <description>Rate of Incoming Nxyter Frames, must be 31.25MHz</description>
+        <description>Rate of Incoming Nxyter + ADC Frames, must be 31.25MHz</description>
         <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
       </register>
     </group>
@@ -188,7 +188,7 @@
 
 
   <group name="DataReceiver"
-         address="0500"  size="15"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="18"  purpose="status"  mode="rw"  continuous="true">
 
     <register name="CurrentTimestamp" address="0000" purpose="status" mode="r">
       <description>Current Timestamp Value read from Fifo</description>
@@ -284,7 +284,21 @@
       <field name="ShiftValue" start="0" bits="3" format="unsigned">
         <description>ADC Bit Shift value</description>    
       </field>
-      
+    </register>
+    
+    <register name="ADCFNLockCtr" address="000f" purpose="status" mode="r">
+      <description>ADC Frame Not Lock Counter</description>
+      <field name="ADCFNLockCtr" start="0" bits="8" format="unsigned" />
+    </register>
+    
+    <register name="NXFrameRate" address="0010" purpose="status" mode="r">
+      <description>Nxyter Timestamp Frame Rate, must be 31.25 MHz</description>
+      <field name="NXFrameRate" start="0" bits="27" format="unsigned" unit="Hz" />
+    </register>
+
+    <register name="ADCFrameRate" address="0011" purpose="status" mode="r">
+      <description>ADC Data Frame Rate, must be 31.25 MHz</description>
+      <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="Hz" />
     </register>
 
   </group>
