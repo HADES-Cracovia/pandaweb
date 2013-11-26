@@ -398,7 +398,7 @@
   </group>
 
   <group name="NXControl"
-         address="0103"  size="9"  purpose="status"  mode="rw" continuous="true">
+         address="0103"  size="10"  purpose="status"  mode="rw" continuous="true">
     
     <register name="SetOffline" address="0000" purpose="config" mode="rw" >
       <description>Force Nxyter Offline Mode</description>
@@ -444,7 +444,12 @@
       <description>PLL ADC Sample Clock NotLock Counter</description>
       <field name="AdcSNotLockCtr" start="0" bits="16" format="unsigned"/>
     </register>
-  
+    
+    <register name="ErrorStatus" address="0009" purpose="status" mode="r" >
+      <description>Error Status of all Entities</description>
+      <field name="ErrorStatus" start="0" bits="7" format="bitmask"/>
+    </register>
+
   </group>
 
 </TrbNetEntity>
