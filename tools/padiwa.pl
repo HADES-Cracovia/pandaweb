@@ -23,24 +23,18 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t resettemp \t resets the 1-wire logic\n";
   print "\t dac \t\t set LTC-DAC value. options: \$channel, \$value\n";
   print "\t pwm \t\t set PWM value. options: \$channel, \$value\n";
-  print "\t  \t\t read PWM value. options: \$channel\n";
   print "\t comp \t\t set temperature compensation value. options: \$value\n";
-  print "\t  \t\t read temperature compensation value. no options\n";
   print "\t discdisable \t set input diable. options: \$mask\n";
-  print "\t \t\t read input disable. no options\n";
   print "\t discharge \t Disables the discharge signal if set. options: \$mask\n";
   print "\t discoverride \t Set discharge signal if disabled. options: \$mask\n";
   print "\t dischighz \t Set discharge signal to highZ. options: \$mask\n";
   print "\t discdelayinvert \t Invert signal used for delay generation. options: \$mask\n";
   print "\t input \t\t read input status. no options\n";
   print "\t invert \t set invert status. options: \$mask\n";
-  print "\t  \t\t read invert status. no options\n";
   print "\t led \t\t set led status. options: mask (5 bit, highest bit is override enable)\n";
   print "\t  \t\t read LED status. no options\n";
   print "\t monitor \t set input for monitor output. options: mask (4 bit). \n\t\t\t 0x10: OR of all channels, 0x18: or of all channels, extended to  16ns\n";
-  print "\t  \t\t read monitor selection. no options\n";
   print "\t stretch \t set stretcher status.\n";
-  print "\t  \t\t read stretcher status. no options\n";
   print "\t ram \t\t writes the RAM content, options: 16 byte in hex notation, separated by space, no 0x.\n";
   print "\t  \t\t read the RAM content (16 Byte)\n";
   print "\t flash \t\t execute flash command, options: \$command, \$page. See manual for commands.\n";
@@ -343,7 +337,7 @@ if($ARGV[2] eq "writecfg" && defined $ARGV[3]) {
   }  
 
 if($ARGV[2] eq "fifo" || $ARGV[2] eq "ffarr") {
-  my $b = sendcmd(0x200a0000);
+  my $b = sendcmd(0x200f0000);
   foreach my $e (sort keys %$b) {
     printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
     }
