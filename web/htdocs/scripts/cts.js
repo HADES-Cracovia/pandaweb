@@ -448,23 +448,21 @@ var CTS = new Class({
          $('addon-board-tab')
          .adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
-            .adopt(
+            .adopt([
                new Element('td', {'class': 'num', 'text': i}),
                
                new Element('td', {'class': 'source'})
                .adopt(
-                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
-                  .adopt(
-                     Object.values(en).map(function (r) {
-                        return new Element('option', {'value': r, 'text': r})
-                     })
-                   )
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'}).adopt(
+		     Object.values(en).map(function (r) {
+			return new Element('option', {'value': r, 'text': r})
+		     })
+                  )
                ),
                
                new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i}),
                
-               new Element('td', {'class': 'invert'})
-               .adopt(
+               new Element('td', {'class': 'invert'}).adopt(
                   new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': reg + '.invert'})
                ),
 
@@ -489,7 +487,7 @@ var CTS = new Class({
                      new Element('option', {'value': 'to_high', 'text': '-> 1'}),
                   ])
                )
-            )
+            ])
          );
       }
    },
@@ -507,37 +505,44 @@ var CTS = new Class({
          $('itc-tab') // + (i / 8).toInt())
          .adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + i})
-            .adopt(
-               new Element('td', {'text': i, 'class': 'channel'})
-            ).adopt(
+	    .adopt([
+               new Element('td', {'text': i, 'class': 'channel'}),
                new Element('td', {'class': 'enable'})
                .adopt(
                   new Element('input', {'type': 'checkbox', 'id': 'itc-enable'+i, 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.mask[' + i + ']'})
-               )
-            ).adopt(
-               new Element('td', {'class': 'edge'})
+               ),
+
+	       new Element('td', {'class': 'edge'})
                .adopt(
                   edgeType = new Element('select', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.edge[' + i + ']'})
-                  .adopt(
-                     new Element('option', {'value': '0', 'text': 'H. Level'})
-                   ).adopt(
+                  .adopt([
+                     new Element('option', {'value': '0', 'text': 'H. Level'}),
                      new Element('option', {'value': '1', 'text': 'R. Edge'})
-                   )
-               )
-            ).adopt(
-               new Element('td', {'class': 'assign', 'text': this.defs.properties.itc_assignments[i]})
-            ).adopt (
+                   ])
+               ),
+	    
+               itc = new Element('td', {'class': 'assign', 'text': this.defs.properties.itc_assignments[i]}),
                new Element('td', {'class': 'type'})
                .adopt(
                      ddType = new Element('select', {'class': 'autocommit autoupdate autoupdate-value', 'slice': '_trg_trigger_types' + (i < 8 ? '0' : '1') + '.type' + i})
-               )
-            ).adopt (
-               assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i})
-            ).adopt (
+               ),
+	    
+               assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i}),
                edgeRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-edge-rate' + i})
-            )
+            ])
          );
          
+	 if (this.defs.properties['trg_periph_itc_base'] == i) {
+	    itc.set('html', '').adopt([
+	       new Element('span', {'html': 'Trigger from FPGA:&nbsp;&nbsp;'}),
+	       new Element('sub', {'text': '4'})
+	    ]);
+	    for(var j=3; j>=0; j--)
+	       itc.adopt(new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_periph_config.mask[' + j + ']'}));
+
+	    itc.adopt(new Element('sub', {'text': '1'}));
+	 }
+	 
          for(var j=0; j < 16; j++)
             ddType.adopt(new Element('option', {'value': j, 'text': this.defs.registers['_trg_trigger_types' + (i < 8 ? '0' : '1')]._defs['type' + i].enum[j]}));
          
@@ -571,19 +576,17 @@ var CTS = new Class({
          var coin, inhibit;
          $('coin-tab').adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup':  'itc-' +  (i + parseInt(this.defs.properties.trg_coin_itc_base))})
-            .adopt(
-               new Element('td', {'class': 'num', 'text': i})
-            ).adopt(
+            .adopt([
+               new Element('td', {'class': 'num', 'text': i}),
                new Element('td', {'class': 'window'})
-               .adopt(
-                  new Element('input', {'class': 'autoupdate autocommit', 'slice': reg + '.window', 'format': 'countToTime', 'interpret': 'timeToCount'})
-               ).adopt(
+               .adopt([
+                  new Element('input', {'class': 'autoupdate autocommit', 'slice': reg + '.window', 'format': 'countToTime', 'interpret': 'timeToCount'}),
                   new Element('span', {'text': ' ns'})
-            )).adopt(
-               coin = new Element('td', {'class': 'coin'})
-            ).adopt(
+	       ]),
+               coin = new Element('td', {'class': 'coin'}),
                inhibit = new Element('td', {'class': 'inhibt'})
-         ));
+	    ]) 
+	 );
          
          for(var j=this.defs.properties.trg_input_count-1; j >= 0; j--) {
             coin.adopt(   new Element('input', {'type': 'checkbox', 'class': 'autoupdate autocommit', 'slice': reg+'.coin_mask['+j+']'}));
