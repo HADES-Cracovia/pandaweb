@@ -7,7 +7,7 @@
   <description>Registers for the Nxyter Readout</description>
 
   <group name="DataValidate"
-         address="0120"  size="6"  purpose="status"  mode="r"  continuous="true">
+         address="0120"  size="9"  purpose="status"  mode="r"  continuous="true">
 
     <register name="InvalidFrames" address="0000" purpose="status">
       <description>Number of invalid frames</description>
@@ -41,6 +41,21 @@
         <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
       </register>
     </group>
+
+    <register name="ADCValue" address="0006" purpose="status" mode="r">
+      <description>Last valid ADC value</description>
+      <field name="ADCValue" start="0" bits="32" format="unsigned"/>
+    </register>
+
+    <register name="ADCAverage" address="0007" purpose="status" mode="r">
+      <description>Average of last valid ADC Values</description>
+      <field name="ADCAverage" start="0" bits="32" format="unsigned"/>
+    </register>
+    
+    <register name="ADCAverageNum" address="0008" purpose="config" mode="rw">
+      <description>Number of Averages, power of two (2^n)</description>
+      <field name="ADCAverageNum" start="0" bits="4" format="unsigned" />
+    </register>
 
   </group>
 
@@ -188,7 +203,7 @@
 
 
   <group name="DataReceiver"
-         address="0500"  size="18"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="19"  purpose="status"  mode="rw"  continuous="true">
 
     <register name="CurrentTimestamp" address="0000" purpose="status" mode="r">
       <description>Current Timestamp Value read from Fifo</description>
@@ -245,21 +260,21 @@
       <field name="PllFineDelb" start="0" bits="4" format="unsigned" scale="125" unit="ps" />
     </register>
 
-    <register name="ADCValue" address="0008" purpose="status" mode="r">
-      <description>Current ADC value</description>
-      <field name="ADCValue" start="0" bits="32" format="unsigned"/>
-    </register>
-    
-    <register name="ADCInputErrorEnable" address="0009" purpose="config" mode="rw">
-      <description>"ADC Input Error Enable</description>
-      <field name="ADCInputErrorEnable" start="0" bits="1" format="boolean" />
-    </register>
-    
-    <register name="ADCInputErrorCtr" address="000a" purpose="status" mode="r">
-      <description>ADC Input Error Counter</description>
-      <field name="ADCInputErrorCtr" start="0" bits="16" format="unsigned" />
+    <register name="ADCRValue" address="0008" purpose="status" mode="r">
+      <description>Current ADC raw value</description>
+      <field name="ADCRValue" start="0" bits="32" format="unsigned"/>
     </register>
 
+    <register name="Reserved0" address="0009" purpose="status" mode="r">
+      <description></description>
+      <field name="Reserved0" start="0" bits="32" format="unsigned"/>
+    </register>
+    
+    <register name="Reserved1" address="000a" purpose="config" mode="r">
+      <description></description>
+      <field name="Reserved1" start="0" bits="4" format="unsigned" />
+    </register>
+    
     <register name="ADCClockOK" address="000b" purpose="status" mode="r">
       <description>ADC Clock OK, Johnson counter is synced</description>
       <field name="ADCClockOK" start="0" bits="1" format="boolean" />
@@ -299,6 +314,11 @@
     <register name="ADCFrameRate" address="0011" purpose="status" mode="r">
       <description>ADC Data Frame Rate, must be 31.25 MHz</description>
       <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="Hz" />
+    </register>
+
+    <register name="ADCTestValue" address="0012" purpose="status" mode="r">
+      <description>ADC Test Channel Value</description>
+      <field name="ADCTestValue" start="0" bits="12" format="unsigned"/>
     </register>
 
   </group>
