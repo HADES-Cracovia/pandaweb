@@ -1,0 +1,11 @@
+#!/bin/bash
+
+nxarr=(0x3800 0x3801 0x3802 0x3803)
+
+for i in ${nxarr[*]}; do
+	cmd="exec $1 $i"
+#	echo execute $cmd...
+#	echo $1 $i
+	$1 $i
+#	time $cmd
+done

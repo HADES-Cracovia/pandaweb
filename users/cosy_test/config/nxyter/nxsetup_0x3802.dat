@@ -22,7 +22,7 @@
 0x00000041    # 18  Common Threshold, default 0x80
 0x0000001e    # 19
 0x0000005f    # 20
-0x00000074    # 21
+0x0000008c    # 21
 0x00000064    # 22
 0x00000089    # 23
 0x000000ff    # 24  Testpulse Strength, default 0x80

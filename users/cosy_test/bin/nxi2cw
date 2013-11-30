@@ -1,0 +1,21 @@
+#!/bin/bash
+
+base=0x8200
+
+while getopts "b:" opt; do
+	case "${opt}" in
+	b)
+		base=$1
+		;;
+	esac
+done
+
+shift $(( OPTIND-1 ))
+
+[ -n $1 ] && addr=0x3800 || addr=$1
+
+reg=$2
+
+val=$3
+
+trbcmd w $addr $(( base + reg )) $val

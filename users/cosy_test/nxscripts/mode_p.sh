@@ -1,7 +1,10 @@
 #!/bin/bash
 
-[ -n $1 ] && addr=0x3800 || addr=$1
+[ -z $1 ] && addr=0xfe49 || addr=$1
 
 # TP
-trb_i2c w $addr 0x0008 32 0x01
-trb_i2c w $addr 0x0008 33 15
+trbcmd setbit $addr $(( 0x8200 + 32 )) 0x01
+trbcmd clearbit $addr $(( 0x8200 + 32 )) 0x08
+
+trbcmd w $addr 0x8160 1
+trbcmd w $addr 0x8140 100

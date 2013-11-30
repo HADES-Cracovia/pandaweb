@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -n $1 ] && addr=0x3800 || addr=$1
+[ -n $1 ] && addr=0xfe49 || addr=$1
 
 trbcmd w $addr 0x8180 0
 trbcmd w $addr 0x8181 0
