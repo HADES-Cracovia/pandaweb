@@ -1,4 +1,7 @@
 #!/usr/bin/perl -w
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  &htsponse(200, "OK");
+  }
 print "Content-type: text/html\n\n";
 
 
