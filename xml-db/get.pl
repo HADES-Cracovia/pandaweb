@@ -79,7 +79,8 @@ foreach my $req (@request) {
   my $isColor  = $style =~ /color/i;  
   my $sortAddr = $style =~ /sortaddr/i;
      $verbose  = ($style =~ /verbose/i) ||$verbose;
-
+  my $rates    = $style =~ /rates/i;
+  my $cache    = $style =~ /cache/i;
     
      
 ###############################
