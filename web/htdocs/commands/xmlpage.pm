@@ -4,12 +4,11 @@ package xmlpage;
 
 my $active = 0;
 my @setup;
-
+our $getscript;
 
 sub initPage {
   my ($ref_setup,$page) = @_;
   @setup = @$ref_setup;
-  
   my ($command,$style) = split("-",$ENV{'QUERY_STRING'});
   $command = "" unless defined $command;
   $style   = ""  unless defined $style;
@@ -25,6 +24,10 @@ sub initPage {
   my $name = $setup[$active]->{name};
   my ($cmdMod,$cmdAddr,$cmdReg) = split('-',$setup[$active]->{cmd});
 
+  $getscript = $page->{getscript};
+  if(!defined $getscript) {
+    $getscript = "../xml-db/get.pl";
+    }
   
   print <<EOF;
 <HTML>
@@ -81,6 +84,7 @@ print <<EOF ;
 </BODY>
 </HTML>
 EOF
+
 }
 
 
@@ -95,6 +99,7 @@ sub printJavaScripts {
 <script language="javascript" src="../scripts/scriptsnew.js"></script>
 <script language="javascript" src="../scripts/xmlpage.js"></script>
 <script language="javascript">
+  GETCOMMAND = "$getscript";
   var period = |.$setup[$n]->{period}.qq|;
   var command="|.$setup[$n]->{cmd}.qq|";
   var Timeoutvar;

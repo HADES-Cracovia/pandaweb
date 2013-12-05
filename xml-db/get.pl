@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use HADES::TrbNet;
-use Storable qw(lock_retrieve);
+use Storable qw(lock_store lock_retrieve);
 use feature "switch";
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -18,7 +18,7 @@ my $verbose = 0;
 my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
-my ($file,$entity,$netaddr,$name, $style);
+my ($file,$entity,$netaddr,$name, $style, $storefile);
 
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
@@ -57,6 +57,7 @@ foreach my $req (@request) {
       ($entity,$netaddr,$name,$style) = split("-",$req);
       $file = "$RealBin/cache/$entity.entity";
       }
+    $storefile = "/tmp/".$ENV{'QUERY_STRING'}.".store";
     }
   else {
   #   use FindBin qw($RealBin);
@@ -101,6 +102,12 @@ foreach my $req (@request) {
 
   $db = lock_retrieve($file);
   die "Unable to read cache file\n" unless defined $db;
+  
+  if($rates) {
+    if(-e $storefile) {
+      my $olddata = lock_retrieve($storefile);
+      }
+    }
 
   die "Name not found in entity file\n" unless(exists $db->{$name});
 
@@ -111,6 +118,9 @@ foreach my $req (@request) {
   if ($isbrowser) {
     requestdata($db->{$name},$name,$slice);
     generateoutput($db->{$name},$name,$slice,$once);
+    if($rates) {
+      store_lock($data,$storefile);
+      }
     }
   else {
     runandprint($db->{$name},$name,$slice,$once);
@@ -196,7 +206,7 @@ sub FormatPretty {
       when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {require Date::Format; $ret = Date::Format::time2str('%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret = sprintf("0x%0".int(($obj->{bits}+3)/4)."x",$value);}
-      when ("enum")     { my $t = sprintf("%x",$value);
+      when ("e1num")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
                             $ret = $obj->{enumItems}->{$t} 
                             }
@@ -418,7 +428,7 @@ sub runandprint {
         }
       
       #### Show the beautiful result...
-      if($isbrowser == 0) {
+      if($isb1rowser == 0) {
         print $t->render;
         }
       else {

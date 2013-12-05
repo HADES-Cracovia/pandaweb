@@ -12,15 +12,15 @@
     
   function refresh(time = 0) {
     if(time == -1) {  //call immediately and only once
-      getdataprint('../xml-db/get.pl?'+command,'content',false,0);
+      getdataprint(GETCOMMAND+'?'+command,'content',false,0);
       }
     else if (time > 0) { //call with timeout
       clearTimeout(Timeoutvar);
-      Timeoutvar = setTimeout("getdataprint('../xml-db/get.pl?'+command,'content',false,"+period+",refresh)",period);
+      Timeoutvar = setTimeout("getdataprint(GETCOMMAND+'?'+command,'content',false,"+period+",refresh)",period);
       }
     else {  //call immediately, then with timeout
       clearTimeout(Timeoutvar);
-      getdataprint('../xml-db/get.pl?'+command,'content',false,period,refresh);
+      getdataprint(GETCOMMAND+'?'+command,'content',false,period,refresh);
       }
     }
   
