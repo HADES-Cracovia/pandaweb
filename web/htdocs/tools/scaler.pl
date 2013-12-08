@@ -29,7 +29,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   $delay += 0x10000 if ($delay < 0);
   $delay *= 16.;
   $delay = 1E6 if $delay == 0;
-
+  print STDERR $delay." ".$data->{0x3820}->{time}->[0]."\n";
   my $rate;
   for(my $i = 0; $i<64;$i++) {
     $rate->[$i] = (($data->{0x3820}->{value}[$i]||0) & 0x00ffffff) - (($olddata->{0x3820}->{value}[$i]||0) & 0x00ffffff);
