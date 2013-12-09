@@ -19,10 +19,10 @@
 0x00000000    # 15  Channel Masks END
 0x000000a0    # 16  
 0x000000ff    # 17
-0x0000005a    # 18  Common Threshold, default 0x80
+0x00000028    # 18  Common Threshold, default 0x80
 0x0000001e    # 19
 0x0000005f    # 20
-0x00000088    # 21
+0x0000008e    # 21
 0x00000064    # 22
 0x00000089    # 23
 0x000000ff    # 24  Testpulse Strength, default 0x80

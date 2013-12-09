@@ -37,6 +37,8 @@ trbcmd w $board 0x8401 0      # window  offset 200ns
 trbcmd w $board 0x8402 250    # window width 800ns
 trbcmd w $board 0x8403 125    # CTS-Delay 400ns
 
+trbcmd w $board 0x8140 100	# test pulse length 400 ns
+
 # Decoder Settings
 trbcmd w $board 0x8120 0      # reset all counters
 

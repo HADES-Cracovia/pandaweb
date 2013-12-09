@@ -19,6 +19,9 @@ echo "++ nXYTER"
 ./nxyter.sh
 echo "++ CTS"
 ./cts.sh
+echo "++ Scalers"
+./scalers.sh
+
 echo "================================"
 trbcmd i 0xffff
 echo "================================"

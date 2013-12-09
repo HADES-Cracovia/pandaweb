@@ -20,6 +20,6 @@ echo "TRBnet environment ready to use!"
 echo "================================"
 echo ""
 
-PS1=${COLOR_YELLOW}'\u@\h\[\033[01;34m\] \w$(parse_git_branch)'${COLOR_NC}' '
+#PS1=${COLOR_YELLOW}'\u@\h\[\033[01;34m\] \w$(parse_git_branch)'${COLOR_NC}' '
 
-[ -z "$(pidof trbnetd)" ] && /home/hadaq/trbsoft/trbnettools/binlocal/trbnetd
+[ -z "$(pidof trbnetd)" ] && /home/hadaq/trbsoft/trbnettools/bin/trbnetd
