@@ -27,7 +27,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   my $data = trb_registertime_read_mem(0x3820,0xc001,0,64) or die trb_strerror();
   my $delay = ($data->{0x3820}->{time}->[0]||0) - ($olddata->{0x3820}->{time}->[0]||0);
   $delay += 0x10000 if ($delay < 0);
-  $delay *= 16.;
+  $delay *= 16.*125/100;
   $delay = 1E6 if $delay == 0;
   print STDERR $delay." ".$data->{0x3820}->{time}->[0]."\n";
   my $rate;
