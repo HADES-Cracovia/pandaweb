@@ -48,7 +48,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
     print "<div><hr class=\"queryresult\"><table class='queryresult scalers'>";
     $t  = sprintf("<tr><td><b>Diamond $i</b>");
     $t .= sprintf("<td>%d<td>Sum",$sum);
-    $t .= sprintf("<td rowspan=\"6\"><img height=\"150\" width=\"500\" src=\"scaler.pl?plot%1d%d.%d\">",$i,$q,time()/5);
+    $t .= sprintf("<td rowspan=\"6\"><img height=\"180\" width=\"500\" src=\"scaler.pl?plot%1d%d.%d\">",$i,$q,time()/5);
     for(my $j=0;$j<4;$j++) {
       $t .= sprintf("<tr><td>INP %d<td title=\"%d\">%d",$j+4+$i*8,$data->{0x3820}->{value}[2*$j+8+$i*16],$rate->[2*$j+8+$i*16]);
       $t .= sprintf("<td>(%.1f%%)",$rate->[2*$j+8+$i*16]/($sum||1E334)*100);
@@ -89,20 +89,19 @@ elsif($ENV{'QUERY_STRING'} =~ /plot/) {
     return;
     }
   my $cmd = "";
-  $cmd .= "set terminal png size 500,150;\\n";
-  $cmd .= "set key off;\\n";
-  $cmd .= "unset xtics;\\n";
-  $cmd .= "set lmargin 5;set rmargin 0.1;set tmargin 0.1; set bmargin 0.1;\\n";
-  $cmd .= "set ytics font \\\"verdana, 6\\\";\\n";
-  $cmd .= "plot '-' with lines,'-' with lines,'-' with lines, '-' with lines\\n";
+  $cmd .= "set terminal png xeeeeff font sans 6 size 500,180;\n";
+  $cmd .= "set key off;\n";
+  $cmd .= "unset xtics;\n";
+  $cmd .= "set lmargin 5;set rmargin 0.1;set tmargin 0.7; set bmargin 0.7;\n";
+#   $cmd .= "set ytics font \"Times, 6\";\n";
+  $cmd .= "plot '-' with lines,'-' with lines,'-' with lines, '-' with lines\n";
   for(my $j=0; $j<4; $j++) {
     foreach my $r (@{$data->{rate}}) {
-      $cmd .= $r->[$num*16+8+2*$j]."\\n";
+      $cmd .= ($r->[$num*16+8+2*$j]/1000.)."\n";
       }
-    $cmd .= "\\ne\\n";
+    $cmd .= "\ne\n";
     }
-#   print $cmd;
-  $cmd = "echo  \"$cmd\" | gnuplot";
+  $cmd = "echo \"$cmd\" | gnuplot";
   my @o = qx($cmd);
   print @o;
   return 1;
