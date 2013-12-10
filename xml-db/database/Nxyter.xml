@@ -44,12 +44,12 @@
 
     <register name="ADCValue" address="0006" purpose="status" mode="r">
       <description>Last valid ADC value</description>
-      <field name="ADCValue" start="0" bits="32" format="unsigned"/>
+      <field name="ADCValue" start="0" bits="12" format="unsigned"/>
     </register>
 
     <register name="ADCAverage" address="0007" purpose="status" mode="r">
       <description>Average of last valid ADC Values</description>
-      <field name="ADCAverage" start="0" bits="32" format="unsigned"/>
+      <field name="ADCAverage" start="0" bits="12" format="unsigned"/>
     </register>
     
     <register name="ADCAverageNum" address="0008" purpose="config" mode="rw">
@@ -103,7 +103,7 @@
 
 
   <group name="TriggerValidate"
-         address="0400"  size="25"  purpose="config"  mode="rw"  continuous="true">
+         address="0400"  size="26"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
       
@@ -199,6 +199,11 @@
       <field name="FIFOFull" start="0" bits="1" format="boolean"/>
     </register>
 
+    <register name="WaitForData" address="0019" purpose="status" mode="r">
+      <description>Readout wait for data time</description>
+      <field name="WaitForData" start="0" bits="20" format="unsigned" unit="ns"/>
+    </register>
+
   </group>
 
 
@@ -262,7 +267,7 @@
 
     <register name="ADCRValue" address="0008" purpose="status" mode="r">
       <description>Current ADC raw value</description>
-      <field name="ADCRValue" start="0" bits="32" format="unsigned"/>
+      <field name="ADCRValue" start="0" bits="12" format="unsigned"/>
     </register>
 
     <register name="Reserved0" address="0009" purpose="status" mode="r">
