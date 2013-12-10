@@ -34,10 +34,14 @@ trbcmd rm $board 0x8600 4000 2>/dev/null
 # Set readout Mode
 trbcmd w $board 0x8400 0x00   # 0: normal mode 4: no TS Window mode
 trbcmd w $board 0x8401 0      # window  offset 200ns
-trbcmd w $board 0x8402 250    # window width 800ns
+#trbcmd w $board 0x8402 250    # window width 800ns
+trbcmd w $board 0x8402 400    # window width 1600ns
 trbcmd w $board 0x8403 125    # CTS-Delay 400ns
 
 trbcmd w $board 0x8140 100	# test pulse length 400 ns
+
+# TS sync
+trbcmd w $board 0x850d 8      # reset all counters
 
 # Decoder Settings
 trbcmd w $board 0x8120 0      # reset all counters
