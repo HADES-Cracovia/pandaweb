@@ -349,18 +349,27 @@ table.queryresult th div, table.queryresult td div {
   position:relative;
   cursor:default;
 }
-
+/*****************
+ * Table for scaler view
+ *****************/
 .scalers td:nth-child(2){
-  min-width:160px;
-/*   font-family:monospace; */
-  }
-  
-.scalers td:nth-child(3),.scalers td:nth-child(1){
   min-width:100px;
-  text-align:left;
-/*   font-family:monospace; */
+  text-align:right;  
   }
 
+.scalers td:nth-child(3){
+  min-width:100px;
+  text-align:right;
+  }
+.scalers td:nth-child(4){
+  min-width:100px;
+  text-align:right;
+  }
+table.scalers td:first-child{
+  width:85px;
+  text-align:center;
+  }  
+  
 .scalers tr:first-child {
   border-bottom:1px solid #555;
   }
