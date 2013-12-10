@@ -2,15 +2,15 @@
 use HADES::TrbNet;
 use Storable qw(lock_store lock_retrieve);
 use CGI::Carp qw(fatalsToBrowser);
-use Data::TreeDumper;
-
 use lib qw|../commands htdocs/commands|;
 use xmlpage;
+# use Data::TreeDumper;
 
-my $olddata, my $t;
+my $olddata, my $t, my $dataarr;
 
 $ENV{'DAQOPSERVER'}="localhost:0" unless (defined $ENV{'DAQOPSERVER'});
 die "can not connect to trbnet-daemon on $ENV{'DAQOPSERVER'}: ".trb_strerror() unless (defined &trb_init_ports());
+
 
 ###############################
 #### The content
@@ -20,23 +20,24 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   print "Content-type: text/html\r\n\r\n";
 
   my $q = $ENV{'QUERY_STRING'};
+  $q = substr($q,3);
   if(-e "/tmp/scalers.$q.store") {
     $olddata = lock_retrieve("/tmp/scalers.$q.store");
     }
-
   my $data = trb_registertime_read_mem(0x3820,0xc001,0,64) or die trb_strerror();
-  my $delay = ($data->{0x3820}->{time}->[0]||0) - ($olddata->{0x3820}->{time}->[0]||0);
+  my $delay = ($data->{0x3820}->{time}->[0]||0) - ($olddata->{values}->{0x3820}->{time}->[0]||60000);
   $delay += 0x10000 if ($delay < 0);
   $delay *= 16.*125/100;
   $delay = 1E6 if $delay == 0;
-  print STDERR $delay." ".$data->{0x3820}->{time}->[0]."\n";
   my $rate;
   for(my $i = 0; $i<64;$i++) {
-    $rate->[$i] = (($data->{0x3820}->{value}[$i]||0) & 0x00ffffff) - (($olddata->{0x3820}->{value}[$i]||0) & 0x00ffffff);
+    $rate->[$i] = (($data->{0x3820}->{value}[$i]||0) & 0x00ffffff) - (($olddata->{values}->{0x3820}->{value}[$i]||($data->{0x3820}->{value}[$i]||0)) & 0x00ffffff);
     $rate->[$i] += 0x01000000 if ($rate->[$i] < 0);
     $rate->[$i] = $rate->[$i] / ($delay/1E6); 
     }
-
+#   if(! ref($olddata->{rate}) eq "ARRAY") {
+# #     push(@{$olddata->{rate}},$rate);
+#     }
   my @dat = $data->{0x3820}->{value};
 
   for(my $i = 0; $i < 4; $i++) {
@@ -44,23 +45,69 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
     for(my $j=0;$j<4;$j++) {
       $sum += $rate->[2*$j+8+$i*16];
       }
-    print "<div><hr class=\"queryresult\"><table class='queryresult scalers'><tr>";
+    print "<div><hr class=\"queryresult\"><table class='queryresult scalers'>";
     $t  = sprintf("<tr><td><b>Diamond $i</b>");
     $t .= sprintf("<td>%d<td>Sum",$sum);
+    $t .= sprintf("<td rowspan=\"6\"><img height=\"150\" width=\"500\" src=\"scaler.pl?plot%1d%d.%d\">",$i,$q,time()/5);
     for(my $j=0;$j<4;$j++) {
       $t .= sprintf("<tr><td>INP %d<td title=\"%d\">%d",$j+4+$i*8,$data->{0x3820}->{value}[2*$j+8+$i*16],$rate->[2*$j+8+$i*16]);
       $t .= sprintf("<td>(%.1f%%)",$rate->[2*$j+8+$i*16]/($sum||1E334)*100);
       }
-    $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
+    #$t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
     print $t;
-    print "</table></div>\n";
+    print "<tr><td colspan=\"3\">&nbsp;</table></div>\n";
     }
 
 
   printf("<hr class=\"queryresult\"><p>Time between last two readings (mod 1.6s) %d ms",$delay/1000.);
-
-  lock_store($data,"/tmp/scalers.$q.store");
+  printf(".  %d entries",scalar @{$olddata->{rate}});
+  if((scalar @{$olddata->{rate}}) >= 100) {
+    shift(@{$olddata->{rate}});
+    }
+  push(@{$olddata->{rate}},$rate);
+  $olddata->{values} = $data;
+  lock_store($olddata,"/tmp/scalers.$q.store");
   }
+
+
+###############################
+#### The plot
+###############################
+elsif($ENV{'QUERY_STRING'} =~ /plot/) {
+  &htsponse(200, "OK");
+  print "Content-type: image/png\r\n\r\n";
+  my $q = $ENV{'QUERY_STRING'};
+  $num =  substr($q,4,1);
+
+  $q = substr($q,5);
+  @p = split('\.',$q);
+#   print $q.".".$p[0];
+  if(-e "/tmp/scalers.$p[0].store") {
+    $data = lock_retrieve("/tmp/scalers.$p[0].store");
+    }
+  if(! ref($data) eq "ARRAY") {
+    return;
+    }
+  my $cmd = "";
+  $cmd .= "set terminal png size 500,150;\\n";
+  $cmd .= "set key off;\\n";
+  $cmd .= "unset xtics;\\n";
+  $cmd .= "set lmargin 5;set rmargin 0.1;set tmargin 0.1; set bmargin 0.1;\\n";
+  $cmd .= "set ytics font \\\"verdana, 6\\\";\\n";
+  $cmd .= "plot '-' with lines,'-' with lines,'-' with lines, '-' with lines\\n";
+  for(my $j=0; $j<4; $j++) {
+    foreach my $r (@{$data->{rate}}) {
+      $cmd .= $r->[$num*16+8+2*$j]."\\n";
+      }
+    $cmd .= "\\ne\\n";
+    }
+#   print $cmd;
+  $cmd = "echo  \"$cmd\" | gnuplot";
+  my @o = qx($cmd);
+  print @o;
+  return 1;
+  }
+  
 
 
 ###############################
@@ -69,7 +116,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
 else {
   &htsponse(200, "OK");
   print "Content-type: text/html\r\n\r\n";
-
+  my $ts = time();
   my $page;
   $page->{title} = "Diamond Scaler Display";
   $page->{link}  = "../";
@@ -78,7 +125,7 @@ else {
 
   my @setup;
   $setup[0]->{name}    = "Scalers";
-  $setup[0]->{cmd}     = "get".time();
+  $setup[0]->{cmd}     = "get".$ts;
   $setup[0]->{period}  = 1000;
   $setup[0]->{generic} = 0;
 
