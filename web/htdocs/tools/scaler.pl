@@ -20,9 +20,9 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   print "Content-type: text/html\r\n\r\n";
 
   my $q = $ENV{'QUERY_STRING'};
-  $q = substr($q,3);
-  if(-e "/tmp/scalers.$q.store") {
-    $olddata = lock_retrieve("/tmp/scalers.$q.store");
+  @p = split('\.',$q);
+  if(-e "/tmp/scalers.$p[1].store") {
+    $olddata = lock_retrieve("/tmp/scalers.$p[1].store");
     }
   my $data = trb_registertime_read_mem(0x3820,0xc001,0,64) or die trb_strerror();
   my $delay = ($data->{0x3820}->{time}->[0]||0) - ($olddata->{values}->{0x3820}->{time}->[0]||60000);
@@ -57,7 +57,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
     $avgsum /= 1-$start;
     print "<div><hr class=\"queryresult\"><table class='queryresult scalers'>";
     $t  = sprintf("<tr><td><b>Diamond $i</b><th>Average<th>Current<th>Ratio");
-    $t .= sprintf("<td rowspan=\"6\"><img height=\"180\" width=\"700\" src=\"scaler.pl?plot%1d%d.%d\">",$i,$q,time()/5);
+    $t .= sprintf("<td rowspan=\"6\"><img height=\"180\" width=\"700\" src=\"scaler.pl?plot.%1d.%d.%d\">",$i,$p[1],time()/5);
     $t .= sprintf("<tr><td>Sum<td>%d<td>%d<td>",$avgsum,$sum);
     for(my $j=0;$j<4;$j++) {
       my $avgrate = $rate->[2*$j+8+$i*16];
@@ -77,14 +77,14 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
     }
 
 
-  printf("<hr classxtics=\"queryresult\"><p>Time between last two readings (mod 1.6s) %d ms",$delay/1000.);
+  printf("<hr classxtics=\"queryresult\"><p>Time between last two readings (mod 1.31s) %d ms",$delay/1000.);
   printf(".  %d entries",scalar @{$olddata->{rate}});
   if((scalar @{$olddata->{rate}}) >= 100) {
     shift(@{$olddata->{rate}});
     }
   push(@{$olddata->{rate}},$rate);
   $olddata->{values} = $data;
-  lock_store($olddata,"/tmp/scalers.$q.store");
+  lock_store($olddata,"/tmp/scalers.$p[1].store");
   }
 
 
@@ -95,13 +95,11 @@ elsif($ENV{'QUERY_STRING'} =~ /plot/) {
   &htsponse(200, "OK");
   print "Content-type: image/png\r\n\r\n";
   my $q = $ENV{'QUERY_STRING'};
-  $num =  substr($q,4,1);
 
-  $q = substr($q,5);
-  @p = split('\.',$q);
-#   print $q.".".$p[0];
-  if(-e "/tmp/scalers.$p[0].store") {
-    $data = lock_retrieve("/tmp/scalers.$p[0].store");
+  my @p = split('\.',$q);
+
+  if(-e "/tmp/scalers.$p[2].store") {
+    $data = lock_retrieve("/tmp/scalers.$p[2].store");
     }
   if(! ref($data) eq "ARRAY") {
     return;
@@ -115,14 +113,12 @@ elsif($ENV{'QUERY_STRING'} =~ /plot/) {
   $cmd .= "plot '-' with lines,'-' with lines,'-' with lines, '-' with lines\n";
   for(my $j=0; $j<4; $j++) {
     foreach my $r (@{$data->{rate}}) {
-      $cmd .= ($r->[$num*16+8+2*$j]/1000.)."\n";
+      $cmd .= ($r->[$p[1]*16+8+2*$j]/1000.)."\n";
       }
     $cmd .= "\ne\n";
     }
   $cmd = "echo \"$cmd\" | gnuplot";
-  my @o = qx($cmd);
-  print @o;
-  return 1;
+  print qx($cmd);
   }
 
 
@@ -141,10 +137,12 @@ else {
 
   my @setup;
   $setup[0]->{name}    = "Scalers";
-  $setup[0]->{cmd}     = "get".$ts;
+  $setup[0]->{cmd}     = "get.".$ts;
   $setup[0]->{period}  = 1000;
   $setup[0]->{generic} = 0;
 
 
   xmlpage::initPage(\@setup,$page);
   }
+
+return 1;
