@@ -103,7 +103,7 @@
 
 
   <group name="TriggerValidate"
-         address="0400"  size="26"  purpose="config"  mode="rw"  continuous="true">
+         address="0400"  size="27"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
       
@@ -199,9 +199,14 @@
       <field name="FIFOFull" start="0" bits="1" format="boolean"/>
     </register>
 
-    <register name="WaitForData" address="0019" purpose="status" mode="r">
+    <register name="WaitForData" address="0019" purpose="config" mode="rw">
       <description>Readout wait for data time</description>
       <field name="WaitForData" start="0" bits="20" format="unsigned" unit="ns"/>
+    </register>
+
+    <register name="NxyterCVT" address="001a" purpose="status" mode="r">
+      <description>Nxyter CVT</description>
+      <field name="NxyterCVT" start="0" bits="12" format="unsigned" unit="ns"/>
     </register>
 
   </group>
