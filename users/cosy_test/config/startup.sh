@@ -4,6 +4,11 @@ echo "================================"
 echo "++ Using Daqopserver $DAQOPSERVER."
 
 echo "++ Run Reset"
+
+#pkill trbnetd -SIGUSR1;
+#TRB3_SERVER=trb3069 ~/trbsoft/trbnettools/binlocal/trbcmd reset;
+#pkill trbnetd -SIGUSR2;
+
 trbcmd reset
 
 #Network configuration

@@ -35,13 +35,21 @@ trbcmd rm $board 0x8600 4000 2>/dev/null
 trbcmd w $board 0x8400 0x00   # 0: normal mode 4: no TS Window mode
 trbcmd w $board 0x8401 0      # window  offset 200ns
 #trbcmd w $board 0x8402 250    # window width 800ns
-trbcmd w $board 0x8402 400    # window width 1600ns
-trbcmd w $board 0x8403 125    # CTS-Delay 400ns
+trbcmd w $board 0x8402 100    # window width 1600ns
+trbcmd w $board 0x8403 100    # CTS-Delay 400ns
 
 trbcmd w $board 0x8140 100	# test pulse length 400 ns
 
 # TS sync
-trbcmd w $board 0x850d 8      # reset all counters
+
+#if [[ ${board} -eq 0x3801 ]]; then
+#	trbcmd w $board 0x850d 7;      # ts delay
+#else
+	trbcmd w $board 0x850d 8;      # ts delay
+#fi
+
+# CVT
+trbcmd w $board 0x841a 400      # reset all counters
 
 # Decoder Settings
 trbcmd w $board 0x8120 0      # reset all counters

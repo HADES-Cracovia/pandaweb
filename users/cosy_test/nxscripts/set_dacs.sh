@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -n $1 ] && addr=0xfe49 || addr=$1
+[ -z $1 ] && addr=0xfe49 || addr=$1
 
 # nx settings
 

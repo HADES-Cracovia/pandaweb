@@ -90,7 +90,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   $delay *= 16.;
   $delay = 1E6 if $delay == 0;
   for(my $i = 0; $i<3; $i++) {
-    $rate->[64+$i] = (($data->{0x8000}->{value}[$i]||0) & 0x00ffffff) - (($olddata->{values}->{0x8000}->{value}[$i]||($data->{0x3820}->{value}[$i]||0)) & 0x00ffffff);
+    $rate->[64+$i] = (($data->{0x8000}->{value}[$i]||0) & 0x00ffffff) - (($olddata->{values}->{0x8000}->{value}[$i]||($data->{0x8000}->{value}[$i]||0)) & 0x00ffffff);
     $rate->[64+$i] += 0x01000000 if ($rate->[64+$i] < 0);
     $rate->[64+$i] = $rate->[64+$i] / ($delay/1E6); 
     }
@@ -114,7 +114,7 @@ if($ENV{'QUERY_STRING'} =~ /get/) {
   $avgsum /= 1-$start;
   print "<div><hr class=\"queryresult\"><table class='queryresult scalers'>";
   $t  = sprintf("<tr><td><b>CTS</b><th>Average<th>Current<th>Ratio");
-  $t .= sprintf("<td rowspan=\"6\"><img height=\"180\" width=\"700\" src=\"scaler.pl?plot%1d%d.%d\">",$j+5,$q,time()/5);
+  $t .= sprintf("<td rowspan=\"6\"><img height=\"180\" width=\"700\" src=\"scaler.pl?plot.%1d.%d.%d\">",5,$p[1],time()/5);
   $t .= sprintf("<tr><td>Sum<td>%d<td>%d<td>",$avgsum,$sum);
   for(my $j=0;$j<2;$j++) {
     my $avgrate = $rate->[$j*2+64];
@@ -152,7 +152,7 @@ elsif($ENV{'QUERY_STRING'} =~ /plot/) {
   my $q = $ENV{'QUERY_STRING'};
 
   my @p = split('\.',$q);
-
+  my $num = $p[1];
   if(-e "/tmp/scalers.$p[2].store") {
     $data = lock_retrieve("/tmp/scalers.$p[2].store");
     }
@@ -194,7 +194,7 @@ else {
 
   my @setup;
   $setup[0]->{name}    = "Scalers";
-  $setup[0]->{cmd}     = "get".$ts;
+  $setup[0]->{cmd}     = "get.".$ts;
   $setup[0]->{period}  = 800;
   $setup[0]->{generic} = 0;
 

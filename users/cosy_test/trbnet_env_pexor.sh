@@ -23,3 +23,10 @@ echo ""
 #PS1=${COLOR_YELLOW}'\u@\h\[\033[01;34m\] \w$(parse_git_branch)'${COLOR_NC}' '
 
 [ -z "$(pidof trbnetd)" ] && /home/hadaq/trbsoft/trbnettools/bin/trbnetd
+
+function treset {
+	pkill trbnetd -SIGUSR1;
+	~/trbsoft/trbnettools/binlocal/trbcmd reset;
+	pkill trbnetd -SIGUSR2;
+}
+
