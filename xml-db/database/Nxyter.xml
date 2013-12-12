@@ -199,12 +199,12 @@
       <field name="FIFOFull" start="0" bits="1" format="boolean"/>
     </register>
 
-    <register name="WaitForData" address="0019" purpose="config" mode="rw">
+    <register name="WaitForData" address="0019" purpose="status" mode="r">
       <description>Readout wait for data time</description>
       <field name="WaitForData" start="0" bits="20" format="unsigned" unit="ns"/>
     </register>
 
-    <register name="NxyterCVT" address="001a" purpose="status" mode="r">
+    <register name="NxyterCVT" address="001a" purpose="config" mode="rw">
       <description>Nxyter CVT</description>
       <field name="NxyterCVT" start="0" bits="12" format="unsigned" unit="ns"/>
     </register>
