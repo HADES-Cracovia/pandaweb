@@ -19,14 +19,17 @@ my @setup;
 $setup[0]->{name}    = "Status";
 $setup[0]->{cmd}     = "CbController-0xf252-CbStatus";
 $setup[0]->{period}  = 1000;
+$setup[0]->{address} = 1;
 
 $setup[1]->{name}    = "SpiRam";
 $setup[1]->{cmd}     = "CbController-0xf252-CbSpiRam";
 $setup[1]->{period}  = 1000;
+$setup[1]->{address} = 1;
 
 $setup[2]->{name}    = "UcRegs";
 $setup[2]->{cmd}     = "CbController-0xf252-CbUcRegs";
 $setup[2]->{period}  = 1000;
+$setup[2]->{address} = 1;
 
 xmlpage::initPage(\@setup,$page);
  
