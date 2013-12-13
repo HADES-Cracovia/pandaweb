@@ -1,0 +1,153 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+        name="CbController"
+        address="c000"
+        >
+  <description>The registers of the Converter Board Controller entity.</description>
+
+  <!--===========================================-->
+  <!--Converter Board Controller registers       -->
+  <!--===========================================-->
+  
+  
+  
+  
+  <group name="CbStatus"
+         address="0000"  size="130"  purpose="status"  mode="r" continuous="false">
+    <register name="GpioPort"
+              address="0030" purpose="status" mode="r" >
+      <description>Register containing the bit pattern that can be measured at the corresponding pins.</description>
+      <field name="GpioPortBits"
+              start="0"   bits="16"  mode="rw"  purpose="config"  format="bitmask" >
+      </field>
+    </register>
+    <register name="GpioPin"
+              address="0031" purpose="status" mode="r" >
+      <description>Register containing the bit pattern that can be measured at the corresponding pins.</description>
+      <field name="GpioPinBits"
+              start="0"   bits="16"  mode="rw"  purpose="config"  format="bitmask" >
+      </field>
+    </register>
+    <register  name="GpioDdr"
+              address="0032" purpose="status" mode="r" >
+      <description>a bitmask that defines the data direction (input or output) of the GPIO pins</description>
+      <field name="GpioDdrBits"
+              start="0"  bits="16"  mode="rw"  purpose="config"  format="bitmask">
+      </field>
+    </register>
+    <register  name="UartBaudrateDial"
+              address="0040" purpose="config" mode="rw" >
+      <description>Select UART baudrate: 0->300, 1->600, 2->1200, 3->2400, 4->4800, 5->9600, 6->19200, 7->38400, 8->57600, 9->115200</description>
+      <field name="UartBaudrateNo"
+              start="0"  bits="4"  mode="rw"  purpose="config"  format="integer" >
+      </field>
+    </register>
+    
+    <register  name="UartDataIn"
+              address="0041" purpose="config" mode="rw" >
+      <description>Write a byte here to send it via UART, returns fill status of input FIFO</description>
+      <field name="UartDataInWord"
+              start="0"  bits="8"  mode="rw"  purpose="config"  format="hex" >
+      </field>
+    </register>
+    <register  name="UartDataOut"
+              address="0042" purpose="status" mode="r" >
+      <description>Shows rx_buffer_empty_bit(MSB) and the last received UART byte.</description>
+      <field name="UartDataOutWord"
+              start="0"  bits="9"  mode="rw"  purpose="config"  format="hex" >
+      </field>
+    </register>
+    <register  name="UartManOverride"
+              address="0043" purpose="config" mode="rw" >
+      <description>Override the default UART functionality for debug reasons. If set to 1, UartDataIn and UartDataOut operate the UART directly.</description>
+      <field name="UartManOverrideBits"
+              start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+      </field>
+    </register>
+    <register  name="UartDebug"
+              address="004F" purpose="status" mode="r" >
+      <description>Debug register for the UART</description>
+      <field name="UartDebugCounter"
+              start="0"  bits="32"  mode="r"  purpose="status"  format="hex" >
+      </field>
+    </register>
+    
+    <register  name="SpiDataOut"
+              address="0050" purpose="status" mode="r" >
+      <description>the last received SPI word</description>
+      <field name="SpiDataOutWord"
+              start="0"  bits="16"  mode="r"  purpose="status"  format="hex" >
+      </field>
+    </register>
+    <register  name="SpiDataIn"
+              address="0051" purpose="config" mode="rw" >
+      <description>Set what the FPGA returns to the microcontroller over SPI line.</description>
+      <field name="SpiDataInWord"
+              start="0"  bits="16"  mode="rw"  purpose="config"  format="hex" >
+      </field>
+    </register>
+    <register  name="SpiCounter"
+              address="0052" purpose="status" mode="r" >
+      <description>counts how many spi data words have been received</description>
+      <field name="SpiCounterWord"
+              start="0" bits="32"  mode="r"  purpose="status"  format="integer" >
+      </field>
+    </register>
+    <register  name="UcReset"
+              address="0060" purpose="config" mode="rw" >
+      <description>Brings the uC to reset, when set Lo.</description>
+      <field name="UcResetBit"
+              start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+      </field>
+    </register>
+  </group>
+  
+  <group name="CbSpiRam"
+         address="0100" size="256" purpose="status" mode="r" continuous="true">
+    <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="256">
+      <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller.</description>
+      <field name="data"
+             start="0" bits="16" mode="r" purpose="status" format="hex">
+      </field>
+      <field name="timestamp"
+             start="16" bits="16" mode="r" purpose="status" format="integer">
+      </field>
+    </register>
+  </group>
+    
+  <group name="CbUcRegs"
+         address="0000" size="15" purpose="status" mode="rw" continuous="true">
+<!--    <register name="UcRegister" address="0000" purpose="config" mode="rw" repeat="14">
+      <description>The microcontroller config registers.</description>
+      <field name="UcRegisterData"
+             start="0" bits="16" mode="rw" purpose="config" format="hex">
+      </field>
+    </register>-->
+    <register  name="ReadBack"
+              address="0000" purpose="config" mode="rw" >
+      <description>Address of the register that has to be sent to the FPGA.</description>
+      <field name="ReadBackAddr"
+              start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
+      </field>
+    </register>
+    <register  name="Switches"
+              address="0001" purpose="config" mode="rw" >
+      <description>Set all Converter Board switches.</description>
+      <field name="EnaA0"
+              start="13" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+        <description>Enable analog power for chip 0.</description>
+      </field>
+      <field name="EnaD0"
+              start="12" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+        <description>Enable digital power for chip 0.</description>
+      </field>
+    </register>
+  </group>
+  
+  
+  
+  
+
+</TrbNetEntity>
+
