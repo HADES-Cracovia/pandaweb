@@ -49,6 +49,12 @@ function getdataprint(command,dId,async,time,callback) {
         //cb(xmlhttp.responseText);
   //document.getElementById(destId).innerHTML  = xmlhttp.responseText;  
       }
+    else if (xmlhttp.readyState == 4) {
+      document.getElementById("returntext").innerHTML  = xmlhttp.responseText;  
+      if(cb) {
+        cb(time);
+        }
+      }
     }
 
   xmlhttp.open("GET",command,async);
