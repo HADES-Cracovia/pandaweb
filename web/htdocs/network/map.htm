@@ -71,12 +71,13 @@ function update(data) {
     o += "<td title=\"0x"+(c[j][4]*1).toString(16)+"\">";
     if(type == 0x91 || type == 0x92) {
       if((c[j][4] & 0x8000) == 0x8000) o += "RX sync, ";
-      if((c[j][4] & 0x0b00) == 0x000 && (c[j][4]>>12 & 0x7) != 6 && (c[j][4]>>12 & 0x7) != 3) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
+      if((c[j][4] & 0x0b00) == 0x000 && (c[j][4]>>12 & 0x7) != 6 && (c[j][4]>>12 & 0x7) != 3 && (c[j][4]>>7 & 0x1) != 1) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0xf000) == 0x6000) {o += "Nxyter RDO, ";}
       if((c[j][4] & 0x0900) == 0x100) {o += "TDC, double, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0x0900) == 0x800) {o += "TDC, dbl-sep, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0x0200) == 0x200) o += "Hub, ";
       if((c[j][4] & 0x0400) == 0x400) o += "SPI, ";
+      if((c[j][4] & 0x00f0) == 0x090) o += "MVD rdo 2013, ";
       o = o.substring(0,o.length-2);  
       }
     if(type == 0x90) {
