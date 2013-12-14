@@ -142,7 +142,7 @@ if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
 
 #Open Gnuplot
 our $fh;
-my $fn = "gnuplot -geometry $geom -bg 'ghost white'";
+my $fn = "gnuplot -noraise -geometry $geom -bg 'ghost white'";
 $fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
 $fh->autoflush(1);
 
