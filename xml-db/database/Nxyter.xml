@@ -103,7 +103,7 @@
 
 
   <group name="TriggerValidate"
-         address="0400"  size="27"  purpose="config"  mode="rw"  continuous="true">
+         address="0400"  size="32"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
       
@@ -201,14 +201,39 @@
 
     <register name="WaitForData" address="0019" purpose="status" mode="r">
       <description>Readout wait for data time</description>
-      <field name="WaitForData" start="0" bits="20" format="unsigned" unit="ns"/>
+      <field name="Disable" start="31" bits="1" format="boolean" purpose="config" mode="rw"/>
+      <field name="WaitTime" start="0" bits="20" format="unsigned" unit="ns"/>
     </register>
 
     <register name="NxyterCVT" address="001a" purpose="config" mode="rw">
       <description>Nxyter CVT</description>
       <field name="NxyterCVT" start="0" bits="12" format="unsigned" unit="ns"/>
     </register>
+    
+    <register name="MinValTime" address="001b" purpose="status" mode="r">
+      <description>Minimum Validation Time</description>
+      <field name="MinValTime" start="0" bits="20" format="unsigned" unit="ns"/>
+    </register>
 
+    <register name="WinLowCtr" address="001c" purpose="status" mode="r">
+      <description>Out of Window Low Counter</description>
+      <field name="WinLowCtr" start="0" bits="15" format="unsigned"/>
+    </register>
+
+    <register name="WinHitCtr" address="001d" purpose="status" mode="r">
+      <description>Window Hit Counter</description>
+      <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
+    </register>
+
+    <register name="WinHighCtr" address="001e" purpose="status" mode="r">
+      <description>Out of Window High Counter</description>
+      <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
+    </register>
+
+    <register name="DataRate" address="001f" purpose="status" mode="r">
+      <description>Data Rate being written to Event Buffer in Hz</description>
+      <field name="DataRate" start="0" bits="28" format="unsigned" unit="Hz"/>
+    </register>
   </group>
 
 
@@ -481,5 +506,24 @@
     </register>
 
   </group>
+
+  <group name="NXHistos"
+         address="0800" purpose="status"  mode="r" continuous="false">
+    
+    <group name="RateHist"
+           address="0000"  size="129"  purpose="config"  mode="rw" continuous="true">    
+    
+      <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
+        <description>Continuous Hit Counter per Channel</description>
+        <field name="ChannelHitCtr" start="0" bits="32" format="unsigned"/>
+      </register>
+    
+      <register name="AverageNum" address="0080" purpose="config" mode="rw">
+        <description>Number of Averages, power of two (2^n)</description>
+        <field name="AverageNum" start="0" bits="32" format="unsigned"/>
+      </register>
+    
+    </group>
+  </group>  
 
 </TrbNetEntity>
