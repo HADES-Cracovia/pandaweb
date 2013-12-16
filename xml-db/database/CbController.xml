@@ -131,35 +131,39 @@
               start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
-    <register  name="Switches"
+    <register  name="Switches0"
               address="0001" purpose="config" mode="rw" >
-      <description>Set all Converter Board switches.</description>
+      <description>Set Converter Board switches for Sensor 0.</description>
 
       <field name="EnaA0"
-              start="13" bits="1"  format="bitmask" >
+              start="5" bits="1"  format="bitmask" >
         <description>Enable analog power for chip 0.</description>
       </field>
       <field name="DisA0"
-              start="12" bits="1"  format="bitmask" >
+              start="4" bits="1"  format="bitmask" >
         <description>Discharge analog power for chip 0.</description>
       </field>
       <field name="EnaD0"
-              start="11" bits="1"  format="bitmask" >
+              start="3" bits="1"  format="bitmask" >
         <description>Enable digital power for chip 0.</description>
       </field>
       <field name="DisD0"
-              start="10" bits="1"  format="bitmask" >
+              start="2" bits="1"  format="bitmask" >
         <description>Discharge digital power for chip 0.</description>
       </field>
       <field name="SensorEn0"
-              start="9" bits="1"  format="bitmask" >
+              start="1" bits="1"  format="bitmask" >
         <description>Enable sensor 0.</description>
       </field>
       <field name="JtagEn0"
-              start="8" bits="1"  format="bitmask" >
+              start="0" bits="1"  format="bitmask" >
         <description>Enable JTAG for sensor 0.</description>
       </field>
+    </register>
 
+    <register  name="Switches1"
+              address="0002" purpose="config" mode="rw" >
+      <description>Set Converter Board switches for Sensor 1.</description>
       <field name="EnaA1"
               start="5" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
         <description>Enable analog power for chip 1.</description>
@@ -187,7 +191,7 @@
     </register>
 
 
-    <register  name="ADC_conf" address="0002" purpose="config" mode="rw" >
+    <register  name="ADC_conf" address="0003" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
       </field>
@@ -217,49 +221,49 @@
       </field>
     </register>
 
-    <register  name="ADC_read" address="0003" purpose="config" mode="r" >
+    <register  name="ADC_read" address="0004" purpose="config" mode="r" >
       <description></description>
       <field name="ADC_read" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacCurLimA0" address="0004" purpose="config" mode="rw" >
+    <register  name="DacCurLimA0" address="0005" purpose="config" mode="rw" >
       <description></description>
       <field name="DacCurLimA0" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacCurLimD0" address="0005" purpose="config" mode="rw" >
+    <register  name="DacCurLimD0" address="0006" purpose="config" mode="rw" >
       <description></description>
       <field name="DacCurLimD0" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacVClp0" address="0006" purpose="config" mode="rw" >
+    <register  name="DacVClp0" address="0007" purpose="config" mode="rw" >
       <description></description>
       <field name="DacVClp0" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacCurLimA1" address="0007" purpose="config" mode="rw" >
+    <register  name="DacCurLimA1" address="0008" purpose="config" mode="rw" >
       <description></description>
       <field name="DacCurLimA1" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacCurLimD1" address="0008" purpose="config" mode="rw" >
+    <register  name="DacCurLimD1" address="0009" purpose="config" mode="rw" >
       <description></description>
       <field name="DacCurLimD1" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="DacVClp1" address="0009" purpose="config" mode="rw" >
+    <register  name="DacVClp1" address="000A" purpose="config" mode="rw" >
       <description></description>
       <field name="DacVClp1" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="SpiDebugConf" address="0010" purpose="config" mode="rw" >
+    <register  name="SpiDebugConf" address="000B" purpose="config" mode="rw" >
       <description></description>
       <field name="spiSpeed" start="8" bits="4" format="bitmask" >
       </field>
@@ -273,31 +277,31 @@
       </field>
     </register>
 
-    <register  name="SpiDebugCs" address="0011" purpose="config" mode="rw" >
+    <register  name="SpiDebugCs" address="000C" purpose="config" mode="rw" >
       <description></description>
       <field name="SpiDebugCs" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="SpiDebugWordIn" address="0012" purpose="config" mode="rw" >
+    <register  name="SpiDebugWordIn" address="000D" purpose="config" mode="rw" >
       <description></description>
       <field name="SpiDebugWordIn" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="SpiDebugWordOut" address="0013" purpose="config" mode="r" >
+    <register  name="SpiDebugWordOut" address="000E" purpose="config" mode="r" >
       <description></description>
       <field name="SpiDebugWordOut" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="OvCurStatus" address="0014" purpose="config" mode="r" >
+    <register  name="OvCurStatus" address="000F" purpose="config" mode="r" >
       <description></description>
       <field name="OvCurStatus" start="0" bits="16" format="bitmask" >
       </field>
     </register>
 
-    <register  name="MiscConf" address="0015" purpose="config" mode="rw" >
+    <register  name="MiscConf" address="0010" purpose="config" mode="rw" >
       <description></description>
       <field name="MiscConf" start="0" bits="16" format="bitmask" >
       </field>
