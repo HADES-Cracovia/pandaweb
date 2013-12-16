@@ -309,6 +309,13 @@ hr.queryresult  {
   padding-left:16px;
 }
 
+.rate {
+  background-image:url("rate.png");
+  background-repeat:no-repeat;
+  background-position:fixed;
+  padding-left:16px;
+}
+
 table.queryresult td.slice, table.queryresult th.slice {
   text-align:center;
   background:#eee;

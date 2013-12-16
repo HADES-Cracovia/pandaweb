@@ -2,6 +2,7 @@
 use HADES::TrbNet;
 use Storable qw(lock_store lock_retrieve);
 use feature "switch";
+use Time::HiRes qw( time );
 use CGI::Carp qw(fatalsToBrowser);
 
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
@@ -18,7 +19,7 @@ my $verbose = 0;
 my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
-my ($file,$entity,$netaddr,$name, $style, $storefile);
+my ($file,$entity,$netaddr,$name, $style, $storefile, $rates, $cache,$olddata);
 
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
@@ -80,8 +81,8 @@ foreach my $req (@request) {
   my $isColor  = $style =~ /color/i;  
   my $sortAddr = $style =~ /sortaddr/i;
      $verbose  = ($style =~ /verbose/i) ||$verbose;
-  my $rates    = $style =~ /rates/i;
-  my $cache    = $style =~ /cache/i;
+     $rates    = $style =~ /rate/i;
+     $cache    = $style =~ /cache/i;
     
      
 ###############################
@@ -105,7 +106,7 @@ foreach my $req (@request) {
   
   if($rates) {
     if(-e $storefile) {
-      my $olddata = lock_retrieve($storefile);
+      $olddata = lock_retrieve($storefile);
       }
     }
 
@@ -116,10 +117,12 @@ foreach my $req (@request) {
 ###############################
   $once = (defined $slice)?1:0;
   if ($isbrowser) {
+    $data->{time0}=time();
     requestdata($db->{$name},$name,$slice);
     generateoutput($db->{$name},$name,$slice,$once);
     if($rates) {
-      store_lock($data,$storefile);
+      $data->{time1}=time();
+      lock_store($data,$storefile);
       }
     }
   else {
@@ -131,13 +134,20 @@ foreach my $req (@request) {
 #### Formatting of values
 ###############################
 sub FormatPretty {
-  my ($value,$obj,$name,$cont,$class,$cstr) = @_;
+  my ($value,$obj,$name,$cont,$class,$cstr,$addr,$b) = @_;
+  $class = "" unless $class;
+
   $value  = $value >> ($obj->{start});
   $value &= ((1<<$obj->{bits})-1);
   my $rawvalue = $value;
+  
+  if ($rates && $obj->{rate}){
+    $value = makerate($obj,$value,$addr,$b);
+    $class.=" rate";
+    }
+  
   $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
-  $class = "" unless $class;
   $cstr  = "" unless $cstr;
   my $ret, my $cl;
   if (defined $cont) {
@@ -321,7 +331,7 @@ sub generateoutput {
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
             my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
             my $wr = 1 if $db->{$c}->{mode} =~ /w/;
-            $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},$c,"td",($wr?"editable":""),$cstr);
+            $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},$c,"td",($wr?"editable":""),$cstr,$addr,$b);
             }
           }
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
@@ -329,7 +339,7 @@ sub generateoutput {
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
           my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
           my $wr = 1 if $obj->{mode} =~ /w/;
-          $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr);
+          $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr,$addr,$b);
           }
         $tarr{sprintf("%05i%04i",$b,$slice)}=$ttmp;
         }
@@ -341,7 +351,18 @@ sub generateoutput {
   print $t;
   }
 
-
+sub makerate {
+  my ($obj,$val,$addr,$b) = @_;
+  if(defined $olddata->{$addr}->{$b}) {
+    $val -= $olddata->{$addr}->{$b};
+    }
+  my $delay = $data->{time0} - $olddata->{time0};
+  while ($val < 0) {
+    $val += 1<<$obj->{bits}; 
+    }
+  $val /= $delay;
+  return $val;
+  }
   
 ###############################
 #### Analyze Object & print contents (the simple minded way)

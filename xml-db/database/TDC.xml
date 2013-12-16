@@ -11,7 +11,7 @@
   <!--===========================================-->
   <register name="Channel" address="0000" mode="r" repeat="65">
     <description>Channel-specific information</description>
-    <field name="HitCounter" start="0" bits="24" format="unsigned" purpose="statistics">
+    <field name="HitCounter" start="0" bits="24" format="unsigned" purpose="statistics" rate="1">
       <description>Number of detected hits in channel</description>
     </field>
     <field name="InputState" start="31" bits="1" format="enum" purpose="status">
@@ -84,61 +84,61 @@
 
     <register name="TriggerCounter" address="0004">
       <description>Number of valid triggers received</description>
-      <field name="TriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="TriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="TimingTriggerCounter" address="0005">
       <description>Number of valid timing triggers
       received</description>
-      <field name="TimingTriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="TimingTriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="NoTimingTriggerCounter" address="0006">
       <description>Number of valid triggers received which are not
       timing triggers</description>
-      <field name="NoTimingTriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="NoTimingTriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="InvalidTriggerCounter" address="0007">
       <description>Number of invalid triggers received</description>
-      <field name="InvalidTriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="InvalidTriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="MultiTimingTriggerCounter" address="0008">
       <description>Number of multi timing triggers received (triggers
       received before trigger is released)</description>
-      <field name="MultiTimingTriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="MultiTimingTriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="SpuriousTriggerCounter" address="0009">
       <description>Number of spurious triggers received (in case of
       timing trigger is validated although it was a
       timing-trigger-less trigger)</description>
-      <field name="SpuriousTriggerCounter" start="0" bits="24" format="unsigned" />
+      <field name="SpuriousTriggerCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="WrongReadoutsCounter" address="000a">
       <description>Number of wrong readouts due to spurious
       triggers</description>
-      <field name="WrongReadoutsCounter" start="0" bits="24" format="unsigned" />
+      <field name="WrongReadoutsCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="SpikesCounter" address="000b">
       <description>Number of spikes (pulses narrower than 40 ns)
       detected at the timing trigger input</description>
-      <field name="SpikesCounter" start="0" bits="24" format="unsigned" />
+      <field name="SpikesCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="IdleTime" address="000c">
       <description>Total time length, that the readout FSM waited in
       the idle state (with granularity of 10 ns)</description>
-      <field name="IdleTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
+      <field name="IdleTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" rate="1" />
     </register>
 
     <register name="WaitTime" address="000d">
       <description>Total time length, that the readout FSM waited in
       the wait states (with granularity of 10 ns)</description>
-      <field name="WaitTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
+      <field name="WaitTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" rate="1" />
     </register>
 
     <register name="TotalEmptyChannelsCounter" address="000e">
@@ -149,24 +149,24 @@
 
     <register name="ReleaseCounter" address="000f">
       <description>Number of release signals sent</description>
-      <field name="ReleaseCounter" start="0" bits="24" format="unsigned" />
+      <field name="ReleaseCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="ReadoutTime" address="0010">
       <description>Total time length of the readout process (with
       granularity of 10 ns)</description>
-      <field name="ReadoutTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" />
+      <field name="ReadoutTime" start="0" bits="24" format="unsigned" unit="ns" scale="10" rate="1" />
     </register>
 
     <register name="TimeoutCounter" address="0011">
       <description>Number of timeouts detected (too long delay after
       the timing trigger)</description>
-      <field name="TimeoutCounter" start="0" bits="24" format="unsigned" />
+      <field name="TimeoutCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
     <register name="FinishedCounter" address="0012">
       <description>Number of sent finished signals</description>
-      <field name="FinishedCounter" start="0" bits="24" format="unsigned" />
+      <field name="FinishedCounter" start="0" bits="24" format="unsigned" rate="1" />
     </register>
 
   </group>
