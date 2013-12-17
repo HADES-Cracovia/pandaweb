@@ -309,8 +309,6 @@
 
     <register  name="MiscConf" address="0010" purpose="config" mode="rw" >
       <description></description>
-      <field name="MiscConf" start="0" bits="16" format="bitmask" >
-      </field>
       <field name="OvRideLed4" start="7" bits="1" format="bitmask" >
       </field>
       <field name="OvRideLed3" start="6" bits="1" format="bitmask" >
