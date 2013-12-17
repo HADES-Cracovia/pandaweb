@@ -117,7 +117,7 @@
   </group>
     
   <group name="CbUcRegs"
-         address="0000" size="15" purpose="status" mode="rw" continuous="true">
+         address="0000" size="17" purpose="status" mode="rw" continuous="true">
 <!--    <register name="UcRegister" address="0000" purpose="config" mode="rw" repeat="14">
       <description>The microcontroller config registers.</description>
       <field name="UcRegisterData"
