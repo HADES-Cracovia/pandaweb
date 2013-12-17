@@ -42,12 +42,17 @@
   
   function settarget(e) {
     command=document.getElementById("target").value;
+    var opt = "";
+    if(document.getElementById("rate").checked) opt += "rate";
+    if(document.getElementById("cache").checked) opt += "cache";
+    var part = command.split('-');
+    command = part[0]+"-"+part[1]+"-"+part[2] + "-" + opt;
     refresh(period);
     }
     
   function setaddress(e) {
     address=document.getElementById("address").value;
     var part = command.split('-');
-    command=part[0]+"-"+address+"-"+part[2];
+    command=part[0]+"-"+address+"-"+part[2]+part[3];
     refresh(period);
     }

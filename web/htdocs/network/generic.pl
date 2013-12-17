@@ -21,6 +21,7 @@ $setup[0]->{name}    = "AnyReg";
 $setup[0]->{cmd}     = "TrbNet-0xffff-CompileTime";
 $setup[0]->{period}  = -1;
 $setup[0]->{generic} = 1;
+$setup[0]->{rate}    = 1;
 
 
 xmlpage::initPage(\@setup,$page);

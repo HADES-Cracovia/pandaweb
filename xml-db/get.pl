@@ -32,6 +32,10 @@ if (defined $ENV{'QUERY_STRING'}) {
   unless ($server  =~ /HTTPi/i) {
     print "Content-type: text/html\n\n";
     }
+  else {
+    &htsponse(200, "OK");
+    print "Content-type: text/html; charset=utf-8\r\n\r\n";
+    }
   }
 else {
   $request[0] = ""; #Dummy entry to run foreach

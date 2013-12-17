@@ -19,15 +19,18 @@ sub initPage {
       }
     }
   
-  my $cmd    = $setup[$active]->{cmd};
-  my $period = $setup[$active]->{period};
-  my $name = $setup[$active]->{name};
+  my $cmd     = $setup[$active]->{cmd};
+  my $period  = $setup[$active]->{period};
+  my $name    = $setup[$active]->{name};
   my ($cmdMod,$cmdAddr,$cmdReg) = split('-',$setup[$active]->{cmd});
-
+  my $israte  = $setup[$active]->{rate};
+  my $iscache = $setup[$active]->{cache};
+  
   $getscript = $page->{getscript};
   if(!defined $getscript) {
     $getscript = "../xml-db/get.pl";
     }
+
   
   print <<EOF;
 <HTML>
@@ -59,7 +62,7 @@ if($setup[$active]->{generic} == 1) {
   |;
   }
 
-if($setup[$active]->{address} == 1) {
+if(!$setup[$active]->{generic}) {
   print qq|
   <input type="text" id="address" title="Enter any valid TrbNet address" 
          value="$cmdAddr" onChange="setaddress()" onLoad="setaddress()"
@@ -70,6 +73,8 @@ if($setup[$active]->{address} == 1) {
 print qq|
 <input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
        value="$period" onChange="setperiod()" onLoad="setperiod()">
+<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="rate" title="Convert register counter to rates where possible" $israte><label for="rate">Rates</label></div>       
+<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache><label for="cache">Use Cache</label></div>
 <input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh">
 </div>
 <div id="content"></div>|;
