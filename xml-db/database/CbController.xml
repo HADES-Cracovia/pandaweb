@@ -131,37 +131,59 @@
               start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
-    <register  name="Switches0"
-              address="0001" purpose="config" mode="rw" >
-      <description>Set Converter Board switches for Sensor 0.</description>
+    
+    <group name="ConfPerChip" address="0001" purpose="config" mode="rw" repeat="2" size="4">
+      <register  name="Switches0"
+                address="0000" purpose="config" mode="rw" >
+        <description>Set Converter Board switches for Sensor 0.</description>
 
-      <field name="EnaA0"
-              start="5" bits="1"  format="bitmask" >
-        <description>Enable analog power for chip 0.</description>
-      </field>
-      <field name="DisA0"
-              start="4" bits="1"  format="bitmask" >
-        <description>Discharge analog power for chip 0.</description>
-      </field>
-      <field name="EnaD0"
-              start="3" bits="1"  format="bitmask" >
-        <description>Enable digital power for chip 0.</description>
-      </field>
-      <field name="DisD0"
-              start="2" bits="1"  format="bitmask" >
-        <description>Discharge digital power for chip 0.</description>
-      </field>
-      <field name="SensorEn0"
-              start="1" bits="1"  format="bitmask" >
-        <description>Enable sensor 0.</description>
-      </field>
-      <field name="JtagEn0"
-              start="0" bits="1"  format="bitmask" >
-        <description>Enable JTAG for sensor 0.</description>
-      </field>
-    </register>
+        <field name="EnaA0"
+                start="5" bits="1"  format="bitmask" >
+          <description>Enable analog power for chip 0.</description>
+        </field>
+        <field name="DisA0"
+                start="4" bits="1"  format="bitmask" >
+          <description>Discharge analog power for chip 0.</description>
+        </field>
+        <field name="EnaD0"
+                start="3" bits="1"  format="bitmask" >
+          <description>Enable digital power for chip 0.</description>
+        </field>
+        <field name="DisD0"
+                start="2" bits="1"  format="bitmask" >
+          <description>Discharge digital power for chip 0.</description>
+        </field>
+        <field name="SensorEn0"
+                start="1" bits="1"  format="bitmask" >
+          <description>Enable sensor 0.</description>
+        </field>
+        <field name="JtagEn0"
+                start="0" bits="1"  format="bitmask" >
+          <description>Enable JTAG for sensor 0.</description>
+        </field>
+      </register>
+      
+      <register  name="DacCurLimA0" address="0001" purpose="config" mode="rw" >
+        <description></description>
+        <field name="DacCurLimA0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
+        </field>
+      </register>
 
-    <register  name="Switches1"
+      <register  name="DacCurLimD0" address="0002" purpose="config" mode="rw" >
+        <description></description>
+        <field name="DacCurLimD0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
+        </field>
+      </register>
+
+      <register  name="DacVClp0" address="0003" purpose="config" mode="rw" >
+        <description></description>
+        <field name="DacVClp0" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
+        </field>
+      </register>
+      
+    </group>
+
+<!--    <register  name="Switches1"
               address="0002" purpose="config" mode="rw" >
       <description>Set Converter Board switches for Sensor 1.</description>
       <field name="EnaA1"
@@ -188,10 +210,10 @@
               start="0" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
         <description>Enable JTAG for sensor 1.</description>
       </field>
-    </register>
+    </register>-->
 
 
-    <register  name="ADC_conf" address="0003" purpose="config" mode="rw" >
+    <register  name="ADC_conf" address="0009" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
       </field>
@@ -221,31 +243,15 @@
       </field>
     </register>
 
-    <register  name="ADC_read" address="0004" purpose="config" mode="r" >
+    <register  name="ADC_read" address="000A" purpose="config" mode="r" >
       <description></description>
       <field name="ADC_read" start="0" bits="16" format="hex" >
       </field>
     </register>
 
-    <register  name="DacCurLimA0" address="0005" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimA0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
-      </field>
-    </register>
 
-    <register  name="DacCurLimD0" address="0006" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimD0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
-      </field>
-    </register>
 
-    <register  name="DacVClp0" address="0007" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacVClp0" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
-      </field>
-    </register>
-
-    <register  name="DacCurLimA1" address="0008" purpose="config" mode="rw" >
+<!--    <register  name="DacCurLimA1" address="0008" purpose="config" mode="rw" >
       <description></description>
       <field name="DacCurLimA1" start="0" bits="16" format="hex" >
       </field>
@@ -261,7 +267,7 @@
       <description></description>
       <field name="DacVClp1" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035">
       </field>
-    </register>
+    </register>-->
 
     <register  name="SpiDebugConf" address="000B" purpose="config" mode="rw" >
       <description></description>
