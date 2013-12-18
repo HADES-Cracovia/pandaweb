@@ -41,7 +41,8 @@
     
   
   function settarget(e) {
-    command=document.getElementById("target").value;
+    if(document.getElementById("target"))
+      command=document.getElementById("target").value;
     var opt = "";
     if(document.getElementById("rate").checked) opt += "rate";
     if(document.getElementById("cache").checked) opt += "cache";

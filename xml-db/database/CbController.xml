@@ -61,14 +61,14 @@
     <register  name="UartManOverride"
               address="0043" purpose="config" mode="rw" >
       <description>Override the default UART functionality for debug reasons. If set to 1, UartDataIn and UartDataOut operate the UART directly.</description>
-      <field name="UartManOverrideBits"
+      <field name="UartManOverride"
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
     <register  name="UartDebug"
               address="004F" purpose="status" mode="r" >
       <description>Debug register for the UART</description>
-      <field name="UartDebugCounter"
+      <field name="UartDebug"
               start="0"  bits="32"  mode="r"  purpose="status"  format="hex" >
       </field>
     </register>
@@ -83,21 +83,21 @@
     <register  name="SpiDataIn"
               address="0051" purpose="config" mode="rw" >
       <description>Set what the FPGA returns to the microcontroller over SPI line.</description>
-      <field name="SpiDataInWord"
+      <field name="SpiDataIn"
               start="0"  bits="16"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
     <register  name="SpiCounter"
               address="0052" purpose="status" mode="r" >
       <description>counts how many spi data words have been received</description>
-      <field name="SpiCounterWord"
-              start="0" bits="32"  mode="r"  purpose="status"  format="integer" >
+      <field name="SpiCounter"
+              start="0" bits="32"  mode="r"  purpose="status"  format="integer" rate="1">
       </field>
     </register>
     <register  name="UcReset"
               address="0060" purpose="config" mode="rw" >
       <description>Brings the uC to reset, when set Lo.</description>
-      <field name="UcResetBit"
+      <field name="UcReset"
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
@@ -127,7 +127,7 @@
     <register  name="ReadBack"
               address="0000" purpose="config" mode="rw" >
       <description>Address of the register that has to be sent to the FPGA.</description>
-      <field name="ReadBackAddr"
+      <field name="ReadBack"
               start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
@@ -229,19 +229,19 @@
 
     <register  name="DacCurLimA0" address="0005" purpose="config" mode="rw" >
       <description></description>
-      <field name="DacCurLimA0" start="0" bits="16" format="hex" >
+      <field name="DacCurLimA0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
       </field>
     </register>
 
     <register  name="DacCurLimD0" address="0006" purpose="config" mode="rw" >
       <description></description>
-      <field name="DacCurLimD0" start="0" bits="16" format="hex" >
+      <field name="DacCurLimD0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
       </field>
     </register>
 
     <register  name="DacVClp0" address="0007" purpose="config" mode="rw" >
       <description></description>
-      <field name="DacVClp0" start="0" bits="16" format="hex" >
+      <field name="DacVClp0" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
       </field>
     </register>
 
@@ -253,13 +253,13 @@
 
     <register  name="DacCurLimD1" address="0009" purpose="config" mode="rw" >
       <description></description>
-      <field name="DacCurLimD1" start="0" bits="16" format="hex" >
+      <field name="DacCurLimD1" start="0" bits="16"  format="unsigned" unit="mA" scale="0.005035" >
       </field>
     </register>
 
     <register  name="DacVClp1" address="000A" purpose="config" mode="rw" >
       <description></description>
-      <field name="DacVClp1" start="0" bits="16" format="hex" >
+      <field name="DacVClp1" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035">
       </field>
     </register>
 
