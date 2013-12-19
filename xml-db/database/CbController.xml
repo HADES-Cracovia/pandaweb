@@ -126,6 +126,7 @@
     </register>-->
     <register  name="ReadBack"
               address="0000" purpose="config" mode="rw" >
+      <description>Read back register values from the microcontroller.</description>
       <field name="ReadBackAll"
               start="9" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       <description>Set to 1 when you want to read back all registers from the microcontroller.</description>
