@@ -108,7 +108,7 @@ foreach my $req (@request) {
   $db = lock_retrieve($file);
   die "Unable to read cache file\n" unless defined $db;
   
-  if($rates) {
+  if($rates || $cache) {
     if(-e $storefile) {
       $olddata = lock_retrieve($storefile);
       }
@@ -122,10 +122,16 @@ foreach my $req (@request) {
   $once = (defined $slice)?1:0;
   if ($isbrowser) {
     $data->{time0}=time();
-    requestdata($db->{$name},$name,$slice);
-    generateoutput($db->{$name},$name,$slice,$once);
-    if($rates) {
+    if($rates || !$cache || !(defined $olddata->{time0}) || $olddata->{time0}<time()-0.9) {
+      requestdata($db->{$name},$name,$slice);
       $data->{time1}=time();
+      }
+    else {
+      $data = $olddata;
+      }
+    generateoutput($db->{$name},$name,$slice,$once);
+    if($rates || $cache) {
+      $data->{time2}=time();
       lock_store($data,$storefile);
       }
     }
