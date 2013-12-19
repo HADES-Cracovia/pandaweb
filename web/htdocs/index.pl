@@ -47,7 +47,7 @@ The main documentation of the network can be found in these documents and locati
 <h3>Network &amp; CTS</h3>
 <div class="index">
 <ul>
-<li><a href="cts.htm">CTS Control</a>
+<li><a href="cts/cts.htm">CTS Control</a>
 <li><a href="network/trbnet.pl">TrbNet status</a>
 <li><a href="network/hub.pl">Network Hubs</a>
 <li><a href="network/gbe.htm">GbE status</a>

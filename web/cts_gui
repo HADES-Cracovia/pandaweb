@@ -97,7 +97,7 @@ EOFHELP
    
    
    my $sharedDir     = "/dev/shm/cts-monitor-$port";
-   my $htdocsDumpDir = "htdocs/monitor-$port";
+   my $htdocsDumpDir = "htdocs/cts/monitor-$port";
    my $quietParam    = $quiet ? '--quiet ' : '';
    my $logParam      = $log ? "--log $log" : '';
 

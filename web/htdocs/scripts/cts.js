@@ -58,19 +58,28 @@ function parseCallback(elem, func, fallback) {
    
    return fallback ? fallback : id;
 }
-   
+
 var CTS = new Class({
    Implements: [Events],
    defs: null,
 
    autoCommitInhibit: false,
+   nameDB: {},
    
    currentData: {},
    dataUpdateConstantFor: 0,
    dataUpdateActive: true,
    
-   initialize: function(defs) {
+   initialize: function(defs, nameDB) {
       this.defs = defs;
+      if (nameDB) {
+         this.nameDB = nameDB;
+         if (nameDB['cts-compiletime'] && this.nameDB['cts-compiletime'] != this.defs.properties.trb_compiletime) {
+            $$('#nameDB-match-warning .old-date').set('text', timestamp2Date(this.nameDB['cts-compiletime']) + ' - ' +this.nameDB['cts-compiletime']);
+            $$('#nameDB-match-warning .new-date').set('text', this.defs.properties.trb_compiletime);
+            $('nameDB-match-warning').setStyle('display', 'block');
+         }
+      }
       this.monitorPrefix = 'monitor-' + this.defs.server.port + '/';
 
       this.renderTriggerChannels();
@@ -100,7 +109,7 @@ var CTS = new Class({
    },
    
    readRegisters: function(regs, callback, formated) {
-      var opts = {'onFailure':xhrFailure, 'url': 'cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
+      var opts = {'onFailure':requestFailure, 'url': '/cts/cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
       if (callback) {
          opts['onSuccess'] = callback;
          return (new Request.JSON(opts)).send();
@@ -115,7 +124,7 @@ var CTS = new Class({
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
       (new Request.JSON({
-         url: 'cts.pl?write,' + arrValues.join(','),
+         url: '/cts/cts.pl?write,' + arrValues.join(','),
          onSuccess: function(json, text) {
             console.log(json)
             console.log(text)
@@ -129,7 +138,7 @@ var CTS = new Class({
                else  alert("An unknown error occured while writing register");
             }
          },
-         onFailure: xhrFailure
+         onFailure: requestFailure
       })).send();
    },
    
@@ -198,7 +207,7 @@ var CTS = new Class({
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            //xhrFailure(xhr);
+            //requestFailure(xhr);
             this.dataUpdate.delay(1000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
@@ -375,6 +384,20 @@ var CTS = new Class({
    },
    
 /**
+ * Translate Names, such as channel assignments into user-overrideable values.
+ */   
+   
+   translateName: function(category, key, def) {
+      if (this.nameDB[category] == undefined)
+         this.nameDB[category] = {};
+      
+      if (this.nameDB[category][key] == undefined)
+         this.nameDB[category][key] = def;
+      
+      return def;
+   },
+   
+/**
  * Creates all active elements of the Trigger Input Configuration
  * section. It is called by the class' constructor and hence
  * should not by called manually.
@@ -453,10 +476,11 @@ var CTS = new Class({
                
                new Element('td', {'class': 'source'})
                .adopt(
-                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'}).adopt(
-		     Object.values(en).map(function (r) {
-			return new Element('option', {'value': r, 'text': r})
-		     })
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
+                  .adopt(
+                        Object.values(en).map(function (r) {
+                           return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
+                        }, this)
                   )
                ),
                
@@ -505,14 +529,14 @@ var CTS = new Class({
          $('itc-tab') // + (i / 8).toInt())
          .adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + i})
-	    .adopt([
+            .adopt([
                new Element('td', {'text': i, 'class': 'channel'}),
                new Element('td', {'class': 'enable'})
                .adopt(
                   new Element('input', {'type': 'checkbox', 'id': 'itc-enable'+i, 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.mask[' + i + ']'})
                ),
 
-	       new Element('td', {'class': 'edge'})
+               new Element('td', {'class': 'edge'})
                .adopt(
                   edgeType = new Element('select', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.edge[' + i + ']'})
                   .adopt([
@@ -520,28 +544,28 @@ var CTS = new Class({
                      new Element('option', {'value': '1', 'text': 'R. Edge'})
                    ])
                ),
-	    
-               itc = new Element('td', {'class': 'assign', 'text': this.defs.properties.itc_assignments[i]}),
+    
+               itc = new Element('td', {'class': 'assign', 'text': (this.defs.properties['trg_periph_itc_base'] == i) ? '' : this.translateName('itc-names', 'itc-' + i, this.defs.properties.itc_assignments[i])}),
                new Element('td', {'class': 'type'})
                .adopt(
                      ddType = new Element('select', {'class': 'autocommit autoupdate autoupdate-value', 'slice': '_trg_trigger_types' + (i < 8 ? '0' : '1') + '.type' + i})
                ),
-	    
+   
                assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i}),
                edgeRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-edge-rate' + i})
             ])
          );
          
-	 if (this.defs.properties['trg_periph_itc_base'] == i) {
-	    itc.set('html', '').adopt([
-	       new Element('span', {'html': 'Trigger from FPGA:&nbsp;&nbsp;'}),
-	       new Element('sub', {'text': '4'})
-	    ]);
-	    for(var j=3; j>=0; j--)
-	       itc.adopt(new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_periph_config.mask[' + j + ']'}));
+         if (this.defs.properties['trg_periph_itc_base'] == i) {
+            itc.set('html', '').adopt([
+               new Element('span', {'html': 'Trigger from FPGA:&nbsp;&nbsp;'}),
+               new Element('sub', {'text': '4'})
+            ]);
+            for(var j=3; j>=0; j--)
+               itc.adopt(new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_periph_config.mask[' + j + ']'}));
 
-	    itc.adopt(new Element('sub', {'text': '1'}));
-	 }
+            itc.adopt(new Element('sub', {'text': '1'}));
+         }
 	 
          for(var j=0; j < 16; j++)
             ddType.adopt(new Element('option', {'value': j, 'text': this.defs.registers['_trg_trigger_types' + (i < 8 ? '0' : '1')]._defs['type' + i].enum[j]}));
@@ -740,7 +764,7 @@ var CTS = new Class({
    },
    
    renderCTSDetails: function() {
-      $('trb_compiletime').set('text', new Date(this.defs.properties.trb_compiletime * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', ''));
+      $('trb_compiletime').set('text', timestamp2Date(this.defs.properties.trb_compiletime));
       $('trb_endpoint').set('text', "0x" + this.defs.properties.trb_endpoint.toString(16));
       $('trb_daqopserver').set('text', this.defs.properties.daqopserver);
    },
@@ -764,30 +788,46 @@ var CTS = new Class({
    }
 });
 
-function xhrFailure(xhr){
-   console.log(xhr);
-   var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
+function timestamp2Date(ts) {
+   return new Date(ts * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', '');
+}
+   
+
+function requestFailure(obj){
+   console.log(obj);
+   
+   var text = (obj.responseText) ? obj.responseText : obj;
+   var m = text.match(/<pre>([\s\S]*)<\/pre>/im);
    
    
-   if (m) {
+   if (obj.responseText && m) {
       text = m[1];
       m = text.match(/^\s*-+ More[\w\s]+ -+\s+(.+)$/im)
       if (m) text = m[1];
       
       alert("Server send error response:\n"+text.trim());
+   } else {
+      alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?\nHint:\n" + text);
    }
-   
-   
-   
-   else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?");
 }
 
 
 var cts;
-(new Request.JSON({'url': 'cts.pl?init',
-                   'onSuccess': function(json) {cts = new CTS(json)},
-                   'onFailure': xhrFailure})).send();
+function loadCTS(nameDB) {
+   if (typeOf(nameDB) != 'object')
+      nameDB = {};
    
+   (new Request.JSON({'url': 'cts.pl?init',
+                     'onSuccess': function(json) {cts = new CTS(json, nameDB)},
+                     'onFailure': requestFailure,
+                     'onError': requestFailure})).send();   
+}
+
+(new Request.JSON({'url': 'names.json',
+                   'onSuccess': loadCTS,
+                   'onFailure': loadCTS,
+                   'onError': loadCTS})).send();
+
 function countToTime(val) {return (1.0*val / cts.defs.properties.cts_clock_frq * 1e9).toFixed(0);}
 function countToFreq(val) {return formatFreq (1 / (val / cts.defs.properties.cts_clock_frq)); }
 function timeToCount(val) {return (parseNum(val) / 1.0e9 * cts.defs.properties.cts_clock_frq).round();}
@@ -1008,3 +1048,40 @@ window.addEvent('load', function() {
 });
 
 function id(x) {return x;}
+
+
+function prettyJSON(obj, indent=""){
+   if (obj && obj.toJSON) obj = obj.toJSON();
+
+   switch (typeOf(obj)){
+      case 'string':
+         return '"' + obj.replace(/[\x00-\x1f\\"]/g, escape) + '"';
+      case 'array':
+         return '[' + obj.map(JSON.encode).clean() + ']';
+      case 'object': case 'hash':
+         var string = [];
+         Object.each(obj, function(value, key){
+            var json = prettyJSON(value, indent + '  ');
+            if (json) string.push(prettyJSON(key) + ':  ' + json);
+         });
+         
+         return string ? ('{\n' + indent + "  " + string.join(",\n  " + indent) + "\n" + indent + '}') : "{}";
+      case 'number': case 'boolean': return '' + obj;
+      case 'null': return 'null';
+   }
+
+   return null;
+};
+
+
+window.addEvent('domready', function() {
+   $('gui_export_name_template').addEvent('click', function(e) {
+      e.stop();
+      cts.nameDB['cts-compiletime'] = cts.defs.properties.trb_compiletime;
+      $$('#win-nameDB .template')[0].set('text', prettyJSON(cts.nameDB));
+      $('win-nameDB').fade('hide').setStyle('display', 'block').fade('in');
+   });
+});
+      
+      
+   

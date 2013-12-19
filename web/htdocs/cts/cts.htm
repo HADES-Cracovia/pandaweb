@@ -3,9 +3,9 @@
    <head>
       <title>Central Trigger System</title>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      <link href="layout/base.css" rel="Stylesheet" type="text/css" />
-      <script src="scripts/mootools-core-1.4.5.js" type="text/javascript"></script>
-      <script src="scripts/cts.js" type="text/javascript"></script>
+      <link href="../layout/cts.css" rel="Stylesheet" type="text/css" />
+      <script src="../scripts/mootools-core-1.4.5.js" type="text/javascript"></script>
+      <script src="../scripts/cts.js" type="text/javascript"></script>
    </head>
 
    <body lang="en">
@@ -18,12 +18,18 @@
       </div>
 
       <div id="content-area">
+         <div class="warning-box" id="nameDB-match-warning">
+            The name database was created for another FPGA design (<span class="old-date"></span>). Please ensure, that the defined labels are still valid.<br />
+            The database can be found in <span class="path">web/htdocs/cts/names.json</span> in your daqtools-directory. 
+            After verification set the <span class="path">cts-compiletime</span> property to <span class="new-date"></span> to stop this message from reappearing.
+         </div>
+      
          <div class="expandable expanded" id="itc-overview">
             <div class="header"><span class="indicator"></span> Status overview</div>
             
             <div class="content">
                <div id="rate-plot-cotainer">
-                  <img src="layout/empty_plot.png" id="rate-plot" title="Click to switch between short and long plot interval" />
+                  <img src="empty_plot.png" id="rate-plot" title="Click to switch between short and long plot interval" />
                   Click on the image to switch between short and long plotting intervals
                </div>
                <table id="overview-tab">
@@ -302,7 +308,17 @@
                         <td class="label">Design compiled</td>
                         <td class="value" id="trb_compiletime">n/a</td>
                      </tr>
+
+                     <tr><td colspan="2">&nbsp;</td></tr>
+
+                     <tr class="alt">
+                        <td class="label">Export Renaming Template</td>
+                        <td class="value">
+                           <a href="#" id="gui_export_name_template">to define setup specific names</a>
+                        </td>
+                     </tr>                     
                      
+<!--                     
                      <tr class="alt">
                         <td class="label">TD FSM Limit (debug only):</td>
                         <td class="value">
@@ -320,6 +336,7 @@
                                   interpret="var f=function(x){return (x.trim() == '' || x.match(/disabled|off/)) ? 0xffff : (isNaN(parseInt(x))?0:parseInt(x))}; f" />
                         </td>
                      </tr>                      
+-->
                   </table>
                </div>
                <div class="right">
@@ -353,5 +370,32 @@
             </div>
          </div>
       </div>
+      
+      <div id="win-nameDB" class="window">
+         <div class="header">
+            <div class="tools"><a href="javascript:window.location.reload()">close and reload</a></div>
+            <div class="title">Export NameDB template</div>
+         </div>
+         
+         <div class="content">
+            <p>
+               You can change the name of most IO-related ports by copying the template from below
+               into a text file and placing it under <span class="path">web/htdocs/cts/names.json</span>
+               in your daqtools-directory. Ensure that the file is NOT executable (chmod -x names.json).
+               Then reload the page. 
+            </p>
+            <p>If you omit any value, the GUI uses the default value send by
+               the CTS tool. If a <span class="path">cts-compiletime</span> option is included in the file, the
+               GUI warns you, when it connects to a different hardware version (which could have a
+               different IO mapping - Those change cannot be tracked automatically). It is, hence, highly recommended
+               to use this security measure !!!
+            </p>
+            
+            <pre class="template"></pre>
+         </div>
+      </div>
+         
+            
+      
    </body>
 </html>
