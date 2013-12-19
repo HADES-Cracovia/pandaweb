@@ -132,54 +132,68 @@
       </field>
     </register>
     
-    <group name="ConfPerChip" address="0001" purpose="config" mode="rw" repeat="2" size="4">
-      <register  name="Switches0"
+    <group name="ConfPerChip" address="0001" purpose="config" mode="rw" repeat="2" size="5">
+      <register  name="Switches"
                 address="0000" purpose="config" mode="rw" >
-        <description>Set Converter Board switches for Sensor 0.</description>
+        <description>Set Converter Board switches for current sensor.</description>
 
-        <field name="EnaA0"
+        <field name="EnaA"
                 start="5" bits="1"  format="bitmask" >
-          <description>Enable analog power for chip 0.</description>
+          <description>Enable analog sensor power.</description>
         </field>
-        <field name="DisA0"
+        <field name="DisA"
                 start="4" bits="1"  format="bitmask" >
-          <description>Discharge analog power for chip 0.</description>
+          <description>Discharge analog sensor power.</description>
         </field>
-        <field name="EnaD0"
+        <field name="EnaD"
                 start="3" bits="1"  format="bitmask" >
-          <description>Enable digital power for chip 0.</description>
+          <description>Enable digital sensor power.</description>
         </field>
-        <field name="DisD0"
+        <field name="DisD"
                 start="2" bits="1"  format="bitmask" >
-          <description>Discharge digital power for chip 0.</description>
+          <description>Discharge digital sensor power..</description>
         </field>
-        <field name="SensorEn0"
+        <field name="SensorEn"
                 start="1" bits="1"  format="bitmask" >
-          <description>Enable sensor 0.</description>
+          <description>Enable Reset, Start and Clock signals for current sensor.</description>
         </field>
-        <field name="JtagEn0"
+        <field name="JtagEn"
                 start="0" bits="1"  format="bitmask" >
-          <description>Enable JTAG for sensor 0.</description>
+          <description>Enable JTAG for current sensor.</description>
         </field>
       </register>
       
-      <register  name="DacCurLimA0" address="0001" purpose="config" mode="rw" >
-        <description></description>
-        <field name="DacCurLimA0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
+      <register  name="DacCurLimA" address="0001" purpose="config" mode="rw" >
+        <description>sets current limit for analog sensor power</description>
+        <field name="DacCurLimA" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
         </field>
       </register>
 
-      <register  name="DacCurLimD0" address="0002" purpose="config" mode="rw" >
-        <description></description>
-        <field name="DacCurLimD0" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
+      <register  name="DacCurLimD" address="0002" purpose="config" mode="rw" >
+        <description>sets current limit for digital sensor power</description>
+        <field name="DacCurLimD" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
         </field>
       </register>
 
-      <register  name="DacVClp0" address="0003" purpose="config" mode="rw" >
-        <description></description>
-        <field name="DacVClp0" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
+      <register  name="DacVClp" address="0003" purpose="config" mode="rw" >
+        <description>sets clamping voltage for current sensor</description>
+        <field name="DacVClp" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
         </field>
       </register>
+      
+      <register  name="OvCurStatus" address="0004" purpose="config" mode="r" >
+      <description></description>
+<!--      <field name="OvCA_C1" start="3" bits="1" format="bitmask" >
+      </field>
+      <field name="OvCD_C1" start="2" bits="1" format="bitmask" >
+      </field>-->
+      <field name="OvCA" start="1" bits="1" format="bitmask" >
+      <description>indicates current limit is exceeded for analog sensor power</description>
+      </field>
+      <field name="OvCD" start="0" bits="1" format="bitmask" >
+      <description>indicates current limit is exceeded for digital sensor power</description>
+      </field>
+    </register>
       
     </group>
 
@@ -213,29 +227,37 @@
     </register>-->
 
 
-    <register  name="ADC_conf" address="0009" purpose="config" mode="rw" >
+    <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
+      <description>periodically measure all reference voltages</description>
       </field>
       <field name="CyclePower" start="1" bits="1" format="bitmask" >
+      <description>periodically measure read all sensor power supply voltages/currents</description>
       </field>
       <field name="StreamSelected" start="2" bits="1" format="bitmask" >
+      <description>continuously measure the ADC channel selected by ADC_sel, MuxAddr, ZeroCalib, ADC0_chan and ADC1_chan</description>
       </field>
-      <field name="ADC_sel" start="3" bits="1" format="bitmask" >
+      <field name="ADC_sel" start="3" bits="1" format="integer" >
+        <description>0 => ADC0 selected, 1=> ADC1 selected</description>
       </field>
-      <field name="MuxAddr0" start="4" bits="1" format="bitmask" >
+      <field name="MuxAddr" start="4" bits="2" format="integer" >
+      <description>select reference voltage multiplexer channel</description>
       </field>
-      <field name="MuxAddr1" start="5" bits="1" format="bitmask" >
-      </field>
+<!--      <field name="MuxAddr1" start="5" bits="1" format="bitmask" >
+      </field> -->
       <field name="ZeroCalib" start="6" bits="1" format="bitmask" >
+      <description>switch to a reference zero position to calibrate the instrumentation amplifier</description>
       </field>
       <field name="ADC0_chan" start="8" bits="3" format="integer" >
+      <description>select ADC0 channel</description>
 <!--      </field>
       <field name="ADC0_chan1" start="9" bits="1" format="bitmask" >
       </field>
       <field name="ADC0_chan2" start="10" bits="1" format="bitmask" > -->
       </field>
       <field name="ADC1_chan" start="12" bits="3" format="integer" >
+      <description>select ADC1 channel</description>
 <!--      </field>
       <field name="ADC1_chan1" start="13" bits="1" format="bitmask" >
       </field>
@@ -243,8 +265,8 @@
       </field>
     </register>
 
-    <register  name="ADC_read" address="000A" purpose="config" mode="r" >
-      <description></description>
+    <register  name="ADC_read" address="000C" purpose="config" mode="r" >
+      <description>result of the last analog to digital conversion</description>
       <field name="ADC_read" start="0" bits="16" format="hex" >
       </field>
     </register>
@@ -269,8 +291,8 @@
       </field>
     </register>-->
 
-    <register  name="SpiDebugConf" address="000B" purpose="config" mode="rw" >
-      <description></description>
+    <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
+      <description>settings for the debug spi interface</description>
       <field name="spiSpeed" start="8" bits="4" format="integer" >
       </field>
       <field name="16bit_8bit" start="5" bits="1" format="bitmask" >
@@ -283,37 +305,27 @@
       </field>
     </register>
 
-    <register  name="SpiDebugCs" address="000C" purpose="config" mode="rw" >
+    <register  name="SpiDebugCs" address="000E" purpose="config" mode="rw" >
       <description></description>
       <field name="SpiDebugCs" start="0" bits="1" format="bitmask" >
       </field>
     </register>
 
-    <register  name="SpiDebugWordIn" address="000D" purpose="config" mode="rw" >
+    <register  name="SpiDebugWordIn" address="000F" purpose="config" mode="rw" >
       <description></description>
       <field name="SpiDebugWordIn" start="0" bits="16" format="hex" >
       </field>
     </register>
 
-    <register  name="SpiDebugWordOut" address="000E" purpose="config" mode="r" >
+    <register  name="SpiDebugWordOut" address="0010" purpose="config" mode="r" >
       <description></description>
       <field name="SpiDebugWordOut" start="0" bits="16" format="hex" >
       </field>
     </register>
 
-    <register  name="OvCurStatus" address="000F" purpose="config" mode="r" >
-      <description></description>
-      <field name="OvCA_C1" start="3" bits="1" format="bitmask" >
-      </field>
-      <field name="OvCD_C1" start="2" bits="1" format="bitmask" >
-      </field>
-      <field name="OvCA_C0" start="1" bits="1" format="bitmask" >
-      </field>
-      <field name="OvCD_C0" start="0" bits="1" format="bitmask" >
-      </field>
-    </register>
 
-    <register  name="MiscConf" address="0010" purpose="config" mode="rw" >
+
+    <register  name="MiscConf" address="0011" purpose="config" mode="rw" >
       <description></description>
       <field name="OvRideLed4" start="7" bits="1" format="bitmask" >
       </field>
