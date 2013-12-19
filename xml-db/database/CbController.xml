@@ -126,9 +126,13 @@
     </register>-->
     <register  name="ReadBack"
               address="0000" purpose="config" mode="rw" >
-      <description>Address of the register that has to be sent to the FPGA.</description>
-      <field name="ReadBack"
+      <field name="ReadBackAll"
+              start="9" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+      <description>Set to 1 when you want to read back all registers from the microcontroller.</description>
+      </field>
+      <field name="ReadBackAddr"
               start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
+      <description>Address of the register that has to be sent to the FPGA.</description>
       </field>
     </register>
     
