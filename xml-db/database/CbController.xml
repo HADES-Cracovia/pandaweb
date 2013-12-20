@@ -117,7 +117,7 @@
   </group>
     
   <group name="CbUcRegs"
-         address="0000" size="18" purpose="status" mode="rw" continuous="true">
+         address="0000" size="20" purpose="status" mode="rw" continuous="true">
 <!--    <register name="UcRegister" address="0000" purpose="config" mode="rw" repeat="14">
       <description>The microcontroller config registers.</description>
       <field name="UcRegisterData"
@@ -349,7 +349,18 @@
       <field name="Led1" start="0" bits="1" format="bitmask" >
       </field>
     </register>
+    
+    <register  name="SendUartByte" address="0012" purpose="config" mode="rw" >
+      <description>send a singly byte to FPGA via UART (USART1)</description>
+      <field name="SendUartByte" start="0" bits="8" format="hex" >
+      </field>
+    </register>
 
+    <register  name="ReadBackCounter" address="0013" purpose="status" mode="r" >
+      <description>shows count of uC register read back operations</description>
+      <field name="ReadBackCounter" start="0" bits="15" format="integer" >
+      </field>
+    </register>
 
   </group>
   
