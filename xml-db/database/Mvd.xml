@@ -11,26 +11,32 @@
 
     <register name="RocInput" address="0000" purpose="status">
       <description>Status information of the ROC input buffer</description>
-      <field name="FifoEmpty" start="0" bits="1" format="boolean" >
+      <field name="FifoEmpty" start="0" bits="1" format="boolean" noflag="1" >
         <description>The input data fifo is empty</description>
       </field>
       <field name="FifoFull" start="2" bits="1" format="boolean" errorflag="true" >
         <description>The input data fifo is full</description>
       </field>
-      <field name="DataOut" start="4" bits="2" format="binary" >
+      <field name="DataOut" start="4" bits="2" format="binary" noflag="1" >
         <description>The input data lines after the fifo</description>
       </field>
-      <field name="DataValid" start="7" bits="1" format="boolean" >
+      <field name="DataValid" start="7" bits="1" format="boolean" noflag="1" >
         <description>The input data is valid</description>
       </field>
       <field name="ClockActive" start="8" bits="1" format="boolean" invertflag="true" errorflag="true" >
         <description>The input clock is active</description>
       </field>
-      <field name="ClockCounter" start="12" bits="4" format="unsigned"  >
+      <field name="ClockCounter" start="12" bits="8" format="hex"  noflag="1" >
         <description>Counter to check activity of the input data clock</description>
       </field>
-      <field name="ToggleFF" start="16" bits="1" format="bitmask" noflag="true" >
+      <field name="ToggleFF" start="20" bits="4" format="bitmask" noflag="true" >
         <description>Toggle Flipflop monitoring changes on the input data clock</description>
+      </field>
+      <field name="InputReset" start="24" bits="1" format="bitmask" errorflag="true" >
+        <description>Reset signal of the input fifo</description>
+      </field>
+      <field name="Counter" start="28" bits="4" format="unsigned"  noflag="1" >
+        <description>Counter to check activity of the input data clock</description>
       </field>
     </register>
     
@@ -84,11 +90,6 @@
     
     <register name="RocDataHandler1" address="0004" purpose="status">
       <description>Status of the ROC data handler</description>
-      <field name="DataHandlerState" start="0" bits="4" format="enum"  >
-        <description>Status of the data handler state machine</description>
-        <enumItem value="1">Idle</enumItem>
-        <enumItem value="2">Data</enumItem>
-      </field>      
       <field name="FrameTooLong" start="4" bits="1" format="boolean" errorflag="true" >
         <description>The current frame contains too many data words</description>
       </field>      
