@@ -164,7 +164,7 @@ sub FormatPretty {
     my $isflag = 1; 
        $isflag = 0 if $obj->{noflag};
     my $single = ""; 
-       $single = " single=\"1\"" if (($obj->{format} eq 'bitmask' && $obj->{bits} == 1) || $obj->{format} eq 'boolean');
+       $single = " bit=\"1\"" if (($obj->{format} eq 'bitmask' && $obj->{bits} == 1) || $obj->{format} eq 'boolean');
     $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
     $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
     $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
