@@ -1,0 +1,82 @@
+// Automatically generated startup script
+// Do not change it!
+
+
+go4->LaunchAnalysis("MyAnalysis", ".", "libGo4UserAnalysis", "localhost", Go4_sh, Go4_qt, Go4_lib);
+go4->WaitAnalysis(300);
+
+// configuration of analysis
+go4->AnalysisAutoSave("MyAnalysisASF.root", 500, 5, kFALSE, kFALSE);
+go4->AnalysisConfigName("Go4AnalysisPrefs.root");
+
+// step First
+go4->ConfigStep("First", kTRUE, kTRUE, kFALSE);
+go4->StepMbsStreamSource("First", "localhost", 1);
+go4->StepFileStore("First", "NoOutput", kTRUE, 32000, 99, 5);
+
+go4->SubmitAnalysisConfig(20);
+
+go4->SetAnalysisConfigMode(-1);
+go4->SetAnalysisTerminalMode(-1);
+
+go4->StartAnalysis();
+
+// this is possibility to get extra histograms from analysis
+// which are create shortly after analysis is started
+go4->Wait(1);
+go4->RefreshNamesList();
+
+TGo4Picture *pic1 = new TGo4Picture("pic1", "temporary object to setup viewpanel");
+pic1->SetCrosshair(false);
+pic1->SetRangeX(28.54, 47.02);
+pic1->SetRangeY(0, 60031.7);
+pic1->SetLineAtt(1, 1, 1, -1);
+pic1->SetFillAtt(10, 1001, -1);
+pic1->SetHisStats(true);
+pic1->SetStatsAttr(0.78, 0.775, 0.98, 0.935, 11111111, "6.4g", 0, "5.4g");
+pic1->SetHisTitle(true);
+pic1->SetTitleAttr(0.15, 0.933516, 0.85, 0.995);
+pic1->SetTitleTime(true);
+pic1->SetTitleDate(true);
+pic1->SetTitleItem(true);
+pic1->SetAutoScale(true);
+pic1->SetPadAtt(0, 2, 0, 0, 30, 30, 0, 0);
+pic1->SetXAxisAttTime(0, "%H:%M:%S%F1995-01-01 00:00:00s0", -1);
+pic1->AddObjName("Analysis/Histograms/TDC0/Ch34/TDC0_Ch34_RisingRef", "HIST");
+pic1->SetLineAtt(602, 1, 1, 0);
+pic1->SetFillAtt(0, 1001, 0);
+pic1->SetMarkerAtt(1, 1, 1, 0);
+pic1->SetAxisAtt(0, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 2048, 0);
+pic1->SetAxisAtt(1, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 2048, 0);
+pic1->SetAxisAtt(2, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 0, 0);
+go4->StartViewPanel(12, 46, 744, 620, Go4_normal, pic1);
+delete pic1;
+
+TGo4Picture *pic2 = new TGo4Picture("pic2", "temporary object to setup viewpanel");
+pic2->SetCrosshair(false);
+pic2->SetRangeX(55.331, 88.481);
+pic2->SetRangeY(0, 51599.1);
+pic2->SetLineAtt(1, 1, 1, -1);
+pic2->SetFillAtt(10, 1001, -1);
+pic2->SetHisStats(true);
+pic2->SetStatsAttr(0.78, 0.775, 0.98, 0.935, 11111111, "6.4g", 0, "5.4g");
+pic2->SetHisTitle(true);
+pic2->SetTitleAttr(0.15, 0.933516, 0.85, 0.995);
+pic2->SetTitleTime(true);
+pic2->SetTitleDate(true);
+pic2->SetTitleItem(true);
+pic2->SetAutoScale(true);
+pic2->SetPadAtt(0, 2, 0, 0, 30, 30, 0, 0);
+pic2->SetXAxisAttTime(0, "%H:%M:%S%F1995-01-01 00:00:00s0", -1);
+pic2->AddObjName("Analysis/Histograms/TDC0/Ch36/TDC0_Ch36_RisingRef", "HIST");
+pic2->SetLineAtt(602, 1, 1, 0);
+pic2->SetFillAtt(0, 1001, 0);
+pic2->SetMarkerAtt(1, 1, 1, 0);
+pic2->SetAxisAtt(0, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 2048, 0);
+pic2->SetAxisAtt(1, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 2048, 0);
+pic2->SetAxisAtt(2, 1, 1, 42, 0.005, 0.035, 510, 0.03, 1, 42, 1, 0.035, kFALSE, "+", 0, 0);
+go4->StartViewPanel(115, 76, 744, 620, Go4_normal, pic2);
+delete pic2;
+
+go4->MonitorItem("Analysis");
+go4->StartMonitoring(2);
