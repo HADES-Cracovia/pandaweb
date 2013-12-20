@@ -161,12 +161,15 @@ sub FormatPretty {
   $cstr  = "" unless $cstr;
   my $ret, my $cl;
   if (defined $cont) {
-    my $isflag = 1; $isflag = 0 if $obj->{noflag};
+    my $isflag = 1; 
+       $isflag = 0 if $obj->{noflag};
+    my $single = ""; 
+       $single = " single=\"1\"" if (($obj->{format} eq 'bitmask' && $obj->{size} == 1) || $obj->{format} eq 'boolean');
     $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
     $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
     $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
     $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
-    $cl .= sprintf(" cstr=\"$cstr\" raw=\"0x%x\"><div class=\"$class\">",$rawvalue);
+    $cl .= sprintf(" cstr=\"$cstr\"%s raw=\"0x%x\"><div class=\"$class\">",$single,$rawvalue);
     
     my $t = "";
     $ret = "<$cont ";
