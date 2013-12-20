@@ -1,11 +1,11 @@
   function editsetting(e) {
     if(e.target.getAttribute("class") && e.target.getAttribute("class").indexOf("editable")!=-1) {
       var curr = e.target.innerHTML.split('<',1);
-      if (curr == '\u25a1' || curr == '\u25a0') { // search for □ and ■
+      if (e.target.parentNode.getAttribute("bit") == '1') { // search for fields that represent single bits
         console.debug("single bit clicked");
-        if (curr == '\u25a1') // in case it's □
+        if ( parseInt(e.target.parentNode.getAttribute("raw")) == 0 )
           getdataprint('../xml-db/put.pl?'+e.target.parentNode.getAttribute("cstr")+'-'+'1','returntext',false,-1,refresh);
-        if (curr == '\u25a0') // in case it's ■
+        if ( parseInt(e.target.parentNode.getAttribute("raw")) == 1 )
           getdataprint('../xml-db/put.pl?'+e.target.parentNode.getAttribute("cstr")+'-'+'0','returntext',false,-1,refresh);
         return;
       }
