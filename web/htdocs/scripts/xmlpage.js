@@ -1,7 +1,15 @@
   function editsetting(e) {
     if(e.target.getAttribute("class") && e.target.getAttribute("class").indexOf("editable")!=-1) {
-      var text = e.target.parentNode.getAttribute("cstr");
       var curr = e.target.innerHTML.split('<',1);
+      if (curr == '\u25a1' || curr == '\u25a0') { // search for □ and ■
+        console.debug("single bit clicked");
+        if (curr == '\u25a1') // in case it's □
+          getdataprint('../xml-db/put.pl?'+e.target.parentNode.getAttribute("cstr")+'-'+'1','returntext',false,-1,refresh);
+        if (curr == '\u25a0') // in case it's ■
+          getdataprint('../xml-db/put.pl?'+e.target.parentNode.getAttribute("cstr")+'-'+'0','returntext',false,-1,refresh);
+        return;
+      }
+      var text = e.target.parentNode.getAttribute("cstr");
           text += "\nCurrent Value: "+curr+" ("+e.target.parentNode.getAttribute("raw")+")\n ";
       var newval = prompt(text,e.target.parentNode.getAttribute("raw"));
       if (newval != null) {
