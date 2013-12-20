@@ -128,7 +128,7 @@
               address="0000" purpose="config" mode="rw" >
       <description>Read back register values from the microcontroller.</description>
       <field name="ReadBackAll"
-              start="9" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
+              start="8" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       <description>Set to 1 when you want to read back all registers from the microcontroller.</description>
       </field>
       <field name="ReadBackAddr"
@@ -358,7 +358,7 @@
 
     <register  name="ReadBackCounter" address="0013" purpose="status" mode="r" >
       <description>shows count of uC register read back operations</description>
-      <field name="ReadBackCounter" start="0" bits="15" format="integer" >
+      <field name="ReadBackCounter" start="0" bits="16" format="integer" >
       </field>
     </register>
 
