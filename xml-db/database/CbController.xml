@@ -141,22 +141,22 @@
       <register  name="Switches"
                 address="0000" purpose="config" mode="rw" >
         <description>Set Converter Board switches for current sensor.</description>
+        <field name="DisA"
+                start="4" bits="1"  format="bitmask" >
+          <description>Discharge analog sensor power.</description>
+        </field>
+        <field name="DisD"
+                start="2" bits="1"  format="bitmask" >
+          <description>Discharge digital sensor power..</description>
+        </field>
 
         <field name="EnaA"
                 start="5" bits="1"  format="bitmask" >
           <description>Enable analog sensor power.</description>
         </field>
-        <field name="DisA"
-                start="4" bits="1"  format="bitmask" >
-          <description>Discharge analog sensor power.</description>
-        </field>
         <field name="EnaD"
                 start="3" bits="1"  format="bitmask" >
           <description>Enable digital sensor power.</description>
-        </field>
-        <field name="DisD"
-                start="2" bits="1"  format="bitmask" >
-          <description>Discharge digital sensor power..</description>
         </field>
         <field name="SensorEn"
                 start="1" bits="1"  format="bitmask" >

@@ -346,7 +346,7 @@
   </group>
   
   <group name="RocStatistics"
-         address="0010"  size="16"  purpose="status"  mode="r"  continuous="true">
+         address="0010"  size="16"  purpose="status"  mode="r"  continuous="true" rate="1">
     <register name="HeadersDetected" address="0000" >
       <description>Number of detected headers</description>
       <field name="HeadersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />

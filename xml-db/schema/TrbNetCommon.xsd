@@ -155,6 +155,7 @@
       <xs:attribute ref="mode" />
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
+      <xs:attribute ref="rate" />
 
     </xs:complexType>
 
@@ -229,6 +230,7 @@
     <xs:attribute ref="address" />
     <xs:attribute ref="mode" />
     <xs:attribute ref="purpose" />
+    <xs:attribute ref="rate" />
   </xs:complexType>
 
 
