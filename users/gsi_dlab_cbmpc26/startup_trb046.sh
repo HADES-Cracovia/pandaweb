@@ -6,6 +6,7 @@ xset -b
 
 ##### TRBNET #####
 # set the TRBNet addresses of the Endpoints
+
 trbcmd s 0xb000000390381d28 0 0x0200
 trbcmd s 0xa300000390381328 1 0x0201
 trbcmd s 0x4800000390381628 2 0x0202
@@ -24,6 +25,7 @@ trbcmd w 0x8000 0x8307 0x0	       # Multi event queue size
 trbcmd w 0x8000 0x8308 0xffffff	       # Trigger counter	     
 trbcmd w 0x8000 0x830b 0x7	       # ??		     
 trbcmd w 0x8000 0x830d 0x0	       # enable readout bit     
+
 
 #mac address of the EB
 # cbmpc026_eth0: 90:f6:52:03:8f:c4
@@ -47,15 +49,24 @@ trbcmd w 0xfe48 0xc800 0x00000001 ## logic analyser control register
 trbcmd w 0xfe48 0xc801 0x020f0205 ## trigger window enable & trigger window width
 trbcmd w 0xfe48 0xc802 0x00000000 ## channel 01-31 enable
 trbcmd w 0xfe48 0xc803 0x00000000 ## channel 32-63 enable
-#trbcmd w 0xfe48 0xc8c4 0x00000080 ## enable number of words
+trbcmd w 0xfe48 0xc804 0x00000008 ## enable number of words
 
-trbcmd w 0x0200 0xc802 0x00000000 ## channel 01-4  enable
+
+trbcmd w 0x0200 0xc802 0x0000000f ## channel 01-4  enable
+
 #trbcmd w 0x0200 0xc803 0xffffffff ## channel 32-63 enable
 
-trbcmd w 0x8000 0xa137 0xfffff  #set CTS pulser to 100Hz
-#trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
+trbcmd w 0x8000 0xa140 0xffff  #set CTS pulser to 100Hz
+
+trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
 
 ##### to disable/enable specific peripheral FPGAs ####
 # trbcmd w 0x8000 0xc0 0xf1
 # trbcmd w 0x8000 0xc1 0xf1
 # trbcmd w 0x8000 0xc3 0xf1
+
+
+# invert inputs, as input pulse is negative
+~/trbsoft/daqtools/tools/padiwa.pl 0x200 1 invert 0xaaaa  
+
+

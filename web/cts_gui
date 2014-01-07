@@ -14,6 +14,8 @@ sub execServerAndMonitor {
    my $htdocsDumpDir = shift;
    my $quietParam = shift;
    my $endpointParam = shift;
+   my $logParam = shift;
+   
 
 # Start Webserver
    print "\n\nStart Webserver. Navigate to http://$host:$port\n";
@@ -27,12 +29,12 @@ sub execServerAndMonitor {
    
 # Exec Monitor   
    while(1) {
-      system "./cts $quietParam $endpointParam  m $htdocsDumpDir";
+      system "./cts $quietParam $endpointParam $logParam m $htdocsDumpDir";
       #system "clear";
       print "\n\n\nIf you willingly killed the monitoring script press CTRL+C again! \n\n\n\n\n\n\n\n\n";
       
       for(my $i=5; $i; $i--) {
-         print "\n  Monitor will restart in $i second(s)\a";
+         print "\n  Monitor will restart in $i second(s)";
          sleep 1;
       }
    }
@@ -41,9 +43,11 @@ sub execServerAndMonitor {
 # Print help
 sub help {
    print <<EOFHELP;
-$0 [--port=1234] [--[no]openxterm] [--endpoint=0x....] [--help]
+$0 [--port=1234] [--[no]openxterm] [--endpoint=0x....] [--log=[skip,]path] [--help]
 Setups up running enviroment for the CTS gui and start webserver.
 
+--log          Log trigger rates into file specified. If "Number," is prefixed,
+               the stated number of monitoring cycles is skipped between each write.
 --quiet        Don't print monitored values to stdout
 --port         Port number of the webserver
 --noopenxterm  By default, the CTS monitoring results are displayed in an
@@ -64,10 +68,12 @@ EOFHELP
    my $help = 0;
    my $quiet = 0;
    my $endpoint = undef;
+   my $log = undef;
 
    GetOptions(
       'openxterm!' => \$openxterm,
       'endpoint=s' => \$endpoint,
+      'log=s' => \$log,
       'port=i' => \$port,
       'monitor!' => \$monitor,
       'help!' => \$help,
@@ -91,9 +97,9 @@ EOFHELP
    
    
    my $sharedDir     = "/dev/shm/cts-monitor-$port";
-   my $htdocsDumpDir = "htdocs/monitor-$port";
+   my $htdocsDumpDir = "htdocs/cts/monitor-$port";
    my $quietParam    = $quiet ? '--quiet ' : '';
-   
+   my $logParam      = $log ? "--log $log" : '';
 
    sub clean_up {
       print "\n\n\n CLEAN UP\n";
@@ -103,7 +109,7 @@ EOFHELP
    
 # If this script was started within xterm - start monitor  
    if ($monitor) {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam, $logParam;
       exit;
    }
 
@@ -119,16 +125,16 @@ EOFHELP
    system "mkdir -p $sharedDir";
    system "chmod 777 $sharedDir";
    system( "ln -s $sharedDir $htdocsDumpDir || mkdir -p $htdocsDumpDir");
-   system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plot.png" );
-   system( "cp htdocs/layout/empty_plot.png $htdocsDumpDir/plotshort.png" );
+   system( "cp htdocs/cts/empty_plot.png $htdocsDumpDir/plot.png" );
+   system( "cp htdocs/cts/empty_plot.png $htdocsDumpDir/plotshort.png" );
    
    
 # Start Monitor (either directly or indirectly via XTERM)"
    print "\n\nStart monitoring script";
    if ($openxterm) {
-      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quietParam $endpointParam'");
+      system("xterm -fn '-misc-fixed-medium-r-normal--8-*-*-*-*-*-iso8859-15' +sb -geometry 200x100 +aw +bc -bg LightCoral -j -e '$0 --monitor --port=$port $quietParam $endpointParam $logParam'");
    } else {
-      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam;
+      execServerAndMonitor $host, $port, $htdocsDumpDir, $quietParam, $endpointParam, $logParam;
    }
    
    clean_up;

@@ -370,7 +370,7 @@ usage: thresholds_automatic.pl --endpoint=<endpoint_address> --chain=<SPI-chain>
 
 example:
 
-thresholds_automatic.pl l --endpoint=0x303 --chain=0 --offset=0x10 --32channel
+thresholds_automatic.pl --endpoint=0x303 --chain=0 --offset=0x10 --32channel
 or in short
 thresholds_automatic.pl -e 0x303 -o 0x10 -c 0
 

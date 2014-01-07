@@ -58,24 +58,34 @@ function parseCallback(elem, func, fallback) {
    
    return fallback ? fallback : id;
 }
-   
+
 var CTS = new Class({
    Implements: [Events],
    defs: null,
 
    autoCommitInhibit: false,
+   nameDB: {},
    
    currentData: {},
    dataUpdateConstantFor: 0,
    dataUpdateActive: true,
    
-   initialize: function(defs) {
+   initialize: function(defs, nameDB) {
       this.defs = defs;
+      if (nameDB) {
+         this.nameDB = nameDB;
+         if (nameDB['cts-compiletime'] && this.nameDB['cts-compiletime'] != this.defs.properties.trb_compiletime) {
+            $$('#nameDB-match-warning .old-date').set('text', timestamp2Date(this.nameDB['cts-compiletime']) + ' - ' +this.nameDB['cts-compiletime']);
+            $$('#nameDB-match-warning .new-date').set('text', this.defs.properties.trb_compiletime);
+            $('nameDB-match-warning').setStyle('display', 'block');
+         }
+      }
       this.monitorPrefix = 'monitor-' + this.defs.server.port + '/';
 
       this.renderTriggerChannels();
       this.renderTriggerInputs();
       this.renderCoins();
+      this.renderTriggerAddOnInputs();
       this.renderRegularPulsers();
       this.renderRandPulsers();
       this.renderCTSDetails();
@@ -90,14 +100,16 @@ var CTS = new Class({
       });
       
       this.addEvent('dataUpdate', this.updateStatusIndicator.bind(this));
+      //this.addEvent('dataUpdate', function() {$('eb_rr').set('disabled', !this.currentData.
+
+      this.initEventBuilderRR();
       
       this.initAutoCommit();
-      
       this.initSliceTitle();
    },
    
    readRegisters: function(regs, callback, formated) {
-      var opts = {'onFailure':xhrFailure, 'url': 'cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
+      var opts = {'onFailure':requestFailure, 'url': '/cts/cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
       if (callback) {
          opts['onSuccess'] = callback;
          return (new Request.JSON(opts)).send();
@@ -107,20 +119,26 @@ var CTS = new Class({
       }
    },
    
+   
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
-      console.debug(values, arrValues);
       (new Request.JSON({
-         url: 'cts.pl?write,' + arrValues.join(','),
+         url: '/cts/cts.pl?write,' + arrValues.join(','),
          onSuccess: function(json, text) {
+            console.log(json)
+            console.log(text)
+            
             if (!json) {
                var m = text.match(/<pre>(.*)<\/pre>/i);
+               
+               console.log(m)
+               
                if (m) alert("Server send error response:\n"+m[1]);
                else  alert("An unknown error occured while writing register");
             }
          },
-         onFailure: xhrFailure
+         onFailure: requestFailure
       })).send();
    },
    
@@ -147,7 +165,9 @@ var CTS = new Class({
       dup.removeClass('error').set('text', 'Update').setStyle('display', 'block');
       
       // hard-reset. if request's timeout fails, this is the last resort ...
-      var manualTimeout = window.location.reload.delay(10000);
+      var manualTimeout = (function(e) {
+        window.location.reload();
+      }).delay(10000, this, new Error());
       
       new Request.JSON({
          url: this.monitorPrefix + 'dump.js',
@@ -187,12 +207,20 @@ var CTS = new Class({
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            //xhrFailure(xhr);
+            //requestFailure(xhr);
             this.dataUpdate.delay(1000, this);
             dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
          }.bind(this)
       }).send();
+   },
+   
+   initEventBuilderRR: function() {
+      if (!this.defs.properties.cts_eventbuilder_rr) {
+	 $$('.eventbuilder_rr').destroy();
+      } else {
+	 $$('.eventbuilder_rr').setStyle('visibility', 'visible');
+      }
    },
 
 /**
@@ -206,7 +234,8 @@ var CTS = new Class({
       this.autoRateElems = $$('.autorate');
       this.addEvent('dataUpdate', function(data) {
          this.autoRateElems.each(function(e) {
-            if (e.hasClass('autoratevalue')) {
+            if (undefined == data.rates[ e.get('slice') ]) return;
+	    if (e.hasClass('autoratevalue')) {
                var count = data.rates[ e.get('slice') ].value;
                
                count = parseCallback(e, 'format')(count);
@@ -252,6 +281,8 @@ var CTS = new Class({
             var s = parseSlice(e.get('slice'));
             if (!s.slice) s.slice = "_compact";
          
+            if (undefined == data.monitor[s.reg]) return;
+				   
             var value = data.monitor[s.reg][e.get('type') == 'checkbox' || s.bit != undefined || e.hasClass('autoupdate-value') ? 'v' : 'f'][s.slice];
             if (s.bit != undefined) value = (parseInt(value) >> s.bit) & 1;
                                  
@@ -353,12 +384,28 @@ var CTS = new Class({
    },
    
 /**
+ * Translate Names, such as channel assignments into user-overrideable values.
+ */   
+   
+   translateName: function(category, key, def) {
+      if (this.nameDB[category] == undefined)
+         this.nameDB[category] = {};
+      
+      if (this.nameDB[category][key] == undefined)
+         this.nameDB[category][key] = def;
+      
+      return def;
+   },
+   
+/**
  * Creates all active elements of the Trigger Input Configuration
  * section. It is called by the class' constructor and hence
  * should not by called manually.
  */
    renderTriggerInputs: function() {
-      for(var i=0; i < this.defs.properties.trg_input_count; i++) {
+      var num = this.defs.properties.trg_input_count;
+      num -= (this.defs.properties.trg_addon_count) ? this.defs.properties.trg_addon_count : 0;
+      for(var i=0; i < num; i++) {
          var reg = 'trg_input_config' + i;
          $('inputs-tab')
          .adopt(
@@ -404,6 +451,73 @@ var CTS = new Class({
    },
 
 /**
+ * Creates all active elements of the AddOn Multiplexer Input Configuration
+ * section. It is called by the class' constructor and hence
+ * should not by called manually.
+ */
+   renderTriggerAddOnInputs: function() {
+      if (!this.defs.properties.trg_addon_count) {
+         $('addon-board-expander').setStyle('display', 'none');
+         return;
+      }
+      
+      var from = this.defs.properties.trg_input_count - this.defs.properties.trg_addon_count;
+      var to = this.defs.properties.trg_input_count;
+      
+      for(var i=from; i < to; i++) {
+         var reg = 'trg_input_config' + i;
+         var areg = 'trg_addon_config' + (i-from);
+         var en = this.defs.registers[areg]._defs.input.enum;
+         $('addon-board-tab')
+         .adopt(
+            new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
+            .adopt([
+               new Element('td', {'class': 'num', 'text': i}),
+               
+               new Element('td', {'class': 'source'})
+               .adopt(
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
+                  .adopt(
+                        Object.values(en).map(function (r) {
+                           return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
+                        }, this)
+                  )
+               ),
+               
+               new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i}),
+               
+               new Element('td', {'class': 'invert'}).adopt(
+                  new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': reg + '.invert'})
+               ),
+
+               new Element('td', {'class': 'delay'})
+               .adopt([
+                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.delay', 'format': 'countToTime', 'interpret': 'timeToCount'}),
+                  new Element('span', {'text': ' ns'})
+               ]),
+
+               new Element('td', {'class': 'spike'})
+               .adopt([
+                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.spike_rej', 'format': 'countToTime', 'interpret': 'timeToCount'}),
+                  new Element('span', {'text': ' ns'})
+               ]),
+               
+               new Element('td', {'class': 'override'})
+               .adopt(
+                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': reg + '.override'})
+                  .adopt([
+                     new Element('option', {'value': 'off', 'text': 'bypass'}),
+                     new Element('option', {'value': 'to_low', 'text': '-> 0'}),
+                     new Element('option', {'value': 'to_high', 'text': '-> 1'}),
+                  ])
+               )
+            ])
+         );
+      }
+   },
+   
+   
+/**
  * Creates all active elements of the Trigger Channel Configuration
  * section. It is called by the class' constructor and hence
  * should not by called manually.
@@ -415,37 +529,44 @@ var CTS = new Class({
          $('itc-tab') // + (i / 8).toInt())
          .adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + i})
-            .adopt(
-               new Element('td', {'text': i, 'class': 'channel'})
-            ).adopt(
+            .adopt([
+               new Element('td', {'text': i, 'class': 'channel'}),
                new Element('td', {'class': 'enable'})
                .adopt(
                   new Element('input', {'type': 'checkbox', 'id': 'itc-enable'+i, 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.mask[' + i + ']'})
-               )
-            ).adopt(
+               ),
+
                new Element('td', {'class': 'edge'})
                .adopt(
                   edgeType = new Element('select', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_channel_mask.edge[' + i + ']'})
-                  .adopt(
-                     new Element('option', {'value': '0', 'text': 'H. Level'})
-                   ).adopt(
+                  .adopt([
+                     new Element('option', {'value': '0', 'text': 'H. Level'}),
                      new Element('option', {'value': '1', 'text': 'R. Edge'})
-                   )
-               )
-            ).adopt(
-               new Element('td', {'class': 'assign', 'text': this.defs.properties.itc_assignments[i]})
-            ).adopt (
+                   ])
+               ),
+    
+               itc = new Element('td', {'class': 'assign', 'text': (this.defs.properties['trg_periph_itc_base'] == i) ? '' : this.translateName('itc-names', 'itc-' + i, this.defs.properties.itc_assignments[i])}),
                new Element('td', {'class': 'type'})
                .adopt(
                      ddType = new Element('select', {'class': 'autocommit autoupdate autoupdate-value', 'slice': '_trg_trigger_types' + (i < 8 ? '0' : '1') + '.type' + i})
-               )
-            ).adopt (
-               assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i})
-            ).adopt (
+               ),
+   
+               assertedRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_asserted_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-asserted-rate' + i}),
                edgeRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-edge-rate' + i})
-            )
+            ])
          );
          
+         if (this.defs.properties['trg_periph_itc_base'] == i) {
+            itc.set('html', '').adopt([
+               new Element('span', {'html': 'Trigger from FPGA:&nbsp;&nbsp;'}),
+               new Element('sub', {'text': '4'})
+            ]);
+            for(var j=3; j>=0; j--)
+               itc.adopt(new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_periph_config.mask[' + j + ']'}));
+
+            itc.adopt(new Element('sub', {'text': '1'}));
+         }
+	 
          for(var j=0; j < 16; j++)
             ddType.adopt(new Element('option', {'value': j, 'text': this.defs.registers['_trg_trigger_types' + (i < 8 ? '0' : '1')]._defs['type' + i].enum[j]}));
          
@@ -479,19 +600,17 @@ var CTS = new Class({
          var coin, inhibit;
          $('coin-tab').adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup':  'itc-' +  (i + parseInt(this.defs.properties.trg_coin_itc_base))})
-            .adopt(
-               new Element('td', {'class': 'num', 'text': i})
-            ).adopt(
+            .adopt([
+               new Element('td', {'class': 'num', 'text': i}),
                new Element('td', {'class': 'window'})
-               .adopt(
-                  new Element('input', {'class': 'autoupdate autocommit', 'slice': reg + '.window', 'format': 'countToTime', 'interpret': 'timeToCount'})
-               ).adopt(
+               .adopt([
+                  new Element('input', {'class': 'autoupdate autocommit', 'slice': reg + '.window', 'format': 'countToTime', 'interpret': 'timeToCount'}),
                   new Element('span', {'text': ' ns'})
-            )).adopt(
-               coin = new Element('td', {'class': 'coin'})
-            ).adopt(
+	       ]),
+               coin = new Element('td', {'class': 'coin'}),
                inhibit = new Element('td', {'class': 'inhibt'})
-         ));
+	    ]) 
+	 );
          
          for(var j=this.defs.properties.trg_input_count-1; j >= 0; j--) {
             coin.adopt(   new Element('input', {'type': 'checkbox', 'class': 'autoupdate autocommit', 'slice': reg+'.coin_mask['+j+']'}));
@@ -645,7 +764,7 @@ var CTS = new Class({
    },
    
    renderCTSDetails: function() {
-      $('trb_compiletime').set('text', new Date(this.defs.properties.trb_compiletime * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', ''));
+      $('trb_compiletime').set('text', timestamp2Date(this.defs.properties.trb_compiletime));
       $('trb_endpoint').set('text', "0x" + this.defs.properties.trb_endpoint.toString(16));
       $('trb_daqopserver').set('text', this.defs.properties.daqopserver);
    },
@@ -669,18 +788,46 @@ var CTS = new Class({
    }
 });
 
-function xhrFailure(xhr){
-   var m = xhr.responseText.match(/<pre>([\s\S]*)<\/pre>/im);
-   if (m) alert("Server send error response:\n"+m[1].trim());
-   else  alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?");
+function timestamp2Date(ts) {
+   return new Date(ts * 1000 - new Date().getTimezoneOffset() * 60000).toGMTString().replace('GMT', '');
+}
+   
+
+function requestFailure(obj){
+   console.log(obj);
+   
+   var text = (obj.responseText) ? obj.responseText : obj;
+   var m = text.match(/<pre>([\s\S]*)<\/pre>/im);
+   
+   
+   if (obj.responseText && m) {
+      text = m[1];
+      m = text.match(/^\s*-+ More[\w\s]+ -+\s+(.+)$/im)
+      if (m) text = m[1];
+      
+      alert("Server send error response:\n"+text.trim());
+   } else {
+      alert("An unknown error while contacting the sever. Did you open this file locally? Did the connection or server crash?\nHint:\n" + text);
+   }
 }
 
 
 var cts;
-(new Request.JSON({'url': 'cts.pl?init',
-                   'onSuccess': function(json) {cts = new CTS(json)},
-                   'onFailure': xhrFailure})).send();
+function loadCTS(nameDB) {
+   if (typeOf(nameDB) != 'object')
+      nameDB = {};
    
+   (new Request.JSON({'url': 'cts.pl?init',
+                     'onSuccess': function(json) {cts = new CTS(json, nameDB)},
+                     'onFailure': requestFailure,
+                     'onError': requestFailure})).send();   
+}
+
+(new Request.JSON({'url': 'names.json',
+                   'onSuccess': loadCTS,
+                   'onFailure': loadCTS,
+                   'onError': loadCTS})).send();
+
 function countToTime(val) {return (1.0*val / cts.defs.properties.cts_clock_frq * 1e9).toFixed(0);}
 function countToFreq(val) {return formatFreq (1 / (val / cts.defs.properties.cts_clock_frq)); }
 function timeToCount(val) {return (parseNum(val) / 1.0e9 * cts.defs.properties.cts_clock_frq).round();}
@@ -901,3 +1048,40 @@ window.addEvent('load', function() {
 });
 
 function id(x) {return x;}
+
+
+function prettyJSON(obj, indent=""){
+   if (obj && obj.toJSON) obj = obj.toJSON();
+
+   switch (typeOf(obj)){
+      case 'string':
+         return '"' + obj.replace(/[\x00-\x1f\\"]/g, escape) + '"';
+      case 'array':
+         return '[' + obj.map(JSON.encode).clean() + ']';
+      case 'object': case 'hash':
+         var string = [];
+         Object.each(obj, function(value, key){
+            var json = prettyJSON(value, indent + '  ');
+            if (json) string.push(prettyJSON(key) + ':  ' + json);
+         });
+         
+         return string ? ('{\n' + indent + "  " + string.join(",\n  " + indent) + "\n" + indent + '}') : "{}";
+      case 'number': case 'boolean': return '' + obj;
+      case 'null': return 'null';
+   }
+
+   return null;
+};
+
+
+window.addEvent('domready', function() {
+   $('gui_export_name_template').addEvent('click', function(e) {
+      e.stop();
+      cts.nameDB['cts-compiletime'] = cts.defs.properties.trb_compiletime;
+      $$('#win-nameDB .template')[0].set('text', prettyJSON(cts.nameDB));
+      $('win-nameDB').fade('hide').setStyle('display', 'block').fade('in');
+   });
+});
+      
+      
+   

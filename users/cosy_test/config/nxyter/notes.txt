@@ -1,0 +1,2 @@
+# Time from Trogger pulse to first valid timestamp: 400ns 
+  --> maximum correlation window

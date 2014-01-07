@@ -1,5 +1,8 @@
 #!/usr/bin/perl -w
-#print "Content-type: text/html\n\n";
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  &htsponse(200, "OK");
+  }
+print "Content-type: text/html\n\n";
 
 
 use strict;
@@ -177,7 +180,7 @@ sub receive_answer_HMP {
         }
       }
     else {
-      usleep(50000);
+      usleep(40000);
       }
     }
   return $ret;

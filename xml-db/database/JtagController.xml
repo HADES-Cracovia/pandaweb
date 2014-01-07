@@ -9,7 +9,14 @@
   <!-- Common JTAG control registers             -->
   <!--===========================================-->
   <group name="JtagCommonControl"
-         address="1000"  size="37"  purpose="config"  mode="rw"  continuous="true">
+         address="1000"  size="37"  purpose="config"  mode="rw"  continuous="false">
+    <register name="JtagSwitch"
+              address="0000" mode="rw" purpose ="config" >
+      <description>Switches for JTAG for each sensor (old-style)</description>
+      <field name="JtagSwitch"
+             start="0"   bits="10"  mode="rw"  purpose="config"  format="bitmask">
+      </field>
+    </register>
     <register name="WaitBeforeStart"
               address="0007" mode="rw" purpose ="config" >
       <description>Wait time between write sequence and start signal.</description>
@@ -74,11 +81,11 @@
         <description>Trigger writing all JTAG registers once on individual JTAG chains</description>
       </field>
     </register>
-    <group name="JtagOverride"
-           address="0020"  size="5"  purpose="config"  mode="rw"  continuous="true">
-      <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
+<!--     <group name="JtagOverride" -->
+<!--            address="0020"  size="1"  purpose="config"  mode="rw"  continuous="true"> -->
+<!--       <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description> -->
       <register name="JtagOverrideRegister"
-                address="0000"  repeat="5" >
+                address="0020">
         <description>Sets fixed values for all outputs for JTAG and sensor control and inverts the outputs if needed. One register for each JTAG chain.</description>
         <field name="InvertTDO"
                start="0" bits="1" format="boolean">
@@ -137,48 +144,48 @@
           <description>Enable Clock output signal</description>
         </field>
       </register>
-    </group>
+<!--     </group> -->
   </group>
   <!--===========================================-->
   <!--JTAG Status registers for each chain       -->
   <!--===========================================-->
   <group name="JtagStatus"
-         address="1800"  size="40"  purpose="status"  mode="r" continuous="true">
+         address="1800"  size="8"  purpose="status"  mode="r" continuous="true">
     <group name="JtagStatusChain"
-           address="0000"  size="8"  repeat="5"  purpose="status"  mode="r"  continuous="true">
+           address="0000"  size="8"  purpose="status"  mode="r"  continuous="true">
       <register  name="JtagErrorCount1"
-                address="0002" purpose="status" mode="r" >
+                address="0000" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
-               start="0"   bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of read errors during "read id" operation</description>
         </field>
         <field name="ErrorsWrite"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of read errors during write operation</description>
         </field>
       </register>
       <register  name="JtagErrorCount2"
-                address="0003" purpose="status" mode="r" >
+                address="0001" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
-               start="0"  bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
         </field>
         <field name="ErrorsSampling"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer" >
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
           <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
         </field>
       </register>
       <register  name="JtagRunCounter"
-                address="0004" purpose="status" mode="r" >
+                address="0002" purpose="status" mode="r" >
         <description>Number of times the JTAG controller run a full sequence</description>
         <field name="JtagRunCounter"
                start="0"  bits="32"  mode="r"  purpose="status"  format="integer" >
         </field>
       </register>
       <register  name="JtagStatusFlags"
-                address="0005" purpose="status" mode="r" >
+                address="0003" purpose="status" mode="r" >
         <description>Status flags of the JTAG chain</description>
         <field name="JtagStarted"
                start="0" bits="1"  mode="r"  purpose="status"  format="boolean" >
@@ -189,23 +196,309 @@
           <description>Last JTAG run was successful</description>
         </field>
         <field name="JtagLastDataChanged"
-               start="8" bits="1"  mode="r"  purpose="status"  format="boolean" >
+               start="8" bits="1"  mode="r"  purpose="status"  format="boolean" errorflag="true">
           <description>Data in the sensor was corrupted at last JTAG run</description>
         </field>
         <field name="JtagLastWriteError"
-               start="12" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="12" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG write error</description>
         </field>
         <field name="JtagLastReadError"
-               start="16" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="16" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG read error</description>
         </field>
         <field name="JtagCrcError"
-               start="20" bits="1" mode="r"  purpose="status"  format="boolean" >
+               start="20" bits="1" mode="r"  purpose="status"  format="boolean" errorflag="true" >
           <description>Last run had a JTAG CRC error</description>
         </field>
       </register>
     </group>
+  </group>
+  <!--===========================================-->
+  <!--JTAG registers for each chain              -->
+  <!--===========================================-->  
+  <group name="JtagChain"
+               address="0000"  size="1024"  purpose="config"  mode="rw" continuous="false" >
+    <register name="JtagRAM"
+                address="0000"  repeat="256"  purpose="config"  mode="rw">
+      <description>RAM with content of JTAG registers for sensors. Contains several banks, one for each sensor</description>
+      <field name="JtagRAM"
+              start="0" bits="32" mode="rw"  purpose="config"  format="raw" >
+        <description>content of JTAG registers in sensors</description>
+      </field>      
+    </register>
+    <register name="JtagReadbackRAM"
+                address="0100"  repeat="256"  purpose="status"  mode="r">
+      <description>RAM with content of JTAG registers read back from sensors. This RAM has to be explicitly updated by a slow-control command</description>
+      <field name="JtagReadbackRAM"
+              start="0" bits="32" mode="r"  purpose="status"  format="raw" >
+        <description>Read-back registers from sensors</description>
+      </field>       
+    </register>    
+    <group name="JtagControl"
+           address="0200"   size="256"   purpose="config" mode="rw" continuous="false">
+      <description>Control and Status registers for each JTAG chain</description>
+      <group name="JtagChainSetup"
+            address="0000"   size="9"   purpose="config" mode="rw" continuous="true">
+        <description>Setup of chain length and timing of JTAG signals</description>
+        <register name="NumchipsConfigured"
+                  address="0000" mode="rw" purpose ="config" >
+          <description>Number of sensors available in chain and in configuration RAM</description>
+          <field name="NumchipsConfigured"
+                start="0" bits="8"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register>        
+
+        <register name="JtagClockCycleLength"
+                  address="0001" mode="rw" purpose ="config" >
+          <description>Duration of a JTAG clock cycle in system clock cycles</description>
+          <field name="JtagClockCycleLength"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register> 
+
+        <register name="JtagClockTime1"
+                  address="0002" mode="rw" purpose ="config" >
+          <description>Time of the rising edge of the TCK signal</description>
+          <field name="JtagClockTime1"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register> 
+
+        <register name="JtagClockTime2"
+                  address="0003" mode="rw" purpose ="config" >
+          <description>Time of the falling edge of the TCK signal</description>
+          <field name="JtagClockTime2"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register> 
+
+        <register name="JtagClockSample1"
+                  address="0004" mode="rw" purpose ="config" >
+          <description>First reading of TDO signal</description>
+          <field name="JtagClockSample1"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register> 
+
+        <register name="JtagClockSample2"
+                  address="0005" mode="rw" purpose ="config" >
+          <description>Second reading of TDO signal</description>
+          <field name="JtagClockSample2"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register> 
+
+        <register name="JtagClockSample3"
+                  address="0006" mode="rw" purpose ="config" >
+          <description>Third reading of TDO signal</description>
+          <field name="JtagClockSample3"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register>         
+
+        <register name="JtagSetDataTime"
+                  address="0007" mode="rw" purpose ="config" >
+          <description>Time of change on TDO and TMS signals</description>
+          <field name="JtagSetDataTime"
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register>  
+        
+        <register name="JtagDelayExpectValue"
+                  address="0008" mode="rw" purpose ="config" >
+          <description>Delay of the return signal in TCK cycles</description>
+          <field name="JtagDelayExpectValue"
+                start="0" bits="2"  mode="rw"  purpose="config"  format="unsigned">
+          </field>
+        </register>  
+      </group>
+
+      <group name="JtagChainStatus"
+            address="0010"   size="5"   purpose="status" mode="r" continuous="true">
+        <description>Status information about the JTAG chain</description>
+        
+        <register name="JtagRunCount"
+                  address="0000" mode="r" purpose ="status" >
+          <description>Number of JTAG cycles</description>
+          <field name="JtagRunCount"
+                start="0" bits="32"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+
+        <register name="JtagNumchipsActive"
+                  address="0001" mode="r" purpose ="status" >
+          <description>Number of activated chips in chain</description>
+          <field name="JtagNumchipsActive"
+                start="0" bits="4"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+
+        <register name="JtagTriggerCount"
+                  address="0002" mode="r" purpose ="status" >
+          <description>Number of JTAG cycle triggers (aka off-spill triggers)</description>
+          <field name="JtagTriggerCount"
+                start="0" bits="32"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+
+        <register name="JtagLastNotRemoved"
+                  address="0003" mode="r" purpose ="status" >
+          <description>Number of the last, not removed sensor in the chain</description>
+          <field name="JtagLastNotRemoved"
+                start="0" bits="4"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+
+        <register name="JtagCrcStatus"
+                  address="0004" mode="r" purpose ="status" >
+          <description>Flags for each sensor, set if CRC of read-back values matched</description>
+          <field name="JtagCrcStatus"
+                start="0" bits="32"  mode="r"  purpose="status"  format="bitmask">
+          </field>
+        </register>          
+
+      </group>
+
+      <group name="JtagChainControl"
+            address="0040"   size="4"   purpose="config" mode="rw" continuous="true">
+        <description>Control registers for the JTAG chain</description>
+        
+        <register name="JtagStart"
+                  address="0000" mode="rw" purpose ="config" >
+          <description>Control operation of JTAG chain</description>
+          <field name="JtagRefreshActive"
+                start="0" bits="1"  mode="rw"  purpose="config"  format="boolean">
+            <description>Activates waiting for the Off-Spill-Trigger. i.e. activates the JTAG refresh (jtag_refresh_active)</description>
+          </field>
+          <field name="JtagCheck1Active"
+                start="1" bits="1"  mode="rw"  purpose="config"  format="boolean">
+            <description>Disables writing to JTAG registers, read-back only (jtag_check1_active)</description>
+          </field>
+        </register>  
+        
+        <register name="JtagRemoveSensor"
+                  address="0001" mode="w" purpose ="config" >
+          <description>Control register to insert or remove individual sensors from the chain</description>
+          <field name="JtagRemoveSensorNumber"
+                start="0" bits="4"  mode="w"  purpose="config"  format="unsigned">
+            <description>The number of the sensor that should be removed or inserted</description>
+          </field>
+          <field name="JtagRemoveSensorState"
+                start="31" bits="1"  mode="w"  purpose="config"  format="boolean">
+            <description>Selects whether the sensor should be removed (1) or inserted (0)</description>
+          </field>
+        </register>    
+        
+        <register name="JtagCsOptions"
+                  address="0002" mode="rw" purpose ="config" >
+          <description>Set CS Options</description>
+          <field name="JtagBypassTestchain"
+                start="0" bits="1"  mode="rw"  purpose="config"  format="boolean">
+            <description>Skip bypass_reg_testchain if set</description>
+          </field>
+        </register>   
+        
+        <register name="JtagRamBaseAddr"
+                  address="0003" mode="rw" purpose ="config" >
+          <description>Set CS Options</description>
+          <field name="JtagRamBaseAddr"
+                start="0" bits="4"  mode="rw"  purpose="config"  format="unsigned">
+            <description>Base address for JTAG register RAM</description>
+          </field>
+        </register>   
+      </group>  
+
+      <group name="JtagChainDebug"
+            address="0050"   size="8"   purpose="config" mode="rw" continuous="true">
+        <description>Control registers for the JTAG chain debugging</description>
+     
+        <register name="JtagSetBreakpoint"
+                  address="0000" mode="rw" purpose ="config" >
+          <description>Set Breakpoint to stop state machine according to VHDL code</description>
+          <field name="JtagSetBreakpoint"
+                start="0" bits="8"  mode="rw"  purpose="config"  format="hex">
+          </field>
+        </register>  
+              
+        <register name="JtagCopyRam3"
+                  address="0001" mode="rw" purpose ="trigger" >
+          <description>Trigger copy of error counter RAM</description>
+          <field name="JtagCopyRam3"
+                start="0" bits="1"  mode="rw"  purpose="config"  format="boolean">
+          </field>
+        </register>        
+  
+        <register name="JtagCopyRam1"
+                  address="0002" mode="w" purpose ="trigger" >
+          <description>Trigger copy of JTAG read-back RAM</description>
+          <field name="JtagCopyRamReadError"
+                start="0" bits="1"  mode="w"  purpose="trigger"  format="boolean">
+            <description>Trigger copy of JTAG read-back RAM on read error</description>
+          </field>
+          <field name="JtagCopyRamWriteError"
+                start="1" bits="1"  mode="w"  purpose="trigger"  format="boolean">
+            <description>Trigger copy of JTAG read-back RAM on write error</description>
+          </field>
+          <field name="JtagCopyRamDataChanged"
+                start="2" bits="1"  mode="w"  purpose="trigger"  format="boolean">
+            <description>Trigger copy of JTAG read-back RAM on data changed</description>
+          </field>
+          <field name="JtagCopyRamNextRun"
+                start="3" bits="1"  mode="w"  purpose="trigger"  format="boolean">
+            <description>Trigger copy of JTAG read-back RAM after next run</description>
+          </field>
+        </register> 
+        
+        <register name="JtagFsmState"
+                  address="0003" mode="r" purpose ="status" >
+          <description>Trigger copy of error counter RAM</description>
+          <field name="JtagFsmState"
+                start="0" bits="8"  mode="r"  purpose="status"  format="hex">
+          </field>
+        </register>  
+        
+        <register name="JtagRam1RunCounter"
+                  address="0004" mode="r" purpose ="status" >
+          <description>Run counter at the time RAM1 was copied</description>
+          <field name="JtagRam1RunCounter"
+                start="0" bits="32"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+        <register name="JtagRam1ChainStatus"
+                  address="0005" mode="r" purpose ="status" >
+          <description>Chain status at the time RAM1 was copied</description>
+          <field name="JtagRam1ChainStatus"
+                start="0" bits="32"  mode="r"  purpose="status"  format="hex">
+          </field>
+        </register>          
+
+        <register name="JtagRam3RunCounter"
+                  address="0006" mode="r" purpose ="status" >
+          <description>Run counter at the time RAM3 was copied</description>
+          <field name="JtagRam3RunCounter"
+                start="0" bits="32"  mode="r"  purpose="status"  format="unsigned">
+          </field>
+        </register>          
+        <register name="JtagRam3ChainStatus"
+                  address="0007" mode="r" purpose ="status" >
+          <description>Chain status at the time RAM3 was copied</description>
+          <field name="JtagRam3ChainStatus"
+                start="0" bits="32"  mode="r"  purpose="status"  format="hex">
+          </field>
+        </register> 
+
+      </group>  
+
+    </group>
+    <register name="JtagErrorCounters"
+                address="0300"  repeat="256"  purpose="status"  mode="r">
+      <description>RAM with error counters for individual registers and sensors. Needs to be updated via slow-control command</description>
+      <field name="JtagErrorCounters"
+              start="0" bits="32" mode="r"  purpose="status"  format="unsigned" >
+        <description>Error Counters for JTAG registers</description>
+      </field>        
+    </register>    
   </group>
 </TrbNetEntity>
 

@@ -22,7 +22,7 @@ my @new_cmds = split('\n',$cmds);
 
 foreach my $c (@new_cmds) {
   chomp $c;
-  my $call = "$executable $dev_ip $c 2>&1";
+  my $call = "$executable $dev_ip \"$c\" 2>&1";
   my @o = qx($call);
   if($c =~ /\?/) {
     foreach my $l (@o) {

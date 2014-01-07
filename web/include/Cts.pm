@@ -34,7 +34,8 @@ sub new {
    
    $self->{'_enumCache'} =  $enumCache if ref $enumCache;
    
-   my $static = $self->_loadModule("Static") or die("Error while loading mandantory module >CtsModStatic<");
+   my $static = $self->_loadModule("Static") or exit; #die("Error while loading mandantory module >CtsModStatic<");
+ 
    $static->register();
    
    $self->_enumerateTriggerLogic();

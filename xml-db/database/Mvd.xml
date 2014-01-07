@@ -1,0 +1,401 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Mvd"
+              address="8000"
+              >
+  <description>Registers for the MVD ROC</description>
+  <group name="ReadoutController" address="0000" size="1024" repeat="2">
+  <group name="RocStatus"
+         address="0000"  size="13"  purpose="status"  mode="r"  continuous="true">
+
+    <register name="RocInput" address="0000" purpose="status">
+      <description>Status information of the ROC input buffer</description>
+      <field name="FifoEmpty" start="0" bits="1" format="boolean" noflag="1" >
+        <description>The input data fifo is empty</description>
+      </field>
+      <field name="FifoFull" start="2" bits="1" format="boolean" errorflag="true" >
+        <description>The input data fifo is full</description>
+      </field>
+      <field name="DataOut" start="4" bits="2" format="binary" noflag="1" >
+        <description>The input data lines after the fifo</description>
+      </field>
+      <field name="DataValid" start="7" bits="1" format="boolean" noflag="1" >
+        <description>The input data is valid</description>
+      </field>
+      <field name="ClockActive" start="8" bits="1" format="boolean" invertflag="true" errorflag="true" >
+        <description>The input clock is active</description>
+      </field>
+      <field name="ClockCounter" start="12" bits="8" format="hex"  noflag="1" >
+        <description>Counter to check activity of the input data clock</description>
+      </field>
+      <field name="ToggleFF" start="20" bits="4" format="bitmask" noflag="true" >
+        <description>Toggle Flipflop monitoring changes on the input data clock</description>
+      </field>
+      <field name="InputReset" start="24" bits="1" format="bitmask" errorflag="true" >
+        <description>Reset signal of the input fifo</description>
+      </field>
+      <field name="Counter" start="28" bits="4" format="unsigned"  noflag="1" >
+        <description>Counter to check activity of the input data clock</description>
+      </field>
+    </register>
+    
+    <register name="RocShiftReg" address="0001" purpose="status">
+      <description>Content of the two data shift registers to parallelize MAPS data</description>
+      <field name="ShiftReg0" start="0" bits="16" format="hex" noflag="true" >
+        <description>Content of the first data shift register</description>
+      </field>      
+      <field name="ShiftReg1" start="16" bits="16" format="hex" noflag="true" >
+        <description>Content of the second data shift register</description>
+      </field>      
+    </register>
+
+    <register name="RocRawData" address="0002" purpose="status">
+      <description>MAPS data after detection of 16 bit boundary</description>
+      <field name="RawData0" start="0" bits="16" format="hex"  noflag="true" >
+        <description>Data word on the first data channel</description>
+      </field>      
+      <field name="RawData1" start="16" bits="16" format="hex"  noflag="true" >
+        <description>Data word on the second data channel</description>
+      </field>      
+    </register>
+    
+    <register name="RocWordStatus" address="0003" purpose="status">
+      <description>Status of the data parallelization</description>
+      <field name="RawValid" start="0" bits="1" format="boolean" noflag="true" >
+        <description>Dataready flag for data word output</description>
+      </field>      
+      <field name="RawBitPos" start="4" bits="4" format="hex" noflag="true" >
+        <description>Bit counter for word alignment</description>
+      </field>
+      <field name="RawStart" start="8" bits="1" format="boolean"  >
+        <description>Word Aligner is started</description>
+      </field>
+      <field name="RawRun" start="9" bits="1" format="boolean"  >
+        <description>Word Aligner is running</description>
+      </field>
+      <field name="RawTrailer" start="12" bits="1" format="boolean" noflag="true" >
+        <description>Frame trailer has been detected</description>
+      </field>           
+      <field name="RawHeader" start="13" bits="1" format="boolean" noflag="true" >
+        <description>Frame header has been detected</description>
+      </field>
+      <field name="RawTrailerLate" start="15" bits="1" format="boolean" errorflag="true" >
+        <description>Frame trailer is too late</description>
+      </field>
+      <field name="RawTimer" start="16" bits="16" format="unsigned" >
+        <description>Bit count since start of frame</description>
+      </field>
+    </register>    
+    
+    <register name="RocDataHandler1" address="0004" purpose="status">
+      <description>Status of the ROC data handler</description>
+      <field name="FrameTooLong" start="4" bits="1" format="boolean" errorflag="true" >
+        <description>The current frame contains too many data words</description>
+      </field>      
+      <field name="WordDistance" start="8" bits="8" format="unsigned"  >
+        <description>Counter for time between two data words from sensor</description>
+      </field>
+      <field name="DataLength" start="16" bits="16" format="unsigned"  >
+        <description>Number of data words of the current frame</description>
+      </field>
+    </register>
+
+    <register name="RocDataHandler2" address="0005" purpose="status">
+      <description>Status of the ROC data handler</description>
+      <field name="DataHandlerBusy" start="0" bits="1" format="boolean" noflag="true" >
+        <description>Data Handler is busy</description>
+      </field>      
+      <field name="DlenWrite" start="4" bits="1" format="boolean" noflag="true" >
+        <description>Data length valid strobe</description>
+      </field>      
+      <field name="DataTimeout" start="8" bits="1" format="boolean" errorflag="true" >
+        <description>Strobe signal if distance between two words is too long</description>
+      </field> 
+    </register>
+
+    <register name="RocDataChecker" address="0006" purpose="status">
+      <description>Status of the ROC data checker</description>
+      <field name="DataErrorCode" start="0" bits="8" format="enum"  >
+        <description>Code of the last found error</description>
+        <enumItem value="1">NoHeader</enumItem>
+        <enumItem value="2">FrameNumberError</enumItem>
+        <enumItem value="3">LengthMismatch</enumItem>
+        <enumItem value="4">LengthBroken</enumItem>
+        <enumItem value="5">PCountNotZero</enumItem>
+        <enumItem value="6">DCountNotZero</enumItem>
+        <enumItem value="7">DCountBroken</enumItem>
+        <enumItem value="8">BadStateCount</enumItem>
+        <enumItem value="9">BadRowNumber</enumItem>
+        <enumItem value="a">BadRowHeader</enumItem>
+        <enumItem value="b">BadColumnNumber</enumItem>
+        <enumItem value="c">RowsNotOrdered</enumItem>
+        <enumItem value="e">PCountNotZero</enumItem>
+        <enumItem value="f">DCountNotZero</enumItem>
+        <enumItem value="11">BadStateCount</enumItem>
+        <enumItem value="12">BadRowNumber</enumItem>
+        <enumItem value="13">BadRowHeader</enumItem>
+        <enumItem value="14">BadColumnNumber</enumItem>
+        <enumItem value="15">RowsNotOrdered</enumItem>
+        <enumItem value="16">ColumnNotOrdered</enumItem>
+        <enumItem value="17">PCountBroken</enumItem>
+        <enumItem value="18">CountBroken</enumItem>
+        <enumItem value="19">BadColumnNumber1</enumItem>
+        <enumItem value="1a">BadColumnNumber2</enumItem>
+        <enumItem value="1b">ColumnNotOrdered1</enumItem>
+        <enumItem value="1c">ColumnNotOrdered2</enumItem>
+        <enumItem value="1d">Error</enumItem>
+      </field>      
+     <field name="DataCheckerState" start="8" bits="4" format="enum"  >
+        <description>State of the data checker</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">FrameNum</enumItem>
+        <enumItem value="3">Dlen</enumItem>
+        <enumItem value="4">RowCol</enumItem>
+        <enumItem value="5">ColRow</enumItem>
+        <enumItem value="6">ColCol</enumItem>
+      </field>
+      <field name="PCount" start="12" bits="4" format="unsigned"  >
+        <description>State counter</description>
+      </field>
+      <field name="DCount" start="16" bits="16" format="unsigned"  >
+        <description>Data word counter</description>
+      </field>
+    </register>    
+
+    <register name="RocChainController" address="0007" purpose="status">
+      <description>Status of the ROC data checker</description>
+      <field name="ChainControllerState" start="0" bits="4" format="enum"  >
+        <description>State of the data checker</description>
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">Start</enumItem>
+        <enumItem value="3">TriggerData</enumItem>
+        <enumItem value="4">WaitMDH</enumItem>
+        <enumItem value="5">WaitBusy</enumItem>
+        <enumItem value="6">Discard</enumItem>
+      </field>
+      <field name="FramesBuffered" start="4" bits="4" format="unsigned"  >
+        <description>Number of buffered frames</description>
+      </field>    
+      <field name="FrameBufferUnderflow" start="8" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Underflow</description>
+      </field> 
+      <field name="FrameBufferOverflow" start="9" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Overflow</description>
+      </field> 
+      <field name="HeaderDistTimeout" start="10" bits="1" format="boolean" errorflag="true"  >
+        <description>Header Timeout</description>
+      </field> 
+      <field name="ResetDetected" start="11" bits="1" format="boolean" errorflag="true"  >
+        <description>There was a header, but the trailer of the last frame was not seen before</description>
+      </field> 
+      <field name="HeaderFound" start="12" bits="1" format="boolean"  >
+        <description>Header found, frame active</description>
+      </field>       
+      <field name="FrameTime" start="16" bits="16" format="unsigned"  >
+        <description>Clock cycles between the last two header words</description>
+      </field>        
+    </register>
+    
+    <register name="FrameStatus1" address="0008" purpose="status">
+      <description>Status flags for the last frame. Values are updated after a frame as been finished. This register contains bits 0 to 15 of the status word also present in the data files.</description>
+      <field name="IsActive" start="0" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>Sensor was all the time active during readout</description>
+      </field>  
+      <field name="WasActive" start="1" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>Sensor is currently active</description>
+      </field>  
+      <field name="BufStop" start="2" bits="1" format="boolean"  errorflag="true" invertflag="true">
+        <description>The TrbNet buffers are OK</description>
+      </field>  
+      <field name="Completed" start="3" bits="1" format="boolean" >
+        <description>Frame Complete (Data Checker status bit 31)</description>
+      </field>  
+      <field name="CheckerError" start="4" bits="1" format="boolean"  errorflag="true" >
+        <description>Data checker discovered errors</description>
+      </field>        
+      <field name="WordTimeout" start="5" bits="1" format="boolean"  errorflag="true" >
+        <description>Distance between two words too long</description>
+      </field>        
+      <field name="TrailerTimeout" start="6" bits="1" format="boolean"  errorflag="true" >
+        <description>Distance between header and trailer too long</description>
+      </field>        
+      <field name="ResetFound" start="7" bits="1" format="boolean"  errorflag="true" >
+        <description>Reset Detected (2x Header and no Trailer in between)</description>
+      </field>   
+      <field name="NoHeader" start="8 " bits="1" format="boolean"  errorflag="true" > 
+        <description>Received package is not a Header in IDLE state (Data Checker 1)</description>
+      </field>
+      <field name="WrongFrame" start="9 " bits="1" format="boolean"  errorflag="true" > 
+        <description>Frame number is not in the ascending order (Data Checker 2)</description>
+      </field>
+      <field name="DlenMismatch" start="10" bits="1" format="boolean"  errorflag="true" > 
+        <description>Datalengths are not same on both channels (Data Checker 3)</description>
+      </field>
+      <field name="DlenTooLarge" start="11" bits="1" format="boolean"  errorflag="true" > 
+        <description>Datalength is larger than 570 (Data Checker 4)</description>
+      </field>
+      <field name="StateMismatch" start="12" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter is 0, but the 'state' counter is not 0 (Data Checker 5)</description>
+      </field>
+      <field name="DlenWrong1" start="13" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter is not 0 on Trailer package (Data Checker 6)</description>
+      </field>
+      <field name="DlenWrong2" start="14" bits="1" format="boolean"  errorflag="true" > 
+        <description>Data counter turned 0 during normal package readout (Data Checker 7)</description>
+      </field>
+      <field name="WrongState" start="15" bits="1" format="boolean"  errorflag="true" > 
+        <description>Number of states is not between 1 and 9 (Data Checker 8)</description>
+      </field>
+    </register>         
+      
+    <register name="FrameStatus2" address="0009" purpose="status">
+      <description>Status flags for the last frame. Values are updated after a frame as been finished. This register contains bits 16 to 31 of the status word also present in the data files.</description>
+      <field name="WrongRow" start="16" bits="1" format="boolean"  errorflag="true" > 
+        <description>Matrix row address is larger than 575 (Data Checker 9)</description>
+      </field>
+      <field name="WrongOverflow" start="17" bits="1" format="boolean"  errorflag="true" > 
+        <description>Overflow bit is set, but less than 9 states are present (Data Checker 10)</description>
+      </field>
+      <field name="WrongColumn" start="18" bits="1" format="boolean"  errorflag="true" > 
+        <description>Matrix column address is larger than 1151 (Data Checker 11)</description>
+      </field>
+      <field name="RowUnsorted" start="19" bits="1" format="boolean"  errorflag="true" > 
+        <description>Row address inconsistent (row is lower than the one before) (Data Checker 12)</description>
+      </field>
+      <field name="ColumnUnsorted" start="20" bits="1" format="boolean"  errorflag="true" > 
+        <description>Column address inconsistent (column is lower than the one before) (Data Checker 13)</description>
+      </field>
+      <field name="StateError" start="21" bits="1" format="boolean"  errorflag="true" > 
+        <description>State counter is not 1 in the COLROW state (Data Checker 14)</description>
+      </field>
+      <field name="WrongColumn2" start="22" bits="1" format="boolean"  errorflag="true" > 
+        <description>Wrong column address on channel 2 in COLCOL state (Data Checker 15)</description>
+      </field>
+      <field name="DlenBufError" start="23" bits="1" format="boolean"  errorflag="true" >
+        <description>Frame Writer datalength error - FIFO empty</description>
+      </field>      
+      <field name="BuffersStop" start="24" bits="1" format="boolean"  errorflag="true" >
+        <description>Buffers Stop</description>
+      </field>
+      <field name="HeaderTimeout" start="25" bits="1" format="boolean" errorflag="true" >
+        <description>Distance between header and header too long</description>
+      </field>  
+      <field name="FrameOverflow" start="26" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Overflow</description>
+      </field> 
+      <field name="FrameUnderflow" start="27" bits="1" format="boolean" errorflag="true"  >
+        <description>Frame Buffer Underflow</description>
+      </field>
+      <field name="CheckerStatus" start="30" bits="1" format="boolean" noflag="true" >
+        <description>Trailer detected, going back to IDLE (Data Checker 30)</description>
+      </field> 
+      <field name="FrameReady" start="31" bits="1" format="boolean" >
+        <description>Status is ready</description>
+      </field> 
+    </register>    
+    
+    <register name="FrameBufferLevel" address="000a" purpose="status">
+      <description>Fill-level of the frame buffer</description>
+      <field name="DataLevel" start="0" bits="16" format="unsigned" noflag="true" >
+        <description>Number of data words stored in the frame data buffer</description>
+      </field>        
+      <field name="LengthLevel" start="16" bits="4" format="unsigned" noflag="true" >
+        <description>Number of data words stored in the frame length buffer</description>
+      </field>        
+    </register>
+
+    <register name="FrameBufferStatus" address="000b" purpose="status">
+      <description>Status flags for the frame buffer</description>
+      <field name="DataBufferFull" start="0" bits="1" format="boolean"  errorflag="true" > 
+        <description>The frame data buffer is full</description>
+      </field>
+      <field name="LengthBufferFull" start="1" bits="1" format="boolean"  errorflag="true" > 
+        <description>The frame length buffer is full</description>
+      </field>
+      <field name="DataBufferEmpty" start="2" bits="1" format="boolean"  > 
+        <description>The frame data buffer is full</description>
+      </field>
+      <field name="LengthBufferEmpty" start="3" bits="1" format="boolean"  > 
+        <description>The frame length buffer is full</description>
+      </field>
+      <field name="FrameBufferStop" start="4" bits="1" format="boolean" errorflag="true" > 
+        <description>The buffers are almost full, no more frames can be stored. Data will be discarded</description>
+      </field>
+    </register>
+  
+    <register name="DataFormatter" address="000c" purpose="status">
+      <description>Status of the data formatter</description>
+      <field name="DataFormatter" start="0" bits="5" format="enum" >
+        <enumItem value="1">Idle</enumItem>
+        <enumItem value="2">GetDlen</enumItem>
+        <enumItem value="3">Format1</enumItem>
+        <enumItem value="4">Format2</enumItem>
+        <enumItem value="5">Format3</enumItem>
+        <enumItem value="6">Format4</enumItem>
+        <enumItem value="7">Format5</enumItem>
+        <enumItem value="8">Format6</enumItem>
+        <enumItem value="9">Format7</enumItem>
+        <enumItem value="a">Read</enumItem>
+        <enumItem value="b">Write1</enumItem>
+        <enumItem value="c">Write2</enumItem>
+        <enumItem value="d">Finish</enumItem>
+        <enumItem value="e">Done</enumItem>
+      </field>
+    </register>
+  </group>
+  
+  <group name="RocStatistics"
+         address="0010"  size="16"  purpose="status"  mode="r"  continuous="true" rate="1">
+    <register name="HeadersDetected" address="0000" >
+      <description>Number of detected headers</description>
+      <field name="HeadersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>
+    <register name="TrailersDetected" address="0001" >
+      <description>Number of detected trailers</description>
+      <field name="TrailersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>  
+    <register name="TrailersLate" address="0002" >
+      <description>Number of time-outs waiting for a trailer</description>
+      <field name="TrailersLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>  
+    <register name="DataWordsLate" address="0003" >
+      <description>Number of time-outs waiting for the next data word</description>
+      <field name="DataWordsLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>  
+    <register name="TooMuchData" address="0004" >
+      <description>Too many data words in one frame. Trailer was expected!</description>
+      <field name="TooMuchData" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>      
+    <register name="ResetsDetected" address="0005" >
+      <description>Number of resets of the sensor detected</description>
+      <field name="ResetsDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>      
+    <register name="HeadersTimeout" address="0006" >
+      <description>Number of timeouts waiting for the next header</description>
+      <field name="HeadersTimeout" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>     
+    <register name="DlengthsWrong" address="0007" >
+      <description>Number of wrong data lengths</description>
+      <field name="DlengthsWrong" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    </register>     
+    <register name="FramesCompleted" address="0008" >
+      <description>Number of completed frames</description>
+      <field name="FramesCompleted" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>        
+    <register name="TrgReleases" address="0009" >
+      <description>Number of released frame triggers</description>
+      <field name="TrgReleases" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
+    <register name="TrgReceived" address="000a" >
+      <description>Number of frame triggers received</description>
+      <field name="TrgReceived" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
+    <register name="DataWords" address="000b" >
+      <description>Number of data words written to frame buffer</description>
+      <field name="DataWords" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register> 
+  </group>
+  
+  </group>
+</TrbNetEntity>

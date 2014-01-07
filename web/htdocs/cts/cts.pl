@@ -10,6 +10,34 @@ use CtsCommands;
 
 use File::Basename;
 
+our $endpoint;
+use Carp;
+$SIG{ __DIE__ } = sub { 
+   my $error = $_[0];
+
+   print 'HTTP/1.0 500 INTERNAL SERVER ERROR';
+   print "\r\nContent-Type: text/html;\r\n\r\n";
+
+   print "<pre>\r\n";
+
+   if ($error =~ /unknown address/ and $error =~ /trb_register_read/ and $error =~ /0xa[012]/) {
+      printf("Endpoint (0x%04x) responded, but could not read CTS registers. Does the endpoint contain a CTS?\n" . 
+      "If the CTS uses a different address, change the default endpoint address in\n" . 
+      "htdocs/CtsConfig.pm, or use the --endpoint parameter when starting the CTS tool.", $endpoint);
+      
+   } elsif ($error =~ /no endpoint has been reached/) {
+      printf("Endpoint (0x%04x) not reached. Please ensure that \n" . 
+      "(1) the correct DAQOPSERVER is used and\n" .
+      "(2) the CTS is configured to this address.\n" .
+      "If the CTS uses a different address, change the default endpoint address in\n" . 
+      "htdocs/CtsConfig.pm, or use the --endpoint parameter when starting the CTS tool.", $endpoint);
+   }
+   
+   print "\n\n\n--------------------- More details error description ------------------------------\n";
+   print $error;
+   
+   print "</pre>\r\n";
+};   
 
 BEGIN {
    if (eval "require JSON::PP;") {
@@ -41,7 +69,7 @@ sub printHeader {
 sub connectToCTS {
    my $trb;
 
-   my $endpoint = CtsConfig->getDefaultEndpoint;
+   $endpoint = CtsConfig->getDefaultEndpoint;
    my $cache = {'enumCache' => 0};
    
    my $port = int $ENV{'SERVER_PORT'};
@@ -71,6 +99,8 @@ sub connectToCTS {
 
 
 my $cts = connectToCTS( );
+
+#print Dumper $cts;
 
 my $query = $ENV{'QUERY_STRING'};
 

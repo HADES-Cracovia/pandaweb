@@ -1,0 +1,4 @@
+#!/bin/sh
+
+trbcmd w  0x3800 0x8240 1
+trbcmd rm 0x3800 0x8200 46 0

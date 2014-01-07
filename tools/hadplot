@@ -142,7 +142,7 @@ if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
 
 #Open Gnuplot
 our $fh;
-my $fn = "gnuplot -geometry $geom -bg 'ghost white'";
+my $fn = "gnuplot -noraise -geometry $geom -bg 'ghost white'";
 $fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
 $fh->autoflush(1);
 
@@ -562,6 +562,7 @@ Options:
   -windowname     Name of window (shown in titlebar after "Hadplot - "
   -timeref        In a differential plot, the endpoint with this addressis used for timestamping
   -(x|y)scale     Scaling factor, the x/y values are divided by
+  -(x|y)min       Minimal value for x/y axis
   -(x|y)max       Maximal value for x/y axis
   -(x|y)title     Label for axes
   -xistime        Marks x axis as containing time stamps (used for formatting)

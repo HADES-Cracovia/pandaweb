@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd /home/rich/TRB/trbsoft/daqtools/users/tum_e12
+. ./setenv.sh
+start_trbnet.sh
+trbcmd reset
+trbdhcp
+configure_eb.sh
+configure_cts.sh
+
+xterm -e "cd ../../web; cts_gui --port 1234 --noopenxterm --quiet" &

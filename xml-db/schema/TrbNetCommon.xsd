@@ -58,11 +58,13 @@
   <xs:simpleType name="formattype">
     <xs:restriction base="xs:string">
       <xs:enumeration value="raw"/>
+      <xs:enumeration value="float"/>
       <xs:enumeration value="integer"/>
       <xs:enumeration value="signed"/>
       <xs:enumeration value="unsigned"/>
       <xs:enumeration value="hex"/>
       <xs:enumeration value="bitmask"/>
+      <xs:enumeration value="binary"/>
       <xs:enumeration value="boolean"/>
       <xs:enumeration value="time"/>
       <xs:enumeration value="string"/>
@@ -84,15 +86,20 @@
   <xs:attribute name="defaultValue" type="xs:string" />
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
+  <xs:attribute name="formatstring" type="xs:string" />
   <xs:attribute name="continuous"   type="xs:boolean" />
   <xs:attribute name="repeat"       type="xs:positiveInteger" />
   <xs:attribute name="errorflag"    type="xs:boolean" />
+  <xs:attribute name="invertflag"   type="xs:boolean" />
+  <xs:attribute name="noflag"       type="xs:boolean" />  <!--Don't put green/red color-->
+  <xs:attribute name="rate"         type="xs:boolean" />  <!--This value shows a rate -->
   <!-- unit and scale give information about how to interpret data. a
        numerical scaling factor and/or a physical unit. E.g.
        temperature measured in 1/16th degrees will be ".0625" and "°C"
   -->
   <xs:attribute name="unit"         type="xs:string" />
   <xs:attribute name="scale"        type="xs:double" />
+  <xs:attribute name="scaleoffset"  type="xs:double" />
 
 
   <!--==============================
@@ -148,6 +155,7 @@
       <xs:attribute ref="mode" />
       <xs:attribute ref="format" />
       <xs:attribute ref="repeat" />
+      <xs:attribute ref="rate" />
 
     </xs:complexType>
 
@@ -195,13 +203,18 @@
          can be specified here -->
     <xs:attribute ref="defaultValue" />
     <xs:attribute ref="format" />
+    <xs:attribute ref="formatstring" />
     <xs:attribute ref="repeat" />
     <xs:attribute ref="unit" />
     <xs:attribute ref="scale" />
+    <xs:attribute ref="scaleoffset" />
     <!-- if PERL evaluates this field to true,
          an error is indicated by this field -->
     <xs:attribute ref="errorflag" />
-      </xs:complexType>
+    <xs:attribute ref="invertflag" />
+    <xs:attribute ref="noflag" />    
+    <xs:attribute ref="rate" />
+    </xs:complexType>
     <xs:unique name="UniqueEnumItems">
       <xs:selector xpath="enumItem" />
       <xs:field xpath="@value" />
@@ -217,6 +230,7 @@
     <xs:attribute ref="address" />
     <xs:attribute ref="mode" />
     <xs:attribute ref="purpose" />
+    <xs:attribute ref="rate" />
   </xs:complexType>
 
 
