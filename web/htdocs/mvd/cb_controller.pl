@@ -26,10 +26,15 @@ $setup[1]->{cmd}     = "CbController-0xfe4d-CbSpiRam";
 $setup[1]->{period}  = 1000;
 $setup[1]->{address} = 1;
 
-$setup[2]->{name}    = "UcRegs";
-$setup[2]->{cmd}     = "CbController-0xfe4d-CbUcRegs";
+$setup[2]->{name}    = "ADC";
+$setup[2]->{cmd}     = "CbController-0xfe4d-CbAdc";
 $setup[2]->{period}  = 1000;
 $setup[2]->{address} = 1;
+
+$setup[3]->{name}    = "UcRegs";
+$setup[3]->{cmd}     = "CbController-0xfe4d-CbUcRegs";
+$setup[3]->{period}  = 1000;
+$setup[3]->{address} = 1;
 
 xmlpage::initPage(\@setup,$page);
  

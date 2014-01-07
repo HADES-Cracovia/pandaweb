@@ -103,10 +103,162 @@
     </register>
   </group>
   
+  <group name="CbAdc"
+         address="0100" size="32" purpose="status" mode="r" continuous="true">
+    <group name="AdcSensor" size="16" repeat="2">
+      <register name="CurrentDigital" address="0000">
+        <description>Current on the digital power supply.</description>
+        <field name="CurrentDigitalD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+        </field>
+        <field name="CurrentDigitalTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="CurrentAnalog" address="0001">
+        <description>Current on the analog power supply.</description>
+        <field name="CurrentAnalogD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+        </field>
+        <field name="CurrentAnalogTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageDigital" address="0002">
+        <description>Voltage of the digital power supply, sensed at the FEB</description>
+        <field name="VoltageDigitalD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.058376" >
+        </field>
+        <field name="VoltageDigitalTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageAnalog" address="0003">
+        <description>Voltage of the analog power supply, sensed at the FEB</description>
+        <field name="VoltageAnalogD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.058376" >
+        </field>
+        <field name="VoltageAnalogTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageGnd" address="0004">
+        <description>Voltage on the ground sense line from the FEB</description>
+        <field name="VoltageGndD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VoltageGndTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="SensorTemperature" address="0005">
+        <description>Voltage measured at the Temperature diode, relative to Gnd sense</description>
+        <field name="SensorTemperatureD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="SensorTemperatureTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="ZeroSingle" address="0006">
+        <description>Zero calibration of amplifier, single ended</description>
+        <field name="ZeroSingleD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="ZeroSingleTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="ZeroDifferential" address="0007">
+        <description>Zero calibration of amplifier, differential</description>
+        <field name="ZeroDifferentialD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="ZeroDifferentialTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VDiscRef1A" address="0008">
+        <description>Discriminator reference voltage A, absolute value</description>
+        <field name="VDiscRef1AD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRef1ATS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="VDiscRef1B" address="0009">
+        <description>Discriminator reference voltage B, absolute value</description>
+        <field name="VDiscRef1BD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRef1BTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRef1C" address="000a">
+        <description>Discriminator reference voltage C, absolute value</description>
+        <field name="VDiscRef1CD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRef1CTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRef1D" address="000b">
+        <description>Discriminator reference voltage D, absolute value</description>
+        <field name="VDiscRef1DD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRef1DTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>         
+      <register name="VDiscRefA" address="000c">
+        <description>Discriminator reference voltage A, differential 1-2</description>
+        <field name="VDiscRefAD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRefATS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="VDiscRefB" address="000d">
+        <description>Discriminator reference voltage B, differential 1-2</description>
+        <field name="VDiscRefBD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRefBTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRefC" address="000e">
+        <description>Discriminator reference voltage C, differential 1-2</description>
+        <field name="VDiscRefCD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRefCTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRefD" address="000f">
+        <description>Discriminator reference voltage D, differential 1-2</description>
+        <field name="VDiscRefDD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        </field>
+        <field name="VDiscRefDTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>  
+    </group>
+  </group>
+  
+
+
   <group name="CbSpiRam"
-         address="0100" size="256" purpose="status" mode="r" continuous="true">
-    <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="256">
-      <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller.</description>
+         address="0120" size="224" purpose="status" mode="r" continuous="true">
+    <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="224">
+      <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller. Please note that the values shown correspond to register addresses 32 to 255.</description>
       <field name="data"
              start="0" bits="16" mode="r" purpose="status" format="hex">
       </field>
