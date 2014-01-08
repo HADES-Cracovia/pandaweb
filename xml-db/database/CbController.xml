@@ -127,7 +127,7 @@
       <register name="VoltageDigital" address="0002">
         <description>Voltage of the digital power supply, sensed at the FEB</description>
         <field name="VoltageDigitalD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.058376" >
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
         </field>
         <field name="VoltageDigitalTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -136,7 +136,7 @@
       <register name="VoltageAnalog" address="0003">
         <description>Voltage of the analog power supply, sensed at the FEB</description>
         <field name="VoltageAnalogD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.058376" >
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
         </field>
         <field name="VoltageAnalogTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -154,7 +154,7 @@
       <register name="SensorTemperature" address="0005">
         <description>Voltage measured at the Temperature diode, relative to Gnd sense</description>
         <field name="SensorTemperatureD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
         <field name="SensorTemperatureTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -172,52 +172,52 @@
       <register name="ZeroDifferential" address="0007">
         <description>Zero calibration of amplifier, differential</description>
         <field name="ZeroDifferentialD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
         <field name="ZeroDifferentialTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>
-      <register name="VDiscRef1A" address="0008">
+      <register name="VDiscRef2A" address="0008">
         <description>Discriminator reference voltage A, absolute value</description>
-        <field name="VDiscRef1AD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        <field name="VDiscRef2AD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
-        <field name="VDiscRef1ATS"
+        <field name="VDiscRef2ATS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>      
-      <register name="VDiscRef1B" address="0009">
+      <register name="VDiscRef2B" address="0009">
         <description>Discriminator reference voltage B, absolute value</description>
-        <field name="VDiscRef1BD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        <field name="VDiscRef2BD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
-        <field name="VDiscRef1BTS"
+        <field name="VDiscRef2BTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>   
-      <register name="VDiscRef1C" address="000a">
+      <register name="VDiscRef2C" address="000a">
         <description>Discriminator reference voltage C, absolute value</description>
-        <field name="VDiscRef1CD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        <field name="VDiscRef2CD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
-        <field name="VDiscRef1CTS"
+        <field name="VDiscRef2CTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>   
-      <register name="VDiscRef1D" address="000b">
+      <register name="VDiscRef2D" address="000b">
         <description>Discriminator reference voltage D, absolute value</description>
-        <field name="VDiscRef1DD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+        <field name="VDiscRef2DD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
         </field>
-        <field name="VDiscRef1DTS"
+        <field name="VDiscRef2DTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>         
       <register name="VDiscRefA" address="000c">
         <description>Discriminator reference voltage A, differential 1-2</description>
         <field name="VDiscRefAD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
         </field>
         <field name="VDiscRefATS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -226,7 +226,7 @@
       <register name="VDiscRefB" address="000d">
         <description>Discriminator reference voltage B, differential 1-2</description>
         <field name="VDiscRefBD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
         </field>
         <field name="VDiscRefBTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -235,7 +235,7 @@
       <register name="VDiscRefC" address="000e">
         <description>Discriminator reference voltage C, differential 1-2</description>
         <field name="VDiscRefCD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
         </field>
         <field name="VDiscRefCTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
@@ -244,7 +244,7 @@
       <register name="VDiscRefD" address="000f">
         <description>Discriminator reference voltage D, differential 1-2</description>
         <field name="VDiscRefDD"
-              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.019073" >
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
         </field>
         <field name="VDiscRefDTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
