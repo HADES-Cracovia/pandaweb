@@ -367,7 +367,10 @@ sub generateoutput {
 sub makerate {
   my ($obj,$val,$addr,$b) = @_;
   if(defined $olddata->{$addr}->{$b}) {
-    $val -= $olddata->{$addr}->{$b};
+    my $ovalue = $olddata->{$addr}->{$b};
+    $ovalue  = $ovalue >> ($obj->{start});
+    $ovalue &= ((1<<$obj->{bits})-1);
+    $val -= $ovalue;
     }
   my $delay = $data->{time0} - $olddata->{time0};
   while ($val < 0) {

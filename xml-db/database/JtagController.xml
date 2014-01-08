@@ -157,11 +157,11 @@
                 address="0000" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
-               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of read errors during "read id" operation</description>
         </field>
         <field name="ErrorsWrite"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of read errors during write operation</description>
         </field>
       </register>
@@ -169,11 +169,11 @@
                 address="0001" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
-               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
         </field>
         <field name="ErrorsSampling"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
         </field>
       </register>
