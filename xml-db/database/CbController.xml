@@ -101,6 +101,22 @@
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
+    <register  name="Overcurrent" address="0070" purpose="status" mode="r" >
+      <description>Status of the four overcurrent detection inputs of the FPGA.</description>
+      <field name="OvCD0" start="0"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on digital voltage of sensor 0.</description>
+      </field>
+      <field name="OvCA0" start="4"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on analog voltage of sensor 0.</description>
+      </field>
+      <field name="OvCD1" start="8"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on digital voltage of sensor 1.</description>
+      </field>
+      <field name="OvCA1" start="12"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on analog voltage of sensor 1.</description>
+      </field>
+    </register>
+
   </group>
   
   <group name="CbAdc"
@@ -340,85 +356,41 @@
       
       <register  name="OvCurStatus" address="0004" purpose="config" mode="r" >
       <description></description>
-<!--      <field name="OvCA_C1" start="3" bits="1" format="bitmask" >
-      </field>
-      <field name="OvCD_C1" start="2" bits="1" format="bitmask" >
-      </field>-->
-      <field name="OvCA" start="1" bits="1" format="bitmask" >
-      <description>indicates current limit is exceeded for analog sensor power</description>
-      </field>
-      <field name="OvCD" start="0" bits="1" format="bitmask" >
-      <description>indicates current limit is exceeded for digital sensor power</description>
-      </field>
-    </register>
+        <field name="OvCA" start="1" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for analog sensor power. Register is read from uC.</description>
+        </field>
+        <field name="OvCD" start="0" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for digital sensor power Register is read from uC.</description>
+        </field>
+      </register>
       
     </group>
-
-<!--    <register  name="Switches1"
-              address="0002" purpose="config" mode="rw" >
-      <description>Set Converter Board switches for Sensor 1.</description>
-      <field name="EnaA1"
-              start="5" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable analog power for chip 1.</description>
-      </field>
-      <field name="DisA1"
-              start="4" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Discharge analog power for chip 1.</description>
-      </field>
-      <field name="EnaD1"
-              start="3" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable digital power for chip 1.</description>
-      </field>
-      <field name="DisD1"
-              start="2" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Discharge digital power for chip 1.</description>
-      </field>
-      <field name="SensorEn1"
-              start="1" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable sensor 1.</description>
-      </field>
-      <field name="JtagEn1"
-              start="0" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable JTAG for sensor 1.</description>
-      </field>
-    </register>-->
-
 
     <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
-      <description>periodically measure all reference voltages</description>
+        <description>periodically measure all reference voltages</description>
       </field>
       <field name="CyclePower" start="1" bits="1" format="bitmask" >
-      <description>periodically measure read all sensor power supply voltages/currents</description>
+        <description>periodically measure read all sensor power supply voltages/currents</description>
       </field>
       <field name="StreamSelected" start="2" bits="1" format="bitmask" >
-      <description>continuously measure the ADC channel selected by ADC_sel, MuxAddr, ZeroCalib, ADC0_chan and ADC1_chan</description>
+        <description>continuously measure the ADC channel selected by ADC_sel, MuxAddr, ZeroCalib, ADC0_chan and ADC1_chan</description>
       </field>
       <field name="ADC_sel" start="3" bits="1" format="integer" >
         <description>0 => ADC0 selected, 1=> ADC1 selected</description>
       </field>
       <field name="MuxAddr" start="4" bits="2" format="integer" >
-      <description>select reference voltage multiplexer channel</description>
+        <description>select reference voltage multiplexer channel</description>
       </field>
-<!--      <field name="MuxAddr1" start="5" bits="1" format="bitmask" >
-      </field> -->
       <field name="ZeroCalib" start="6" bits="1" format="bitmask" >
-      <description>switch to a reference zero position to calibrate the instrumentation amplifier</description>
+        <description>switch to a reference zero position to calibrate the instrumentation amplifier</description>
       </field>
       <field name="ADC0_chan" start="8" bits="3" format="integer" >
-      <description>select ADC0 channel</description>
-<!--      </field>
-      <field name="ADC0_chan1" start="9" bits="1" format="bitmask" >
-      </field>
-      <field name="ADC0_chan2" start="10" bits="1" format="bitmask" > -->
+        <description>select ADC0 channel</description>
       </field>
       <field name="ADC1_chan" start="12" bits="3" format="integer" >
-      <description>select ADC1 channel</description>
-<!--      </field>
-      <field name="ADC1_chan1" start="13" bits="1" format="bitmask" >
-      </field>
-      <field name="ADC1_chan2" start="14" bits="1" format="bitmask" > -->
+        <description>select ADC1 channel</description>
       </field>
     </register>
 
@@ -427,26 +399,6 @@
       <field name="ADC_read" start="0" bits="16" format="hex" >
       </field>
     </register>
-
-
-
-<!--    <register  name="DacCurLimA1" address="0008" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimA1" start="0" bits="16" format="hex" >
-      </field>
-    </register>
-
-    <register  name="DacCurLimD1" address="0009" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimD1" start="0" bits="16"  format="unsigned" unit="mA" scale="0.005035" >
-      </field>
-    </register>
-
-    <register  name="DacVClp1" address="000A" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacVClp1" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035">
-      </field>
-    </register>-->
 
     <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
       <description>settings for the debug spi interface</description>
