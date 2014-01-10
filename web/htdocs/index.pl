@@ -85,6 +85,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="nxyter/index.pl">Nxyter Read-out</a>
 <li><a href="mvd/jtag.pl">MVD Jtag Controller</a>
 <li><a href="mvd/roc.pl">MVD read-out Controller</a>
+<li><a href="mvd/cb_controller.pl">MVD Converter Board Controller</a>
 <li><a href="network/generic.pl">Everything else</a>
 </ul>
 </div>

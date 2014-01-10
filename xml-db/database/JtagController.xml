@@ -157,11 +157,11 @@
                 address="0000" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsReadId"
-               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="0"   bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of read errors during "read id" operation</description>
         </field>
         <field name="ErrorsWrite"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of read errors during write operation</description>
         </field>
       </register>
@@ -169,11 +169,11 @@
                 address="0001" purpose="status" mode="r" >
         <description>Error counters for read and write operations on the JTAG chain</description>
         <field name="ErrorsDataChanged"
-               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="0"  bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of times data read back from the sensor was not identical to the data written to the sensor.</description>
         </field>
         <field name="ErrorsSampling"
-               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true">
+               start="16" bits="16"  mode="r"  purpose="status"  format="integer"  errorflag="true" rate="true" >
           <description>Number of sampling errors of TDI signal. The signal from the sensor is sampled three times for each bit, all occurrences must be equal.</description>
         </field>
       </register>
@@ -253,7 +253,7 @@
                   address="0001" mode="rw" purpose ="config" >
           <description>Duration of a JTAG clock cycle in system clock cycles</description>
           <field name="JtagClockCycleLength"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register> 
 
@@ -261,7 +261,7 @@
                   address="0002" mode="rw" purpose ="config" >
           <description>Time of the rising edge of the TCK signal</description>
           <field name="JtagClockTime1"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register> 
 
@@ -269,7 +269,7 @@
                   address="0003" mode="rw" purpose ="config" >
           <description>Time of the falling edge of the TCK signal</description>
           <field name="JtagClockTime2"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register> 
 
@@ -277,15 +277,15 @@
                   address="0004" mode="rw" purpose ="config" >
           <description>First reading of TDO signal</description>
           <field name="JtagClockSample1"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register> 
 
         <register name="JtagClockSample2"
                   address="0005" mode="rw" purpose ="config" >
-          <description>Second reading of TDO signal</description>
+          <description>Second reading of TDO signal - reading the actual value</description>
           <field name="JtagClockSample2"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register> 
 
@@ -293,7 +293,7 @@
                   address="0006" mode="rw" purpose ="config" >
           <description>Third reading of TDO signal</description>
           <field name="JtagClockSample3"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register>         
 
@@ -301,7 +301,7 @@
                   address="0007" mode="rw" purpose ="config" >
           <description>Time of change on TDO and TMS signals</description>
           <field name="JtagSetDataTime"
-                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned">
+                start="0" bits="32"  mode="rw"  purpose="config"  format="unsigned" scale="10" unit="ns">
           </field>
         </register>  
         

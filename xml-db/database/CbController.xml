@@ -101,12 +101,180 @@
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
+    <register  name="Overcurrent" address="0070" purpose="status" mode="r" >
+      <description>Status of the four overcurrent detection inputs of the FPGA.</description>
+      <field name="OvCD0" start="0"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on digital voltage of sensor 0.</description>
+      </field>
+      <field name="OvCA0" start="4"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on analog voltage of sensor 0.</description>
+      </field>
+      <field name="OvCD1" start="8"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on digital voltage of sensor 1.</description>
+      </field>
+      <field name="OvCA1" start="12"  bits="1" format="boolean" errorflag="true" >
+        <description>Overcurrent on analog voltage of sensor 1.</description>
+      </field>
+    </register>
+
   </group>
   
+  <group name="CbAdc"
+         address="0100" size="32" purpose="status" mode="r" continuous="true">
+    <group name="AdcSensor" size="16" repeat="2">
+      <register name="CurrentDigital" address="0000">
+        <description>Current on the digital power supply.</description>
+        <field name="CurrentDigitalD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+        </field>
+        <field name="CurrentDigitalTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="CurrentAnalog" address="0001">
+        <description>Current on the analog power supply.</description>
+        <field name="CurrentAnalogD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+        </field>
+        <field name="CurrentAnalogTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageDigital" address="0002">
+        <description>Voltage of the digital power supply, sensed at the FEB</description>
+        <field name="VoltageDigitalD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+        </field>
+        <field name="VoltageDigitalTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageAnalog" address="0003">
+        <description>Voltage of the analog power supply, sensed at the FEB</description>
+        <field name="VoltageAnalogD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+        </field>
+        <field name="VoltageAnalogTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VoltageGnd" address="0004">
+        <description>Voltage on the ground sense line from the FEB</description>
+        <field name="VoltageGndD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VoltageGndTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="SensorTemperature" address="0005">
+        <description>Voltage measured at the Temperature diode, relative to Gnd sense</description>
+        <field name="SensorTemperatureD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="SensorTemperatureTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="ZeroSingle" address="0006">
+        <description>Zero calibration of amplifier, single ended</description>
+        <field name="ZeroSingleD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="ZeroSingleTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="ZeroDifferential" address="0007">
+        <description>Zero calibration of amplifier, differential</description>
+        <field name="ZeroDifferentialD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="ZeroDifferentialTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>
+      <register name="VDiscRef2A" address="0008">
+        <description>Discriminator reference voltage A, absolute value</description>
+        <field name="VDiscRef2AD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRef2ATS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="VDiscRef2B" address="0009">
+        <description>Discriminator reference voltage B, absolute value</description>
+        <field name="VDiscRef2BD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRef2BTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRef2C" address="000a">
+        <description>Discriminator reference voltage C, absolute value</description>
+        <field name="VDiscRef2CD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRef2CTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRef2D" address="000b">
+        <description>Discriminator reference voltage D, absolute value</description>
+        <field name="VDiscRef2DD"
+              start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRef2DTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>         
+      <register name="VDiscRefA" address="000c">
+        <description>Discriminator reference voltage A, differential 1-2</description>
+        <field name="VDiscRefAD"
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRefATS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>      
+      <register name="VDiscRefB" address="000d">
+        <description>Discriminator reference voltage B, differential 1-2</description>
+        <field name="VDiscRefBD"
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRefBTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRefC" address="000e">
+        <description>Discriminator reference voltage C, differential 1-2</description>
+        <field name="VDiscRefCD"
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRefCTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>   
+      <register name="VDiscRefD" address="000f">
+        <description>Discriminator reference voltage D, differential 1-2</description>
+        <field name="VDiscRefDD"
+              start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.038147" >
+        </field>
+        <field name="VDiscRefDTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+        </field>
+      </register>  
+    </group>
+  </group>
+  
+
+
   <group name="CbSpiRam"
-         address="0100" size="256" purpose="status" mode="r" continuous="true">
-    <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="256">
-      <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller.</description>
+         address="0120" size="224" purpose="status" mode="r" continuous="true">
+    <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="224">
+      <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller. Please note that the values shown correspond to register addresses 32 to 255.</description>
       <field name="data"
              start="0" bits="16" mode="r" purpose="status" format="hex">
       </field>
@@ -188,85 +356,41 @@
       
       <register  name="OvCurStatus" address="0004" purpose="config" mode="r" >
       <description></description>
-<!--      <field name="OvCA_C1" start="3" bits="1" format="bitmask" >
-      </field>
-      <field name="OvCD_C1" start="2" bits="1" format="bitmask" >
-      </field>-->
-      <field name="OvCA" start="1" bits="1" format="bitmask" >
-      <description>indicates current limit is exceeded for analog sensor power</description>
-      </field>
-      <field name="OvCD" start="0" bits="1" format="bitmask" >
-      <description>indicates current limit is exceeded for digital sensor power</description>
-      </field>
-    </register>
+        <field name="OvCA" start="1" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for analog sensor power. Register is read from uC.</description>
+        </field>
+        <field name="OvCD" start="0" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for digital sensor power Register is read from uC.</description>
+        </field>
+      </register>
       
     </group>
-
-<!--    <register  name="Switches1"
-              address="0002" purpose="config" mode="rw" >
-      <description>Set Converter Board switches for Sensor 1.</description>
-      <field name="EnaA1"
-              start="5" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable analog power for chip 1.</description>
-      </field>
-      <field name="DisA1"
-              start="4" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Discharge analog power for chip 1.</description>
-      </field>
-      <field name="EnaD1"
-              start="3" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable digital power for chip 1.</description>
-      </field>
-      <field name="DisD1"
-              start="2" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Discharge digital power for chip 1.</description>
-      </field>
-      <field name="SensorEn1"
-              start="1" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable sensor 1.</description>
-      </field>
-      <field name="JtagEn1"
-              start="0" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-        <description>Enable JTAG for sensor 1.</description>
-      </field>
-    </register>-->
-
 
     <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
-      <description>periodically measure all reference voltages</description>
+        <description>periodically measure all reference voltages</description>
       </field>
       <field name="CyclePower" start="1" bits="1" format="bitmask" >
-      <description>periodically measure read all sensor power supply voltages/currents</description>
+        <description>periodically measure read all sensor power supply voltages/currents</description>
       </field>
       <field name="StreamSelected" start="2" bits="1" format="bitmask" >
-      <description>continuously measure the ADC channel selected by ADC_sel, MuxAddr, ZeroCalib, ADC0_chan and ADC1_chan</description>
+        <description>continuously measure the ADC channel selected by ADC_sel, MuxAddr, ZeroCalib, ADC0_chan and ADC1_chan</description>
       </field>
       <field name="ADC_sel" start="3" bits="1" format="integer" >
         <description>0 => ADC0 selected, 1=> ADC1 selected</description>
       </field>
       <field name="MuxAddr" start="4" bits="2" format="integer" >
-      <description>select reference voltage multiplexer channel</description>
+        <description>select reference voltage multiplexer channel</description>
       </field>
-<!--      <field name="MuxAddr1" start="5" bits="1" format="bitmask" >
-      </field> -->
       <field name="ZeroCalib" start="6" bits="1" format="bitmask" >
-      <description>switch to a reference zero position to calibrate the instrumentation amplifier</description>
+        <description>switch to a reference zero position to calibrate the instrumentation amplifier</description>
       </field>
       <field name="ADC0_chan" start="8" bits="3" format="integer" >
-      <description>select ADC0 channel</description>
-<!--      </field>
-      <field name="ADC0_chan1" start="9" bits="1" format="bitmask" >
-      </field>
-      <field name="ADC0_chan2" start="10" bits="1" format="bitmask" > -->
+        <description>select ADC0 channel</description>
       </field>
       <field name="ADC1_chan" start="12" bits="3" format="integer" >
-      <description>select ADC1 channel</description>
-<!--      </field>
-      <field name="ADC1_chan1" start="13" bits="1" format="bitmask" >
-      </field>
-      <field name="ADC1_chan2" start="14" bits="1" format="bitmask" > -->
+        <description>select ADC1 channel</description>
       </field>
     </register>
 
@@ -275,26 +399,6 @@
       <field name="ADC_read" start="0" bits="16" format="hex" >
       </field>
     </register>
-
-
-
-<!--    <register  name="DacCurLimA1" address="0008" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimA1" start="0" bits="16" format="hex" >
-      </field>
-    </register>
-
-    <register  name="DacCurLimD1" address="0009" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacCurLimD1" start="0" bits="16"  format="unsigned" unit="mA" scale="0.005035" >
-      </field>
-    </register>
-
-    <register  name="DacVClp1" address="000A" purpose="config" mode="rw" >
-      <description></description>
-      <field name="DacVClp1" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035">
-      </field>
-    </register>-->
 
     <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
       <description>settings for the debug spi interface</description>
