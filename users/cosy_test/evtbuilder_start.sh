@@ -4,7 +4,7 @@ dest="/scratch/c/hldfiles"
 sdest="/scratch/c/shldfiles"
 tmpdir="/tmp/eventbuild"
 pref="te"
-sden=0
+sden=1
 
 usage() {
 	echo "Usage: $0 [-d <hlddir>] [-s <shlddir>] [-p <te|be|ca>] [-t] [-h]"

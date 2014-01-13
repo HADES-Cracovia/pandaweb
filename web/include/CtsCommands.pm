@@ -478,7 +478,7 @@ EOF
 
       # generate plot
          if ($gnuplot_fh) {
-            shift @$plotData if $#{ $plotData } > 30;
+            shift @$plotData if $#{ $plotData } > 180;
             push @$plotData, [
                $time,
                $rates->{'cts_cnt_trg_asserted.value'}{'rate'},
