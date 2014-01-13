@@ -111,28 +111,37 @@ foreach my $req (@request) {
 sub writedata {
   my ($obj,$entity,$name,$slice,$netaddr,$value) = @_;
   my $stepsize = $obj->{stepsize} || 1;
+  my $o;
   
   unless ($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
     print "No valid object name.\n";
     return -1;
     }
-    
-  my $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
-  unless (defined $o) {
-    print "No valid answer.\n";
-    return -2;
+  
+  if($obj->{mode} =~ /r/) {
+    $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+    unless (defined $o) {
+      print "No valid answer.\n";
+      return -2;
+      }
+    foreach my $b (keys %$o) {
+      $old  = $o->{$b};
+      my $mask = ~(((1<<$obj->{bits})-1) << $obj->{start});
+      $old = $old & $mask;
+      
+      my $new = $value & ((1<<$obj->{bits})-1); 
+      $new = $new << $obj->{start};
+      $new = $new | $old;
+      trb_register_write($b,$obj->{address}+$slice*$stepsize,$new);
+      }
     }
-    
-  foreach my $b (keys %$o) {
-    $old  = $o->{$b};
+  else {
     my $mask = ~(((1<<$obj->{bits})-1) << $obj->{start});
-    $old = $old & $mask;
-    
     my $new = $value & ((1<<$obj->{bits})-1); 
     $new = $new << $obj->{start};
-    $new = $new | $old;
-    trb_register_write($b,$obj->{address}+$slice*$stepsize,$new);
+    trb_register_write($netaddr,$obj->{address}+$slice*$stepsize,$new);
     }
+    
   }
 
   

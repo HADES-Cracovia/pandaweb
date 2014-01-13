@@ -20,7 +20,7 @@ my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
 my ($file,$entity,$netaddr,$name, $style, $storefile, $rates, $cache,$olddata);
-
+my $lastboards;
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
 die "can not connect to trbnet-daemon on $ENV{'DAQOPSERVER'}: ".trb_strerror() unless (defined &trb_init_ports());
@@ -146,17 +146,21 @@ foreach my $req (@request) {
 sub FormatPretty {
   my ($value,$obj,$name,$cont,$class,$cstr,$addr,$b) = @_;
   $class = "" unless $class;
-
-  $value  = $value >> ($obj->{start});
-  $value &= ((1<<$obj->{bits})-1);
-  my $rawvalue = $value;
   
-  if ($rates && $obj->{rate}){
-    $value = makerate($obj,$value,$addr,$b);
-    $class.=" rate";
+  my $rawvalue = 0;
+  my $readable = $obj->{mode} =~ /r/;
+  if($readable) {
+    $value  = $value >> ($obj->{start});
+    $value &= ((1<<$obj->{bits})-1);
+    $rawvalue = $value;
+    
+    if ($rates && $obj->{rate}){
+      $value = makerate($obj,$value,$addr,$b);
+      $class.=" rate";
+      }
+    
+    $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
     }
-  
-  $value = $value * ($obj->{scale}||1) + ($obj->{scaleoffset}||0);
   
   $cstr  = "" unless $cstr;
   my $ret, my $cl;
@@ -165,52 +169,57 @@ sub FormatPretty {
        $isflag = 0 if $obj->{noflag};
     my $single = ""; 
        $single = " bit=\"1\"" if (($obj->{format} eq 'bitmask' && $obj->{bits} == 1) || $obj->{format} eq 'boolean');
-    $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag);
-    $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag);
-    $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag);
-    $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag);
+    $cl = "class=\"".($value?"bad":"good")."\"" if     ( $obj->{errorflag} && !$obj->{invertflag} && $isflag && $readable);
+    $cl = "class=\"".($value?"good":"bad")."\"" if     ( $obj->{errorflag} &&  $obj->{invertflag} && $isflag && $readable);
+    $cl = "class=\"".($value?"high":"low")."\"" if     (!$obj->{errorflag} && !$obj->{invertflag} && $isflag && $readable);
+    $cl = "class=\"".($value?"low":"high")."\"" if     (!$obj->{errorflag} &&  $obj->{invertflag} && $isflag && $readable);
     $cl .= sprintf(" cstr=\"$cstr\"%s raw=\"0x%x\"><div class=\"$class\">",$single,$rawvalue);
     
     my $t = "";
     $ret = "<$cont ";
-    for($obj->{format}) {    
-      when ("boolean") {
-        if($obj->{errorflag}) { $ret .= "$cl".($value?"true":"false");}
-        else                  { $ret .= "$cl".($value?"true":"false");}
-          }
-      when ("float")    { $ret .= sprintf("$cl%.2f",$value);}
-      when ("integer")  { $t    = sprintf("%i",$value); 
-                          $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
-                          $ret .= $cl.$t;
-                          }
-      when ("unsigned") { $t    = sprintf("%u",$value); 
-                          $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
-                          $ret .= $cl.$t;
-                          }
-      when ("signed")   { $ret .= sprintf("$cl%d",$value);}
-      when ("binary")   { $t    = sprintf("%0".$obj->{bits}."b",$value); 
-                          $t =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/&#8198;/g; 
-                          $ret .= $cl.$t;
-                          }
-      when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
-                          $tmp =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/ /g;
-                          $tmp =~ s/0/\&#9633\;/g;
-                          $tmp =~ s/1/\&#9632\;/g;
-                          $tmp =~ s/\s/\&#8198\;/g;
-                          
-                          $ret .= $cl.$tmp;
-                          }
-      when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
-      when ("hex")      {$ret .= sprintf($cl."0x%0".(int(($obj->{bits}+3)/4))."x",$value);}
-      when ("enum")     { my $t = sprintf("%x",$value);
-                          if (exists $obj->{enumItems}->{$t}) {
-                            $ret .= $cl.$obj->{enumItems}->{$t} 
+    if($readable){
+      for($obj->{format}) {    
+        when ("boolean") {
+          if($obj->{errorflag}) { $ret .= "$cl".($value?"true":"false");}
+          else                  { $ret .= "$cl".($value?"true":"false");}
+            }
+        when ("float")    { $ret .= sprintf("$cl%.2f",$value);}
+        when ("integer")  { $t    = sprintf("%i",$value); 
+                            $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
+                            $ret .= $cl.$t;
                             }
-                          else {
-                            $ret .= $cl."0x".$t;
+        when ("unsigned") { $t    = sprintf("%u",$value); 
+                            $t =~ s/(?<=\d)(?=(?:\d\d\d)+\b)/&#8198;/g; 
+                            $ret .= $cl.$t;
                             }
-                          }
-      default           {$ret .= sprintf(">%08x",$value);}
+        when ("signed")   { $ret .= sprintf("$cl%d",$value);}
+        when ("binary")   { $t    = sprintf("%0".$obj->{bits}."b",$value); 
+                            $t =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/&#8198;/g; 
+                            $ret .= $cl.$t;
+                            }
+        when ("bitmask")  { my $tmp = sprintf("%0".$obj->{bits}."b",$value);
+                            $tmp =~ s/(?<=\d)(?=(?:\d\d\d\d)+\b)/ /g;
+                            $tmp =~ s/0/\&#9633\;/g;
+                            $tmp =~ s/1/\&#9632\;/g;
+                            $tmp =~ s/\s/\&#8198\;/g;
+                            
+                            $ret .= $cl.$tmp;
+                            }
+        when ("time")     {require Date::Format; $ret .= Date::Format::time2str('>%Y-%m-%d %H:%M',$value);}
+        when ("hex")      {$ret .= sprintf($cl."0x%0".(int(($obj->{bits}+3)/4))."x",$value);}
+        when ("enum")     { my $t = sprintf("%x",$value);
+                            if (exists $obj->{enumItems}->{$t}) {
+                              $ret .= $cl.$obj->{enumItems}->{$t} 
+                              }
+                            else {
+                              $ret .= $cl."0x".$t;
+                              }
+                            }
+        default           {$ret .= sprintf(">%08x",$value);}
+        }
+      }
+    else {
+      $ret .= $cl."&nbsp;";
       }
     my $range = $obj->{start}+$obj->{bits}-1;
     $range .= "..".$obj->{start} if ($obj->{bits}>1);
@@ -302,7 +311,7 @@ sub generateoutput {
       generateoutput($db->{$c},$c,$slice,$once);
       }
     }
-  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field") && $obj->{mode} =~ /r/) {
+  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field")) {
     $t = "<hr class=\"queryresult\"><table class='queryresult'><thead>";
     my $stepsize = $obj->{stepsize} || 1;
        $slice = 0 unless defined $slice;
@@ -331,8 +340,10 @@ sub generateoutput {
     do {  
       $addr = $obj->{address}+$slice*$stepsize;
       #### Prepare table header line
-      
-      foreach my $b (sort keys %{$data->{$addr}}) {
+      if($obj->{mode} =~ /r/) {
+        $lastboards = $data->{$addr}; #Store list of responding boards as guess for write-only registers.
+        }
+      foreach my $b (sort keys %{$lastboards}) {
         my $ttmp = "";
         my $sl;
         $sl = sprintf("<td class=\"slice\"><div>%i<span class=\"tooltip\"><b>$name.$slice</b> (0x%04x)</span></div>",$slice,$addr) if ($once != 1 && defined $obj->{repeat});
