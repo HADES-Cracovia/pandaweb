@@ -532,6 +532,7 @@ sub store_init {
   $storage->{"last_sleep"}  = 0;
   }
 
+ 
 #################################################
 # Help Message
 #################################################
@@ -551,13 +552,15 @@ Options:
   command         One of the commands listed below
   -d delay        Time to sleep between readings in milliseconds
   -n samples      Number of samples to store / display in histogram
-  -d downscaling  Replot histogram only every nth iteration
+  -o downscaling  Replot histogram only every nth iteration
   -g geometry     Size of the plot window in pixels
   -a address      Board address when using generic option 
-  -p register     Register address when using generic option
+  -r register     Register address when using generic option
   -w regwidth     Width in bits of the value to plot
-  -r regoffset    Offset of the value to plot in the register
+  -p regoffset    Offset of the value to plot in the register
+  -m regamount    Number of consecutive registers to show
   -z style        Selects one of the possible styles (deprecated)
+  -t title        Name of the curve shown in key
   -output         expects a string "(PNG|SVG).\$filename.\$xsize.\$ysize" to write to a file
   -windowname     Name of window (shown in titlebar after "Hadplot - "
   -timeref        In a differential plot, the endpoint with this addressis used for timestamping
