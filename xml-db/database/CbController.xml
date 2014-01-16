@@ -119,8 +119,15 @@
 
   </group>
   
+  
+  <!--===========================================-->
+  <!--Converter Board ADC values registers       -->
+  <!--===========================================-->
+  
+  
+  
   <group name="CbAdc"
-         address="0100" size="32" purpose="status" mode="r" continuous="true">
+         address="0100" size="34" purpose="status" mode="r" continuous="true">
     <group name="AdcSensor" size="16" repeat="2">
       <register name="CurrentDigital" address="0000">
         <description>Current on the digital power supply.</description>
@@ -265,11 +272,53 @@
         <field name="VDiscRefDTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
-      </register>  
+      </register>    
+    </group>
+    <group name="SensorControlStatusGroup" size="1" repeat="2" address="0020" >
+      <register  name="SensorControlStatus" address="0000" purpose="status" mode="r" >
+	<description>Status of CB switches and Overcurrent indicators (read only)</description>
+	
+        <field name="DisA_"
+                start="4" bits="1"  format="bitmask" >
+          <description>Discharge analog sensor power.</description>
+        </field>
+        <field name="DisD_"
+                start="2" bits="1"  format="bitmask" >
+          <description>Discharge digital sensor power..</description>
+        </field>
+
+        <field name="EnaA_"
+                start="5" bits="1"  format="bitmask" >
+          <description>Enable analog sensor power.</description>
+        </field>
+        <field name="EnaD_"
+                start="3" bits="1"  format="bitmask" >
+          <description>Enable digital sensor power.</description>
+        </field>
+        <field name="SensorEn_"
+                start="1" bits="1"  format="bitmask" >
+          <description>Enable Reset, Start and Clock signals for current sensor.</description>
+        </field>
+        <field name="JtagEn_"
+                start="0" bits="1"  format="bitmask" >
+          <description>Enable JTAG for current sensor.</description>
+        </field>
+	<field name="OvCA_" start="7" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for analog sensor power.</description>
+        </field>
+        <field name="OvCD_" start="6" bits="1" format="bitmask" >
+          <description>indicates current limit is exceeded for digital sensor power.</description>
+        </field>
+	
+      </register>
+      
     </group>
   </group>
   
-
+  <!--======================================================-->
+  <!--   the SPI ram, a place to dump loads of debug data   -->
+  <!--======================================================-->
+  
 
   <group name="CbSpiRam"
          address="0120" size="224" purpose="status" mode="r" continuous="true">
@@ -283,6 +332,15 @@
       </field>
     </register>
   </group>
+  
+  
+  
+  
+  <!--==============================================-->
+  <!--   Converter Board Config/Control registers   -->
+  <!--(on the microcontroller, mirrored on the FPGA)-->
+  <!--==============================================-->
+  
     
   <group name="CbUcRegs"
          address="0000" size="20" purpose="status" mode="rw" continuous="true">
