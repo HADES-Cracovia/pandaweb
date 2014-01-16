@@ -94,6 +94,12 @@
               start="0" bits="32"  mode="r"  purpose="status"  format="integer" rate="1">
       </field>
     </register>
+    <register  name="SpiFifoSelect"
+              address="0053" purpose="config" mode="rw" >
+      <description>Select a SPI channel to monitor in the Fifo</description>
+      <field name="SpiFifoSelect" start="0" bits="8" format="hex" >
+      </field>
+    </register>
     <register  name="UcReset"
               address="0060" purpose="config" mode="rw" >
       <description>Brings the uC to reset, when set Lo.</description>
