@@ -46,6 +46,7 @@ my $address   = [];
 my $register  = [];
 my $regoffset = [];
 my $regwidth  = [];
+my $fifomode  = 0;
 my $title     = [];
 my $timeref   = [];
 my $geom      = "700x400";
@@ -87,6 +88,7 @@ GetOptions('d=i' => \$delay,
            'm=i' => $regamount,
            'g=s' => \$geom,
            'z=i' => \$style,
+           'f=i' => \$fifomode,
            'output=s'     => \$outputcfg,
            'windowname=s' => \$windowname,
            'xscale=f'     => $xscale,
@@ -747,7 +749,7 @@ sub genreg {
         $c = "trbcmd r $address->[$i] $register->[$i] | sort";  
         }
       else {
-        $c = "trbcmd rm $address->[$i] $register->[$i] $regamount->[$i] 0";  
+        $c = "trbcmd rm $address->[$i] $register->[$i] $regamount->[$i] $fifomode";  
         }
       my @out = qx($c);
       my $addr = undef;
