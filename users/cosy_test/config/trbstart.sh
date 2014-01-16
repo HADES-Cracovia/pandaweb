@@ -18,6 +18,8 @@ TRBNUM=129
 #../../../tools/command_client.pl -e etraxp$TRBNUM -c 'rw_trbv2 --trb w 0 c2 007E0100; rw_trbv2 --trb w 0 c0 0a000000; rw_trbv2 --trb w 0 c3 00000100'
 
 # low res for TOF                                                                | here is the change
-../../../tools/command_client.pl -e etraxp$TRBNUM -c 'rw_trbv2 --trb w 0 c2 007E0000; rw_trbv2 --trb w 0 c0 0a000000; rw_trbv2 --trb w 0 c3 00000100'
+#../../../tools/command_client.pl -e etraxp$TRBNUM -c 'rw_trbv2 --trb w 0 c2 007E0000; rw_trbv2 --trb w 0 c0 0a000000; rw_trbv2 --trb w 0 c3 00000100'
 
+#                                                                             || - reference token delay, 25ns per bit
+../../../tools/command_client.pl -e etraxp$TRBNUM -c 'rw_trbv2 --trb w 0 c2 00000000; rw_trbv2 --trb w 0 c0 0a000000; rw_trbv2 --trb w 0 c3 00000100'
 

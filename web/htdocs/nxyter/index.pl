@@ -43,7 +43,7 @@ $setup[4]->{period}  = -1;
 $setup[4]->{address} = 1;
 
 $setup[5]->{name}    = "NXHistograms";
-$setup[5]->{cmd}     = "Nxyter-0xfe49-NXHistos&Nxyter-0xfe49-NXHistos";
+$setup[5]->{cmd}     = "Nxyter-0xfe49-NXHistos-rate";
 $setup[5]->{period}  = -1;
 $setup[5]->{address} = 1;
 

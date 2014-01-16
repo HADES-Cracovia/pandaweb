@@ -33,12 +33,12 @@
            address="0004"  size="2"  purpose="status"  mode="r"  continuous="true">
       <register name="HitRate" address="0000" purpose="status">
         <description>Total hit rate summed over all channels</description>
-        <field name="HitRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+        <field name="HitRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
       </register>
 
       <register name="FrameRate" address="0001" purpose="status">
-        <description>Rate of Incoming Nxyter + ADC Frames, must be 31.25MHz</description>
-        <field name="FrameRate" start="0" bits="32" format="unsigned" unit="Hz"/>
+        <description>Rate of Incoming Nxyter + ADC Frames, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
+        <field name="FrameRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
       </register>
     </group>
 
@@ -75,7 +75,7 @@
 
     <register name="TriggerRate" address="0002" purpose="status" mode="r">
       <description>Accepted incoming Trigger Rate</description>
-      <field name="TriggerRate" start="0" bits="28" format="unsigned" unit="Hz"/>
+      <field name="TriggerRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>   
 
     <register name="InvalidTriggerCount" address="0003" purpose="status" mode="r">
@@ -96,7 +96,7 @@
 
     <register name="TestPulseRate" address="0001" purpose="status" mode="r">
       <description>Testpulse Rate</description>
-      <field name="TestPulseRate" start="0" bits="28" format="unsigned" unit="Hz"/>
+      <field name="TestPulseRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>   
     
   </group> 
@@ -231,8 +231,8 @@
     </register>
 
     <register name="DataRate" address="001f" purpose="status" mode="r">
-      <description>Data Rate being written to Event Buffer in Hz</description>
-      <field name="DataRate" start="0" bits="28" format="unsigned" unit="Hz"/>
+      <description>Data Rate being written to Event Buffer in s&lt;sup&gt;-1&lt;/sup&gt;</description>
+      <field name="DataRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
   </group>
 
@@ -342,13 +342,13 @@
     </register>
     
     <register name="NXFrameRate" address="0010" purpose="status" mode="r">
-      <description>Nxyter Timestamp Frame Rate, must be 31.25 MHz</description>
-      <field name="NXFrameRate" start="0" bits="27" format="unsigned" unit="Hz" />
+      <description>Nxyter Timestamp Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
+      <field name="NXFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
 
     <register name="ADCFrameRate" address="0011" purpose="status" mode="r">
-      <description>ADC Data Frame Rate, must be 31.25 MHz</description>
-      <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="Hz" />
+      <description>ADC Data Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
+      <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
 
     <register name="ADCTestValue" address="0012" purpose="status" mode="r">
@@ -389,9 +389,9 @@
         <field name="NxTestTrigger" start="0" bits="1" format="boolean"/>
       </register>
       
-      <register name="NxTestChannel" address="0005" purpose="config" mode="rw" >
+      <register name="NxTestChGroup" address="0005" purpose="config" mode="rw" >
         <description>Nxyter Testpulse Channel Group (0=0,4,.. 1=1,5,.. 2=2,6,.. 3=3,7,..)</description>
-        <field name="NxTestChannel" start="0" bits="2" format="unsigned"/>
+        <field name="NxTestChGroup" start="0" bits="2" format="unsigned"/>
       </register>
       
       <register name="I2COnline" address="0006" purpose="status" mode="r" >
@@ -506,24 +506,49 @@
     </register>
 
   </group>
+  
 
   <group name="NXHistos"
          address="0800" purpose="status"  mode="r" continuous="false">
     
     <group name="RateHist"
-           address="0000"  size="129"  purpose="config"  mode="rw" continuous="true">    
-    
+           address="0000"  size="130"  purpose="config"  mode="rw" continuous="true">    
       <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
         <description>Continuous Hit Counter per Channel</description>
-        <field name="ChannelHitCtr" start="0" bits="32" format="unsigned"/>
+        <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
       </register>
     
-      <register name="AverageNum" address="0080" purpose="config" mode="rw">
+      <register name="AverageNumH" address="0080" purpose="config" mode="rw">
         <description>Number of Averages, power of two (2^n)</description>
-        <field name="AverageNum" start="0" bits="32" format="unsigned"/>
+        <field name="AverageNumH" start="0" bits="32" format="unsigned"/>
+      </register>
+      
+      <register name="EnableAverageH" address="0081" purpose="config" mode="rw">
+        <description>Enable Average mode</description>
+        <field name="EnableAverageH" start="0" bits="1" format="boolean"/>
+      </register>
+
+    </group>
+    
+    <group name="ADCHist"
+           address="0100"  size="130"  purpose="config"  mode="rw" continuous="true">    
+      <register name="ChannelADCVal" address="0000" purpose="status" mode="r" repeat="128">
+        <description>Continuous Hit Counter per Channel</description>
+        <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
       </register>
     
+      <register name="AverageNumA" address="0080" purpose="config" mode="rw">
+        <description>Number of Averages, power of two (2^n)</description>
+        <field name="AverageNumA" start="0" bits="32" format="unsigned"/>
+      </register>
+      
+      <register name="EnableAverageA" address="0081" purpose="config" mode="rw">
+        <description>Enable Average mode</description>
+        <field name="EnableAverageA" start="0" bits="1" format="boolean"/>
+      </register>
+
     </group>
+
   </group>  
 
 </TrbNetEntity>

@@ -6,7 +6,6 @@ EXTRALIB=${HOME}/usr/lib64:${HOME}/projects/install/lib
 HADESLIB=${HOME}/trbsoft/trbnettools/lib
 
 export LD_LIBRARY_PATH=${HADESLIB}:${EXTRALIB}:${LD_LIBRARY_PATH}
-export PATH=${HOME}/bin:${HOME}/usr/bin:${PATH}
 
 TRBSOFT=${HOME}/trbsoft
 
