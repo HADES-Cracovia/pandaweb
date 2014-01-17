@@ -17,7 +17,7 @@ if [[ $? = 0 ]]; then
     echo "trbnetd already running, skipping setup (but exports done)."
     return
 fi
-${HOME}/trbsoft/trbnettools/binlocal/trbnetd
+trbnetd
 
 
 ##### TRBNET #####
@@ -40,6 +40,9 @@ trbcmd w 0x8000 0x8307 0x0
 trbcmd w 0x8000 0x8308 0xffffff
 trbcmd w 0x8000 0x830b 0x7
 trbcmd w 0x8000 0x830d 0x0
+# explicitly set the Ethernet frame size,
+# workaround to correctly initialize the ethernet
+trbcmd w 0x8000 0x8304 0x578
 
 #mac address of the EB
 # 14:fe:b5:ec:10:9a (normandy)
@@ -78,7 +81,7 @@ trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
 
 
 #####  CTS  #######
-trbcmd w 0x8000 0xa137 0xfffff  #set CTS pulser to 100Hz
+trbcmd w 0x8000 0xa140 0xfffff  #set CTS pulser to 100Hz
 #trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
 trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
 
