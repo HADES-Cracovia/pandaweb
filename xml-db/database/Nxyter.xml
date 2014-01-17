@@ -512,12 +512,12 @@
          address="0800" purpose="status"  mode="r" continuous="false">
     
     <group name="RateHist"
-           address="0000"  size="130"  purpose="config"  mode="rw" continuous="true">    
+           address="0000"  size="128"  purpose="config"  mode="rw" continuous="true">    
       <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
         <description>Continuous Hit Counter per Channel</description>
         <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
       </register>
-    
+    <!--
       <register name="AverageNumH" address="0080" purpose="config" mode="rw">
         <description>Number of Averages, power of two (2^n)</description>
         <field name="AverageNumH" start="0" bits="32" format="unsigned"/>
@@ -527,16 +527,16 @@
         <description>Enable Average mode</description>
         <field name="EnableAverageH" start="0" bits="1" format="boolean"/>
       </register>
-
+-->
     </group>
     
     <group name="ADCHist"
-           address="0100"  size="130"  purpose="config"  mode="rw" continuous="true">    
+           address="0100"  size="128"  purpose="config"  mode="rw" continuous="true">    
       <register name="ChannelADCVal" address="0000" purpose="status" mode="r" repeat="128">
         <description>Continuous Hit Counter per Channel</description>
         <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
       </register>
-    
+  <!--  
       <register name="AverageNumA" address="0080" purpose="config" mode="rw">
         <description>Number of Averages, power of two (2^n)</description>
         <field name="AverageNumA" start="0" bits="32" format="unsigned"/>
@@ -546,7 +546,7 @@
         <description>Enable Average mode</description>
         <field name="EnableAverageA" start="0" bits="1" format="boolean"/>
       </register>
-
+-->
     </group>
 
   </group>  
