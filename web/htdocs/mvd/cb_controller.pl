@@ -1,6 +1,13 @@
-&htsponse(200, "OK");
-print "Content-type: text/html\r\n\r\n";
-
+#!/usr/bin/perl
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  print "HTTP/1.0 200 OK\n";
+  print header("text/html");
+  }
+else {
+  use lib '..';
+  use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
+  print "Content-type: text/html\n\n";
+  }
 
 use CGI ':standard';
 use XML::LibXML;
