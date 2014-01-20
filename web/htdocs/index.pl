@@ -5,6 +5,7 @@ if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
   }
 else {
   print "Content-type: text/html\n\n";
+  use if (!$ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i), apacheEnv;
   }
 
 
