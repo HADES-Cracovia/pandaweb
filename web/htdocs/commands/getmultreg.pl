@@ -3,7 +3,7 @@ use HADES::TrbNet;
 use Data::Dumper;
 if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
   print "HTTP/1.0 200 OK\n";
-  print header("text/html");
+  print "Content-type: text/html\r\n\r\n";
   }
 else {
   use lib '..';
