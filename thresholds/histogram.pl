@@ -14,8 +14,8 @@ my $help = 0;
 my $verbose = 0;
 my $endpoint = '0x0200';
 my $chain = 0;
-my $channel32 = 1;
-my @channels = (0);
+my $channel32 = 0;
+my @channels = (0..15);
 my $from = -10;
 my $to = 10;
 my $delta = 1;
@@ -53,6 +53,11 @@ if ($endpoint !~ /^0x/) {
 }
 $endpoint = hex($endpoint);
 
+my $ch_str = shift @ARGV;
+if(defined $ch_str) {
+  eval "\@channels = ($ch_str)" or die "Can't parse channel spec: $ch_str";
+}
+
 # determine the right hitregister channel
 # for one threshold channel
 my $hitchannel_multiplicator = $channel32 ? 2 : 1;
@@ -66,8 +71,18 @@ trb_register_write($endpoint, 0xd410, 1 << $chain) or die trb_strerror();
 &main;
 
 sub main {
-  
-  &make_histo();
+  my %histo = &make_histo();
+  foreach my $ch (@channels) {
+    printf("# Endpoint 0x%04x Chain %02d Channel %02d\n",
+           $endpoint, $chain, $ch);
+    foreach my $item (@{$histo{$ch}}) {
+      foreach my $col (@$item) {
+        print $col," ";
+      }
+      print "\n";
+    }
+    print "\n\n";
+  }
 }
 
 sub make_histo {
@@ -82,13 +97,18 @@ sub make_histo {
     my %hitrate = &get_hitrate;
     foreach my $ch (@channels) {
       my $hit_ch = $hitchannel_multiplicator*$ch;
+      my $thresh_mV = $mVscale*$thresh{$ch}/0xffff;
+      my $item = [$thresh_mV, $hitrate{$hit_ch}];
       if($channel32) {
-        printf("%04.2f %07.0f %07.0f\n",
-               $mVscale*$thresh{$ch}/0xffff,
-               $hitrate{$hit_ch},
-               $hitrate{$hit_ch+1}
-              )
+        #printf("%02d %04.2f %07.0f %07.0f\n",
+        #       $ch,
+        #       $mVscale*$thresh{$ch}/0xffff,
+        #       $hitrate{$hit_ch},
+        #       $hitrate{$hit_ch+1}
+        #      )
+        push(@$item,$hitrate{$hit_ch+1});
       }
+      push(@{$histo{$ch}},$item);
     }
   }
 
@@ -174,16 +194,17 @@ histogram.pl - Plot threshold against TDC hits
 
 =head1 SYNOPSIS
 
-histogram.pl -e 0x0200 -c 0 -f -10 -t 10 -d 1
+histogram.pl <options> <channel spec>
 
  Options:
-   -h, --help     brief help message
-   -v, --verbose  be verbose to STDERR
-   -e, --endpoint TRB endpoint (TDC)
-   -c, --chain    PaDiWa board in chain
-   -f, --from     relative start to scan in mV
-   -t, --to       relative stop to scan in mV
-   -d, --delta    increment in mV
+   -h, --help       brief help message
+   -v, --verbose    be verbose to STDERR
+   -e, --endpoint   TRB endpoint (TDC)
+   -c, --chain      PaDiWa board in chain
+   --32channel      Enable leading/trailing TDC version
+   -f, --from       relative start to scan in mV, default -10
+   -t, --to         relative stop to scan in mV, default +10
+   -d, --delta      increment in mV, default 1
 
 =head1 OPTIONS
 
@@ -197,10 +218,24 @@ Print a brief help message and exit.
 
 Print some information what is going on.
 
+=item B<--32channel>
+
+Enable the 32channel version of the TDC, measuring leading and
+trailing edge of the pulse in two different channels. Note that the
+abbreviation --32 is enough and that the data format changes
+accordingly.
+
 =back
 
 =head1 DESCRIPTION
 
-TODO
+This program dumps gnuplot'able data for each channel specified in
+channel spec. This can be any kind of perl'ish array specification,
+for example:
+
+histogram.pl 1,3..5
+
+By default, the channels 0..15 are used. You can modify the scanned
+range with --from, --to, --delta.
 
 =cut
