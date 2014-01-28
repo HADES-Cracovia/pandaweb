@@ -34,6 +34,7 @@
     <td title="Show control buttons for channel enable/disable"><input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
 
 <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
+        <td title="Reset TDC counters"><input type="button" onClick="resetCounters()" value="RESET">
 
 </table>
 </form>
@@ -58,7 +59,7 @@ var oldvalues = {};
 var regstatus = "c100-19";
 var regctrl = "c800-5";
 
-var regstatusnames = new Array("debug_wr<br>debug_rd<br>tdc version<br>channels<br>ref input","","","",
+var regstatusnames = new Array("debug_rd<br>debug_wr<br>tdc version<br>channels<br>ref input","","","",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time","",
                          "releases","rdo time","timeout number","data finished number");
@@ -195,6 +196,15 @@ function setRunMode(e,board,val) {
    op  = val?"set":"clr";
    value = 0x1000;
    getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-"+value.toString(16),0);
+  settimers(200,50);
+  }
+
+function resetCounters() {
+   reg = 0xc800;
+   value = 0x100;
+   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"set"+"-"+value.toString(16),0);
+  settimers(200,50);
+   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"clr"+"-"+value.toString(16),0);
   settimers(200,50);
   }
 
