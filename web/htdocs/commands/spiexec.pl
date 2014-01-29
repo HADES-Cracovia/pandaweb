@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use HADES::TrbNet;
-use Data::Dumper;
+
 if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
   print "HTTP/1.0 200 OK\n";
   print "Content-type: text/html\r\n\r\n";
@@ -11,10 +11,6 @@ else {
   print "Content-type: text/html\n\n";
   }
 
-
-
-use HADES::TrbNet;
-use Data::Dumper;
 
  if (!defined &trb_init_ports()) {
    die("can not connect to trbnet-daemon on the $ENV{'DAQOPSERVER'}");
