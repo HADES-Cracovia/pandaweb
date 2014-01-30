@@ -327,8 +327,8 @@ function updatectrlregs(data) {
             o += "Disabled";
             preWindow = (val&0x7FF)*5;
             postWindow = ((val&0x7FF0000)>>16)*5;
-            o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"datalimit\"name=\"datalimit\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
-                 "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"datalimit\"name=\"datalimit\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
+            o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"prewindow\"name=\"prewindow\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
+                 "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"postwindow\"name=\"postwindow\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
 
 
 <!--            o += "<br>"+(val&0x7FF)*5+" ns"+"<br>"+((val&0x7ff0000)>>16)*5+" ns"; -->
