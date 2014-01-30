@@ -202,6 +202,12 @@ input.small {
   margin-right:-6px;
 }
 
+input.smaller {
+  width:65px;
+  text-align:right;
+  margin-right:2px;
+}
+
 #form_rate, #form_rate2, #form_min, #form_max {
 width: 89px;
 }

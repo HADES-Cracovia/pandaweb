@@ -222,6 +222,19 @@ function setDataLimit(e,board) {
    getdata("../commands/put.pl?"+board+"-"+reg.toString(16)+"-"+(value*1.).toString(16),0);
    settimers(200,50);
   }  
+
+function setTriggerWindow(e,board,val) {
+   reg = 0xc801;
+   preTrigger = 0x7FF;
+   postTrigger = 0x7FF0000;
+   value = (e.value)/5;
+   if(val==0)
+     getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-"+preTrigger.toString(16)+"-"+(value*1.).toString(16),0);
+   else
+     getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-"+postTrigger.toString(16)+"-"+(value*65536.).toString(16),0);
+
+   settimers(200,50);   
+  }  
   
   
 function updatestatregs(data) {
@@ -312,7 +325,13 @@ function updatectrlregs(data) {
             o += "Enabled";
           else
             o += "Disabled";
-            o += "<br>"+(val&0x7FF)*5+" ns"+"<br>"+((val&0x7ff0000)>>16)*5+" ns";
+            preWindow = (val&0x7FF)*5;
+            postWindow = ((val&0x7FF0000)>>16)*5;
+            o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"datalimit\"name=\"datalimit\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
+                 "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"datalimit\"name=\"datalimit\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
+
+
+<!--            o += "<br>"+(val&0x7FF)*5+" ns"+"<br>"+((val&0x7ff0000)>>16)*5+" ns"; -->
           }
         else if(i==2 || i==3) {
           o += (val*1.).toString(16);
