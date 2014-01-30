@@ -320,9 +320,9 @@ function updatectrlregs(data) {
           }
         else if(i==1) {
           if ((val&0x80000000))
-            o += "Enabled";
+            o += "Enabled ";
           else
-            o += "Disabled";
+            o += "Disabled ";
           o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',1)\" value=\"on\">";
           o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',0)\" value=\"off\">";
           preWindow = (val&0x7FF)*5;
