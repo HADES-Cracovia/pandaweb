@@ -319,19 +319,16 @@ function updatectrlregs(data) {
             o += "<input title="+tooltiptriggered+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Triggered\">";
           }
         else if(i==1) {
-          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',1)\" value=\"on\">";
-          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',0)\" value=\"off\">";
           if ((val&0x80000000))
             o += "Enabled";
           else
             o += "Disabled";
-            preWindow = (val&0x7FF)*5;
-            postWindow = ((val&0x7FF0000)>>16)*5;
-            o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"prewindow\"name=\"prewindow\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
-                 "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"postwindow\"name=\"postwindow\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
-
-
-<!--            o += "<br>"+(val&0x7FF)*5+" ns"+"<br>"+((val&0x7ff0000)>>16)*5+" ns"; -->
+          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',1)\" value=\"on\">";
+          o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',0)\" value=\"off\">";
+          preWindow = (val&0x7FF)*5;
+          postWindow = ((val&0x7FF0000)>>16)*5;
+          o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"prewindow\"name=\"prewindow\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
+               "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"postwindow\"name=\"postwindow\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
           }
         else if(i==2 || i==3) {
           o += (val*1.).toString(16);

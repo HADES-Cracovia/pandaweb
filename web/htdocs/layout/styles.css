@@ -99,10 +99,10 @@ table.content td:first-child, table.content th:first-child{
 table.content td, table.content th {
  border:solid #ccc; 
  border-width:0 1px 1px 0;
- width:90px;
- min-width:90px;
+ width:105px;
+ min-width:105px;
  text-align:right;
- padding-right:15px;
+ padding-right:10px;
 }
 
 table.content {
