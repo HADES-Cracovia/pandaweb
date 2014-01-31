@@ -106,7 +106,7 @@
          address="0400"  size="32"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
-      
+
       <field name="SelfTrigger" start="3" bits="1" format="boolean">
         <description>Self Trigger Mode</description>
       </field>
@@ -117,10 +117,10 @@
 
       <field name="StatusSelect" start="0" bits="2" format="enum">
         <description>Timestamp Selection Mode</description>
-        <enumItem value="0">Ovfl, Parity Bits valid</enumItem>
-        <enumItem value="1">Ovfl, Parity, Pileup Bits valid</enumItem>
-        <enumItem value="2">ignore Status Bits</enumItem>
-        <enumItem value="3">ignore Status Bits</enumItem>
+        <enumItem value="0">Default: 11Bit TS, PileUp + Parity Bits</enumItem>
+        <enumItem value="1">Extended TS: 13Bit TS</enumItem>
+        <enumItem value="2">FullTS: 14Bit TS, no ADC, PileUp + Parity Bits</enumItem>
+        <enumItem value="3">RESERVED</enumItem>
       </field>
     </register>    
 
