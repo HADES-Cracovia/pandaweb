@@ -117,10 +117,10 @@
 
       <field name="StatusSelect" start="0" bits="2" format="enum">
         <description>Timestamp Selection Mode</description>
-        <enumItem value="0">Default: 11Bit TS, PileUp + Parity Bits</enumItem>
-        <enumItem value="1">Extended TS: 13Bit TS</enumItem>
-        <enumItem value="2">FullTS: 14Bit TS, no ADC, PileUp + Parity Bits</enumItem>
-        <enumItem value="3">RESERVED</enumItem>
+        <enumItem value="0">TS 11Bit, ADC 12Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="1">TS 12Bit, ADC 11Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="2">TS 14Bit, ADC  9Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
     </register>    
 
