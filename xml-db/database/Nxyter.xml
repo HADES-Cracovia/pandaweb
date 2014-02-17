@@ -586,24 +586,16 @@
   <group name="NxyterDAC"
          address="0300"  size="129"  purpose="status"  mode="rw" continuous="true">
     
-    <register name="DACRegister" address="0001" purpose="config" repeat="128">
+    <register name="DACRegister" address="0000" purpose="config" repeat="129">
       <description>Nxyter DAC Register </description>
+      
       <field name="ChannelDown" start="5" bits="1" format="bitmask" purpose="config" mode="rw">
         <description>Channel Down</description>
       </field> 
+  
       <field name="TrimValue" start="0" bits="5" format="unsigned" purpose="config" mode="rw">
         <description>DAC Trim Value</description>
       </field> 
-    </register>
-
-    <register name="DACRegisterT" address="0000" purpose="config">
-      <description>Nxyter DAC Register Test Channel</description>
-      <field name="ChannelDownT" start="5" bits="1" format="bitmask" purpose="config" mode="rw">
-        <description>Channel Down</description>
-      </field> 
-      <field name="TrimValueT" start="0" bits="5" format="unsigned" purpose="config" mode="rw">
-        <description>DAC Trim Value Test Channel</description>
-      </field>
     </register>
   
   </group>
