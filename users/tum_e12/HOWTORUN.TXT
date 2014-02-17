@@ -7,6 +7,7 @@ trbcmd reset
 trbdhcp
 configure_eb.sh
 configure_cts.sh
+sleep 2
 /home/rich/TRB/trbsoft/nxyter/setup.sh
 
 xterm -e "cd ../../web; cts_gui --port 1234 --noopenxterm --quiet" &
