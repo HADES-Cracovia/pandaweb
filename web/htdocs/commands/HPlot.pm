@@ -1,6 +1,6 @@
 package HPlot;
 use POSIX qw/floor ceil strftime/;
-use Data::Dumper;
+# use Data::Dumper;
 use warnings;
 use strict;
 use FileHandle;
