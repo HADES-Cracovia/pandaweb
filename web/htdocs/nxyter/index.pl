@@ -1,6 +1,13 @@
-&htsponse(200, "OK");
-print "Content-type: text/html\r\n\r\n";
-
+#!/usr/bin/perl
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  print "HTTP/1.0 200 OK\n";
+  print "Content-type: text/html\r\n\r\n";
+  }
+else {
+  use lib '..';
+  use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
+  print "Content-type: text/html\n\n";
+  }
 
 use CGI ':standard';
 use XML::LibXML;
@@ -18,7 +25,7 @@ $page->{link}  = "../";
 my @setup;
 
 $setup[0]->{name}    = "NXControl";
-$setup[0]->{cmd}     = "Nxyter-0xfe49-NXControl";
+$setup[0]->{cmd}     = "Nxyter-0xfe49-NXControl&Nxyter-0xfe49-ADCMonitor";
 $setup[0]->{period}  = -1;
 $setup[0]->{generic} = 1;
 
@@ -38,12 +45,12 @@ $setup[3]->{period}  = -1;
 $setup[3]->{address} = 1;
 
 $setup[4]->{name}    = "I2CRegister";
-$setup[4]->{cmd}     = "Nxyter-0xfe49-NxyterI2C&Nxyter-0xfe49-NxyterDAC";
+$setup[4]->{cmd}     = "Nxyter-0xfe49-NxyterI2C&Nxyter-0xfe49-NxyterDAC&Nxyter-0xfe49-I2CTokens";
 $setup[4]->{period}  = -1;
 $setup[4]->{address} = 1;
 
 $setup[5]->{name}    = "NXHistograms";
-$setup[5]->{cmd}     = "Nxyter-0xfe49-NXHistos-rate";
+$setup[5]->{cmd}     = "Nxyter-0xfe49-NXHistos";
 $setup[5]->{period}  = -1;
 $setup[5]->{address} = 1;
 

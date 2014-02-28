@@ -59,6 +59,7 @@
 
   </group>
 
+  <!-- ##################################################################### -->
 
   <group name="TriggerHandler"
          address="0160"  size="4"  purpose="config"  mode="rw"  continuous="true">
@@ -85,6 +86,7 @@
     
   </group>  
 
+  <!-- ##################################################################### -->
 
   <group name="TestPulse"
          address="0140"  size="2"  purpose="config"  mode="rw"  continuous="true">
@@ -100,13 +102,14 @@
     </register>   
     
   </group> 
-
+  
+  <!-- ##################################################################### -->
 
   <group name="TriggerValidate"
          address="0400"  size="32"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
-      
+
       <field name="SelfTrigger" start="3" bits="1" format="boolean">
         <description>Self Trigger Mode</description>
       </field>
@@ -117,10 +120,10 @@
 
       <field name="StatusSelect" start="0" bits="2" format="enum">
         <description>Timestamp Selection Mode</description>
-        <enumItem value="0">Ovfl, Parity Bits valid</enumItem>
-        <enumItem value="1">Ovfl, Parity, Pileup Bits valid</enumItem>
-        <enumItem value="2">ignore Status Bits</enumItem>
-        <enumItem value="3">ignore Status Bits</enumItem>
+        <enumItem value="0">TS 11Bit, ADC 12Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="1">TS 12Bit, ADC 11Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="2">TS 14Bit, ADC  9Bit, PileUp + Parity Bits</enumItem>
+        <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
     </register>    
 
@@ -236,6 +239,7 @@
     </register>
   </group>
 
+  <!-- ##################################################################### -->
 
   <group name="DataReceiver"
          address="0500"  size="19"  purpose="status"  mode="rw"  continuous="true">
@@ -259,7 +263,7 @@
       <field name="TSFifoAlmostEmpty" start="2" bits="1" format="boolean" mode="r">
         <description>Timestamp Fifo Almost Empty</description>
       </field>        
-    
+      
       <field name="NxFrameSynced" start="31" bits="1" format="boolean" mode="r">
         <description>Synchronized to Nxyter Frame</description>
       </field>        
@@ -358,6 +362,8 @@
 
   </group>
   
+  <!-- ##################################################################### -->
+
   <group name="NxyterI2C"
          address="0200" purpose="config"  mode="rw"  continuous="false">
 
@@ -374,9 +380,9 @@
         <field name="NxPolarity" start="0" bits="1" format="unsigned"/>
       </register>
       
-      <register name="NxTestPol" address="0002" purpose="status" mode="r" >
+      <register name="NxTestPol" address="0002" purpose="config" mode="r" >
         <description>Nxyter Testpulse Polarity (1 = negative, 0 = positive)</description>
-        <field name="NxTestPol" start="0" bits="1" format="unsigned"/>
+        <field name="NxTestPol" start="0" bits="1" format="bitmask"/>
       </register>
 
       <register name="NxTestPulse" address="0003" purpose="config" mode="rw" >
@@ -398,60 +404,270 @@
         <description>I2C Online, i.e. Nxyter is connected</description>
         <field name="I2COnline" start="0" bits="1" format="boolean"/>
       </register>
-    
     </group>
-  
+    
     <group name="I2CRegs"
            address="0000"  size="46"  purpose="status"  mode="rw" continuous="true">
       
-      <register name="I2CRegister" address="0000" purpose="config" repeat="46">
-        <description>Nxyter I2C Register</description>
-        
-        <field name="I2CWToken" start="31" bits="1" format="bitmask" purpose="status" mode="r">
-          <description>I2C Write Token</description>
-        </field> 
-        
-        <field name="I2CRToken" start="30" bits="1" format="bitmask" purpose="status" mode="r">
-          <description>I2C Read Token</description>
-        </field> 
-        
-        <field name="I2CReserved" start="29" bits="1" format="bitmask" purpose="status" mode="r">
-          <description>Dummy Register</description>
-        </field> 
-      
-        <field name="I2CValue" start="0" bits="8" format="unsigned" purpose="config" mode="rw">
-          <description>I2C Register Value</description>
-        </field>
-        
+      <register name="ChannelMask" address="0000" purpose="config" repeat="16">
+        <description>0..15: Channel Mask Register</description>
+        <field name="Ch0" start="0" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch1" start="1" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch2" start="2" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch3" start="3" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch4" start="4" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch5" start="5" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch6" start="6" bits="1" format="bitmask" purpose="config" mode="rw"/>
+        <field name="Ch7" start="7" bits="1" format="bitmask" purpose="config" mode="rw"/>
       </register>
+      
+
+     <register name="Icg" address="0010" purpose="config">
+        <description>16: Gate Voltage Preamplifier Current Sink (Vcg)</description>
+        <field name="Icg" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+
+      <register name="IcgFoll" address="0011" purpose="config">
+        <description>17: Bias Voltage Shapers (VcgFoll)</description>
+        <field name="IcgFoll" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+
+      <register name="Vth" address="0012" purpose="config">
+        <description>18: Global Threshold of Comparators</description>
+        <field name="Vth" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+      
+      <register name="Vbfb" address="0013" purpose="config">
+        <description>19: Discharge time of Preamplifier.</description>
+        <field name="Vbfb" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+
+      <register name="VbiasF" address="0014" purpose="config">
+        <description>20: Bias Voltage Fast Shaper</description>
+        <field name="VbiasF" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+
+      <register name="VbiasS" address="0015" purpose="config">
+        <description>21: Bias Voltage Slow Shaper first stage</description>
+        <field name="VbiasS" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>
+      
+      <register name="VbiasS2" address="0016" purpose="config">
+        <description>22: Bias Voltage Slow Shaper second stage</description>
+        <field name="VbiasS2" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="VcmVbase" address="0017" purpose="config">
+        <description>23: Target Voltage of common mode feedback</description>
+        <field name="VcmVbase" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+      
+      <register name="cal" address="0018" purpose="config">
+        <description>24: Strength of internal Testpulse</description>
+        <field name="cal" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="iCOMP" address="0019" purpose="config">
+        <description>25: Current of Main Stage of Comparator</description>
+        <field name="iCOMP" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="iDUR" address="001a" purpose="config">
+        <description>26: Dead Time of analog channels</description>
+        <field name="iDUR" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="iINV" address="001b" purpose="config">
+        <description>27: Current of Output Stage of Comparators</description>
+        <field name="iINV" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="iPDH" address="001c" purpose="config">
+        <description>28: Current of Peak Detect and hold Circuit</description>
+        <field name="iPDH" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="iTWC" address="001d" purpose="config">
+        <description>29: Current of Time Walk Compensation Circuit</description>
+        <field name="iTWC" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="Spare1" address="001e" purpose="status" repeat="2">
+        <description>30..31: Spare</description>
+        <field name="Spare1" start="0" bits="32" format="bitmask" purpose="config" mode="r"/>
+      </register>
+
+      <register name="Config1" address="0020" purpose="config">
+        <description>32: Configuration Register #1</description>
+        <field name="TSLSB" start="7" bits="1" format="bitmask" purpose="config" mode="rw">
+          <description>Timestamp LSB Select(0: CLK256A, 1:CLK256B</description>
+        </field>
+        <field name="D128MHz" start="6" bits="1" format="bitmask" purpose="config" mode="rw">
+          <description>Disable 128MHz Readout Clock</description>
+        </field>
+        <field name="D32MHz" start="5" bits="1" format="bitmask" purpose="config" mode="rw">
+          <description>Disable 32MHz Readout Clock</description>
+        </field>
+        <field name="TTSync" start="4" bits="1" format="bitmask" purpose="config" mode="rw">
+          <description>TestTrigger Synchronize</description>
+        </field>        
+        <field name="TTEnable" start="3" bits="1" format="bitmask" purpose="config" mode="r">
+          <description>TestTrigger Enable</description>
+        </field>
+        <field name="TPPolarity" start="2" bits="1" format="bitmask" purpose="config" mode="r">
+          <description>TestPulse Polarity (1: negative, 0: positive)</description>
+        </field>
+        <field name="TPSync" start="1" bits="1" format="bitmask" purpose="config" mode="rw">
+          <description>TestPulse Synchronize</description>
+        </field>
+        <field name="TPEnabled" start="0" bits="1" format="bitmask" purpose="config" mode="r">
+          <description>TestPulse Enable</description>
+        </field>
+      </register>  
+
+      <register name="Config2" address="0021" purpose="status">
+        <description>33: Configuration Register #2</description>
+        <field name="ReadoutClock" start="3" bits="1" format="bitmask" purpose="status" mode="r">
+          <description>Must always be set</description>
+        </field>
+        <field name="FEPolarity" start="2" bits="1" format="bitmask" purpose="status" mode="r">
+          <description>Front End Polarity (0: negative input charge, 1: positive input charge)</description>
+        </field>
+        <field name="CalSelect" start="0" bits="2" format="unsigned" purpose="status" mode="r">
+          <description>Nxyter Testpulse Channel Group (0=0,4,.. 1=1,5,.. 2=2,6,.. 3=3,7,..)</description>
+        </field>
+      </register>  
+   
+      <register name="Counter" address="0022" purpose="status" repeat="4">
+        <description>34..37: Spare</description>
+        <field name="Counter" start="0" bits="32" format="bitmask" purpose="config" mode="r"/>
+      </register>
+
+      <register name="TPDelay" address="0026" purpose="config">
+        <description>38: Testpulse Delay</description>
+        <field name="TPDelay" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+
+      <register name="TTDelay" address="0027" purpose="config">
+        <description>39: Test Trigger Delay</description>
+        <field name="TTDelay" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
+   
+   
+      <register name="Spare2" address="0028" purpose="status" repeat="3">
+        <description>40..42: Spare</description>
+        <field name="Spare2" start="0" bits="32" format="bitmask" purpose="config" mode="r"/>
+      </register>
+      
+      <register name="ClkDelay" address="002b" purpose="config" repeat="3">
+        <description>43..45: Clock Delay Registers</description>
+        <field name="ClkDelay" start="0" bits="8" format="unsigned" purpose="config" mode="rw"/>
+      </register>  
     </group>
+    
+    <register name="UpdateRegI2C" address="0060" purpose="config" mode="rw">
+      <description>Update Nxyter I2C Register</description>
+      <field name="UpdateRegI2C" start="0" bits="1" format="boolean" purpose="config"/>
+    </register>
+      
+    <register name="UpdateRegDAC" address="0061" purpose="config" mode="rw">
+      <description>Update Nxyter DAC Register</description>
+      <field name="UpdateRegDAC" start="0" bits="1" format="boolean" purpose="config"/>
+    </register>
+    
+    <register name="UpdateRegBoth" address="0062" purpose="config" mode="rw">
+      <description>Update Nxyter I2C and DAC Register</description>
+      <field name="UpdateRegBoth" start="0" bits="1" format="boolean" purpose="config" />
+    </register>  
   </group>
+  
+  <!-- ##################################################################### -->
 
   <group name="NxyterDAC"
          address="0300"  size="129"  purpose="status"  mode="rw" continuous="true">
-
+    
     <register name="DACRegister" address="0000" purpose="config" repeat="129">
-      <description>Nxyter DAC Register</description>
-      
-      <field name="DACWToken" start="31" bits="1" format="bitmask" purpose="status" mode="r">
-        <description>DAC Write Token</description>
-      </field> 
-      
-      <field name="DACRToken" start="30" bits="1" format="bitmask" purpose="status" mode="r">
-        <description>DAC Read Token</description>
-      </field> 
+      <description>Nxyter DAC Register </description>
       
       <field name="ChannelDown" start="5" bits="1" format="bitmask" purpose="config" mode="rw">
         <description>Channel Down</description>
       </field> 
-      
+  
       <field name="TrimValue" start="0" bits="5" format="unsigned" purpose="config" mode="rw">
         <description>DAC Trim Value</description>
       </field> 
-      
+    </register>
+  
+  </group>
+  
+  <!-- ##################################################################### -->
+
+  <group name="I2CTokens"
+         address="0270"  size="14"  purpose="status"  mode="r" continuous="true">
+    
+    <register name="WriteToken0" address="0000" purpose="status" mode="r" >
+      <description>I2C Register Write Token Status 31 .. 0</description>
+      <field name="WriteToken0" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="WriteToken1" address="0001" purpose="status" mode="r" >
+      <description>I2C Register Write Token Status 45 .. 32</description>
+      <field name="WriteToken1" start="0" bits="14" format="bitmask"/>
+    </register>
+    
+    <register name="ReadToken0" address="0002" purpose="status" mode="r" >
+      <description>I2C Register Read Token Status 31 .. 0</description>
+      <field name="ReadToken0" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="ReadToken1" address="0003" purpose="status" mode="r" >
+      <description>I2C Register Read Token Status 45 .. 32</description>
+      <field name="ReadToken1" start="0" bits="14" format="bitmask"/>
+    </register>
+    
+    <register name="WriteTokenDAC0" address="0004" purpose="status" mode="r" >
+      <description>I2C Register Write Token DAC Status 31 .. 0</description>
+      <field name="WriteTokenDAC0" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="WriteTokenDAC1" address="0005" purpose="status" mode="r" >
+      <description>I2C Register Write Token DAC Status 63 .. 32</description>
+      <field name="WriteTokenDAC1" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="WriteTokenDAC2" address="0006" purpose="status" mode="r" >
+      <description>I2C Register Write Token DAC Status 95 .. 64</description>
+      <field name="WriteTokenDAC2" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="WriteTokenDAC3" address="0007" purpose="status" mode="r" >
+      <description>I2C Register Write Token DAC Status 127 .. 95</description>
+      <field name="WriteTokenDAC3" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="WriteTokenDAC4" address="0008" purpose="status" mode="r" >
+      <description>I2C Register Write Token DAC Status 128</description>
+      <field name="WriteTokenDAC4" start="0" bits="1" format="bitmask"/>
+    </register>
+    
+    <register name="ReadTokenDAC0" address="0009" purpose="status" mode="r" >
+      <description>I2C Register Read Token DAC Status 31 .. 0</description>
+      <field name="ReadTokenDAC0" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="ReadTokenDAC1" address="000a" purpose="status" mode="r" >
+      <description>I2C Register Read Token DAC Status 63 .. 32</description>
+      <field name="ReadTokenDAC1" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="ReadTokenDAC2" address="000b" purpose="status" mode="r" >
+      <description>I2C Register Read Token DAC Status 95 .. 64</description>
+      <field name="ReadTokenDAC2" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="ReadTokenDAC3" address="000c" purpose="status" mode="r" >
+      <description>I2C Register Read Token DAC Status 127 .. 95</description>
+      <field name="ReadTokenDAC3" start="0" bits="32" format="bitmask"/>
+    </register>
+    <register name="ReadTokenDAC4" address="000d" purpose="status" mode="r" >
+      <description>I2C Register Read Token DAC Status 128</description>
+      <field name="ReadTokenDAC4" start="0" bits="1" format="bitmask"/>
     </register>
   </group>
-
+  
+  <!-- ##################################################################### -->
+  
   <group name="NXControl"
          address="0103"  size="10"  purpose="status"  mode="rw" continuous="true">
     
@@ -507,47 +723,79 @@
 
   </group>
   
+  <!-- ##################################################################### -->
+
+  <group name="ADCMonitor"
+         address="0280"  size="4"  purpose="status"  mode="r" continuous="true">
+
+    <register name="NXSlow" address="0000" purpose="status" mode="r" >
+      <description>Nxyter Slow Shaper Pin</description>
+      <field name="ErrorSlow" start="12" bits="1" format="bitmask"/>
+      <field name="NXSlowVal" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>
+
+    <register name="NXFast" address="0001" purpose="status" mode="r" >
+      <description>Nxyter Fast Shaper Pin</description>
+      <field name="ErrorFast" start="12" bits="1" format="bitmask"/>
+      <field name="NXFastVal" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>
+
+    <register name="FEBTemp" address="0002" purpose="status" mode="r" >
+      <description>FEB Temperature Sensor</description>
+      <field name="ErrorTemp" start="12" bits="1" format="bitmask"/>
+      <field name="FEBTempVal" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>
+
+    <register name="FEBCurrent" address="0003" purpose="status" mode="r" >
+      <description>FEB Current</description>    
+      <field name="ErrorCurrent" start="12" bits="1" format="bitmask"/>
+      <field name="FEBCurrentVal" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>
+    
+  </group>
+  
+  <!-- ##################################################################### -->
 
   <group name="NXHistos"
          address="0800" purpose="status"  mode="r" continuous="false">
     
     <group name="RateHist"
-           address="0000"  size="128"  purpose="config"  mode="rw" continuous="true">    
+           address="0000"  size="128"  purpose="config"  mode="r" continuous="true">    
       <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
         <description>Continuous Hit Counter per Channel</description>
         <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
       </register>
-    <!--
-      <register name="AverageNumH" address="0080" purpose="config" mode="rw">
-        <description>Number of Averages, power of two (2^n)</description>
-        <field name="AverageNumH" start="0" bits="32" format="unsigned"/>
-      </register>
-      
-      <register name="EnableAverageH" address="0081" purpose="config" mode="rw">
-        <description>Enable Average mode</description>
-        <field name="EnableAverageH" start="0" bits="1" format="boolean"/>
-      </register>
--->
     </group>
     
+    <group name="PileUpHist"
+           address="0100"  size="128"  purpose="config"  mode="r" continuous="true">    
+      <register name="ChannelPileupVal" address="0000" purpose="status" mode="r" repeat="128">
+        <description>Continuous Pile Up Counter per Channel</description>
+        <field name="ChannelPileupVal" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+      </register>
+    </group>
+
+    <group name="OverFlowHist"
+           address="0200"  size="128"  purpose="config"  mode="r" continuous="true">    
+      <register name="ChannelOvflVal" address="0000" purpose="status" mode="r" repeat="128">
+        <description>Continuous Overflow Counter per Channel</description>
+        <field name="ChannelOvflVal" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+      </register>
+    </group>
+
     <group name="ADCHist"
-           address="0100"  size="128"  purpose="config"  mode="rw" continuous="true">    
+           address="0300"  size="128"  purpose="config"  mode="r" continuous="true">    
       <register name="ChannelADCVal" address="0000" purpose="status" mode="r" repeat="128">
-        <description>Continuous Hit Counter per Channel</description>
+        <description>ADC Value Average per Channel</description>
         <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
       </register>
-  <!--  
-      <register name="AverageNumA" address="0080" purpose="config" mode="rw">
-        <description>Number of Averages, power of two (2^n)</description>
-        <field name="AverageNumA" start="0" bits="32" format="unsigned"/>
-      </register>
-      
-      <register name="EnableAverageA" address="0081" purpose="config" mode="rw">
-        <description>Enable Average mode</description>
-        <field name="EnableAverageA" start="0" bits="1" format="boolean"/>
-      </register>
--->
     </group>
+
+    <register name="ADCNumAverages" address="0380" purpose="status" mode="rw">
+      <description>Number of Averages per Channel, power of two (2^n)</description>
+      <field name="ADCNumAverages" start="0" bits="3" format="unsigned"/>
+    </register>
+    
 
   </group>  
 

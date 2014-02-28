@@ -34,6 +34,7 @@
     <td title="Show control buttons for channel enable/disable"><input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
 
 <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
+        <td title="Reset TDC counters"><input type="button" onClick="resetCounters()" value="RESET">
 
 </table>
 </form>
@@ -58,7 +59,7 @@ var oldvalues = {};
 var regstatus = "c100-19";
 var regctrl = "c800-5";
 
-var regstatusnames = new Array("debug_wr<br>debug_rd<br>tdc version<br>channels<br>ref input","","","",
+var regstatusnames = new Array("debug_rd<br>debug_wr<br>tdc version<br>channels<br>ref input","","","",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time","",
                          "releases","rdo time","timeout number","data finished number");
@@ -198,6 +199,15 @@ function setRunMode(e,board,val) {
   settimers(200,50);
   }
 
+function resetCounters() {
+   reg = 0xc800;
+   value = 0x100;
+   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"set"+"-"+value.toString(16),0);
+  settimers(200,50);
+   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"clr"+"-"+value.toString(16),0);
+  settimers(200,50);
+  }
+
 function setEnableWindow(e,board,val) {
    reg = 0xc801;
    op  = val?"set":"clr";
@@ -211,6 +221,19 @@ function setDataLimit(e,board) {
    value = e.value;
    getdata("../commands/put.pl?"+board+"-"+reg.toString(16)+"-"+(value*1.).toString(16),0);
    settimers(200,50);
+  }  
+
+function setTriggerWindow(e,board,val) {
+   reg = 0xc801;
+   preTrigger = 0x7FF;
+   postTrigger = 0x7FF0000;
+   value = (e.value)/5;
+   if(val==0)
+     getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-"+preTrigger.toString(16)+"-"+(value*1.).toString(16),0);
+   else
+     getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-"+postTrigger.toString(16)+"-"+(value*65536.).toString(16),0);
+
+   settimers(200,50);   
   }  
   
   
@@ -296,13 +319,16 @@ function updatectrlregs(data) {
             o += "<input title="+tooltiptriggered+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Triggered\">";
           }
         else if(i==1) {
+          if ((val&0x80000000))
+            o += "Enabled ";
+          else
+            o += "Disabled ";
           o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',1)\" value=\"on\">";
           o += "<input class=\"onoffbutton\" type=\"button\" onClick=\"setEnableWindow(this,'"+c[j][0]+"',0)\" value=\"off\">";
-          if ((val&0x80000000))
-            o += "Enabled";
-          else
-            o += "Disabled";
-            o += "<br>"+(val&0x7FF)*5+" ns"+"<br>"+((val&0x7ff0000)>>16)*5+" ns";
+          preWindow = (val&0x7FF)*5;
+          postWindow = ((val&0x7FF0000)>>16)*5;
+          o += "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',0)\"type=\"text\" id=\"prewindow\"name=\"prewindow\" class=\"smaller\"maxlength=\"5\" value=\""+preWindow+"\"ns>"+"ns"+
+               "<br>"+"<input onChange=\"setTriggerWindow(this,'"+c[j][0]+"',1)\"type=\"text\" id=\"postwindow\"name=\"postwindow\" class=\"smaller\"maxlength=\"5\" value=\""+postWindow+"\"ns>"+"ns";
           }
         else if(i==2 || i==3) {
           o += (val*1.).toString(16);

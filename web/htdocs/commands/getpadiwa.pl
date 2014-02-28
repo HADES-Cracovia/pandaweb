@@ -1,15 +1,15 @@
-#!/usr/bin/perl -w
-
-eval{
-  &htsponse(200, "OK");
-  print "Content-type: text/html\r\n\r\n";
-  };
-
-
-
+#!/usr/bin/perl
 use HADES::TrbNet;
-use Data::Dumper;
-
+# use Data::Dumper;
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+  print "HTTP/1.0 200 OK\n";
+  print "Content-type: text/html\r\n\r\n";
+  }
+else {
+  use lib '..';
+  use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
+  print "Content-type: text/html\n\n";
+  }
 
 
  if (!defined &trb_init_ports()) {
