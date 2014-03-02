@@ -83,9 +83,9 @@ var CTS = new Class({
       this.monitorPrefix = 'monitor-' + this.defs.server.port + '/';
 
       this.renderTriggerChannels();
-      this.renderTriggerInputs();
       this.renderCoins();
       this.renderTriggerAddOnInputs();
+      this.renderPeriphTrigger();
       this.renderRegularPulsers();
       this.renderRandPulsers();
       this.renderCTSDetails();
@@ -370,6 +370,12 @@ var CTS = new Class({
          var reg = this.defs.registers[s.reg];
          var bits = "";
          
+         if (reg == undefined) {
+            if (console) 
+               console.debug("Register " + s + " not found. Please check definition of element ", e)
+            return;
+         }
+         
          if (s.bit != undefined) {
             bits = ' Bit ' + (parseInt(reg._defs[s.slice].lower) + s.bit);
          } else if (s.slice) {
@@ -396,59 +402,6 @@ var CTS = new Class({
       
       return def;
    },
-   
-/**
- * Creates all active elements of the Trigger Input Configuration
- * section. It is called by the class' constructor and hence
- * should not by called manually.
- */
-   renderTriggerInputs: function() {
-      var num = this.defs.properties.trg_input_count;
-      num -= (this.defs.properties.trg_addon_count) ? this.defs.properties.trg_addon_count : 0;
-      for(var i=0; i < num; i++) {
-         var reg = 'trg_input_config' + i;
-         $('inputs-tab')
-         .adopt(
-            new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
-            .adopt(
-               new Element('td', {'class': 'num', 'text': i})
-            ).adopt(
-               new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i})
-            ).adopt(
-               new Element('td', {'class': 'invert'})
-               .adopt(
-                  new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': reg + '.invert'})
-               )
-            ).adopt(
-               new Element('td', {'class': 'delay'})
-               .adopt(
-                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.delay', 'format': 'countToTime', 'interpret': 'timeToCount'})
-               ).adopt(
-                  new Element('span', {'text': ' ns'})
-               )
-            ).adopt(
-               new Element('td', {'class': 'spike'})
-               .adopt(
-                  new Element('input', {'class': 'text autocommit autoupdate', 'slice': reg + '.spike_rej', 'format': 'countToTime', 'interpret': 'timeToCount'})
-               ).adopt(
-                  new Element('span', {'text': ' ns'})
-               )
-            ).adopt(
-               new Element('td', {'class': 'override'})
-               .adopt(
-                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': reg + '.override'})
-                  .adopt(
-                     new Element('option', {'value': 'off', 'text': 'bypass'})
-                  ).adopt(
-                     new Element('option', {'value': 'to_low', 'text': '-> 0'})
-                  ).adopt(
-                     new Element('option', {'value': 'to_high', 'text': '-> 1'})
-                  )
-               )
-            )
-         );
-      }
-   },
 
 /**
  * Creates all active elements of the AddOn Multiplexer Input Configuration
@@ -456,33 +409,21 @@ var CTS = new Class({
  * should not by called manually.
  */
    renderTriggerAddOnInputs: function() {
-      if (!this.defs.properties.trg_addon_count) {
-         $('addon-board-expander').setStyle('display', 'none');
-         return;
-      }
-      
-      var from = this.defs.properties.trg_input_count - this.defs.properties.trg_addon_count;
+      var source_from = this.defs.properties.trg_input_count - this.defs.properties.trg_inp_mux_count;
       var to = this.defs.properties.trg_input_count;
       
-      for(var i=from; i < to; i++) {
+      for(var i=0; i < to; i++) {
          var reg = 'trg_input_config' + i;
-         var areg = 'trg_addon_config' + (i-from);
+         var areg = 'trg_input_mux' + (i-source_from);
          var en = this.defs.registers[areg]._defs.input.enum;
-         $('addon-board-tab')
+         var source;
+         $('inputs-tab')
          .adopt(
             new Element('tr', {'class': i%2?'':'alt', 'flashgroup': 'itc-' + (i + parseInt(this.defs.properties.trg_input_itc_base))})
             .adopt([
                new Element('td', {'class': 'num', 'text': i}),
                
-               new Element('td', {'class': 'source'})
-               .adopt(
-                  new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
-                  .adopt(
-                        Object.values(en).map(function (r) {
-                           return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
-                        }, this)
-                  )
-               ),
+               (source = new Element('td', {'class': 'source'})),
                
                new Element('td', {'class': 'rate autorate', 'slice': 'trg_input_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'inp-rate' + i}),
                
@@ -513,9 +454,48 @@ var CTS = new Class({
                )
             ])
          );
+	 
+         if (i >= source_from) {
+            source.adopt(
+               new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
+               .adopt(
+                  Object.values(en).map(function (r) {
+                  return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
+               }, this))
+            );
+         } else {
+            source.set('text', 'hard wired');
+         }
       }
    },
    
+   
+   renderPeriphTrigger: function() {
+      if (!this.defs.properties['trg_periph_count']) {
+         $('periph-inp-expander').setStyle('display', 'none');
+         return;
+      }
+      var tab = $('periph-inp-tab');
+      var row, header;
+      tab.adopt(header = new Element('tr', {'class': 'snd_header'}));
+      header.adopt(new Element('td'));
+      for(var i=0; i < 4; i++)
+         [10,7,6,5,4].each(function(n) {header.adopt(new Element('td', {'text': n}));});
+      
+      for(var pt=0; pt < this.defs.properties['trg_periph_count']; pt++) {
+         tab.adopt(row = new Element('tr', {'class': pt%2?'':'alt', 'flashgroup': 'itc-' + (pt + parseInt(this.defs.properties.trg_periph_itc_base))} ))
+         row.adopt(new Element('td', {'text': pt}));
+         
+         for(var f=0; f<4; f++) {
+            for(var i=4; i>=0; i--) {
+               var bit = (i == 4) ? (16+f) : (4*f + i);
+                  row.adopt(new Element('td', {'class': (i%5)?'':'new-fpga'}).adopt(new Element('input', {'class': 'autoupdate autocommit', 'type': 'checkbox',
+                     'slice': 'trg_periph_config' + pt + '.mask[' + bit + ']'})));
+            }
+         }
+      }
+      
+   },
    
 /**
  * Creates all active elements of the Trigger Channel Configuration
@@ -545,7 +525,7 @@ var CTS = new Class({
                    ])
                ),
     
-               itc = new Element('td', {'class': 'assign', 'text': (this.defs.properties['trg_periph_itc_base'] == i) ? '' : this.translateName('itc-names', 'itc-' + i, this.defs.properties.itc_assignments[i])}),
+               itc = new Element('td', {'class': 'assign', 'text': this.translateName('itc-names', 'itc-' + i, this.defs.properties.itc_assignments[i])}),
                new Element('td', {'class': 'type'})
                .adopt(
                      ddType = new Element('select', {'class': 'autocommit autoupdate autoupdate-value', 'slice': '_trg_trigger_types' + (i < 8 ? '0' : '1') + '.type' + i})
@@ -555,17 +535,6 @@ var CTS = new Class({
                edgeRate = new Element('td', {'class': 'rate autorate', 'slice': 'trg_channel_edge_cnt' + i + '.value', 'text': 'n/a', 'id': 'itc-edge-rate' + i})
             ])
          );
-         
-         if (this.defs.properties['trg_periph_itc_base'] == i) {
-            itc.set('html', '').adopt([
-               new Element('span', {'html': 'Trigger from FPGA:&nbsp;&nbsp;'}),
-               new Element('sub', {'text': '4'})
-            ]);
-            for(var j=3; j>=0; j--)
-               itc.adopt(new Element('input', {'type': 'checkbox', 'class': 'autocommit autoupdate', 'slice': 'trg_periph_config.mask[' + j + ']'}));
-
-            itc.adopt(new Element('sub', {'text': '1'}));
-         }
 	 
          for(var j=0; j < 16; j++)
             ddType.adopt(new Element('option', {'value': j, 'text': this.defs.registers['_trg_trigger_types' + (i < 8 ? '0' : '1')]._defs['type' + i].enum[j]}));
@@ -811,12 +780,10 @@ function requestFailure(obj){
    }
 }
 
-
-var cts;
 function loadCTS(nameDB) {
    if (typeOf(nameDB) != 'object')
       nameDB = {};
-   
+
    (new Request.JSON({'url': 'cts.pl?init',
                      'onSuccess': function(json) {cts = new CTS(json, nameDB)},
                      'onFailure': requestFailure,

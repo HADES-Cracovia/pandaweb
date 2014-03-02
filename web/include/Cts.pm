@@ -79,16 +79,18 @@ sub _enumerateTriggerLogic {
       
       $offsetToNextHeader = $regv->{'len'} + 1;
 
+      #printf "load module %02x at %04x\n", $regv->{'type'}, $address;
+      
       if (defined $self->{'_enum'}{$regv->{'type'}}) {
-         warnings::warn(sprintf("Block type 0x%02x appears multiple times (not allowed by specification). First encountered at address 0x%04x, now again at 0x%04x",
-            $regv->{'type'}, $self->{'_enum'}{$regv->{'type'}}->{'_address'}, $address));
+         #warnings::warn(sprintf("Block type 0x%02x appears multiple times (not allowed by specification). First encountered at address 0x%04x, now again at 0x%04x",
+         #   $regv->{'type'}, $self->{'_enum'}{$regv->{'type'}}->{'_address'}, $address));
          
          next;
       }
 
       $self->{'_enum'}{$regv->{'type'}} = $reg;
       
-# load module      
+# load module
       my $mod = $self->_loadModule(sprintf("%02x", $regv->{'type'}), $address);
       if ($mod) {
          $mod->register();

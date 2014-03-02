@@ -473,7 +473,7 @@ EOF
          });
 
          open FH, ">$config->{'dump_dir'}/dump.js";
-         print FH $json;
+         syswrite FH, $json;
          close FH;
 
       # generate plot

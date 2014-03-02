@@ -237,6 +237,7 @@
    #pulser-tab .freq   {width: 30%; text-align: right}
    #pulser-tab .period input {text-align: right; width: 8em;}
    
+   .rand-pulser-content {margin-top: 1em;}
    #rand-pulser-tab .freq {
       text-align: right;
    }

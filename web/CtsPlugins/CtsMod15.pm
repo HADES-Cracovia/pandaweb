@@ -1,5 +1,5 @@
-# Module: AddOn Input Multiplexer (Type 0x12)
-package CtsMod12;
+# Module: Unified AddOn Module
+package CtsMod15;
 
 @ISA = (CtsBaseModule);
 
@@ -19,9 +19,9 @@ sub init {
    my $prop = $self->{'_properties'};
    my $cprop = $self->{'_cts'}{'_properties'};
 
-   my $header = $self->{'_cts'}{'_enum'}{0x12}->read();
-   
-   die "Trigger Modules 0x12 and 0x15 cannot be instantiated in the same design\n" if exists $self->{'_cts'}{'_enum'}{0x15};
+   my $header = $self->{'_cts'}{'_enum'}{0x15}->read();
+
+   print "Trigger Modules 0x12 and 0x15 cannot be instantiated in the same design\n" if exists $self->{'_cts'}{'_enum'}{0x12};
    
 # registers
    for(my $i = 0; $i < $header->{'len'}; $i++) {
@@ -30,17 +30,19 @@ sub init {
       $regs->{$key} = new TrbRegister($address + 1 + $i, $trb, {
          'input'  => {'lower' =>  0, 'len' => 7, 'type' => 'enum', 'enum' => 
             {
-              0 => 'jeclin[0]', 1 => 'jeclin[1]', 2 => 'jeclin[2]', 3 => 'jeclin[3]', 
-              4 => 'jin1[0]',   5 => 'jin1[1]',   6 => 'jin1[2]',   7 => 'jin1[3]', 
-              8 => 'jin2[0]',   9 => 'jin2[1]',  10 => 'jin2[2]',  11 => 'jin2[3]',
-             12 => 'nimin1',   13 => 'nimin2'
+              0 => 'extclk[0]', 1 => 'extclk[1]', 2 => 'trgext[2]', 3 => 'trgext[3]', # rj45 jacks on trb3
+              4 => 'jeclin[0]', 5 => 'jeclin[1]', 6 => 'jeclin[2]', 7 => 'jeclin[3]', 
+              8 => 'jin1[0]',   9 => 'jin1[1]',  10 => 'jin1[2]',  11 => 'jin1[3]', 
+             12 => 'jin2[0]',  13 => 'jin2[1]',  14 => 'jin2[2]',  15 => 'jin2[3]',
+             16 => 'nimin1',   17 => 'nimin2',   18 => 'any[jeclin]', 19 => 'any[jin1]',
+             20 => 'any[jin2]',21 => 'any[nimin]'
             }
          }
       }, {
          'accessmode' => "rw",
          'export'     => 1,
          'monitor' => '1',
-         'label' => "AddOn Input Multiplexer $i"
+         'label' => "Input Multiplexer $i"
       });
    }
 
@@ -51,7 +53,6 @@ sub init {
 # properties
    $prop->{"trg_inp_mux_count"} = $header->{'len'};
    $prop->{"trg_inp_mux_itc_base"} = $header->{'itc_base'};
-
 }
 
 1;

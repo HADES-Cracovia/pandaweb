@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 use POSIX qw(SIGALRM SIGTERM sigaction);
+
+use lib "./include";
+use Digest::SHA::PurePerl qw(sha1_base64);
+
+
 $VERSION = "1.7 (Demonic/Linux)";
 
 # HTTPi Hypertext Tiny Truncated Process Implementation
@@ -81,7 +86,7 @@ $VERSION = "1.7 (Demonic/Linux)";
 	 "bin" => "application/octet-stream");
 
 # comment in to enable logs
-#$logfile = "./htdocs/access.log";
+$logfile = "./access.log";
 $path = "./htdocs";
 $sockaddr = 'S n a4 x8';
 
@@ -103,7 +108,7 @@ die("$0 [host] [port] required. got >$server_host< >$server_port<") unless ($ser
 		# See documentation for interpreting this string.
 
 $headers = <<"EOF";
-Server: HTTPi/$VERSION
+Server: TRB3-DAQ based on HTTPi/$VERSION
 MIME-Version: 1.0
 EOF
 
@@ -262,6 +267,20 @@ while (<STDIN>) {
 				substr($2, 0, 255));
 		(/^X-Requested-With:\s+(.+)/i) &&
 			($ENV{'HTTP_X_REQUESTED_WITH'} = substr($1, 0, 1024));
+
+		(/^Origin:\s+(.+)/i) &&
+			($ENV{'HTTP_ORIGIN'} = substr($1, 0, 1024));
+		(/^Upgrade:\s+(.+)/i) &&
+			($ENV{'HTTP_UPGRADE'} = substr($1, 0, 1024));
+		(/^Sec-WebSocket-Protocol:\s+(.+)/i) &&
+			($ENV{'WEBSOCKET_PROTOCOL'} = substr($1, 0, 1024));
+		(/^Sec-WebSocket-Version:\s+(-?\d+)/i) &&
+			($ENV{'WEBSOCKET_VERSION'} = substr($1, 0, 8));
+		(/^Sec-WebSocket-Extensions:\s+(-?\d+)/i) &&
+			($ENV{'WEBSOCKET_EXTENSIONS'} = substr($1, 0, 1024));
+		(/^Sec-WebSocket-Key:\s+(\S+)/i) &&
+			($ENV{'WEBSOCKET_KEY'} = substr($1, 0, 1024));
+		
 		next unless (/^$/);
 	}
 	if ($expect) {
@@ -282,6 +301,24 @@ while (<STDIN>) {
 			"Only GET, HEAD and POST are supported.");
 		&log; exit;
 	}
+	
+	
+	if ($ENV{'HTTP_UPGRADE'} eq 'websocket') {
+	    if ($method ne "GET" || !$ENV{'WEBSOCKET_KEY'}) {
+		&htsponse(400, "Bad request");
+		&hterror("Bad request",
+			"Illegal websocket opening handshake");
+		&log; exit;
+	    }
+	    
+	    $ENV{'WEBSOCKET_ACCEPT'} = 
+		sha1_base64($ENV{'WEBSOCKET_KEY'} . "258EAFA5-E914-47DA-95CA-C5AB0DC85B11") . "=";
+		
+	    
+	}
+	
+	
+	
 	($address, $variables) = split(/\?/, $address);
 	$address =~ s/%([0-9a-fA-F]{2})/pack("H2", $1)/eg;
 	$address=~ s#^/?#/#;

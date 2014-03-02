@@ -128,6 +128,7 @@
             </div>
          </div>
 
+<!--
          <div class="expandable expanded" id="inputs-expander">
             <div class="header"><span class="indicator"></span> Trigger Input Configuration and Coincidence Detectors</div>
             
@@ -146,25 +147,14 @@
                   </table>
                </div>
                
-               <div class="right">
-                  <h3>Coincidence Detectors</h3>
-                  <table id="coin-tab">
-                     <tr>
-                        <th class="num">#</th>
-                        <th class="window">Window</th>
-                        <th class="coin"><abbr title="Inputs that are required to rise within the specified window of time (edge sensitive)">Coin Mask</acronym></th>
-                        <th class="inhibit"><abbr title="Additionally to the Coin Mask, this input have to be asserted (level sensitive)">Inhibit Mask</abbr></th>
-                     </tr>
-                  </table>
-               </div>
             </div>
          </div>
-
-         <div class="expandable expanded" id="addon-board-expander">
-            <div class="header"><span class="indicator"></span> AddOn-Board Input Multiplexer</div>
+-->
+         <div class="expandable expanded" id="inputs-expander">
+            <div class="header"><span class="indicator"></span> Trigger Inputs</div>
             
             <div class="content">
-                  <table id="addon-board-tab">
+                  <table id="inputs-tab">
                      <tr>
                         <th class="num">#</th>
                         <th class="source">Source</th>
@@ -178,27 +168,58 @@
             </div>
          </div>
          
-         <div class="expandable expanded" id="coin-expander">
-            <div class="header"><span class="indicator"></span> Pulsers</div>
+         <div class="expandable expanded" id="periph-inp-expander">
+            <div class="header"><span class="indicator"></span> Peripheral Trigger Inputs</div>
             
             <div class="content">
-               <div class="left pulser-content">
-                  <h3>Periodical Pulsers</h3>
-                  <table id="pulser-tab">
-                     <tr>
-                        <th class="num">#</th>
-                        <th class="period">Low-Period</th>
-                        <th class="freq">Frequency</th>
-                     </tr>
-                  </table>
+               <table id="periph-inp-tab">
+                  <tr>
+                     <th class="num">#</th>
+                     <th colspan="5">from FPGA 1</th>
+                     <th colspan="5">from FPGA 2</th>
+                     <th colspan="5">from FPGA 3</th>
+                     <th colspan="5">from FPGA 4</th>
+                  </tr>
+               </table>
+            
+            </div>
+         </div>
+         
+         
+         <div class="expandable expanded" id="coin-expander">
+            <div class="header"><span class="indicator"></span> Pulsers and Coincidence Detectors</div>
+            
+            <div class="content">
+               <div class="left">
+                  <div class="pulser-content">
+                     <h3>Periodical Pulsers</h3>
+                     <table id="pulser-tab">
+                        <tr>
+                           <th class="num">#</th>
+                           <th class="period">Low-Period</th>
+                           <th class="freq">Frequency</th>
+                        </tr>
+                     </table>
+                  </div>
+                  <div class="rand-pulser-content">
+                     <h3>Random Pulsers</h3>
+                     <table id="rand-pulser-tab">
+                        <tr>
+                           <th class="num">#</th>
+                           <th class="freq">Mean Frequency</th>
+                        </tr>
+                     </table>
+                  </div>
                </div>
                
-               <div class="right rand-pulser-content">
-                  <h3>Random Pulsers</h3>
-                  <table id="rand-pulser-tab">
+               <div class="right">
+                  <h3>Coincidence Detectors</h3>
+                  <table id="coin-tab">
                      <tr>
                         <th class="num">#</th>
-                        <th class="freq">Mean Frequency</th>
+                        <th class="window">Window</th>
+                        <th class="coin"><abbr title="Inputs that are required to rise within the specified window of time (edge sensitive)">Coin Mask</acronym></th>
+                        <th class="inhibit"><abbr title="Additionally to the Coin Mask, this input have to be asserted (level sensitive)">Inhibit Mask</abbr></th>
                      </tr>
                   </table>
                </div>
