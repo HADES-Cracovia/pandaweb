@@ -84,11 +84,12 @@ var CTS = new Class({
 
       this.renderTriggerChannels();
       this.renderCoins();
-      this.renderTriggerAddOnInputs();
+      this.renderTriggerInputs();
       this.renderPeriphTrigger();
       this.renderRegularPulsers();
       this.renderRandPulsers();
       this.renderCTSDetails();
+      this.renderOutputMux();
       
       this.initAutoRates();
       this.initAutoUpdate();
@@ -408,14 +409,13 @@ var CTS = new Class({
  * section. It is called by the class' constructor and hence
  * should not by called manually.
  */
-   renderTriggerAddOnInputs: function() {
+   renderTriggerInputs: function() {
       var source_from = this.defs.properties.trg_input_count - this.defs.properties.trg_inp_mux_count;
       var to = this.defs.properties.trg_input_count;
       
       for(var i=0; i < to; i++) {
          var reg = 'trg_input_config' + i;
          var areg = 'trg_input_mux' + (i-source_from);
-         var en = this.defs.registers[areg]._defs.input.enum;
          var source;
          $('inputs-tab')
          .adopt(
@@ -456,8 +456,9 @@ var CTS = new Class({
          );
 	 
          if (i >= source_from) {
+            var en = this.defs.registers[areg]._defs.input.enum;
             source.adopt(
-               new Element('select', {'class': 'text autocommit autoupdate', 'slice': areg + '.input'})
+               new Element('select', {'class': 'autocommit autoupdate', 'slice': areg + '.input'})
                .adopt(
                   Object.values(en).map(function (r) {
                   return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
@@ -469,6 +470,26 @@ var CTS = new Class({
       }
    },
    
+   renderOutputMux: function() {
+      if (!this.defs.properties['trg_addon_output_mux_count']) {
+         $('out-mux-expander').setStyle('display', 'none');
+         return;
+      }
+      
+      var con = $$('#out-mux-expander .content')[0];
+      for(var i=0; i<this.defs.properties['trg_addon_output_mux_count']; i++) {
+         var reg = 'trg_addon_output_mux' + i;
+         var en = this.defs.registers[reg]._defs.input.enum;
+         var name = this.defs.properties['trg_addon_output_mux_names'][i];
+         
+         con.adopt(new Element('div', {'class': 'mux-container'}).adopt([
+            new Element('label', {'for': 'out-mux-input' + i, 'text': this.translateName('addout-output-multiplexer', name, name)+": "}),
+            new Element('select', {'id':  'out-mux-input' + i, 'slice': reg + '.input', 'class': 'autocommit autoupdate'}).adopt(
+               Object.values(en).map(function (r) {return new Element('option', {'value': r, 'text': r})})
+            )
+         ]));
+      }
+   },
    
    renderPeriphTrigger: function() {
       if (!this.defs.properties['trg_periph_count']) {
@@ -479,17 +500,18 @@ var CTS = new Class({
       var row, header;
       tab.adopt(header = new Element('tr', {'class': 'snd_header'}));
       header.adopt(new Element('td'));
-      for(var i=0; i < 4; i++)
-         [10,7,6,5,4].each(function(n) {header.adopt(new Element('td', {'text': n}));});
+      for(var f=0; f < 4; f++)
+         for(var i=4; i>=0; i--)
+            header.adopt(new Element('td', {'text': (4==i?10:4+i), 'class': 'slice' + i}));
       
       for(var pt=0; pt < this.defs.properties['trg_periph_count']; pt++) {
          tab.adopt(row = new Element('tr', {'class': pt%2?'':'alt', 'flashgroup': 'itc-' + (pt + parseInt(this.defs.properties.trg_periph_itc_base))} ))
-         row.adopt(new Element('td', {'text': pt}));
+         row.adopt(new Element('td', {'text': pt, 'class': 'num'}));
          
          for(var f=0; f<4; f++) {
             for(var i=4; i>=0; i--) {
-               var bit = (i == 4) ? (16+f) : (4*f + i);
-                  row.adopt(new Element('td', {'class': (i%5)?'':'new-fpga'}).adopt(new Element('input', {'class': 'autoupdate autocommit', 'type': 'checkbox',
+               var bit = (5*f + i);
+                  row.adopt(new Element('td', {'class': 'slice' + i}).adopt(new Element('input', {'class': 'autoupdate autocommit', 'type': 'checkbox',
                      'slice': 'trg_periph_config' + pt + '.mask[' + bit + ']'})));
             }
          }

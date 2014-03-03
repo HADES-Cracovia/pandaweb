@@ -38,8 +38,9 @@ sub init {
    }
    
 # registers
+   my @mux_names = ();
    for(my $i = 0; $i < $header->{'len'}; $i++) {
-      my $key = "trg_addon_output_multi$i";
+      my $key = "trg_addon_output_mux$i";
       
       $regs->{$key} = new TrbRegister($address + $i + 1, $trb, {
          'input'  => {'lower' =>  0, 'len' => 7, 'type' => 'enum', 'enum' => $enum}
@@ -49,10 +50,20 @@ sub init {
          'monitor' => '1',
          'label' => "AddOn Output Multiplexer $i"
       });
+      
+      push @mux_names, "outmux[$i]";
    }
 
 # properties
-   $prop->{"trg_addon_output_multiplexer_count"} = $header->{'len'};
+   $prop->{"trg_addon_output_mux_count"} = $header->{'len'};
+   if (8 == $header->{'len'}) {
+      $prop->{"trg_addon_output_mux_names"} = [
+	 "jout1[0]/joutlvds[0]", "jout1[1]/joutlvds[1]", "jout1[2]/joutlvds[2]", "jout1[3]/joutlvds[3]", 
+	 "jout2[0]/joutlvds[4]", "jout2[1]/joutlvds[5]", "jout2[2]/joutlvds[6]", "jout2[3]/joutlvds[7]", 
+      ];
+   } else {
+      $prop->{"trg_addon_output_mux_names"} = \@mux_names;
+   }
 }
 
 1;

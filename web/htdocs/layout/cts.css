@@ -251,6 +251,18 @@
       display: none;
    }
    
+   #periph-inp-tab th {text-align: center;}
+   #periph-inp-tab td {width: 33px; text-align: center;}
+   #periph-inp-tab .slice4 {padding-left:  35px;}
+   #periph-inp-tab .slice0 {padding-right: 35px;}
+   #periph-inp-tab num.td {width: 35px;}
+   
+   #out-mux-expander .mux-container {
+      padding: 0 0 10px 0;
+      width: 25%;
+      float: left;
+   }
+   
 /* Name DB */
    #win-nameDB {
       display: none;
