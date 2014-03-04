@@ -433,6 +433,7 @@
       </register>
     </group>
     
+
     <group name="I2CRegs"
            address="0000"  size="46"  purpose="status"  mode="rw" continuous="true">
       
@@ -784,47 +785,41 @@
   
   <!-- ##################################################################### -->
 
-  <group name="NXHistos"
-         address="0800" purpose="status"  mode="r" continuous="false">
+  <group name="RateHist"
+         address="0800"  size="128"  purpose="config"  mode="r" continuous="true">    
+    <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
+      <description>Continuous Hit Counter per Channel</description>
+      <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+    </register>
+  </group>
     
-    <group name="RateHist"
-           address="0000"  size="128"  purpose="config"  mode="r" continuous="true">    
-      <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
-        <description>Continuous Hit Counter per Channel</description>
-        <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
-      </register>
-    </group>
-    
-    <group name="PileUpHist"
-           address="0100"  size="128"  purpose="config"  mode="r" continuous="true">    
-      <register name="ChannelPileupVal" address="0000" purpose="status" mode="r" repeat="128">
-        <description>Continuous Pile Up Counter per Channel</description>
-        <field name="ChannelPileupVal" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
-      </register>
-    </group>
+  <group name="PileupHist"
+         address="0900"  size="128"  purpose="config"  mode="r" continuous="true">    
+    <register name="ChannelPileupVal" address="0000" purpose="status" mode="r" repeat="128">
+      <description>Continuous Pile Up Counter per Channel</description>
+      <field name="ChannelPileupVal" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+    </register>
+  </group>
 
-    <group name="OverFlowHist"
-           address="0200"  size="128"  purpose="config"  mode="r" continuous="true">    
-      <register name="ChannelOvflVal" address="0000" purpose="status" mode="r" repeat="128">
-        <description>Continuous Overflow Counter per Channel</description>
+  <group name="OverFlowHist"
+         address="0a00"  size="128"  purpose="config"  mode="r" continuous="true">    
+    <register name="ChannelOvflVal" address="0000" purpose="status" mode="r" repeat="128">
+      <description>Continuous Overflow Counter per Channel</description>
         <field name="ChannelOvflVal" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
-      </register>
-    </group>
+    </register>
+  </group>
 
-    <group name="ADCHist"
-           address="0300"  size="128"  purpose="config"  mode="r" continuous="true">    
-      <register name="ChannelADCVal" address="0000" purpose="status" mode="r" repeat="128">
-        <description>ADC Value Average per Channel</description>
-        <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
-      </register>
-    </group>
-
-    <register name="ADCNumAverages" address="0380" purpose="status" mode="rw">
+  <group name="ADCHist"
+         address="0b00"  size="129"  purpose="config"  mode="r" continuous="true">    
+    <register name="ChannelADCVal" address="0000" purpose="status" mode="r" repeat="128">
+      <description>ADC Value Average per Channel</description>
+      <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
+    </register>
+  
+    <register name="ADCNumAverages" address="0080" purpose="status" mode="rw">
       <description>Number of Averages per Channel, power of two (2^n)</description>
       <field name="ADCNumAverages" start="0" bits="3" format="unsigned"/>
     </register>
-    
-
-  </group>  
-
+  </group>
+  
 </TrbNetEntity>
