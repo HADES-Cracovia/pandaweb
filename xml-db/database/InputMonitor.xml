@@ -72,7 +72,31 @@
       <field  name="MonitorCounter" start="0" bits="24" format="unsigned" noflag="true" />
     </register>    
   </group>
-  
+
+  <group name="Trigger" purpose="config" address="0000" size="32" mode="rw" continuous="true">
+    <description>Registers of the trigger generation logic</description>  
+    <group name="TriggerGeneration" purpose="config" address="0000" size="2" repeat="16">
+      <register name="TriggerEnable" address="0000"  mode="rw" >
+         <description>Enables individual inputs for trigger generation. If enabled, the input adds to the common or</description>
+         <field  name="TriggerEnable" start="0" bits="31" format="bitmask" noflag="true">
+         </field>
+      </register>
+      <register name="TriggerInvert" address="0001" mode="rw" >
+         <description>Inverts individual inputs for trigger generation</description>
+         <field  name="TriggerInvert" start="0" bits="31" format="bitmask" noflag="true">
+         </field>
+      </register>
+    </group>
+    <register name="TriggerInput" address="0040" mode="r" >
+      <description>Current status of all inputs</description>
+      <field  name="TriggerInput" start="0"   bits="31" format="bitmask" />
+    </register>         
+    <register name="TriggerOutput" address="0041" mode="r" >
+      <description>Current status of all inputs</description>
+      <field  name="TriggerOutput" start="0"   bits="31" format="bitmask" />
+    </register>         
+    
+  </group>  
   
 </TrbNetEntity>
 
