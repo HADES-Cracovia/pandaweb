@@ -1,0 +1,80 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="InputMonitor"
+              address="cf00"
+              >
+  <description>Input monitoring and trigger signal generation</description>
+
+  <group name="MonitorRegs" purpose="config" address="0080" size="16" mode="rw" continuous="true">
+    <description>Registers of the input monitoring</description>
+    <register name="MonitorEnable" address="0000"  mode="rw" >
+      <description>Enables individual inputs for monitoring</description>
+      <field  name="MonitorEnable" start="0" bits="31" format="bitmask" noflag="true">
+      </field>
+    </register>
+    <register name="MonitorInvert" address="0001" mode="rw" >
+      <description>Inverts individual inputs for monitoring</description>
+      <field  name="MonitorInvert" start="0" bits="31" format="bitmask" noflag="true">
+      </field>
+    </register>
+    <register name="MonitorRate" address="0002" mode="rw" >
+      <description>Sets the rate at which values are written to the fifo.</description>
+      <field  name="MonitorRate" start="0" bits="31" format="unsigned" unit="ns" scale="10" noflag="true">
+      </field>
+    </register>
+    <register name="MonitorTimer" address="0003" mode="r" >
+      <description>Current value of the timer</description>
+      <field  name="MonitorTimer" start="0"   bits="31" format="unsigned" unit="ns" scale="10">
+      </field>
+    </register>    
+    <register name="MonitorStatus" address="0004" mode="r" >
+      <description>Status information of the monitoring block</description>
+      <field  name="MonitorFifoLevel" start="0"   bits="10" format="unsigned" >
+         <description>Number of data words in fifo for first input</description>
+      </field>
+      <field  name="MonitorFifoWrite" start="11"   bits="1" format="boolean" >
+         <description>Write signal for fifos</description>
+      </field>
+      <field  name="MonitorWordCount" start="16"   bits="12" format="unsigned" >
+         <description>Word counter of Fifo control logic</description>
+      </field>
+    </register>    
+    <register name="MonitorInput" address="000e" mode="r" >
+      <description>Current status of all inputs</description>
+      <field  name="MonitorInput" start="0"   bits="31" format="bitmask">
+      </field>
+    </register>    
+    <register name="MonitorTrigger" address="000f" mode="w" >
+      <description>Control signals for fifo and counters</description>
+      <field  name="MonitorRecord" start="0"   bits="1" format="binary">
+         <description>Start writing data to fifo</description>
+      </field>
+      <field  name="MonitorResetCounters" start="1"   bits="1" format="binary">
+         <description>Reset all counters</description>
+      </field>
+    </register>        
+  </group>
+  
+  <group name="MonitorFifos" purpose="statistics" address="00a0" size="32" mode="r" continuous="true">
+    <description>Fifos for each input. 1024 words each.</description>  
+    <fifo name="MonitorFifo" address="0000" mode="r" repeat="32" size="1024" >
+      <description>Fifo with history of input edge counters.</description>
+      <field  name="MonitorFifo" start="0" bits="18" format="unsigned" noflag="true">
+      </field>
+    </fifo>    
+  </group>
+  
+  <group name="MonitorCounters" purpose="statistics" address="00c0" size="32" mode="r" continuous="true">
+    <description>Current counter value for each input</description>  
+    <register name="MonitorCounter" address="0000" mode="r" repeat="32" >
+      <description>Current value of the input edge counter</description>
+      <field  name="MonitorCounter" start="0" bits="24" format="unsigned" noflag="true" />
+    </register>    
+  </group>
+  
+  
+</TrbNetEntity>
+
+
+

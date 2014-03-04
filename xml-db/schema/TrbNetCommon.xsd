@@ -262,6 +262,8 @@
           <!-- a fifo is currently not different at all from
                basicTrbData, but we keep this complicated definition
                for future extensions -->
+          <xs:attribute ref="repeat" />
+          <xs:attribute ref="size" use="required" />
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
