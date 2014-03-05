@@ -1039,7 +1039,8 @@ window.addEvent('load', function() {
 function id(x) {return x;}
 
 
-function prettyJSON(obj, indent=""){
+function prettyJSON(obj, indent){
+   if (ident==undefined) ident="";
    if (obj && obj.toJSON) obj = obj.toJSON();
 
    switch (typeOf(obj)){
