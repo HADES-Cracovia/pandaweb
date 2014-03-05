@@ -6,6 +6,7 @@ package CtsMod13;
 use warnings;
 use strict;
 use TrbRegister;
+use Data::Dumper;
 
 sub moduleName {"AddOn Output Multiplexer"}
 
@@ -24,18 +25,31 @@ sub init {
    print "WARNING: Enumeration of Trigger Module 0x13 has to be performed AFTER module 0x10 and 0x12 (if existing). Check FPGA design!\n" unless (exists $cprop->{"trg_input_count"});
    
 # enum
+   my $addon_reg = $self->{'_cts'}->getRegister("trg_input_mux0");
+   my @addon_enum = ();
+   @addon_enum = keys %{$addon_reg->{'_defs'}{'input'}{'enum'}} if $addon_reg;
+   my $addon_line_count = scalar @addon_enum;
    my $enum = {};
-   for(my $i=0; $i<16; $i++) {
-      $enum->{$i} = "itc[$i]";
-   }
-   for(my $i=0; $i<$cprop->{"trg_input_count"}; $i++) {
-      $enum->{$i+16} = "triggers_in[$i] before pp";
-      $enum->{$i+16+$cprop->{"trg_input_count"}} = "triggers_in[$i] after pp";
-   }
-   for(my $i=0; $i<$cprop->{"trg_inp_mux_count"}; $i++) {
-      $enum->{$i+16+  $cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"}} = "addon_mul[$i] before pp";
-      $enum->{$i+16+2*$cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"}} = "addon_mul[$i] after pp";
-   }
+
+   my $j = 0;
+   
+   for(my $i=0; $i<16; $i++) {$enum->{$i} = "itc[$i]";}
+   $j = 16;
+   
+   for(my $i=0; $i<$cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"}; $i++) {$enum->{$j+$i} = "async[triggers_in[$i]_before_preproc]";}
+   $j += $cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"};
+
+   for(my $i=0; $i<$addon_line_count; $i++) {$enum->{$j+$i} = 'async[' .$addon_reg->{'_defs'}{'input'}{'enum'}{$i} . ']';}
+   $j += $addon_line_count;
+   
+   for(my $i=0; $i<$cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"}; $i++) {$enum->{$j+$i} = "preproc[triggers_in[$i]]";}
+   $j += $cprop->{"trg_input_count"}-$cprop->{"trg_inp_mux_count"};   
+   
+   for(my $i=0; $i<$cprop->{"trg_inp_mux_count"}; $i++) {$enum->{$j+$i} = "preproc[input_mux[$i]]";}
+   $j += $cprop->{"trg_inp_mux_count"}; 
+   
+   $enum->{$j} = "sysclk";
+   $j++;
    
 # registers
    my @mux_names = ();
