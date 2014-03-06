@@ -502,7 +502,7 @@ var CTS = new Class({
       header.adopt(new Element('td'));
       for(var f=0; f < 4; f++)
          for(var i=4; i>=0; i--)
-            header.adopt(new Element('td', {'text': (4==i?10:4+i), 'class': 'slice' + i}));
+            header.adopt(new Element('td', {'text': 6+i, 'class': 'slice' + i}));
       
       for(var pt=0; pt < this.defs.properties['trg_periph_count']; pt++) {
          tab.adopt(row = new Element('tr', {'class': pt%2?'':'alt', 'flashgroup': 'itc-' + (pt + parseInt(this.defs.properties.trg_periph_itc_base))} ))
