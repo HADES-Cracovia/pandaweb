@@ -40,7 +40,7 @@ $setup[2]->{period}  = -1;
 $setup[2]->{address} = 1;
 
 $setup[3]->{name}    = "TriggerHandler";
-$setup[3]->{cmd}     = "Nxyter-0xfe49-TriggerHandler&Nxyter-0xfe49-TestPulse";
+$setup[3]->{cmd}     = "Nxyter-0xfe49-TriggerHandler&Nxyter-0xfe49-TestPulse&Nxyter-0xfe49-EventBuffer";
 $setup[3]->{period}  = -1;
 $setup[3]->{address} = 1;
 

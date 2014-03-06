@@ -502,14 +502,14 @@ EOF
 set xrange [*:0]
 set output "$config->{'dump_dir'}/_tmp_plot.png"
 plot \\
-"$config->{'dump_dir'}/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-"$config->{'dump_dir'}/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+"$config->{'dump_dir'}/plot.data" using 1:3 with lp title "Edges", \\
+"$config->{'dump_dir'}/plot.data" using 1:4 with lp title "Accepted"
 
 set xrange [-5:0]
 set output "$config->{'dump_dir'}/_tmp_plotshort.png"
 plot \\
-"$config->{'dump_dir'}/plot.data" using 1:3:(\$3 / 1000) with yerrorlines title "Edges", \\
-"$config->{'dump_dir'}/plot.data" using 1:4:(\$4 / 1000) with yerrorlines title "Accepted"
+"$config->{'dump_dir'}/plot.data" using 1:3 with lp title "Edges", \\
+"$config->{'dump_dir'}/plot.data" using 1:4 with lp title "Accepted"
 
 EOF
 ;
