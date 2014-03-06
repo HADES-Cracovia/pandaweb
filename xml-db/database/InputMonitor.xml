@@ -10,22 +10,22 @@
     <description>Registers of the input monitoring</description>
     <register name="MonitorEnable" address="0000"  mode="rw" >
       <description>Enables individual inputs for monitoring</description>
-      <field  name="MonitorEnable" start="0" bits="31" format="bitmask" noflag="true">
+      <field  name="MonitorEnable" start="0" bits="32" format="bitmask" noflag="true">
       </field>
     </register>
     <register name="MonitorInvert" address="0001" mode="rw" >
       <description>Inverts individual inputs for monitoring</description>
-      <field  name="MonitorInvert" start="0" bits="31" format="bitmask" noflag="true">
+      <field  name="MonitorInvert" start="0" bits="32" format="bitmask" noflag="true">
       </field>
     </register>
     <register name="MonitorRate" address="0002" mode="rw" >
       <description>Sets the rate at which values are written to the fifo.</description>
-      <field  name="MonitorRate" start="0" bits="31" format="unsigned" unit="ns" scale="10" noflag="true">
+      <field  name="MonitorRate" start="0" bits="32" format="unsigned" unit="ns" scale="10" noflag="true">
       </field>
     </register>
     <register name="MonitorTimer" address="0003" mode="r" >
       <description>Current value of the timer</description>
-      <field  name="MonitorTimer" start="0"   bits="31" format="unsigned" unit="ns" scale="10">
+      <field  name="MonitorTimer" start="0"   bits="32" format="unsigned" unit="ns" scale="10">
       </field>
     </register>    
     <register name="MonitorStatus" address="0004" mode="r" >
@@ -47,10 +47,10 @@
     </register>    
     <register name="MonitorTrigger" address="000f" mode="w" >
       <description>Control signals for fifo and counters</description>
-      <field  name="MonitorRecord" start="0"   bits="1" format="binary">
+      <field  name="MonitorRecord" start="0"   bits="1" format="bitmask">
          <description>Start writing data to fifo</description>
       </field>
-      <field  name="MonitorResetCounters" start="1"   bits="1" format="binary">
+      <field  name="MonitorResetCounters" start="1"   bits="1" format="bitmask">
          <description>Reset all counters</description>
       </field>
     </register>        
@@ -60,7 +60,7 @@
     <description>Fifos for each input. 1024 words each.</description>  
     <fifo name="MonitorFifo" address="0000" mode="r" repeat="32" size="1024" >
       <description>Fifo with history of input edge counters.</description>
-      <field  name="MonitorFifo" start="0" bits="18" format="unsigned" noflag="true">
+      <field  name="MonitorFifo" start="0" bits="18" format="unsigned" noflag="true" rate="true">
       </field>
     </fifo>    
   </group>
@@ -69,31 +69,31 @@
     <description>Current counter value for each input</description>  
     <register name="MonitorCounter" address="0000" mode="r" repeat="32" >
       <description>Current value of the input edge counter</description>
-      <field  name="MonitorCounter" start="0" bits="24" format="unsigned" noflag="true" />
+      <field  name="MonitorCounter" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register>    
   </group>
 
-  <group name="Trigger" purpose="config" address="0000" size="32" mode="rw" continuous="true">
+  <group name="Trigger" purpose="config" address="0000" size="34" mode="rw" continuous="false">
     <description>Registers of the trigger generation logic</description>  
-    <group name="TriggerGeneration" purpose="config" address="0000" size="2" repeat="16">
+    <group name="TriggerGeneration" purpose="config" address="0000" size="2" repeat="16" continuous="true">
       <register name="TriggerEnable" address="0000"  mode="rw" >
          <description>Enables individual inputs for trigger generation. If enabled, the input adds to the common or</description>
-         <field  name="TriggerEnable" start="0" bits="31" format="bitmask" noflag="true">
+         <field  name="TriggerEnable" start="0" bits="32" format="bitmask" noflag="true">
          </field>
       </register>
       <register name="TriggerInvert" address="0001" mode="rw" >
          <description>Inverts individual inputs for trigger generation</description>
-         <field  name="TriggerInvert" start="0" bits="31" format="bitmask" noflag="true">
+         <field  name="TriggerInvert" start="0" bits="32" format="bitmask" noflag="true">
          </field>
       </register>
     </group>
-    <register name="TriggerInput" address="0040" mode="r" >
+    <register name="TriggerInput" address="0020" mode="r" >
       <description>Current status of all inputs</description>
-      <field  name="TriggerInput" start="0"   bits="31" format="bitmask" />
+      <field  name="TriggerInput" start="0"   bits="32" format="bitmask" />
     </register>         
-    <register name="TriggerOutput" address="0041" mode="r" >
+    <register name="TriggerOutput" address="0021" mode="r" >
       <description>Current status of all inputs</description>
-      <field  name="TriggerOutput" start="0"   bits="31" format="bitmask" />
+      <field  name="TriggerOutput" start="0"   bits="32" format="bitmask" />
     </register>         
     
   </group>  

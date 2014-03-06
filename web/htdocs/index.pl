@@ -84,6 +84,7 @@ The main documentation of the network can be found in these documents and locati
 <div class="index">
 <ul>
 <li><a href="tdc/tdcstatctrl.pl">TDC (xml-based)</a>
+<li><a href="tdc/inputmonitor.pl">Input Monitor</a>
 <li><a href="nxyter/index.pl">Nxyter Read-out</a>
 <li><a href="nxyter/index_a.pl">Nxyter Read-out (advanced)</a>
 <li><a href="mvd/jtag.pl">MVD Jtag Controller</a>
