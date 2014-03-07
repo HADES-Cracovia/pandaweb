@@ -35,7 +35,7 @@ sub initPage {
   print <<EOF;
 <HTML>
 <HEAD>
-<title>$page->{title}</title>
+<title>$setup[$active]->{name} - $page->{title}</title>
 <link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
 <link href="../layout/blue.css" rel="stylesheet" title="Light Blue" type="text/css"/>
 EOF
