@@ -63,7 +63,7 @@ var regstatusnames = new Array("debug_rd<br>debug_wr<br>tdc version<br>channels<
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time","",
                          "releases","rdo time","timeout number","data finished number");
-var regctrlnames = new Array("Logic Anal.<br>Debug Mode<br>Run Mode",
+var regctrlnames = new Array("Logic Anal.<br>Debug Mode<br>Run Mode<br>Calib. Prescaler",
        "window en.<br>window bef.<br>window aft.","act chan 1","act chan 2","data limit");                         
 
 var tooltiptriggerless = "\"Current run mode is triggerless. The epoch and coarse counters are never reset.\"";
@@ -199,6 +199,13 @@ function setRunMode(e,board,val) {
   settimers(200,50);
   }
 
+function setCalibPrescaler(e,board) {
+  reg = 0xc800;
+  value = e.value;
+  getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-F0000000-"+(value*1.).toString(16)+"0000000",0);
+  settimers(200,50);
+  }
+
 function resetCounters() {
    reg = 0xc800;
    value = 0x100;
@@ -317,7 +324,8 @@ function updatectrlregs(data) {
             o += "<input title="+tooltiptriggerless+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',0)\" value=\"Triggerless\">";
           else
             o += "<input title="+tooltiptriggered+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Triggered\">";
-          }
+          o += "<input onChange=\"setCalibPrescaler(this,'"+c[j][0]+"')\" type=\"text\" id=\"calibprescaler\" name=\"calibprescaler\" class=\"small\" maxlength=\"4\" value=\""+(val>>28 & 0xF)+"\">";
+        }
         else if(i==1) {
           if ((val&0x80000000))
             o += "Enabled ";
