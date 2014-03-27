@@ -64,6 +64,16 @@ $setup[7]->{cmd}     = "Nxyter-0x3801-ADCHist";
 $setup[7]->{period}  = -1;
 $setup[7]->{address} = 1;
 
+$setup[8]->{name}    = "IToken_0";
+$setup[8]->{cmd}     = "Nxyter-0x3800-I2CTokens";
+$setup[8]->{period}  = -1;
+$setup[8]->{address} = 1;
+
+$setup[9]->{name}    = "IToken_1";
+$setup[9]->{cmd}     = "Nxyter-0x3801-I2CTokens";
+$setup[9]->{period}  = -1;
+$setup[9]->{address} = 1;
+
 xmlpage::initPage(\@setup,$page);
 
 1;
