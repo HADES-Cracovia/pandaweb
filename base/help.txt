@@ -2,8 +2,10 @@
 ##              The Procedure for Registering the new TRB3 Boards             ##
 ################################################################################
 
+
 1. Connect the programming cable to the jtag pins and programm the fpgas and
-the clock manager using the programmer software.
+the clock manager using the programmer software. || Programming Cable: Red =
+Pin 1; Ethernet cable: SFP8; Powercable
 
 
 2. Watch the /var/log/messages for dhcp request (on the dhcp server hadeb05)
@@ -39,11 +41,11 @@ number.
 
 
 9. Program the central flash with the following command
-> trbflash program 0xff7f ~/trbsoft/bitfiles/trb3_central_cts_20121116.bit
+> trbflash program 0xff7f ~/trbsoft/bitfiles/trb3_central_cts_newgbe_20140306.bit
 
 
 10. Program the peripheral flashes with the following command
-> trbflash program 0xfe48 ~/trbsoft/bitfiles/trb3_periph_padiwa_dbl_alt_20130710.bit
+> trbflash program 0xfe48 ~/trbsoft/bitfiles/trb3_periph_padiwa_dbl_alt_20140312.bit
 
 
 11. Reload the fpgas from the flashes
