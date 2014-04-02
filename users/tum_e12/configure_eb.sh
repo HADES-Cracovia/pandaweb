@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+# trun of other fpgas
+trbcmd w 0x8000 0x00c0 0xfffffff9 
+trbcmd w 0x8000 0x00c1 0xfffffff9  
+trbcmd w 0x8000 0x00c3 0xffffffff # slow control still on??  
+
 # MAC Address of the EB
 # i.e. 6C:F0:49:02:D7:45
 
