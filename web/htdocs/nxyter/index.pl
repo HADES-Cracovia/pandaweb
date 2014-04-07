@@ -24,8 +24,8 @@ $page->{link}  = "../";
 
 my @setup;
 
-$setup[0]->{name}    = "Control";
-$setup[0]->{cmd}     = "Nxyter-0xfe49-NXControl&Nxyter-0xfe49-ADCMonitor";
+$setup[0]->{name}    = "Status";
+$setup[0]->{cmd}     = "Nxyter-0xfe49-NXStatus&Nxyter-0xfe49-ADCMonitor";
 $setup[0]->{period}  = -1;
 $setup[0]->{generic} = 1;
 
