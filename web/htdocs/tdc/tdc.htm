@@ -209,9 +209,9 @@ function setCalibPrescaler(e,board) {
 function resetCounters() {
    reg = 0xc800;
    value = 0x100;
-   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"set"+"-"+value.toString(16),0);
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+"set"+"-"+value.toString(16),0);
   settimers(200,50);
-   getdata("../commands/putbit.pl?"+"0xfe48"+"-"+reg.toString(16)+"-"+"clr"+"-"+value.toString(16),0);
+   getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+"clr"+"-"+value.toString(16),0);
   settimers(200,50);
   }
 
