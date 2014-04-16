@@ -477,7 +477,7 @@ sub runandprint {
         }
       
       #### Show the beautiful result...
-      if($isb1rowser == 0) {
+      if($isbrowser == 0) {
         print $t->render;
         }
       else {

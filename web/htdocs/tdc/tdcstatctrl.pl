@@ -35,7 +35,7 @@ $setup[1]->{period}  = -1;
 
 
 $setup[2]->{name}    = "Inputs";
-$setup[2]->{cmd}     = "TDC-0xfe48-Channel-rate";
+$setup[2]->{cmd}     = "TDC-0xfe48-ChannelCounter-rate";
 $setup[2]->{refresh} = 1;
 $setup[2]->{period}  = 1000;
 
