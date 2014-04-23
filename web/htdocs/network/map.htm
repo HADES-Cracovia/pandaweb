@@ -71,7 +71,7 @@ function update(data) {
     else 
       o+= "---";
     o += "<td title=\"0x"+(c[j][4]*1).toString(16)+"\">";
-    if(type == 0x91 || type == 0x92) {
+    if(type == 0x91 || type == 0x92 || type == 0x93) {
       if((c[j][4] & 0x8000) == 0x8000) o += "RX sync, ";
       if((c[j][4] & 0x0b00) == 0x000 && (c[j][4]>>12 & 0x7) != 6 && (c[j][4]>>12 & 0x7) != 3 && (c[j][4]>>7 & 0x1) != 1) {o += "TDC, single, "+(Math.pow(2,(c[j][4]>>4)&0xf))+"ch, ";}
       if((c[j][4] & 0xf000) == 0x6000) {o += "Nxyter RDO, ";}
