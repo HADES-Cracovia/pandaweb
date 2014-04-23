@@ -73,7 +73,7 @@
     </register>    
   </group>
 
-  <group name="Trigger" purpose="config" address="0000" size="34" mode="rw" continuous="false">
+  <group name="Trigger" purpose="config" address="0000" size="37" mode="rw" continuous="false">
     <description>Registers of the trigger generation logic</description>  
     <group name="TriggerGeneration" purpose="config" address="0000" size="2" repeat="16" continuous="true">
       <register name="TriggerEnable" address="0000"  mode="rw" >
@@ -81,9 +81,9 @@
          <field  name="TriggerEnable" start="0" bits="32" format="bitmask" noflag="true">
          </field>
       </register>
-      <register name="TriggerInvert" address="0001" mode="rw" >
-         <description>Inverts individual inputs for trigger generation</description>
-         <field  name="TriggerInvert" start="0" bits="32" format="bitmask" noflag="true">
+      <register name="TriggerInvertOld" address="0001" mode="rw" >
+         <description>Inverts individual inputs for trigger generation. DOES NOT EXIST IN NEW DESIGNS</description>
+         <field  name="TriggerInvertOld" start="0" bits="32" format="bitmask" noflag="true">
          </field>
       </register>
     </group>
@@ -95,8 +95,15 @@
       <description>Current status of all inputs</description>
       <field  name="TriggerOutput" start="0"   bits="32" format="bitmask" />
     </register>         
-    
-  </group>  
+    <register name="TriggerStretch" address="0022" mode="rw" >
+      <description>Enable stretching of individual input channels by adding 10 to 20 ns to the signal length</description>
+      <field  name="TriggerStretch" start="0"   bits="32" format="bitmask" />
+    </register>             
+    <register name="TriggerInvert" address="0024" mode="rw" >
+      <description>Inverts individual inputs for trigger generation.</description>
+      <field  name="TriggerInvert" start="0"   bits="32" format="bitmask" />
+    </register>     
+   </group>  
   
 </TrbNetEntity>
 
