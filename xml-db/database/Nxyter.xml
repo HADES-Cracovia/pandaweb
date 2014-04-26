@@ -66,6 +66,11 @@
         <enumItem value="2">TS 14Bit, ADC  9Bit, PileUp + Parity Bits</enumItem>
         <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
+    
+      <field name="HistTriggerAll" start="31" bits="1" format="boolean">
+        <description>Write all incoming Data to Histograms</description>
+      </field>
+      
     </register>    
 
     <register name="TriggerWindowOffset" address="0001" purpose="config">
