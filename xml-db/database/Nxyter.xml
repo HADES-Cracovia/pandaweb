@@ -45,6 +45,39 @@
   </group>  
 
   <!-- ##################################################################### -->
+  <group name="TriggerGenerator"
+         address="0140"  size="5"  purpose="status"  mode="rw"  continuous="true">
+     
+    <register name="TrigSetup" address="0000" purpose="config" mode="rw">
+      <description>Trigger Selection</description>
+      <field name="InternOut"  start="2" bits="1" format="bitmask"/>
+      <field name="PulserOn"   start="1" bits="1" format="bitmask"/>
+      <field name="SelfTrigOn" start="0" bits="1" format="bitmask"/>
+    </register>
+    
+    <register name="PulserT" address="0001" purpose="config" mode="rw">
+      <description>Pulser Period (10ns)</description>
+      <field name="PulserT" start="0" bits="28" format="unsigned"/>
+    </register>
+
+    <register name="SelfTrigRate" address="0002" purpose="status" mode="r">
+      <description>Self Trigger Rate (Hz)</description>
+      <field name="SelfTrigRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>
+
+    <register name="PulserRate" address="0003" purpose="status" mode="r">
+      <description>Pulser Trigger Rate (Hz)</description>
+      <field name="PulserRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>   
+    
+    <register name="OutTriggerRate" address="0004" purpose="status" mode="r">
+      <description>Outgoing Trigger Rate (Hz)</description>
+      <field name="OutTriggerRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>   
+
+  </group> 
+
+  <!-- ##################################################################### -->
 
   <group name="TriggerValidate"
          address="0400"  size="32"  purpose="config"  mode="rw"  continuous="true">
