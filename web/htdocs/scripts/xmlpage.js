@@ -54,10 +54,24 @@
     var opt = "";
     if(document.getElementById("rate").checked) opt += "rate";
     if(document.getElementById("cache").checked) opt += "cache";
-    var part = command.split('-');
-    command = part[0]+"-"+part[1]+"-"+part[2] + "-" + opt;
+    com = command.split('&');
+    command = "";
+    for(i = 0; i < com.length; i++) {
+      if (com[i] != "") { 
+         var part = com[i].split('-');
+         command += part[0]+"-"+part[1]+"-"+part[2] + "-" + opt + "&";
+         }
+      }
     refresh(period);
     }
+    
+/*    command = "";
+    for(i = 0; i < part.length; i++) {
+      if (part[i] != "rate" && part[i] != "cache" && part[i] != "ratechache" && part[i] != "") {
+        command += part[i] + '-';
+        }
+      }
+    command += opt;*/    
     
   function setaddress(e) {
     address=document.getElementById("address").value;

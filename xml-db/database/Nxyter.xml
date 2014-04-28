@@ -221,7 +221,7 @@
 
     <register name="DataRateCtr" address="001f" purpose="status" mode="r">
       <description>Data Counter being written to Event Buffer/wraparound counter</description>
-      <field name="DataRateCtr" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+      <field name="DataRateCtr" start="0" bits="32" format="unsigned" rate="1" />
     </register>
 
   </group>
@@ -373,7 +373,7 @@
 
     <register name="HitRateCtr" address="0016" purpose="status" mode="r">
       <description>Hit wraparound counter</description>
-      <field name="HitRateCtr" start="0" bits="32" format="unsigned" />
+      <field name="HitRateCtr" start="0" bits="32" format="unsigned" rate="1" />
     </register>
 
   </group>
