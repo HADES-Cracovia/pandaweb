@@ -206,22 +206,30 @@
       <description>Window Hit Counter</description>
       <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
     </register>
+    
+    <!--
+       <register name="WinHighCtr" address="001e" purpose="status" mode="r">
+         <description>Out of Window High Counter</description>
+         <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
+       </register>
+    -->
 
-    <register name="WinHighCtr" address="001e" purpose="status" mode="r">
-      <description>Out of Window High Counter</description>
-      <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
-    </register>
-
-    <register name="DataRate" address="001f" purpose="status" mode="r">
+    <register name="DataRate" address="001e" purpose="status" mode="r">
       <description>Data Rate being written to Event Buffer in s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="DataRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
+
+    <register name="DataRateCtr" address="001f" purpose="status" mode="r">
+      <description>Data Counter being written to Event Buffer/wraparound counter</description>
+      <field name="DataRateCtr" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>
+
   </group>
   
   <!-- ##################################################################### -->
   
   <group name="DataReceiver"
-         address="0500"  size="22"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="23"  purpose="status"  mode="rw"  continuous="true">
     
     <register name="ErrorBits" address="0000" purpose="status" mode="r">
       <description>Status of Error Bits</description>
@@ -361,6 +369,11 @@
     <register name="TSDTErrorCtr" address="0015" purpose="status" mode="r">
       <description>Timestamp Data Rate Error Counter</description>
       <field name="TSDTErrorCtr" start="0" bits="11" format="unsigned" />
+    </register>
+
+    <register name="HitRateCtr" address="0016" purpose="status" mode="r">
+      <description>Hit wraparound counter</description>
+      <field name="HitRateCtr" start="0" bits="32" format="unsigned" />
     </register>
 
   </group>
