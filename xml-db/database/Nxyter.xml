@@ -10,7 +10,7 @@
   <!-- ##################################################################### -->
 
   <group name="TriggerHandler"
-         address="0160"  size="4"  purpose="config"  mode="rw"  continuous="true">
+         address="0160"  size="7"  purpose="config"  mode="rw"  continuous="true">
     
     <register name="TestPulseEnable" address="0000" purpose="config">
       <description>Enable test pulse</description>
@@ -18,39 +18,70 @@
     </register>  
 
     <register name="TestPulseDelay" address="0001" purpose="config">
-      <description>Delay of the testpulse after Trigger</description>
+      <description>Delay of the Testpulse after Trigger</description>
       <field name="TestPulseDelay" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>   
 
-    <register name="TriggerRate" address="0002" purpose="status" mode="r">
-      <description>Accepted incoming Trigger Rate</description>
-      <field name="TriggerRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    <register name="TestPulseLength" address="0002" purpose="config">
+      <description>Length of Trigger TestPulse</description>
+      <field name="TestPulseLength" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>   
-
+    
     <register name="InvalidTriggerCount" address="0003" purpose="status" mode="r">
       <description>Invalid Timing Trigger counter</description>
       <field name="InvalidTriggerCount" start="0" bits="16" format="unsigned"/>
     </register>   
     
+    <register name="TriggerRate" address="0004" purpose="status" mode="r">
+      <description>Accepted incoming Trigger Rate (Hz)</description>
+      <field name="TriggerRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>   
+
+    <register name="TestpulseRate" address="0005" purpose="status" mode="r">
+      <description>Outgoing Testpulse Rate (Hz)</description>
+      <field name="TestpulseRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>   
+
+    <register name="CTSBypass" address="0006" purpose="config" mode="rw">
+      <description>Bypass/ignore CTS Timing Triggers</description>
+      <field name="CTSBypass" start="0" bits="1" format="boolean" />
+    </register>   
+   
   </group>  
 
   <!-- ##################################################################### -->
-
-  <group name="TestPulse"
-         address="0140"  size="2"  purpose="config"  mode="rw"  continuous="true">
+  <group name="TriggerGenerator"
+         address="0140"  size="5"  purpose="status"  mode="rw"  continuous="true">
+     
+    <register name="TrigSetup" address="0000" purpose="config" mode="rw">
+      <description>Trigger Selection</description>
+      <field name="InternOut"  start="2" bits="1" format="bitmask"/>
+      <field name="PulserOn"   start="1" bits="1" format="bitmask"/>
+      <field name="SelfTrigOn" start="0" bits="1" format="bitmask"/>
+    </register>
     
-    <register name="TestPulseLength" address="0000" purpose="config">
-      <description>Length of Trigger TestPulse</description>
-      <field name="TestPulseLength" start="0" bits="12" format="unsigned" unit="ns" scale="4"/>
+    <register name="PulserT" address="0001" purpose="config" mode="rw">
+      <description>Pulser Period (10ns)</description>
+      <field name="PulserT" start="0" bits="28" format="unsigned"/>
+    </register>
+
+    <register name="SelfTrigRate" address="0002" purpose="status" mode="r">
+      <description>Self Trigger Rate (Hz)</description>
+      <field name="SelfTrigRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>
+
+    <register name="PulserRate" address="0003" purpose="status" mode="r">
+      <description>Pulser Trigger Rate (Hz)</description>
+      <field name="PulserRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+    </register>   
+    
+    <register name="OutTriggerRate" address="0004" purpose="status" mode="r">
+      <description>Outgoing Trigger Rate (Hz)</description>
+      <field name="OutTriggerRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>   
 
-    <register name="TestPulseRate" address="0001" purpose="status" mode="r">
-      <description>Testpulse Rate</description>
-      <field name="TestPulseRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
-    </register>   
-    
   </group> 
-  
+
   <!-- ##################################################################### -->
 
   <group name="TriggerValidate"
@@ -73,6 +104,11 @@
         <enumItem value="2">TS 14Bit, ADC  9Bit, PileUp + Parity Bits</enumItem>
         <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
+    
+      <field name="HistTriggerAll" start="31" bits="1" format="boolean">
+        <description>Write all incoming Data to Histograms</description>
+      </field>
+      
     </register>    
 
     <register name="TriggerWindowOffset" address="0001" purpose="config">
@@ -175,46 +211,58 @@
       <description>Window Hit Counter</description>
       <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
     </register>
+    
+    <!--
+       <register name="WinHighCtr" address="001e" purpose="status" mode="r">
+         <description>Out of Window High Counter</description>
+         <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
+       </register>
+    -->
 
-    <register name="WinHighCtr" address="001e" purpose="status" mode="r">
-      <description>Out of Window High Counter</description>
-      <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
-    </register>
-
-    <register name="DataRate" address="001f" purpose="status" mode="r">
+    <register name="DataRate" address="001e" purpose="status" mode="r">
       <description>Data Rate being written to Event Buffer in s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="DataRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
+
+    <register name="DataRateCtr" address="001f" purpose="status" mode="r">
+      <description>Data Counter being written to Event Buffer/wraparound counter</description>
+      <field name="DataRateCtr" start="0" bits="32" format="unsigned" rate="1" />
+    </register>
+
   </group>
   
   <!-- ##################################################################### -->
   
   <group name="DataReceiver"
-         address="0500"  size="20"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="22"  purpose="status"  mode="rw"  continuous="true">
+    
     <register name="ErrorBits" address="0000" purpose="status" mode="r">
       <description>Status of Error Bits</description>
-      <field name="NX_Offline"     start="0" bits="1" format="bitmask" purpose="status" mode="r"/>    
-      <field name="Frame_Rate"     start="1" bits="1" format="bitmask" purpose="status" mode="r"/>            
-      <field name="NX_Rate"        start="2" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="ADC_Rate"       start="3" bits="1" format="bitmask" purpose="status" mode="r"/>      
-      <field name="Parity"         start="4" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="NX_Sync"        start="5" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="ADC_Err"        start="6" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="ADC_PLL"        start="7" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="ADC_CLK"        start="8" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="NX_Off"         start="0"  bits="1" format="bitmask" purpose="status" mode="r"/>    
+      <field name="FR_Rate"        start="1"  bits="1" format="bitmask" purpose="status" mode="r"/>            
+      <field name="NX_Rate"        start="2"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_Rate"       start="3"  bits="1" format="bitmask" purpose="status" mode="r"/>      
+      <field name="Parity"         start="4"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="NX_Sync"        start="5"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_Err"        start="6"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_PLL"        start="7"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_CLK"        start="8"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="TS_DT"          start="9"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_DT"         start="10" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="RS"             start="11" bits="1" format="bitmask" purpose="status" mode="r"/>
     </register>
     
     <register name="ResetStatus" address="0001" purpose="status" mode="r">
       <description>Reset Busy Status, Click to force reset</description>
-      <field name="RTimeout" start="0" bits="1" format="bitmask"  purpose="status" mode="r"/>
-      <field name="ResetBusy" start="1" bits="1" format="bitmask" purpose="status" mode="rw"/>
-      </register>
+      <field name="RTimeout" start="1" bits="1" format="bitmask"  purpose="status" mode="r"/>
+      <field name="ResetBusy" start="0" bits="1" format="bitmask" purpose="status" mode="rw"/>
+    </register>
 
-      <register name="MFrameRate" address="0002" purpose="status" mode="r">
+    <register name="MFrameRate" address="0002" purpose="status" mode="r">
       <description>Merge of Nxyter and ADC Frame Rates, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="MFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
-
+    
     <register name="NXFrameRate" address="0003" purpose="status" mode="r">
       <description>Nxyter Timestamp Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="NXFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
@@ -224,22 +272,22 @@
       <description>ADC Data Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
-
-    <register name="ResetCounter" address="0005" purpose="status" mode="r">
-      <description>Reset Handler Counter</description>
-      <field name="ResetCounter" start="0" bits="16" format="unsigned" />
-    </register>
-
-    <register name="ADCResetCtr" address="0006" purpose="status" mode="r">
-      <description>ADC Reset counter</description>
-      <field name="ADCResetCtr" start="0" bits="32" format="unsigned"/>
-    </register>
-
-    <register name="ParityErrRate" address="0007" purpose="status" mode="r">
+    
+    <register name="ParityErrRate" address="0005" purpose="status" mode="r">
       <description>Parity Error Rate, must be 0, &amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="ParityErrRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
     
+    <register name="ResetCounter" address="0006" purpose="status" mode="r">
+      <description>Reset Handler Counter</description>
+      <field name="ResetCounter" start="0" bits="16" format="unsigned" />
+    </register>
+
+    <register name="ADCResetCtr" address="0007" purpose="status" mode="r">
+      <description>ADC Reset counter</description>
+      <field name="ADCResetCtr" start="0" bits="32" format="unsigned"/>
+    </register>
+   
     <register name="ADCNotLockCounter" address="0008" purpose="status" mode="r">
       <description>ADC Handler not Lock Counter</description>
       <field name="ADCNotLockCounter" start="0" bits="8" format="unsigned" />
@@ -282,7 +330,8 @@
     
     <register name="TSDelay" address="0010" purpose="config" mode="rw">
       <description>Delay of Timestamp Fifo</description>
-      <field name="TSDelay" start="0" bits="4" format="unsigned" />
+      <field name="TSDelayB" start="0" bits="3" format="unsigned" />
+      <field name="TSDelayF" start="4" bits="2" format="unsigned" purpose="status" mode="r"/>
     </register>
 
     <register name="TimestampFifoStatus" address="0011" purpose="status" mode="r">
@@ -295,10 +344,6 @@
       <field name="TSFifoEmpty" start="1" bits="1" format="boolean" mode="r">
         <description>Timestamp Fifo Empty</description>
       </field>  
-      
-      <field name="TSFifoAlmostEmpty" start="2" bits="1" format="boolean" mode="r">
-        <description>Timestamp Fifo Almost Empty</description>
-      </field>        
       
       <field name="NxFrameSynced" start="31" bits="1" format="boolean" mode="r">
         <description>Synchronized to Nxyter Frame</description>
@@ -320,13 +365,23 @@
       <description>Current Timestamp Value read from Fifo</description>
       <field name="CurrentTimestamp" start="0" bits="32" format="unsigned" />
     </register>
-    
+
+    <register name="ADCDTErrorCtr" address="0014" purpose="status" mode="r">
+      <description>ADC Data Rate Error Counter</description>
+      <field name="ADCDTErrorCtr" start="0" bits="11" format="unsigned" />
+    </register>
+
+    <register name="TSDTErrorCtr" address="0015" purpose="status" mode="r">
+      <description>Timestamp Data Rate Error Counter</description>
+      <field name="TSDTErrorCtr" start="0" bits="11" format="unsigned" />
+    </register>
+
   </group>
   
   <!-- ##################################################################### -->
 
   <group name="DataValidate"
-         address="0120"  size="16"  purpose="status"  mode="r"  continuous="true">
+         address="0120"  size="17"  purpose="status"  mode="r"  continuous="true">
     
     <register name="HitRate" address="0000" purpose="status">
       <description>Total hit rate summed over all channels</description>
@@ -368,15 +423,17 @@
       <field name="ADCTRErrorRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
 
-    <register name="ADCTRAverage" address="0008" purpose="status" mode="r">
+    <register name="ADCTRValue" address="0008" purpose="status" mode="r">
       <description>Average of last Token Return ADC Values</description>
-      <field name="ADCTRAverage" start="0" bits="12" format="unsigned"/>
+      <field name="ADCTRValue" start="0" bits="12" format="unsigned"/>
     </register>
     
-    <register name="ADCTRMean" address="0009" purpose="config" mode="rw">
-      <description>ADCTR Mean</description>
-      <field name="ADCTRMean" start="0" bits="32" format="unsigned"/>
+
+    <register name="ParityErrCtr" address="0009" purpose="status" mode="r">
+      <description>Parity Error Counter</description>
+      <field name="ParityErrCtr" start="0" bits="15" format="unsigned"/>
     </register>
+
     
     <register name="ADCTRLimit" address="000a" purpose="config" mode="rw">
       <description>ADCTR Limit</description>
@@ -406,6 +463,11 @@
     <register name="ADCTRDebug" address="000f" purpose="config" mode="rw">
       <description>Reserved</description>
       <field name="ADCTRDebug" start="0" bits="1" format="boolean" />
+    </register>
+
+    <register name="HitRateCtr" address="0010" purpose="status" mode="r">
+      <description>Hit wraparound counter</description>
+      <field name="HitRateCtr" start="0" bits="32" format="unsigned" rate="1" />
     </register>
 
   </group>

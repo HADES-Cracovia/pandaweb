@@ -4,7 +4,7 @@ use strict;
 use Getopt::Long;
 
 my $help = "";
-my $dataPath = "~/trbsoft/data";
+my $dataPath = "/data.local2/";
 my $source1 = "50000"; # don't use 50001
 my $source2 = "50002"; # it is assigned for GbE debug
 my $source3 = "50003";
@@ -39,7 +39,6 @@ $c=qq|pkill -f "daq_netmem -S $label"|;   qx($c); # if any, kill existing daq_ne
 
 $c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 1 -d file -o $dataPath'|;
 print $c;
-exit;
 
 system("$c &");
 

@@ -9,6 +9,7 @@
   <!--===========================================-->
   <!-- TDC Channels                              -->
   <!--===========================================-->
+  <group name="ChannelCounter" purpose="statistics" address="0000"  mode="r" continuous="true" size="65" >
   <register name="Channel" address="0000" mode="r" repeat="65">
     <description>Channel-specific information</description>
     <field name="HitCounter" start="0" bits="24" format="unsigned" purpose="statistics" rate="1">
@@ -20,7 +21,7 @@
       <enumItem value="1">High</enumItem>
     </field>
   </register>
-
+  </group>
 
 
   <!--===========================================-->

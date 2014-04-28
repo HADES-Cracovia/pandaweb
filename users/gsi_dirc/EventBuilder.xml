@@ -35,7 +35,7 @@ store data in lmd files.
     <Module name="Combiner" class="hadaq::CombinerModule">    
         <!-- these parameters will force to create inputs/oputputs of module -->
        <NumInputs value="1"/>
-       <NumOutputs value="1"/>
+       <NumOutputs value="2"/>
 
        <InputPort name="Input0" url="hadaq://host:50000"/>
        <InputPort name="Input1" url="hadaq://host:10102"/>
@@ -50,7 +50,7 @@ store data in lmd files.
           <FlushTimeout value="2.0"/>   
        </InputPort>
        
-       <OutputPort name="Output1" url="hld://dabc.hld?maxsize=30"/>
+       <OutputPort name="Output1" url="hld:///data.local2/dabc.hld?maxsize=500"/>
 
        <DoShmControl value="false"/>  
        <FlushTimeout value="2.0"/>   

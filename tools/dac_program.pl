@@ -48,7 +48,7 @@ while (my $a = <$fh>) {
     $chain = hex(substr($chain,2)) if (substr($chain,0,2) eq "0x");
     $cmd   = hex($cmd);
     $board = hex($board);
-    
+    printf("0x%04x %i %i/%i %04x %i\n",$board,$chain,$dac,$chainlen,$val,$cmd);    
     if ($val+$offset >= $reference || $val+$offset < 0) {
       printf(STDERR "Error, value %i with offset %i is higher or lower than reference %i\n",$val,$offset,$reference);
       next;
@@ -65,7 +65,8 @@ while (my $a = <$fh>) {
     $values[16] = $chain;
     $values[17] = $chainlen;
     $values[$chainlen-1-$dac] = $o;
-#     print Dumper @values;
+#    print Dumper @values;
+#    print "\n";
     trb_register_write_mem($board,0xd400,0,\@values,18) or die "trb_register_write_mem: ", trb_strerror(); 
     usleep(5*$chainlen);
     }
