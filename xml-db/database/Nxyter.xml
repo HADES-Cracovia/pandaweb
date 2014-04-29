@@ -270,7 +270,8 @@
     
     <register name="ADCFrameRate" address="0004" purpose="status" mode="r">
       <description>ADC Data Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
-      <field name="ADCFrameRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+      <field name="DisableADC" start="31" bits="1" format="bitmask" mode="rw" />
+      <field name="ADCFrameRateC" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
     
     <register name="ParityErrRate" address="0005" purpose="status" mode="r">
