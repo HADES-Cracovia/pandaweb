@@ -224,9 +224,11 @@
       <field name="DataRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
 
-    <register name="DataRateCtr" address="001f" purpose="status" mode="r">
-      <description>Data Counter being written to Event Buffer/wraparound counter</description>
-      <field name="DataRateCtr" start="0" bits="32" format="unsigned" rate="1" />
+    <register name="HistLimits" address="001f" purpose="status" mode="rw">
+      <description>HistLimits Setup</description>
+      <field name="HistLimitsOn" start="31" bits="1" format="bitmask" />
+      <field name="HistUpperThr" start="16" bits="14" format="unsigned" unit="ns"/>
+      <field name="HistLowerThr" start="0" bits="14" format="unsigned" unit="ns"/>
     </register>
 
   </group>
