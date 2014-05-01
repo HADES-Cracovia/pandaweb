@@ -105,8 +105,8 @@
         <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
     
-      <field name="HistTriggerAll" start="31" bits="1" format="boolean">
-        <description>Write all incoming Data to Histograms</description>
+      <field name="HistTSCutOff" start="31" bits="1" format="boolean">
+        <description>Turn off Timestamp Selection Cut of online Histos</description>
       </field>
       
     </register>    
@@ -227,8 +227,8 @@
     <register name="HistLimits" address="001f" purpose="status" mode="rw">
       <description>HistLimits Setup</description>
       <field name="HistLimitsOn" start="31" bits="1" format="bitmask" />
-      <field name="HistUpperThr" start="16" bits="14" format="unsigned" unit="ns"/>
-      <field name="HistLowerThr" start="0" bits="14" format="unsigned" unit="ns"/>
+      <field name="HistLowerThr" start="16" bits="14" format="unsigned" unit="ns"/>
+      <field name="HistUpperThr" start="0" bits="14" format="unsigned" unit="ns"/>
     </register>
 
   </group>

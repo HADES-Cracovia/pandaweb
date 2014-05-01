@@ -76,7 +76,7 @@ function update(bar,scale) {
   value[bar-1] = Math.round(document.getElementById("bar"+bar).scrollLeft/scale);
   document.getElementById("bar"+bar+"value").innerHTML = value[bar-1];
   total = Math.min(value[0]+value[1],65535);
-  document.getElementById("total").innerHTML = total+" - "+Math.round(total/655.36*reference)/100+" mV";
+  document.getElementById("total").innerHTML = total+" - 0x"+total.toString(16)+" - "+Math.round(total/655.36*reference)/100+" mV";
   command = (type << 20) + (chan << 16) + (total);
   command = command.toString(16);
   if(wasRead == 0) {
