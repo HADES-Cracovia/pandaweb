@@ -205,13 +205,21 @@ var CTS = new Class({
             this.fireEvent('dataUpdate', data);
             this.autoCommitInhibit = false;
          }.bind(this),
+                       
+         onError: function(text, error) {
+            window.clearTimeout(manualTimeout);
+            this.dataUpdate.delay(100, this);
+            dup.addClass('error').set('text', 'Update Decode Error').setStyle('display', 'block');
+            $('status-indicator').set('class', 'error');
+            if (console) console.log('Update Decode Error');
+         }.bind(this),
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            //requestFailure(xhr);
             this.dataUpdate.delay(1000, this);
-            dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
+            dup.addClass('error').set('text', 'Update Request Error').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
+            if (console) console.log('Update Request Error');
          }.bind(this)
       }).send();
    },
