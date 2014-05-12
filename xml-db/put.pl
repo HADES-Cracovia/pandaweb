@@ -128,7 +128,7 @@ sub writedata {
       $old  = $o->{$b};
       my $mask = ~(((1<<$obj->{bits})-1) << $obj->{start});
       $old = $old & $mask;
-      
+
       my $new = $value & ((1<<$obj->{bits})-1); 
       $new = $new << $obj->{start};
       $new = $new | $old;
@@ -139,7 +139,8 @@ sub writedata {
     my $mask = ~(((1<<$obj->{bits})-1) << $obj->{start});
     my $new = $value & ((1<<$obj->{bits})-1); 
     $new = $new << $obj->{start};
-    trb_register_write($netaddr,$obj->{address}+$slice*$stepsize,$new);
+
+    trb_register_loadbit($netaddr,$obj->{address}+$slice*$stepsize,~$mask,$new);
     }
     
   }
