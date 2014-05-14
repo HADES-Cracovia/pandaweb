@@ -104,11 +104,6 @@
         <enumItem value="2">TS 14Bit, ADC  9Bit, PileUp + Parity Bits</enumItem>
         <enumItem value="3">TS 14Bit, ADC 11Bit</enumItem>
       </field>
-    
-      <field name="HistTriggerAll" start="31" bits="1" format="boolean">
-        <description>Write all incoming Data to Histograms</description>
-      </field>
-      
     </register>    
 
     <register name="TriggerWindowOffset" address="0001" purpose="config">
@@ -206,18 +201,18 @@
       <description>Out of Window Low Counter</description>
       <field name="WinLowCtr" start="0" bits="15" format="unsigned"/>
     </register>
-
+    
+    <!--
     <register name="WinHitCtr" address="001d" purpose="status" mode="r">
       <description>Window Hit Counter</description>
       <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
     </register>
-    
-    <!--
-       <register name="WinHighCtr" address="001e" purpose="status" mode="r">
-         <description>Out of Window High Counter</description>
-         <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
-       </register>
-    -->
+    -->    
+   
+    <register name="WinHighCtr" address="001d" purpose="status" mode="r">
+      <description>Out of Window High Counter</description>
+      <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
+    </register>
 
     <register name="DataRate" address="001e" purpose="status" mode="r">
       <description>Data Rate being written to Event Buffer in s&lt;sup&gt;-1&lt;/sup&gt;</description>
@@ -226,9 +221,11 @@
 
     <register name="HistLimits" address="001f" purpose="status" mode="rw">
       <description>HistLimits Setup</description>
-      <field name="HistLimitsOn" start="31" bits="1" format="bitmask" />
-      <field name="HistUpperThr" start="16" bits="14" format="unsigned" unit="ns"/>
-      <field name="HistLowerThr" start="0" bits="14" format="unsigned" unit="ns"/>
+      <field name="EnableFilter" start="31" bits="1" format="bitmask" />
+      <field name="HistLimitsOn" start="30" bits="1" format="bitmask" />
+      <field name="HistReset"    start="29" bits="1" format="bitmask" />
+      <field name="HistUpperThr" start="15" bits="14" format="unsigned" unit="ns"/>
+      <field name="HistLowerThr" start="0"  bits="14" format="unsigned" unit="ns"/>
     </register>
 
   </group>
@@ -236,7 +233,7 @@
   <!-- ##################################################################### -->
   
   <group name="DataReceiver"
-         address="0500"  size="22"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="24"  purpose="status"  mode="rw"  continuous="true">
     
     <register name="ErrorBits" address="0000" purpose="status" mode="r">
       <description>Status of Error Bits</description>
@@ -249,9 +246,10 @@
       <field name="ADC_Err"        start="6"  bits="1" format="bitmask" purpose="status" mode="r"/>
       <field name="ADC_PLL"        start="7"  bits="1" format="bitmask" purpose="status" mode="r"/>
       <field name="ADC_CLK"        start="8"  bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="TS_DT"          start="9"  bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="ADC_DT"         start="10" bits="1" format="bitmask" purpose="status" mode="r"/>
-      <field name="RS"             start="11" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_L"          start="9"  bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="TS_DT"          start="10" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="ADC_DT"         start="11" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="RS"             start="12" bits="1" format="bitmask" purpose="status" mode="r"/>
     </register>
     
     <register name="ResetStatus" address="0001" purpose="status" mode="r">
@@ -272,8 +270,8 @@
     
     <register name="ADCFrameRate" address="0004" purpose="status" mode="r">
       <description>ADC Data Frame Rate, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
-      <field name="DisableADC" start="31" bits="1" format="bitmask" mode="rw" />
       <field name="ADCFrameRateC" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+      <field name="DisableADC" start="31" bits="1" format="bitmask" mode="rw" />
     </register>
     
     <register name="ParityErrRate" address="0005" purpose="status" mode="r">
@@ -378,8 +376,18 @@
       <description>Timestamp Data Rate Error Counter</description>
       <field name="TSDTErrorCtr" start="0" bits="11" format="unsigned" />
     </register>
+    
+    <register name="ADCNLockCtr" address="0016" purpose="status" mode="r">
+      <description>ADC Not Locked counter</description>
+      <field name="ADCNLockCtr" start="0" bits="28" format="unsigned" rate="1" />
+    </register>
 
-  </group>
+    <register name="ADCErrorCtr" address="0017" purpose="status" mode="r">
+      <description>ADC Error Counter</description>
+      <field name="ADCErrorCtr" start="0" bits="28" format="unsigned" rate="1" />
+    </register>
+    
+</group>
   
   <!-- ##################################################################### -->
 
