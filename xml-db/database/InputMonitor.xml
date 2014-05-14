@@ -45,13 +45,22 @@
       <field  name="MonitorInput" start="0"   bits="31" format="bitmask">
       </field>
     </register>    
-    <register name="MonitorTrigger" address="000f" mode="w" >
+    <register name="MonitorTrigger" address="000f" mode="rw" >
       <description>Control signals for fifo and counters</description>
-      <field  name="MonitorRecord" start="0"   bits="1" format="bitmask">
+      <field  name="MonitorRecord" start="0" mode="w"  bits="1" format="bitmask">
          <description>Start writing data to fifo</description>
       </field>
-      <field  name="MonitorResetCounters" start="1"   bits="1" format="bitmask">
+      <field  name="MonitorResetCounters" start="1" mode="w"  bits="1" format="bitmask">
          <description>Reset all counters</description>
+      </field>
+      <field  name="MonitorInputNumber" start="8" mode="r"  bits="5" format="unsigned">
+         <description>Number of input signals</description>
+      </field>
+      <field  name="MonitorSingleFifo" start="15" mode="r"  bits="1" format="boolean">
+         <description>Shows if the design contains a single monitoring fifo only and not one for each input</description>
+      </field>
+      <field  name="MonitorFifoSelect" start="16" mode="rw"  bits="5" format="unsigned">
+         <description>Select the input signal to the Fifo, if the single-fifo version is implemented</description>
       </field>
     </register>        
   </group>
@@ -59,7 +68,7 @@
   <group name="MonitorFifos" purpose="statistics" address="00a0" size="32" mode="r" continuous="true">
     <description>Fifos for each input. 1024 words each.</description>  
     <fifo name="MonitorFifo" address="0000" mode="r" repeat="32" size="1024" >
-      <description>Fifo with history of input edge counters.</description>
+      <description>Fifo with history of input edge counters. Number of available fifos depends on MonitorSingleFifo and MonitorInputNumber</description>
       <field  name="MonitorFifo" start="0" bits="18" format="unsigned" noflag="true" rate="true">
       </field>
     </fifo>    
