@@ -6,6 +6,7 @@ use Time::HiRes qw( gettimeofday usleep time );
 use Getopt::Long;
 use Data::Dumper;
 use POSIX qw/floor strftime/;
+use HADES::TrbNet;
 
 use constant AXISISTIME => 1;
 use constant AXISISNOTIME => 0;
@@ -33,7 +34,7 @@ my @color = ("#2222dd","#880000","#00cc00","#ee00dd","#ffcc00","#00cc88","#6633C
 our $write2file = "";
 our $plotendedbefore = 0;
 
-
+trb_init_ports() or die trb_strerror();
 
 #################################################
 # Variables...
@@ -46,7 +47,7 @@ my $address   = [];
 my $register  = [];
 my $regoffset = [];
 my $regwidth  = [];
-my $fifomode  = 0;
+my $fifomode  = [];
 my $title     = [];
 my $timeref   = [];
 my $geom      = "700x400";
@@ -77,7 +78,7 @@ my $ymin;
 my $xmin;
 my $xmax;
 
-GetOptions('d=i' => \$delay,
+GetOptions('d=f' => \$delay,
            'n=i' => \$samples,
            'o=i' => \$downscale,
            'a=s' => $address,
@@ -88,7 +89,7 @@ GetOptions('d=i' => \$delay,
            'm=i' => $regamount,
            'g=s' => \$geom,
            'z=i' => \$style,
-           'f=i' => \$fifomode,
+           'f=i' => $fifomode,
            'output=s'     => \$outputcfg,
            'windowname=s' => \$windowname,
            'xscale=f'     => $xscale,
@@ -116,21 +117,22 @@ GetOptions('d=i' => \$delay,
            );
 
 for(my $i=0;$i<16;$i++) {
-	$regoffset->[$i]   = 0  unless defined $regoffset->[$i];
-	$regwidth->[$i]    = 32 unless defined $regwidth->[$i];
-	$xoverflow->[$i]   = 2**20 unless defined $xoverflow->[$i];
-	$yoverflow->[$i]   = 2**32 unless defined $yoverflow->[$i];
-	$xscale->[$i]      = 1 unless defined $xscale->[$i];
-	$yscale->[$i]      = 1 unless defined $yscale->[$i];
-	$title->[$i]       = "" unless defined $title->[$i];
-	$curveoption->[$i] = ""  unless defined $curveoption->[$i];
-	}
+  $regoffset->[$i]   = 0  unless defined $regoffset->[$i];
+  $regwidth->[$i]    = 32 unless defined $regwidth->[$i];
+  $xoverflow->[$i]   = 2**20 unless defined $xoverflow->[$i];
+  $yoverflow->[$i]   = 2**32 unless defined $yoverflow->[$i];
+  $xscale->[$i]      = 1 unless defined $xscale->[$i];
+  $yscale->[$i]      = 1 unless defined $yscale->[$i];
+  $title->[$i]       = "" unless defined $title->[$i];
+  $curveoption->[$i] = ""  unless defined $curveoption->[$i];
+  $fifomode->[$i]    = 0   unless defined $fifomode->[$i];
+  }
 
 for(my $i=0;$i < scalar @{$address};$i++) {
   if(!defined($title->[$i])) {
-		$title->[$i] = hex($address->[$i])." $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
-		}
-	}
+    $title->[$i] = hex($address->[$i])." $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
+    }
+  }
 
 
 $delay *= 1000;
@@ -140,7 +142,10 @@ if($style == 3) {$curvestyle="histo";      $xticks=1;}
 if($style == 4) {$curvestyle="histostacked";      $xticks=0;}
 if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
 
-
+for(my $k = 0; $k < scalar @$address; $k++) {
+  $address->[$k] = hex($address->[$k]);
+  $register->[$k] = hex($register->[$k]);
+  }
 
 #Open Gnuplot
 our $fh;
@@ -148,9 +153,8 @@ my $fn = "gnuplot -noraise -geometry $geom -bg 'ghost white'";
 $fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
 $fh->autoflush(1);
 
-
 sub makeTimeString{
-  return strftime("set label 100 \"%H:%M:%S\" at screen 0.02,0.02 left tc rgb \"#000044\" font \"monospace,8\"\n", localtime())
+  return strftime("set label 100 \"%H:%M:%S\" at screen 0.92,0.02 left tc rgb \"#000044\" font \"monospace,8\"\n", localtime())
   }
 
 #################################################
@@ -253,73 +257,70 @@ sub plot_end {
 sub plot_reset {
   if($write2file eq ""){
     system("xwininfo -name '$windowtitle' >/dev/null 2>/dev/null");
-		#print $?."\n";
-		if($? != 0) {
-			usleep(1E5);
-			system("xwininfo -name '$windowtitle' >/dev/null 2>/dev/null");
-			if($? != 0) {
-				finish();
-				}
-			}
+    #print $?."\n";
+    if($? != 0) {
+      usleep(1E5);
+      system("xwininfo -name '$windowtitle' >/dev/null 2>/dev/null");
+      if($? != 0) {
+        finish();
+        }
+      }
     if ($plotendedbefore != 0) {
-			$plotendedbefore = 0;
-#                         my $datestring = makeTimeString();
-                        print $fh makeTimeString();			
-                        print $fh "replot\n";
-			}
-		}
-	else {
+      $plotendedbefore = 0;
+      print $fh makeTimeString();      
+      print $fh "replot\n";
+      }
+    }
+  else {
     if ($plotendedbefore != 0) {
-			system("mv $write2file.tmp $write2file");
+      system("mv $write2file.tmp $write2file");
       plot_write("set out \"$write2file.tmp\"\n");
       $plotendedbefore = 0;
-#       my $datestring = makeTimeString();
       print $fh makeTimeString();
       print $fh "replot\n";
-      
 #       print "reset\n";
       }
-		}
+    }
   }  
 
 sub plot_finished {
-	my ($store) = @_;
-	if($write2file ne "") {
-		if(defined $store) {
-			if($store->{"initing"} != 2 and $store->{"iteration"} % $store->{"downscale"} == 0) {
-# 				system("mv $write2file.tmp $write2file");
-				}
-			}
-		else {
-			if($write2file ne "") {
-# 				system("mv $write2file.tmp $write2file");
-				}
-			}
-		}
-	}
+  my ($store) = @_;
+  if($write2file ne "") {
+    if(defined $store) {
+      if($store->{"initing"} != 2 and $store->{"iteration"} % $store->{"downscale"} == 0) {
+#         system("mv $write2file.tmp $write2file");
+        }
+      }
+    else {
+      if($write2file ne "") {
+#         system("mv $write2file.tmp $write2file");
+        }
+      }
+    }
+  }
 
 sub plot_init {
   my ($xtics) = @_;
   $windowtitle = $name ." - ".$windowname;
   if ($outputcfg =~ m$PNG.([/\w]*).(\d+).(\d+)$) {
-		print "Writing PNG to file $1\n";
-		$write2file = $1.".png";
-		plot_write("set term png size $2,$3 font \"monospace,8\"");
-		plot_write("set out \"$write2file.tmp\"");
-		}
+    print "Writing PNG to file $1\n";
+    $write2file = $1.".png";
+    plot_write("set term png size $2,$3 font \"monospace,8\"");
+    plot_write("set out \"$write2file.tmp\"");
+    }
   elsif ($outputcfg =~ m$SVG.([/\w]*).(\d+).(\d+)$) {
-		print "Writing SVG to file $1\n";
-		$write2file = $1.".svg";
-		plot_write("set term svg size ".($2*2).",".($3*2)." dynamic font \"monospace,18\" lw 1.5 \n");
-		plot_write("set out \"$write2file.tmp\"\n");
-		}
-	else {
+    print "Writing SVG to file $1\n";
+    $write2file = $1.".svg";
+    plot_write("set term svg size ".($2*2).",".($3*2)." dynamic font \"monospace,18\" lw 1.5 \n");
+    plot_write("set out \"$write2file.tmp\"\n");
+    }
+  else {
     plot_write("set term x11 title '$windowtitle'");
-		}
+    }
   plot_write("set grid");
   plot_write("set xlabel \"$xtitle\"");
   plot_write("set ylabel \"$ytitle\"");
-  
+
   plot_write(makeTimeString());
   
   if(defined $xtics) {
@@ -338,17 +339,17 @@ sub plot_init {
     plot_write("set yrange [$ymin:]");
     }
   if (!defined $key || $key == 0) {
-		plot_write("unset key");
-		}
-	if($xgrid == 0) {
-	  plot_write("set grid noxtics");
-		}
-	if($ygrid == 0) {
-	  plot_write("set grid noytics");
-		}
-	if($plotoption ne "") {
-		plot_write($plotoption);
-		}
+    plot_write("unset key");
+    }
+  if($xgrid == 0) {
+    plot_write("set grid noxtics");
+    }
+  if($ygrid == 0) {
+    plot_write("set grid noytics");
+    }
+  if($plotoption ne "") {
+    plot_write($plotoption);
+    }
   }
 
 sub plot_sleep {
@@ -448,11 +449,11 @@ sub store_push {
         }
       }
     if($storage->{"diffy"}) {
-			$yval = $y - $storage->{"lasty"};
+      $yval = $y - $storage->{"lasty"};
       if(defined($storage->{"ymax"}) && $y < $storage->{"lasty"}) {
         while($yval < 0) {
-					$yval += $storage->{"ymax"};
-					}
+          $yval += $storage->{"ymax"};
+          }
         }
       if($divtime) {  
         $yval /= ($xval?$xval:1)/1000000;
@@ -534,7 +535,7 @@ sub store_init {
   $storage->{"last_sleep"}  = 0;
   }
 
- 
+
 #################################################
 # Help Message
 #################################################
@@ -593,8 +594,7 @@ EHELP
   print "\toep3V\t\tShows the input  voltages of +-3V (OEP only)\n";
   print "\tdatarate\tshows a histogram of data rates\n";
   print "\teventrate\tHistogram of the trigger rate\n";
-  print "\tbusytime\tHistogram of busy times\n";
-  print "\tbusy\t\tBargraph of busy times\n";
+  print "\tbusy\t\tBusy times - not available any more, see hmon\n";
   print "\tfilllevel\tFill level of data buffers in all endpoints\n";
   print "\toepfill\t\tFill level of OEP buffers\n";
   print "\tshowerfill\tFill level of Shower buffers\n";
@@ -610,6 +610,7 @@ EHELP
   print "\tmdcchanneldiff\tdata counters per TDC channel for MDC, changes only\n";
   print "\tgberate\t\tAmount of data sent by GbE links\n";
   print "\ttimecmslvl1\tTime between CMS and LVL1 trigger on OEP\n";
+  print "\tslowcontrolrate\tData rate on slow control channel\n";
 #  print "\t\t\n";
   
   print "\n";
@@ -724,14 +725,14 @@ sub genreg {
   for(my $i = 0; $i<scalar(@{$address});$i++) {
     plot_write("'-' ",NONEWLINE);
     if($xticks) {
-			plot_write("using 2:xticlabels(1) ",NONEWLINE);
-			}
+      plot_write("using 2:xticlabels(1) ",NONEWLINE);
+      }
     if(($curvestyle =~ /histo/)) {
       plot_write("with histograms lt rgb \"$color[$i]\" title \"$title->[$i]\" ",NONEWLINE);
       }
     elsif ($curvestyle eq "steps") {      
-			plot_write("with histeps title \"$title->[$i]\" ",NONEWLINE);
-			}
+      plot_write("with histeps title \"$title->[$i]\" ",NONEWLINE);
+      }
     else {
       plot_write("with points pt 5 title \"$title->[$i]\" ",NONEWLINE);
       }
@@ -744,41 +745,34 @@ sub genreg {
   while(1) {
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       my $c;
-      my $cnt;
       if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
-        $c = "trbcmd r $address->[$i] $register->[$i] | sort";  
+        $c = trb_register_read(($address->[$i]),($register->[$i]));
+        foreach my $s (keys $c) {
+          $c->{$s}=[$c->{$s}];
+          }
         }
       else {
-        $c = "trbcmd rm $address->[$i] $register->[$i] $regamount->[$i] $fifomode";  
+        $c = trb_register_read_mem(($address->[$i]),($register->[$i]),$fifomode->[$i],$regamount->[$i]);
         }
-      my @out = qx($c);
-      my $addr = undef;
-      foreach my $s (@out) {
-        if($s =~ /^H:\s*0x(\w\w\w\w)/) {
-          $addr = $1;
-          $cnt = -1;
-          }
-        if($s =~ /^0x(\w{4})\s*0x(\w{8})/) {
-          my $tmp = (hex($2)>>$regoffset->[$i])&(2**$regwidth->[$i]-1);
-          my $val = 0;
-          my $board = $1;
-          if(defined $addr) {$board = $addr;}
-          $cnt++;
-          my $reg   = $1;
+      foreach my $s (sort keys $c) {
+        for(my $r = 0; $r < scalar @{$c->{$s}};$r++) {
+          my $tmp = ($c->{$s}->[$r]>>$regoffset->[$i])&(2**$regwidth->[$i]-1);
+          my $val = $tmp;
+          my $board = sprintf("%04x",$s);
+          my $reg = $register->[$i]+$r;
+
           if($ydiff) {
-						if(defined $oldvals{$i}->{$board.$reg}) {
-							if ($oldvals{$i}->{$board.$reg} > $tmp) {
-								$val = $tmp - $oldvals{$i}->{$board.$reg} + 2**$regwidth->[$i];
-								}
-							else {
-								$val = $tmp - $oldvals{$i}->{$board.$reg};
-								}
-							}
-						$oldvals{$i}->{$board.$reg} = $tmp;  
-						}
-				  else {
-						$val = $tmp;
-						}
+            if(defined $oldvals{$i}->{$board.$reg}) {
+              if ($oldvals{$i}->{$board.$reg} > $tmp) {
+                $val = $tmp - $oldvals{$i}->{$board.$reg} + 2**$regwidth->[$i];
+                }
+              else {
+                $val = $tmp - $oldvals{$i}->{$board.$reg};
+                }
+              }
+            $oldvals{$i}->{$board.$reg} = $tmp;  
+            }
+
           if($xticks) {
             if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
               plot_add("\"$board\"",$val/($yscale->[$i]||1));
@@ -823,138 +817,20 @@ sub genhist {
     plot_storage_reset($storearr{0});
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       $val = 0;
-      my $c = "trbcmd rt $address->[$i] $register->[$i] | sort";
-      my @out = qx($c);
-      $time += $delay;
-      foreach my $o (@out) {
-        if (($a,$s,$t) = $o =~ /^0x(\w{4})\s*0x(\w{8})\s*0x(\w{4})/) {
-          $val  += ((hex($s)>>($regoffset->[$i]))&(2**($regwidth->[$i])-1));
-          $time = hex($t)*16;
-          }
+      my $c = trb_registertime_read($address->[$i], $register->[$i]) or sleep 1 and print "Error\n" and next;
+      foreach my $o (sort keys $c) {
+        $val  += ((($c->{$o}->{'value'}->[0]||0)>>($regoffset->[$i]))&(2**($regwidth->[$i])-1));
+        $time = ($c->{$o}->{'time'}->[0]||0)*16;
         }
+
       store_push($storearr{$i},$time/$xscale->[$i],$val/($yscale->[$i]||1),AXISISTIME);
       store_print($storearr{$i});
       }
     plot_storage_sleep($storearr{0});
-		plot_finished($storearr{0});
+    plot_finished($storearr{0});
     }
   }
 
-#################################################
-# Deadtime histogram
-#################################################
-sub deadtimehist2 {
-  my %values, my %lastvalues, my %diffvalues;
-  my @keys  = ("33","34","36","31","38","37","3b","35");
-  my @keys2 = ("43","44","46","41","48","47","4b","45");
-  my @names = ("MDC12","MDC34","TOF","RPC","RICH","SHW","Start","FW");
-  my %storearr;
-  
-  if ($style != 0) {
-    for(my $i= 0; $i < scalar(@keys); $i++) {
-      $storearr{$keys[$i]} = {};  
-      store_init($storearr{$keys[$i]},$samples,0,0,$delay*.0,$downscale,2**32,2**32);
-      }
-    for(my $i= 0; $i < scalar(@keys2); $i++) {
-      $storearr{$keys2[$i]} = {};  
-      store_init($storearr{$keys2[$i]},$samples,0,0,$delay*.0,$downscale,2**32,2**32);
-      }
-    }
-  
-  plot_init();
-  plot_write("set key left top Left");
-  plot_write("set autoscale fix");
-  plot_write("set yrange [-1:101]");
-  
-  if ($style != 0) {
-    plot_write("plot ",1);
-    plot_write("\"-\" title \"MDC12\" with lines,",1);
-    plot_write("\"-\" title \"MDC34\" with lines,",1);
-    plot_write("\"-\" title \"TOF\" with lines,",1);  
-    plot_write("\"-\" title \"RPC\" with lines,",1);
-    plot_write("\"-\" title \"RICH\" with lines,",1);
-    plot_write("\"-\" title \"SHW\" with lines,",1);
-    plot_write("\"-\" title \"Start\" with lines,",1);
-    plot_write("\"-\" title \"FW\" with lines");
-    }
-  else {
-    plot_write("set style fill   solid 1.00 border -1");
-    plot_write("set grid noxtics ytics");
-    plot_write("set boxwidth 2 absolute");
-    plot_write("set xtics ('MDC12' 0,'MDC34' 1,'TOF' 2, 'RPC' 3, 'RICH' 4, 'SHW' 5, 'Start' 6, 'FW' 7) offset 2,0 scale 0");
-    plot_write("set style histogram title offset character 0, 0, 0");
-    plot_write("set style data histograms");
-    plot_write("plot \"-\" title 'incl. busy' lt rgb \"#1155bb\", \"-\" title 'excl. busy' lt rgb \"#bb1111\"");
-    }
-	my $cmd = sprintf("trbcmd -n-1 -s%d rmt 0x8001 0x4031 31 0",$delay/1000);
-	if($style != 0) {
-		$cmd =  sprintf("trbcmd -n-1 -s%d rmt 0x8001 0x4031 12 0",$delay/1000);
-		}
-	open(FTRB, "$cmd|");
-
-  while(my $a = <FTRB>) {
-    if($a =~ /^0x\w{2}(\w{2})\s*0x(\w{8})\s*0x(\w{4})/) {
-      $values{$1}   = hex($2);
-      $values{"50"} = hex($3)*16;
-      }
-    if ($a eq "---\n") {
-			$diffvalues{"50"} = 1E6;  
-			if (defined $lastvalues{"50"}) {
-				if ($values{"50"} > $lastvalues{"50"}) {
-					$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"};
-					}
-				else {
-					$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"} + 2**20;
-					}
-				}    
-			#$diffvalues{"50"} = $values{"50"} - $lastvalues{"50"} if defined $lastvalues{"50"};
-			my $time = $diffvalues{"50"};
-			foreach my $key (keys %values) { 
-				next unless hex($key)<0x50;
-				$diffvalues{$key} = 0;
-				if (defined $lastvalues{$key}) {
-					if ($values{$key} >= $lastvalues{$key}) {
-						$diffvalues{$key} = $values{$key} - $lastvalues{$key};
-						}
-					else {
-						$diffvalues{$key} = $values{$key} - $lastvalues{$key} + 2**32;
-						}
-					}
-				$diffvalues{$key} /= $time if $time;
-				#print $key." ".$values{$key}." ".$lastvalues{$key}." ".$diffvalues{$key}."\n";
-				}  
-			#print "=====\n";
-			$diffvalues{"31"} = max($diffvalues{"31"},$diffvalues{"32"});
-			$diffvalues{"38"} = max(max($diffvalues{"38"},$diffvalues{"39"}),$diffvalues{"3a"});
-			if ($style == 0) {
-				$diffvalues{"41"} = max($diffvalues{"41"},$diffvalues{"42"});
-				$diffvalues{"48"} = max(max($diffvalues{"48"},$diffvalues{"49"}),$diffvalues{"4a"});
-				}
-			%lastvalues = %values;
-			if($style != 0) {
-        plot_storage_reset($storearr{$keys[0]});
-				for(my $i= 0; $i < scalar(@keys); $i++) {
-					store_push($storearr{$keys[$i]},$time,$diffvalues{$keys[$i]},0);
-					store_print($storearr{$keys[$i]});
-					}
-				plot_storage_sleep($storearr{$keys[0]},1);      
-				plot_finished($storearr{$keys[0]});
-        }
-			else {
-        plot_reset();
-				for(my $i= 0; $i < scalar(@keys); $i++) {    
-					plot_add("",$diffvalues{$keys[$i]});  #"\"".$names[$i]."\"",
-					}
-				plot_end(1);  
-				for(my $i= 0; $i < scalar(@keys2); $i++) {    
-					plot_add("",$diffvalues{$keys2[$i]});  #"\"".$names[$i]."\"",
-					}
-				plot_end(1);
-				plot_finished();
-        }
-			}
-    }
-  } 
 
 
 #################################################
@@ -1068,9 +944,9 @@ if($ARGV[0] =~ /oeptemp/) {
 
 if($ARGV[0] =~ /rpcdatarate/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 ;
-	$xtitle      = "Sender ((Sector mod 3)*4+TRB)";
-	$ytitle      = "Data Words /1024";
+  $xticks      = 1 ;
+  $xtitle      = "Sender ((Sector mod 3)*4+TRB)";
+  $ytitle      = "Data Words /1024";
   $windowname  = "Data Words sent by RPC";
   $curvestyle  = "histo";
   $key         = YES;
@@ -1087,6 +963,23 @@ if($ARGV[0] =~ /rpcdatarate/) {
   }
 
 #hadplot -a 2 -r 1 -p 0 -w 16 -d 5 -o 200 -n 1000 -yoverflow 65536 genhistdiff
+
+
+if($ARGV[0] =~ /slowcontrolrate/) {
+  $delay       = 1000000 unless $delay;
+  $samples     = 240 unless $samples;
+  $downscale   = 1   unless $downscale;
+  $style       = 0 unless $style;
+  $windowname  = "Slow Control Data Rate";
+  $ydiff       = DIFFY;
+  $ytitle      = "Slow Control Data / kByte/s";
+  $address     = [0x8000];
+  $register    = [0x4012];
+  $regoffset   = [0];
+  $regwidth    = [32];  
+  $yscale      = [102.4];
+  genhist();
+  } 
 
 if($ARGV[0] =~ /eventratehighres/) {
   $delay       = 5000 ; #unless $delay;
@@ -1118,12 +1011,12 @@ if($ARGV[0] =~ /eventrate/) {
   $downscale   = 10     unless $downscale;
   $windowname  = "Event rate history"; 
   $key         = NO;
-	$ytitle      = "Event rate [Hz]" if $ytitle eq "";
-	$xistime     = AXISISTIME;
-	$ydiff       = DIFFY;
-	$xoverflow   = [2**20];
-	$yoverflow   = [2**16] unless $yoverflow->[0] != 2**32;
-	genhist();
+  $ytitle      = "Event rate [Hz]" if $ytitle eq "";
+  $xistime     = AXISISTIME;
+  $ydiff       = DIFFY;
+  $xoverflow   = [2**20];
+  $yoverflow   = [2**16] unless $yoverflow->[0] != 2**32;
+  genhist();
   }
 
 if($ARGV[0] =~ /datarate/) {
@@ -1136,32 +1029,17 @@ if($ARGV[0] =~ /datarate/) {
   $samples     = 500    unless $samples;
   $downscale   = 5      unless $downscale;
   $windowname  = "Total data rate history"; 
-	$xtitle      = "Time [s]" unless defined $xtitle;
-	$ytitle      = "Data rate [MiByte]" unless defined $ytitle;
-	$xistime     = AXISISTIME;
-	$ydiff       = DIFFY;
-	$xoverflow   = [2**20];
-	$yoverflow   = [2**12];
-	$yscale      = [2**20];
-	$key         = NO;
-	genhist();
+  $xtitle      = "Time [s]" unless defined $xtitle;
+  $ytitle      = "Data rate [MiByte]" unless defined $ytitle;
+  $xistime     = AXISISTIME;
+  $ydiff       = DIFFY;
+  $xoverflow   = [2**20];
+  $yoverflow   = [2**12];
+  $yscale      = [2**20];
+  $key         = NO;
+  genhist();
   }  
 
-if($ARGV[0] =~ /busytime/) {
-  $delay       = 100000 unless $delay;
-  $samples     = 100    unless $samples;
-  $downscale   = 5      unless $downscale;
-  $style       = 1;
-  $windowname  = "Busytime history";
-  deadtimehist2();
-  }  
-
-if($ARGV[0] =~ /busy/) {
-  $delay       = 100000 unless $delay;
-  $style       = 0;
-  $windowname  = "Busy time";
-  deadtimehist2();
-  }
 
 if($ARGV[0] =~ /oepspikehist/) {
   $delay       = 100000 unless $delay;
@@ -1245,12 +1123,12 @@ if($ARGV[0] =~ /hist/) {
 
 if($ARGV[0] =~ /oepworktime/) {
   $delay       = 1000000 unless $delay;
-	$curvestyle  = "histostacked";
-	$xticks      = 0 unless $xticks;
-	$ymax        = $delay*1.1/1000;
-	$yscale      = [1000];
-	$xtitle      = "OEP";
-	$ytitle      = "Time [ms]";
+  $curvestyle  = "histostacked";
+  $xticks      = 0 unless $xticks;
+  $ymax        = $delay*1.1/1000;
+  $yscale      = [1000];
+  $xtitle      = "OEP";
+  $ytitle      = "Time [ms]";
   $windowname  = "OEP Trigger Handling Times";
   $ydiff       = DIFFY;
   $title       = ["Readout","Waiting","Initialization","Calibration","Idle"];
@@ -1263,10 +1141,10 @@ if($ARGV[0] =~ /oepworktime/) {
 
 if($ARGV[0] =~ /gberate/) {
   $delay       = 1000000 unless $delay;
-	$curvestyle  = "histostacked";
-	$xticks      = 1 unless $xticks;
-	$xtitle      = "Sender";
-	$ytitle      = "Data Rate (kiB)" if $ytitle eq "";
+  $curvestyle  = "histostacked";
+  $xticks      = 1 unless $xticks;
+  $xtitle      = "Sender";
+  $ytitle      = "Data Rate (kiB)" if $ytitle eq "";
   $windowname  = "Gbe Data Rate";
   $key         = NO;
   $ydiff       = DIFFY;
@@ -1280,9 +1158,9 @@ if($ARGV[0] =~ /gberate/) {
 
 if($ARGV[0] =~ /oepwords/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 unless defined $xticks;
-	$xtitle      = "Sender";
-	$ytitle      = "Data Words";
+  $xticks      = 1 unless defined $xticks;
+  $xtitle      = "Sender";
+  $ytitle      = "Data Words";
   $windowname  = "Data Words sent by OEP";
   $yscale      = [1];
   $key         = NO;
@@ -1297,16 +1175,16 @@ if($ARGV[0] =~ /oepwords/) {
 
 if($ARGV[0] =~ /mdcchan/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1;
-	$xtitle      = "Sender";
-	$ytitle      = "Data Words";
+  $xticks      = 1;
+  $xtitle      = "Sender";
+  $ytitle      = "Data Words";
   $windowname  = "Data words per TDC channel";
   $yscale      = [1];
   $key         = NO;
   $ydiff       = NODIFFY;
   if ($ARGV[0] =~ /diff/) {
-		$ydiff       = DIFFY;
-		}
+    $ydiff       = DIFFY;
+    }
   $address     = [$address->[0]?$address->[0]:0xfffd];
   $register    = [0xc088];
   $regamount   = [96];
@@ -1318,7 +1196,7 @@ if($ARGV[0] =~ /mdcchan/) {
 
 if($ARGV[0] =~ /regdiff/) {
   $delay       = 1000000 unless $delay;
-# 	$xticks      = 1 unless $xticks;
+#   $xticks      = 1 unless $xticks;
   $ydiff       = DIFFY;
 #   $key         = NO unless defined $key;
   $windowname  = "General Plot" unless $windowname;
@@ -1327,7 +1205,7 @@ if($ARGV[0] =~ /regdiff/) {
 
 if($ARGV[0] =~ /reg/) {
   $delay       = 1000000 unless $delay;
-# 	$xticks      = 1 unless $xticks;
+#   $xticks      = 1 unless $xticks;
   $ydiff       = NODIFFY;
 #   $key         = NO unless defined $key;
   $windowname  = "General Plot" unless $windowname;
@@ -1336,9 +1214,9 @@ if($ARGV[0] =~ /reg/) {
 
 if($ARGV[0] =~ /oeptrgerr/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 unless defined $xticks;
-	$xtitle      = "Board";
-	$ytitle      = "# of errors";
+  $xticks      = 1 unless defined $xticks;
+  $xtitle      = "Board";
+  $ytitle      = "# of errors";
   $windowname  = "OEP CMS Errors";
   $key         = YES;
   $ydiff       = NODIFFY;
@@ -1352,9 +1230,9 @@ if($ARGV[0] =~ /oeptrgerr/) {
 
 if($ARGV[0] =~ /oepfill/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 unless defined $xticks;
-	$xtitle      = "Board";
-	$ytitle      = "Words in Buffer";
+  $xticks      = 1 unless defined $xticks;
+  $xtitle      = "Board";
+  $ytitle      = "Words in Buffer";
   $windowname  = "OEP Buffer Fill Level";
   $key         = NO;
   $ydiff       = NODIFFY;
@@ -1367,9 +1245,9 @@ if($ARGV[0] =~ /oepfill/) {
 
 if($ARGV[0] =~ /showerfill/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 unless defined $xticks;
-	$xtitle      = "Board";
-	$ytitle      = "Words in Buffer";
+  $xticks      = 1 unless defined $xticks;
+  $xtitle      = "Board";
+  $ytitle      = "Words in Buffer";
   $windowname  = "Shower Data Buffer Fill Level";
   $key         = $key || NO;
   $ydiff       = NODIFFY;
@@ -1382,9 +1260,9 @@ if($ARGV[0] =~ /showerfill/) {
 
 if($ARGV[0] =~ /filllevel/) {
   $delay       = 1000000 unless $delay;
-	$xticks      = 1 unless defined $xticks;
-	$xtitle      = "Board";
-	$ytitle      = "Words in Buffer";
+  $xticks      = 1 unless defined $xticks;
+  $xtitle      = "Board";
+  $ytitle      = "Words in Buffer";
   $windowname  = "Front-end Data Buffer Fill Level";
   $key         = NO;
   $ydiff       = NODIFFY;
@@ -1434,21 +1312,6 @@ if($ARGV[0] =~ /oeptokenmiss/) {
   genreg();
   }
 
-if($ARGV[0] =~ /slowcontrolrate/) {
-  $delay       = 1000000 unless $delay;
-  $samples     = 240 unless $samples;
-  $downscale   = 1   unless $downscale;
-  $style       = 0 unless $style;
-  $windowname  = "Slow Control Data Rate";
-  $ydiff       = DIFFY;
-  $ytitle      = "Slow Control Data / kByte/s";
-  $address     = [0x8000];
-  $register    = [0x4012];
-  $regoffset   = [0];
-  $regwidth    = [32];  
-  $yscale      = [102.4];
-  genhist();
-  } 
 
 
 
