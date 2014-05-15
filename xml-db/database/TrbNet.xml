@@ -142,9 +142,13 @@
       <description>Compilation Time</description>
       <field name="CompileTime" start="0" bits="32" format="time" />
     </register>
-    <register name="DesignVersion" address="0001" purpose="status">
-      <description>Version identifier of the design</description>
-      <field name="DesignVersion" start="0" bits="32" format="hex" />
+    <register name="ImplementedFeaturesL" address="0001" purpose="status">
+      <description>Lower Half of the implemented features list</description>
+      <field name="ImplementedFeaturesL" start="0" bits="32" format="hex" />
+    </register>
+    <register name="ImplementedFeaturesH" address="0003" purpose="status">
+      <description>Upper Half of the implemented features list</description>
+      <field name="ImplementedFeaturesH" start="0" bits="32" format="hex" />
     </register>
     <register name="HardwareInfo" address="0002" purpose="status">
       <description>Definition of the board hardware the design is intended to be load onto and basic design information</description>
