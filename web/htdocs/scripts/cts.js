@@ -1055,7 +1055,7 @@ function id(x) {return x;}
 
 
 function prettyJSON(obj, indent){
-   if (ident==undefined) ident="";
+   if (indent==undefined) indent="";
    if (obj && obj.toJSON) obj = obj.toJSON();
 
    switch (typeOf(obj)){
