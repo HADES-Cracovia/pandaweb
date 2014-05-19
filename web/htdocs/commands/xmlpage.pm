@@ -107,6 +107,7 @@ sub printJavaScripts {
   GETCOMMAND = "$getscript";
   var period = |.$setup[$n]->{period}.qq|;
   var command="|.$setup[$n]->{cmd}.qq|";
+  var currentpage = $active;
   var Timeoutvar;
   
   
@@ -119,6 +120,7 @@ sub printJavaScripts {
   setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);
   setTimeout('document.getElementById("period").value = period;',300);
   
+  setTimeout('eatCookies()',100);
 </script>
 |;
 }
