@@ -2,7 +2,7 @@
 use HADES::TrbNet;
 use Storable qw(lock_store lock_retrieve);
 use feature "switch";
-use Time::HiRes qw( time );
+use Time::HiRes qw( time usleep );
 use CGI::Carp qw(fatalsToBrowser);
 
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
@@ -13,7 +13,7 @@ use if (!defined $ENV{'QUERY_STRING'}), Data::TreeDumper;
 use if (!defined $ENV{'QUERY_STRING'}), Getopt::Long;
 
 # use Data::TreeDumper;
-#use Data::Dumper;
+use Data::Dumper;
 my ($db,$data,$once,$slice);
 my $help = 0;
 my $verbose = 0;
@@ -141,7 +141,7 @@ foreach my $req (@request) {
       if @spi_chains==0;
   }
   elsif($db->{'§EntityType'} eq 'SpiEntity') {
-    # no spi range supplied, just use 0 by default
+    # no spi range supplied, just use chain 0 by default
     @spi_chains = (0);
   }
 
@@ -337,7 +337,9 @@ sub register_read {
     when ("TrbNetEntity")  {
       $o =  convert_keys_to_hex(trb_register_read($netaddr, $regaddr));
     }
-    when ("SpiEntity") { $o = { "$netaddr:1" => [1,2,3] }; }
+    when ("SpiEntity") {
+      $o = spi_register_read($netaddr, $regaddr);
+    }
     default {die "EntityType not recognized";}
   }
   return $o;
@@ -366,6 +368,37 @@ sub convert_keys_to_hex {
   }
   @h{@keys} = delete @h{keys %h}; # this is pure Perl magic :)
   return \%h;
+}
+
+sub spi_register_read {
+  # inspired by the simple padiwa.pl
+  my ($netaddr, $regaddr) = @_;
+  $o = {};
+  foreach my $chain (@spi_chains) {
+    # in $cmd, the lower 16 bits are the payload
+    # the upper 16 bits control:
+    # 31..24: select (something like an address)
+    # 23..20: command read=0x0, write=0x8
+    # 19..16: channel/register (something like an address)
+
+    # the lower 4 bits directly map:
+    my $cmd = $regaddr & 0xF;
+    # the next 8 bits need to be shifted
+    $cmd |= (($regaddr >> 4) & 0xFF) << 8;
+    # shift it to the upper 16 bits finally
+    $cmd <<= 16;
+
+    my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
+    trb_register_write_mem($netaddr,0xd400,0,$c,scalar @{$c});
+    usleep(1000);
+    my $res = trb_register_read($netaddr,0xd412);
+    foreach my $board (keys %$res) {
+      my $b = sprintf('%04x:%d', $board, $chain);
+      $o->{$b} = $res->{$board};
+    }
+  }
+
+  return $o;
 }
 
   
