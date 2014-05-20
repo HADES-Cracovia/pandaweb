@@ -248,8 +248,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="basicTrbData">
-          <!-- size specified in 32bit long words -->
+          <!-- size specified in "bits" long words -->
           <xs:attribute ref="size" use="required" />
+          <!-- bits is by default assumed to be 32 -->
+          <xs:attribute ref="bits" />
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
