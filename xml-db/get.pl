@@ -116,6 +116,9 @@ foreach my $req (@request) {
 
   $db = lock_retrieve($file);
   die "Unable to read cache file\n" unless defined $db;
+  die "Your cached database is outdated. Update by running xml-db.pl"
+    unless exists $db->{'§EntityType'};
+
   
   if($rates || $cache) {
     if(-e $storefile) {
@@ -314,7 +317,8 @@ sub requestdata {
         }
       }
     }
-  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field")  && $obj->{mode} =~ /r/) {
+  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield"
+         || $obj->{type} eq "field")  && $obj->{mode} =~ /r/) {
     my $stepsize = $obj->{stepsize} || 1;
     $slice = 0 unless defined $slice;
     do {
