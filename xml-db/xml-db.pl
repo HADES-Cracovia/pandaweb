@@ -110,6 +110,10 @@ sub WorkOnDoc {
   my $doc = shift;
   my $db = {};
 
+  # add the name of the entity as some special key (starting with §)
+  # this is later on needed by get.pl to determine how to obtain data
+  $db->{'§EntityType'} = $doc->getDocumentElement->nodeName;
+
   # we populate first the db. then we can check when adding the
   # children that they exist, and we can also handle the special case
   # when a node has the same name as the single field it contains
