@@ -57,7 +57,7 @@
         <description>Reference time synchronised to 100 MHz Trb-Net
         clock</description>
       </field>
-      <field name="TriggerType" start="28" bits="4" format="hex" mode="rw" purpose="status">
+      <field name="TriggerType" start="28" bits="4" format="hex" purpose="status">
         <description>Trigger type</description>
       </field>
     </register>
