@@ -333,17 +333,40 @@ sub requestdata {
 
 sub register_read {
   my ($netaddr, $regaddr) = @_;
-  $o = trb_register_read($netaddr, $regaddr);
+  for($db->{'§EntityType'}) {
+    when ("TrbNetEntity")  {
+      $o =  convert_keys_to_hex(trb_register_read($netaddr, $regaddr));
+    }
+    when ("SpiEntity") { $o = { "$netaddr:1" => [1,2,3] }; }
+    default {die "EntityType not recognized";}
+  }
   return $o;
 }
 
 sub register_read_mem {
   my ($netaddr, $regaddr, $start, $size) = @_;
-  $o = trb_register_read_mem($netaddr, $regaddr, $start, $size);
+  for($db->{'§EntityType'}) {
+    when ("TrbNetEntity")  {
+      $o = convert_keys_to_hex(trb_register_read_mem($netaddr, $regaddr, $start, $size));
+    }
+    when ("SpiEntity") { $o = { "$netaddr:1" => [1,2,3] }; }
+    default {die "EntityType not recognized";}
+  }
+  #die Dumper($o);
   return $o;
 }
 
-
+sub convert_keys_to_hex {
+  # replace all keys with string in hex representation
+  # this makes the keys more flexible, especially for providing chains...
+  my %h = %{$_[0]};
+  my @keys = keys %h;
+  for($i=0;$i<@keys;$i++) {
+    $keys[$i]=sprintf('%04x',$keys[$i]);
+  }
+  @h{@keys} = delete @h{keys %h}; # this is pure Perl magic :)
+  return \%h;
+}
 
   
 sub generateoutput {
@@ -392,12 +415,12 @@ sub generateoutput {
         next unless defined $data->{$addr}->{$b};
         $sl = sprintf("<td class=\"slice\"><div>%i<span class=\"tooltip\"><b>$name.$slice</b> (0x%04x)</span></div>",$slice,$addr) if ($once != 1 && defined $obj->{repeat});
         
-        $ttmp .= sprintf("<tr><td><div>%04x<span class=\"tooltip\"><b>$name</b> on 0x%04x<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
+        $ttmp .= sprintf("<tr><td><div>%s<span class=\"tooltip\"><b>$name</b> on 0x%s<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
             my $fullc = $c;
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
-            my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+            my $cstr = sprintf("%s-0x%s-%s", $entity,$b,$fullc );
             my $wr = 1 if $db->{$c}->{mode} =~ /w/;
             $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},$c,"td",($wr?"editable":""),$cstr,$addr,$b);
             }
@@ -405,11 +428,11 @@ sub generateoutput {
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
           my $fullc = $name;
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
-          my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+          my $cstr = sprintf("%s-0x%s-%s", $entity,$b,$fullc );
           my $wr = 1 if $obj->{mode} =~ /w/;
           $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr,$addr,$b);
           }
-        $tarr{sprintf("%05i%04i",$b,$slice)}=$ttmp;
+        $tarr{sprintf("0x%s%04i",$b,$slice)}=$ttmp;
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
@@ -499,7 +522,7 @@ sub runandprint {
       #### Fill table with information
       foreach my $b (sort keys %$o) {
         my @l;
-        push(@l,sprintf("%04x",$b));
+        push(@l,sprintf("0x%s",$b));
         push(@l,sprintf("%04x",$obj->{address}+$slice*$stepsize));
         push(@l,sprintf("%08x",$o->{$b}));
         if($obj->{type} eq "register") {
