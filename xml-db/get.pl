@@ -13,13 +13,14 @@ use if (!defined $ENV{'QUERY_STRING'}), Data::TreeDumper;
 use if (!defined $ENV{'QUERY_STRING'}), Getopt::Long;
 
 # use Data::TreeDumper;
+#use Data::Dumper;
 my ($db,$data,$once,$slice);
 my $help = 0;
 my $verbose = 0;
 my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
-my ($file,$entity,$netaddr,$name, $style, $storefile, $rates, $cache,$olddata);
+my ($file,$entity,$netaddr,@spi_chains,$name, $style, $storefile, $rates, $cache,$olddata);
 my $lastboards;
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
@@ -49,6 +50,7 @@ foreach my $req (@request) {
 #### Check if browser or command line
 ###############################
 
+  
   if(defined $ENV{'QUERY_STRING'}) {
     if($server =~ /HTTPi/i) {
       $isbrowser = 1;
@@ -99,6 +101,9 @@ foreach my $req (@request) {
   # trim whitespace from netaddr
   $netaddr =~ s/^\s+|\s+$//g;
 
+  # split off some spi chain, if any, after reading the $db, it is parsed
+  ($netaddr, $spi_chains[0]) = split(':',$netaddr);
+
   if    ($netaddr=~ m/^0x([0-9a-fA-F]{4})$/) {$netaddr = hex($1);}
   elsif ($netaddr=~ m/^([0-9]{1,5})$/) {$netaddr = $1;}
   else {die "Could not parse address $netaddr\n";}
@@ -118,7 +123,25 @@ foreach my $req (@request) {
       }
     }
 
-  die "Name not found in entity file\n" unless(exists $db->{$name});
+  die "Name $name not found in entity file\n" unless(exists $db->{$name});
+
+  # parse the spi chains
+  if (defined $spi_chains[0]) {
+    die "You specified some SPI chains but $entity is not an SpiEntity"
+      if $db->{'§EntityType'} ne 'SpiEntity';
+    die "SPI range '$spi_chains[0]' is invalid"
+      unless $spi_chains[0] =~ m/^[0-9.,]+$/;
+    @spi_chains = eval $spi_chains[0];
+    die "Could not eval SPI range: $@"
+      if $@;
+    die "Empty SPI range supplied"
+      if @spi_chains==0;
+  }
+  elsif($db->{'§EntityType'} eq 'SpiEntity') {
+    # no spi range supplied, just use 0 by default
+    @spi_chains = (0);
+  }
+
 
 ###############################
 #### Main "do the job"
