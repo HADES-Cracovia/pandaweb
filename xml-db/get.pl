@@ -299,7 +299,7 @@ sub requestdata {
       my $size   = $obj->{size};
       $slice = $slice || 0;
       do{
-        $o = trb_register_read_mem($netaddr,$obj->{address}+$slice*$stepsize,0,$size);
+        $o = register_read_mem($netaddr,$obj->{address}+$slice*$stepsize,0,$size);
         next unless defined $o;
         foreach my $k (keys %$o) {
           for(my $i = 0; $i < $size; $i++) {
@@ -318,7 +318,7 @@ sub requestdata {
     my $stepsize = $obj->{stepsize} || 1;
     $slice = 0 unless defined $slice;
     do {
-      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      $o = register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       foreach my $k (keys %$o) {
         $data->{$obj->{address}+$slice*$stepsize}->{$k} = $o->{$k};
@@ -327,8 +327,20 @@ sub requestdata {
     }
   }
 
-  
-  
+sub register_read {
+  my ($netaddr, $regaddr) = @_;
+  $o = trb_register_read($netaddr, $regaddr);
+  return $o;
+}
+
+sub register_read_mem {
+  my ($netaddr, $regaddr, $start, $size) = @_;
+  $o = trb_register_read_mem($netaddr, $regaddr, $start, $size);
+  return $o;
+}
+
+
+
   
 sub generateoutput {
   my ($obj,$name,$slice,$once) = @_;
@@ -446,7 +458,7 @@ sub runandprint {
         print "Slice number out of range.\n";
         return -1;
         }
-      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      $o = register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       
       #### Prepare table header line
