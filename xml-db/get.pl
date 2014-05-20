@@ -94,9 +94,13 @@ foreach my $req (@request) {
 ###############################
 
   die "Entity $file not found.\n" unless(-e $file) ;
-    
-  if    ($netaddr=~ m/0x([0-9a-fA-F]{4})/) {$netaddr = hex($1);}
-  elsif ($netaddr=~ m/([0-9]{1,5})/) {$netaddr = $1;}
+
+
+  # trim whitespace from netaddr
+  $netaddr =~ s/^\s+|\s+$//g;
+
+  if    ($netaddr=~ m/^0x([0-9a-fA-F]{4})$/) {$netaddr = hex($1);}
+  elsif ($netaddr=~ m/^([0-9]{1,5})$/) {$netaddr = $1;}
   else {die "Could not parse address $netaddr\n";}
 
 
