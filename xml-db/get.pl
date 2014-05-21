@@ -354,7 +354,9 @@ sub register_read_mem {
     when ("TrbNetEntity")  {
       $o = convert_keys_to_hex(trb_register_read_mem($netaddr, $regaddr, $start, $size));
     }
-    when ("SpiEntity") { $o = { "$netaddr:1" => [1,2,3] }; }
+    when ("SpiEntity") {
+      die "Reading SpiEntity Memory not implemented yet...";
+    }
     default {die "EntityType not recognized";}
   }
   #die Dumper($o);
