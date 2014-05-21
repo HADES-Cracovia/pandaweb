@@ -24,11 +24,22 @@ $page->{link}  = "../";
 
 
 my @setup;
-$setup[0]->{name}    = "AnyReg";
-$setup[0]->{cmd}     = "Padiwa-0xfe48:0..3-Status";
-$setup[0]->{period}  = -1;
-$setup[0]->{generic} = 1;
-$setup[0]->{rate}    = 1;
+
+$setup[0]->{name}    = "Status";
+$setup[0]->{cmd}     = "Padiwa-0xfe48:0..3-Status-rate";
+$setup[0]->{refresh} = 1;
+$setup[0]->{period}  = 10000;
+
+$setup[1]->{name}    = "Control";
+$setup[1]->{cmd}     = "Padiwa-0xfe48:0..3-Control";
+$setup[1]->{refresh} = 1;
+$setup[1]->{period}  = -1;
+
+
+$setup[2]->{name}    = "Thresholds";
+$setup[2]->{cmd}     = "Padiwa-0xfe48:0..3-Thresholds-rate";
+$setup[2]->{refresh} = 1;
+$setup[2]->{period}  = 10000;
 
 
 xmlpage::initPage(\@setup,$page);
