@@ -45,6 +45,15 @@
         <description>Disable the LED override. LEDs are off by default due to influence on PMTs</description>
       </field>
     </register>
+    <register name="MonitorChannel" address="0003">
+      <description>Monitor Select. 4 Bit to select one input to be routed to test output (SPARE_LINE 5/6)</description>
+      <field name="MonitorChannel" start="0" bits="4" format="unsigned" />
+    </register>
+    <register name="InputInvert" address="0004">
+      <description>Input Invert, one bit for each input signal</description>
+      <field name="InputInvert" start="0" bits="16" format="bitmask" />
+    </register>
+    
   </group>
   
   
