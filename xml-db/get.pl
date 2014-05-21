@@ -296,8 +296,11 @@ sub requestdata {
     print "Slice number out of range.\n";
     return -1;
     }
+
+  # only read "readable" objects (matches 'r' and 'rw')
+  return unless $obj->{mode} =~ /r/;
   
-  if($obj->{type} eq "group" && $obj->{mode} =~ /r/) {
+  if($obj->{type} eq "group") {
     if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
       my $stepsize = $obj->{stepsize} || 1;
       my $size   = $obj->{size};
@@ -318,8 +321,7 @@ sub requestdata {
         }
       }
     }
-  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield"
-         || $obj->{type} eq "field")  && $obj->{mode} =~ /r/) {
+  elsif($obj->{type} =~ /^(register|field|registerfield)$/) { # matches register, registerfield, field
     my $stepsize = $obj->{stepsize} || 1;
     $slice = 0 unless defined $slice;
     do {
