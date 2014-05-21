@@ -91,6 +91,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="mvd/roc.pl">MVD read-out Controller</a>
 <li><a href="mvd/cb_controller.pl">MVD Converter Board Controller</a>
 <li><a href="network/generic.pl">Everything else</a>
+<li><a href="padiwa/padiwa.pl">Padiwa (xml-based, with thresholds)</a>
 </ul>
 </div>
 </div>
