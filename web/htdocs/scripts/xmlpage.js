@@ -79,6 +79,7 @@
     command += opt;*/    
     
   function setaddress(e) {
+
     address=document.getElementById("address").value;
     var part = command.split('-');
     command=part[0]+"-"+address+"-"+part[2]+"-"+part[3];
