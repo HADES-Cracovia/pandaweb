@@ -338,14 +338,13 @@ sub register_read {
   my ($netaddr, $regaddr) = @_;
   for($db->{'§EntityType'}) {
     when ("TrbNetEntity")  {
-      $o =  convert_keys_to_hex(trb_register_read($netaddr, $regaddr));
+      return convert_keys_to_hex(trb_register_read($netaddr, $regaddr));
     }
     when ("SpiEntity") {
-      $o = spi_register_read($netaddr, $regaddr);
+      return spi_register_read($netaddr, $regaddr);
     }
     default {die "EntityType not recognized";}
   }
-  return $o;
 }
 
 sub register_read_mem {
@@ -397,6 +396,7 @@ sub spi_register_read {
     trb_register_write_mem($netaddr,0xd400,0,$c,scalar @{$c});
     usleep(1000);
     my $res = trb_register_read($netaddr,0xd412);
+    next unless defined $res;
     foreach my $board (keys %$res) {
       my $b = sprintf('%04x:%d', $board, $chain);
       $o->{$b} = $res->{$board};
