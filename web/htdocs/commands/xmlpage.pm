@@ -74,11 +74,11 @@ if(!$setup[$active]->{generic}) {
   }  
   
 print qq|
-<div class="checkbox"><input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
+<div class="checkbox"|.($setup[$active]->{norefresh}?'style="display:none"':"").qq|><input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
        value="$period" onChange="setperiod()" onLoad="setperiod()"></div>
-<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="rate" title="Convert register counter to rates where possible" $israte>
+<div class="checkbox"|.($setup[$active]->{norate}?'style="display:none"':"").qq|><input type="checkbox" onChange="settarget()" value="1" id="rate" title="Convert register counter to rates where possible" $israte>
     <label for="rate">Rates</label></div>
-<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache>
+<div class="checkbox"|.($setup[$active]->{nocache}?'style="display:none"':"").qq|><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache>
     <label for="cache">Use Cache</label></div>
 <div class="checkbox"><input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh"></div>
 </div>

@@ -131,6 +131,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           $feat .="\nTDC:";
           my $d = trb_register_read($addr,0xc100);
           $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
+          $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
           for($inclLow->{$addr}&0xFF) {
             when (0) {$feat .=", input select by mux";}
             when (1) {$feat .=", input 1-to-1";}
@@ -204,6 +205,8 @@ else {
   $setup[0]->{cmd}     = "getmap";
   $setup[0]->{period}  = -1;
   $setup[0]->{noaddress} = 1;
+  $setup[0]->{norate}    = 1;
+  $setup[0]->{nocache}   = 1;
   $setup[0]->{generic}   = 0;
 
   xmlpage::initPage(\@setup,$page);
