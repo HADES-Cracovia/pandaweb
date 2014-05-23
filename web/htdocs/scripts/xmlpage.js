@@ -81,8 +81,14 @@
   function setaddress(e) {
 
     address=document.getElementById("address").value;
-    var part = command.split('-');
-    command=part[0]+"-"+address+"-"+part[2]+"-"+part[3];
+    com = command.split('&');
+    command = "";
+    for(i = 0; i < com.length; i++) {
+      if (com[i] != "") { 
+         var part = com[i].split('-');
+         command += part[0]+"-"+part[1]+"-"+part[2] + "-" + part[3] + "&";
+         }
+      }    
     refresh(period);
     makeCookies();
     }
