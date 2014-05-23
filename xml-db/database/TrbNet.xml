@@ -10,7 +10,7 @@
   <group name="StatusRegisters" address="0000" mode="r" >
     <register name="CommonStatus0" address="0000" purpose="status">
       <description>Common Status Register 0</description>
-      <field name="Temperature" start="20" bits="12" format="float" unit="°C" scale=".0625" >
+      <field name="Temperature" start="20" bits="12" format="float" unit="&#x2103;" scale=".0625" >
         <description>Board temperature</description>
       </field>
     </register>

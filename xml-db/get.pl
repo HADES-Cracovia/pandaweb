@@ -4,7 +4,6 @@ use Storable qw(lock_store lock_retrieve);
 use feature "switch";
 use Time::HiRes qw( time usleep );
 use CGI::Carp qw(fatalsToBrowser);
-use HTML::Entities qw(encode_entities);
 
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
@@ -254,7 +253,7 @@ sub FormatPretty {
       }
     my $range = $obj->{start}+$obj->{bits}-1;
     $range .= "..".$obj->{start} if ($obj->{bits}>1);
-    $ret .= " ".encode_entities($obj->{unit}) if exists $obj->{unit};
+    $ret .= " ".$obj->{unit} if exists $obj->{unit};
     $ret .= sprintf("<span class=\"tooltip\"><b>$name</b> (Bit $range)<br>raw: 0x%x<br>$cstr</span></div>",$rawvalue);
 
     }
@@ -279,7 +278,7 @@ sub FormatPretty {
                           }
       default           {$ret = sprintf("0x%08x",$value);}
       }
-    $ret .= " ".encode_entities($obj->{unit}) if exists $obj->{unit};
+    $ret .= " ".$obj->{unit} if exists $obj->{unit};
     }
   return $ret;
   }

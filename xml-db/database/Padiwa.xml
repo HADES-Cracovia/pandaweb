@@ -32,7 +32,7 @@
     </memory>
     <register name="Temperature" address="0004">
       <description>Board Temperature</description>
-      <field name="Temperature" start="0" bits="16" format="float" unit="°C" scale=".0625"/>
+      <field name="Temperature" start="0" bits="16" format="float" unit="&#x2103;" scale=".0625"/>
     </register>
     <memory name="CompileTime" address="0110" size="2" width="16">
       <description>Unix timestamp of time of compilation</description>
