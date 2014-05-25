@@ -227,7 +227,7 @@
     </register>
     
     <register name="HistTSRange" address="0021" purpose="config" mode="rw">
-      <description>Timestamp Histogram Range (5=16&#956;s 4=8&#956;s 3=4&#956;s 2=2&#956;s 1=1&#956;s)</description>
+      <description>Timestamp Histogram Range (5=16&#956;s 4=8&#956;s 3=4&#956;s 2=2&#956;s 1=1&#956;s 0=0.5&#956;s)</description>
       <field name="HistTSRange" start="0" bits="3" format="unsigned"/>
     </register>
   </group>
