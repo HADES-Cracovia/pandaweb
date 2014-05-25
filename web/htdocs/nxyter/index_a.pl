@@ -104,25 +104,10 @@ $setup[15]->{cmd}     = "Nxyter-0x3811-ADCHist";
 $setup[15]->{period}  = -1;
 $setup[15]->{address} = 1;
 
-$setup[16]->{name}    = "IT_0";
-$setup[16]->{cmd}     = "Nxyter-0x3800-I2CTokens";
+$setup[16]->{name}    = "T_0";
+$setup[16]->{cmd}     = "Nxyter-0x3800-TSHist";
 $setup[16]->{period}  = -1;
 $setup[16]->{address} = 1;
-
-$setup[17]->{name}    = "IT_1";
-$setup[17]->{cmd}     = "Nxyter-0x3801-I2CTokens";
-$setup[17]->{period}  = -1;
-$setup[17]->{address} = 1;
-
-$setup[18]->{name}    = "IT_2";
-$setup[18]->{cmd}     = "Nxyter-0x3810-I2CTokens";
-$setup[18]->{period}  = -1;
-$setup[18]->{address} = 1;
-
-$setup[19]->{name}    = "IT_3";
-$setup[19]->{cmd}     = "Nxyter-0x3811-I2CTokens";
-$setup[19]->{period}  = -1;
-$setup[19]->{address} = 1;
 
 xmlpage::initPage(\@setup,$page);
 
