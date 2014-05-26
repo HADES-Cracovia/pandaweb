@@ -124,26 +124,32 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           }
         }
       if($table == 1) {
-        $feat = "Table1";
+        if($inclLow->{$addr}&0x8000) { #CTS
+          $feat .= "\nCTS: ";
+          if(($inclLow->{$addr} & 0xF) == 1) { $feat .= "CBM-MBS module, ";}
+          if(($inclLow->{$addr} & 0xF) == 2) { $feat .= "Mainz A2 module, ";}
+          if(($inclLow->{$addr} & 0x10))     { 
+            $feat .= "\nTDC: ";
+            if(($inclLow->{$addr} & 0x20)) { $feat .= "non-standard pinout, ";}
+            $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
+            }
+          }
+        if($inclLow->{$addr}&0x800000) { #GbE
+          $feat .= "\nGbE: ";
+          if($inclLow->{$addr} & 0x10000) {$feat .= "data sending, ";}
+          if($inclLow->{$addr} & 0x20000) {
+            $feat .="slow control, ";
+            if($inclLow->{$addr} & 0x400000) {
+              $feat .= "with multi-packet";
+              }
+            }
+          }
+        $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0x7)." SFPs";  
         }
       if($table == 2) {
-        if($inclLow->{$addr}&0x1000 || 1) {  # ||1 just because this not implemented yet in the test design..
+        if($inclLow->{$addr}&0x8000 || 1) {  # ||1 just because this not implemented yet in the test design..
           $feat .="\nTDC:";
-          my $d = trb_register_read($addr,0xc100);
-          $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
-          $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
-          for($inclLow->{$addr}&0xFF) {
-            when (0) {$feat .=", input select by mux";}
-            when (1) {$feat .=", input 1-to-1";}
-            when (2) {$feat .=", on every second input";}
-            when (3) {$feat .=", on every fourth input";}
-            }
-          for($inclLow->{$addr}>>8&0xF) {
-            when (0) {$feat .=", single edge";}
-            when (1) {$feat .=", dual edge in same channel";}
-            when (2) {$feat .=", dual edge in alternating channels";}
-            when (3) {$feat .=", dual edge same channel + stretcher";}
-            }
+          $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
         }
       if($table == 1 || $table == 2) {
@@ -212,7 +218,28 @@ else {
   xmlpage::initPage(\@setup,$page);
   } 
 
- 
+sub GetTDCInfo {
+  my ($addr,$info,$inp) = @_;
+  my $d = trb_register_read($addr,0xc100);
+  my $feat = "";
+  $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
+  $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
+  if($inp) {
+    for($info&0xFF) {
+      when (0) {$feat .=", input select by mux";}
+      when (1) {$feat .=", input 1-to-1";}
+      when (2) {$feat .=", on every second input";}
+      when (3) {$feat .=", on every fourth input";}
+      }
+    }
+  for($info>>8&0xF) {
+    when (0) {$feat .=", single edge";}
+    when (1) {$feat .=", dual edge in same channel";}
+    when (2) {$feat .=", dual edge in alternating channels";}
+    when (3) {$feat .=", dual edge same channel + stretcher";}
+    }
+  return $feat;
+  }
 
 1;
 
