@@ -16,8 +16,8 @@ use CGI::Carp qw(fatalsToBrowser);
 use lib qw|../commands htdocs/commands|;
 use xmlpage;
 use Data::Dumper;
-use Date::Format;
-use v5.14;
+use Date::Format qw(time2str);
+use v5.16;
 
 ###############################################################################  
 ##  Network Map
@@ -42,6 +42,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
   foreach my $id (keys %{$boards}) {
     foreach my $f (keys %{$boards->{$id}}) {
       my $addr = $boards->{$id}->{$f};
+      next if $addr == 0xfc00;
       my @path = trb_nettrace($addr);
       my $parent, my $port;
       if(scalar @path == 0) {
@@ -122,6 +123,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           if(($hw & 0x0080) != 0x0000) {$feat .= "opt. sctrl out, ";}
           $feat = substr($feat,0,-2);          
           }
+        if ($feat eq "") {$feat = "N/A";}
         }
       if($table == 1) {
         if($inclLow->{$addr}&0x8000) { #CTS
