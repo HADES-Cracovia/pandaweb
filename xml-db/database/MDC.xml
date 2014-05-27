@@ -1,0 +1,48 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="MDC"
+              address="8000"
+              >
+  <description>Hades MDC</description>
+
+
+<!--//Register                  8010      8011      8012      8013      8014      8015      8016      8017
+const char voltages[8][8]={"5V in  ","5V     ","3.5V in","3.3V   ","1.6V in","1.2V   ","+3V    ","-3V    "};-->
+<group name="Voltages" purpose="status" address="0010"  mode="r" continuous="true" size="8" >  
+  <description>All voltages on MDC OEP</description>
+    <register name="5V8" address="0000">
+      <description>5V input. Nominal 5.8V</description>
+      <field name="5V8" start="0" bits="12" format="unsigned" unit="mV" scale="2"/>
+    </register>  
+    <register name="5V" address="0001">
+      <description>5V after regulator</description>
+      <field name="5V" start="0" bits="12" format="unsigned" unit="mV" scale="2"/>
+    </register>    
+    <register name="3V8" address="0002">
+      <description>3.3V input. Nominal 3.8V</description>
+      <field name="3V8" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>   
+    <register name="3V3" address="0003">
+      <description>3.3V after regulator.</description>
+      <field name="3V3" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>   
+    <register name="1V8" address="0004">
+      <description>1.2V input. Nominal 1.8V</description>
+      <field name="1V8" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>     
+    <register name="1V2" address="0005">
+      <description>1.2V after regulator.</description>
+      <field name="1V2" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register> 
+    <register name="p3V" address="0006">
+      <description>+3V input. Nominal 3V</description>
+      <field name="p3V" start="0" bits="12" format="unsigned" unit="mV"/>
+    </register>  
+    <register name="m3V" address="0007">
+      <description>-3V input. Nominal 3V. Note that this value is produced using a voltage divider between minus 3 V and plus 5V, value is only approximate and not valid if +5V are not correct.</description>
+      <field name="m3V" start="0" bits="12" format="signed" unit="mV" scale="-1"/>
+    </register>      
+</group>  
+  
+</TrbNetEntity>
