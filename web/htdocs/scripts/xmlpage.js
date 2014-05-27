@@ -86,7 +86,7 @@
     for(i = 0; i < com.length; i++) {
       if (com[i] != "") { 
          var part = com[i].split('-');
-         command += part[0]+"-"+part[1]+"-"+part[2] + "-" + part[3] + "&";
+         command += part[0]+"-"+address+"-"+part[2] + "-" + part[3] + "&";
          }
       }    
     refresh(period);
