@@ -464,7 +464,7 @@
       </field>
     </register>
 
-    <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
+<!--    <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
       <description>settings for the debug spi interface</description>
       <field name="spiSpeed" start="8" bits="4" format="integer" >
       </field>
@@ -473,8 +473,6 @@
       <field name="DebugMode" start="4" bits="1" format="bitmask" >
       </field>
       <field name="SpiNo" start="1" bits="2" format="integer" >
-<!--      </field>
-      <field name="SpiNo_0" start="0" bits="1" format="bitmask" > -->
       </field>
     </register>
 
@@ -494,6 +492,18 @@
       <description></description>
       <field name="SpiDebugWordOut" start="0" bits="16" format="hex" >
       </field>
+    </register>
+-->
+    <register  name="CompileDate" address="000F" purpose="status" mode="r" >
+      <description>The day the µC firmware was compiled</description>
+      <field name="CDay" start="0" bits="5" format="integer" />
+      <field name="CMonth" start="5" bits="4" format="integer" />
+      <field name="CYear" start="9" bits="7" format="integer" />
+    </register>
+    <register  name="CompileTime" address="0010" purpose="status" mode="r" >
+      <description>The time the µC firmware was compiled</description>
+      <field name="CMin" start="0" bits="6" format="integer" />
+      <field name="CHours" start="6" bits="5" format="integer" />
     </register>
 
 
