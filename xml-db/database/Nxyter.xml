@@ -42,9 +42,10 @@
       <field name="TestpulseRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>   
 
-    <register name="CTSBypass" address="0006" purpose="config" mode="rw">
-      <description>Bypass/ignore CTS Timing Triggers</description>
-      <field name="CTSBypass" start="0" bits="1" format="boolean" />
+    <register name="TrigBypass" address="0006" purpose="config" mode="rw">
+      <description>Bypass/ignore Status and CTS Timing Triggers</description>
+      <field name="CTSBypass"    start="0" bits="1" format="boolean" />
+      <field name="StatusBypass" start="1" bits="1" format="boolean" />
     </register>   
    
   </group>  
