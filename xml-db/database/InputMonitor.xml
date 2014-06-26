@@ -112,9 +112,24 @@
       <description>Inverts individual inputs for trigger generation.</description>
       <field  name="TriggerInvert" start="0"   bits="32" format="bitmask" />
     </register>     
+    <register name="TriggerCoincidence1" address="0025" mode="rw" >
+      <description>Enable input to be used in coincidence logic. First group of signals or'ed. At least one of the inputs to each group must fire within 40 ns to get a coincidence.</description>
+      <field  name="TriggerCoincidence1" start="0"   bits="32" format="bitmask" />
+    </register>  
+    <register name="TriggerCoincidence2" address="0026" mode="rw" >
+      <description>Enable input to be used in coincidence logic. Second group of signals or'ed. At least one of the inputs to each group must fire within 40 ns to get a coincidence.</description>
+      <field  name="TriggerCoincidence2" start="0"   bits="32" format="bitmask" />
+    </register>      
+    <register name="TriggerConfig" address="0027" mode="r" >
+      <description>Information about configuration.</description>
+      <field  name="TriggerInputs" start="0" bits="6" format="unsigned" noflag="true">
+         <description>Number of inputs to the trigger logic</description>
+      </field>
+      <field  name="TriggerOutputs" start="8" bits="4" format="unsigned" noflag="true">
+         <description>Number of outputs of the trigger logic</description>
+      </field>
+    </register>     
    </group>  
   
 </TrbNetEntity>
-
-
 

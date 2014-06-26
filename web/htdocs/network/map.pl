@@ -166,9 +166,14 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           $feat .= ", single Fifo" if     $d->{$addr}&0x1000;
           $feat .= ", indiv. Fifos" unless $d->{$addr}&0x1000;
           }
-        for($inclHigh->{$addr}>>16&0xF) {  
-          when(1) {$feat .="\nTrigger Module: simple or";}
-          when(2) {$feat .="\nTrigger Module: edge detect";}
+
+        if(($inclHigh->{$addr}>>16&0xF) == 1 || ($inclHigh->{$addr}>>16&0xF) == 2) {
+          for($inclHigh->{$addr}>>16&0xF) {  
+            when(1) {$feat .="\nTrigger Module: simple or";}
+            when(2) {$feat .="\nTrigger Module: edge detect";}
+            }
+          my $d = trb_register_read($addr,0xcf27);
+          $feat .= sprintf(", %i inputs, %i outputs",($d->{$addr}&0x3F),($d->{$addr}>>8&0xF));
           }
         for($inclHigh->{$addr}>>20&0xF) {  
           when(0) {$feat .="\nClock: on-board 200 MHz";}
