@@ -56,26 +56,31 @@ print qq(</div>);
 print '<div class="head">';
 if($setup[$active]->{generic} == 1) {
   print qq|
-  <input type="text" id="target" title="Enter any valid command in the form Module-Address-Name" 
+  <div class="checkbox"><input type="text" id="target" title="Enter any valid command in the form Module-Address-Name" 
   value="$cmd" onChange="settarget()" onLoad="settarget()"
-  style="width:150px;text-align:left">
+  style="width:150px;text-align:left"></div>
   |;
   }
 
 if(!$setup[$active]->{generic}) {
-  print qq|
-  <input type="text" id="address" title="Enter any valid TrbNet address" 
+  print qq|<div class="checkbox" |;
+  if($setup[$active]->{noaddress}) {
+    print 'style="display:none"';
+    }
+  
+  print qq|><input type="text" id="address" title="Enter any valid TrbNet address" 
          value="$cmdAddr" onChange="setaddress()" onLoad="setaddress()"
-         style="text-align:left">
-  |;
+         ></div>  |;
   }  
   
 print qq|
-<input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
-       value="$period" onChange="setperiod()" onLoad="setperiod()">
-<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="rate" title="Convert register counter to rates where possible" $israte><label for="rate">Rates</label></div>       
-<div class="checkbox"><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache><label for="cache">Use Cache</label></div>
-<input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh">
+<div class="checkbox"|.($setup[$active]->{norefresh}?'style="display:none"':"").qq|><input type="text" id="period" title="Refresh interval in ms. Set to -1 to disable automatic refresh" 
+       value="$period" onChange="setperiod()" onLoad="setperiod()"></div>
+<div class="checkbox"|.($setup[$active]->{norate}?'style="display:none"':"").qq|><input type="checkbox" onChange="settarget()" value="1" id="rate" title="Convert register counter to rates where possible" $israte>
+    <label for="rate">Rates</label></div>
+<div class="checkbox"|.($setup[$active]->{nocache}?'style="display:none"':"").qq|><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache>
+    <label for="cache">Use Cache</label></div>
+<div class="checkbox"><input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh"></div>
 </div>
 <div id="content"></div>|;
 
@@ -107,6 +112,7 @@ sub printJavaScripts {
   GETCOMMAND = "$getscript";
   var period = |.$setup[$n]->{period}.qq|;
   var command="|.$setup[$n]->{cmd}.qq|";
+  var currentpage = $active;
   var Timeoutvar;
   
   
@@ -119,6 +125,7 @@ sub printJavaScripts {
   setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);
   setTimeout('document.getElementById("period").value = period;',300);
   
+  setTimeout('eatCookies()',100);
 </script>
 |;
 }

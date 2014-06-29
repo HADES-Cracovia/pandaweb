@@ -1,0 +1,87 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<SpiEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/SpiEntity.xsd"
+              name="Padiwa"
+              address="0000"
+              >
+  <description>Padiwa discriminator front-end</description>
+
+  
+
+
+  <!-- Note that the 16bit address attribute is interpreted as
+       follows:
+       15-12: not used
+       11-04: Padiwa Select   
+       03-00: Channel/Register
+  -->
+
+
+  <group name="Thresholds" purpose="config" address="0000" mode="rw">
+   <description>Write/read settings for PWM channels 0-15</description>
+   <register name="Channel" address="0000" repeat="16">
+     <description>Write/read settings for PWM of channel, aka Threshold</description>
+     <field name="Channel" start="0" bits="16" format="unsigned" unit="mV" scale=".050354003" />
+   </register>
+  </group>
+  
+  <group name="Status" purpose="status" address="0100" mode="r">
+    <memory name="UniqueID" address="0000" size="4" width="16">
+      <description>Read the unique identifier of the onboard temperature sensor</description> 
+      <field name="UniqueID" start="0" bits="64" format="hex" />
+    </memory>
+    <register name="Temperature" address="0004">
+      <description>Board Temperature</description>
+      <field name="Temperature" start="0" bits="16" format="float" unit="&#x2103;" scale=".0625"/>
+    </register>
+    <memory name="CompileTime" address="0110" size="2" width="16">
+      <description>Unix timestamp of time of compilation</description>
+      <field name="CompileTime" start="0" bits="32" format="time" />
+    </memory>
+    <register name="FirmwareVersion" address="0112">
+      <description>Padiwa Firmware version number</description>
+      <field name="FirmwareVersion" start="0" bits="16" format="hex" noflag="true"/>
+    </register>    
+  </group>
+       
+  <group name="Control" purpose="config" address="0200" mode="rw">
+    <register name="InputEnable" address="0000">
+      <description>Input Enable, one bit per input. 0: enable (default), 1: disable</description>
+      <field name="InputEnable" start="0" bits="16" format="bitmask" />
+    </register>
+    <register name="InputStatus" address="0001" mode="r" purpose="status">
+      <description>Input Status, one bit per input, represents the current status of the pin</description>
+      <field name="InputStatus" start="0" bits="16" format="bitmask" />
+    </register>
+    <register name="LED" address="0002">
+      <description>Manage the onboard LEDs indicating channel activity</description>
+      <field name="LEDStatus" start="0" bits="4" format="bitmask">
+        <description>Bit 0-3: LED in alphabetical order. Read: LED status. Write: Override LED status.</description>
+      </field>
+      <field name="LEDDisableOverride" start="4" bits="1" format="boolean">
+        <description>Disable the LED override. LEDs are off by default due to influence on PMTs</description>
+      </field>
+    </register>
+    <register name="MonitorChannel" address="0003">
+      <description>Monitor Select. 4 Bit to select one input to be routed to test output (SPARE_LINE 5/6)</description>
+      <field name="MonitorChannel" start="0" bits="4" format="unsigned" />
+    </register>
+    <register name="InputInvert" address="0004">
+      <description>Input Invert, one bit for each input signal</description>
+      <field name="InputInvert" start="0" bits="16" format="bitmask" />
+    </register>
+    <register name="InputStretch" address="0005">
+      <description>Input Stretch, one bit for each input signal. The
+      input signal gets stretched to at least two clock cycles (about
+      16 ns) length. The timing information of the falling edge is
+      lost.</description>
+      <field name="InputStretch" start="0" bits="16" format="bitmask" />
+    </register>
+    <register name="TemperatureCompensation" address="0006">
+      <description>Temperature Compensation, a 16 Bit value to adjust
+      thresholds when temperature is changing. See Padiwa manual.</description>
+      <field name="TemperatureCompensation" start="0" bits="16" format="hex" />
+    </register>
+  </group>
+
+</SpiEntity>

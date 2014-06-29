@@ -127,13 +127,8 @@ var CTS = new Class({
       (new Request.JSON({
          url: '/cts/cts.pl?write,' + arrValues.join(','),
          onSuccess: function(json, text) {
-            console.log(json)
-            console.log(text)
-            
             if (!json) {
                var m = text.match(/<pre>(.*)<\/pre>/i);
-               
-               console.log(m)
                
                if (m) alert("Server send error response:\n"+m[1]);
                else  alert("An unknown error occured while writing register");
@@ -205,13 +200,21 @@ var CTS = new Class({
             this.fireEvent('dataUpdate', data);
             this.autoCommitInhibit = false;
          }.bind(this),
+                       
+         onError: function(text, error) {
+            window.clearTimeout(manualTimeout);
+            this.dataUpdate.delay(100, this);
+            dup.addClass('error').set('text', 'Update Decode Error').setStyle('display', 'block');
+            $('status-indicator').set('class', 'error');
+            if (console) console.log('Update Decode Error');
+         }.bind(this),
             
          onFailure:    function(xhr) {
             window.clearTimeout(manualTimeout);
-            //requestFailure(xhr);
             this.dataUpdate.delay(1000, this);
-            dup.addClass('error').set('text', 'Update failed').setStyle('display', 'block');
+            dup.addClass('error').set('text', 'Update Request Error').setStyle('display', 'block');
             $('status-indicator').set('class', 'error');
+            if (console) console.log('Update Request Error');
          }.bind(this)
       }).send();
    },
@@ -385,7 +388,7 @@ var CTS = new Class({
 
          e.set('title',
             s.exp + ': Address ' + formatAddress(reg._address) + bits
-            + (e.get('title') ? ' ' + e.get('title') : '')
+            + (e.get('title') ? ' \n' + e.get('title') : '')
          );
       }.bind(this));
    },
@@ -457,12 +460,16 @@ var CTS = new Class({
 	 
          if (i >= source_from) {
             var en = this.defs.registers[areg]._defs.input.enum;
+            keys = Object.keys(en);
+            keys.sort(function(a,b) {return parseInt(a)-parseInt(b)});
+            
             source.adopt(
                new Element('select', {'class': 'autocommit autoupdate', 'slice': areg + '.input'})
                .adopt(
-                  Object.values(en).map(function (r) {
-                  return new Element('option', {'value': r, 'text': this.translateName('addon-input-multiplexer', r, r)})
-               }, this))
+                  keys.map(function (k) {
+                     return new Element('option', {'value': en[k], 'text': this.translateName('addon-input-multiplexer', en[k], en[k])})
+                  }, this)
+               )
             );
          } else {
             source.set('text', 'hard wired');
@@ -481,11 +488,13 @@ var CTS = new Class({
          var reg = 'trg_addon_output_mux' + i;
          var en = this.defs.registers[reg]._defs.input.enum;
          var name = this.defs.properties['trg_addon_output_mux_names'][i];
-         
+         keys = Object.keys(en);
+         keys.sort(function(a,b) {return parseInt(a)-parseInt(b)});
+
          con.adopt(new Element('div', {'class': 'mux-container'}).adopt([
             new Element('label', {'for': 'out-mux-input' + i, 'text': this.translateName('addout-output-multiplexer', name, name)+": "}),
             new Element('select', {'id':  'out-mux-input' + i, 'slice': reg + '.input', 'class': 'autocommit autoupdate'}).adopt(
-               Object.values(en).map(function (r) {return new Element('option', {'value': r, 'text': r})})
+               keys.map(function (k) {return new Element('option', {'value': en[k], 'text': en[k]})})
             )
          ]));
       }
@@ -500,9 +509,15 @@ var CTS = new Class({
       var row, header;
       tab.adopt(header = new Element('tr', {'class': 'snd_header'}));
       header.adopt(new Element('td'));
-      for(var f=0; f < 4; f++)
-         for(var i=4; i>=0; i--)
-            header.adopt(new Element('td', {'text': 6+i, 'class': 'slice' + i}));
+      for(var f=0; f < 4; f++) {
+         for(var i=4; i>=0; i--) {
+            header.adopt(
+               new Element('td', {'class': 'slice' + i}).adopt(
+                  new Element('abbr', {'text': i-1, 'title': 'mapped to FPGA' + (f+1) + '_COMM(' + (i+6) + ')' + (i?'': ' - not accessible by most frontends')})
+               )
+            );
+         }
+      }
       
       for(var pt=0; pt < this.defs.properties['trg_periph_count']; pt++) {
          tab.adopt(row = new Element('tr', {'class': pt%2?'':'alt', 'flashgroup': 'itc-' + (pt + parseInt(this.defs.properties.trg_periph_itc_base))} ))
@@ -511,7 +526,9 @@ var CTS = new Class({
          for(var f=0; f<4; f++) {
             for(var i=4; i>=0; i--) {
                var bit = (5*f + i);
-                  row.adopt(new Element('td', {'class': 'slice' + i}).adopt(new Element('input', {'class': 'autoupdate autocommit', 'type': 'checkbox',
+                  row.adopt(new Element('td', {'class': 'slice' + i}).adopt(new Element('input', {
+                     'class': 'autoupdate autocommit', 'type': 'checkbox',
+                     'title': 'mapped to FPGA' + (f+1) + '_COMM(' + (i+6) + ')',
                      'slice': 'trg_periph_config' + pt + '.mask[' + bit + ']'})));
             }
          }
@@ -785,8 +802,6 @@ function timestamp2Date(ts) {
    
 
 function requestFailure(obj){
-   console.log(obj);
-   
    var text = (obj.responseText) ? obj.responseText : obj;
    var m = text.match(/<pre>([\s\S]*)<\/pre>/im);
    
@@ -911,7 +926,7 @@ var GuiExpander = new Class({
                             
       this.boxes.each(function(b) {
          var id = b.get('id');
-         if (!id) {console.debug("Expandable Box without ID!"); return;}
+         if (!id) {if (console) console.debug("Expandable Box without ID!"); return;}
          this[states[id] || b.hasClass('expanded') ? 'expand' : 'collapse'](b, true);
 
          
@@ -1040,7 +1055,7 @@ function id(x) {return x;}
 
 
 function prettyJSON(obj, indent){
-   if (ident==undefined) ident="";
+   if (indent==undefined) indent="";
    if (obj && obj.toJSON) obj = obj.toJSON();
 
    switch (typeOf(obj)){

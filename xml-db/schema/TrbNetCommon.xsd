@@ -83,6 +83,7 @@
   <xs:attribute name="start"        type="bittype" />
   <xs:attribute name="size"         type="xs:positiveInteger" />
   <xs:attribute name="bits"         type="xs:positiveInteger" />
+  <xs:attribute name="width"        type="xs:positiveInteger" />
   <xs:attribute name="defaultValue" type="xs:string" />
   <xs:attribute name="value"        type="valuetype" />
   <xs:attribute name="format"       type="formattype" />
@@ -248,8 +249,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="basicTrbData">
-          <!-- size specified in 32bit long words -->
+          <!-- size specified in "@width" long words -->
           <xs:attribute ref="size" use="required" />
+          <!-- width (in bits) is by default assumed to be 32 -->
+          <xs:attribute ref="width" />
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

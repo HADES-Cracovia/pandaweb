@@ -45,9 +45,11 @@
     else {
       refresh(period);
       }
+    makeCookies();
+   
     }
     
-  
+
   function settarget(e) {
     if(document.getElementById("target"))
       command=document.getElementById("target").value;
@@ -62,7 +64,10 @@
          command += part[0]+"-"+part[1]+"-"+part[2] + "-" + opt + "&";
          }
       }
+      
     refresh(period);
+    makeCookies();
+  
     }
     
 /*    command = "";
@@ -74,8 +79,81 @@
     command += opt;*/    
     
   function setaddress(e) {
+
     address=document.getElementById("address").value;
-    var part = command.split('-');
-    command=part[0]+"-"+address+"-"+part[2]+"-"+part[3];
+    com = command.split('&');
+    command = "";
+    for(i = 0; i < com.length; i++) {
+      if (com[i] != "") { 
+         var part = com[i].split('-');
+         command += part[0]+"-"+address+"-"+part[2] + "-" + part[3] + "&";
+         }
+      }    
     refresh(period);
+    makeCookies();
     }
+
+
+  function makeCookies() {
+    setCookie("rate"+currentpage,document.getElementById("rate").checked);
+    setCookie("cache"+currentpage,document.getElementById("cache").checked);
+    if(document.getElementById("target")) {
+      setCookie("target"+currentpage,document.getElementById("target").value);
+      }
+    if(document.getElementById("period")) {
+      setCookie("period"+currentpage,document.getElementById("period").value);
+      }
+    if(document.getElementById("address")) {
+      setCookie("address"+currentpage,document.getElementById("address").value);
+      }       
+    }
+ 
+  function eatCookies() {
+    var t = getCookie("address"+currentpage);
+    if (t != "" && document.getElementById("address")) {
+      document.getElementById("address").value = t;
+      }
+    t = getCookie("period"+currentpage);
+    if (t != "" && document.getElementById("period")) {
+      document.getElementById("period").value = t;
+      }
+    t = getCookie("target"+currentpage);
+    if (t != "" && document.getElementById("target")) {
+      document.getElementById("target").value = t;
+      }
+    t = getCookie("cache"+currentpage);
+    if (t != "" && document.getElementById("cache")) {
+      document.getElementById("cache").checked = (t=="true")?true:false;
+      }
+    t = getCookie("rate"+currentpage);
+    if (t != "" && document.getElementById("rate")) {
+      document.getElementById("rate").checked = (t=="true")?true:false;
+      }      
+    setperiod();
+    settarget();
+    setaddress();
+    }
+ 
+/*From w3schools.com*/ 
+  function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+      var c = ca[i].trim();
+      if (c.indexOf(name)==0) {
+        var part  = c.split('=');
+        return part[1];
+        }
+      }
+    return "";
+    } 
+    
+/*From w3schools.com*/
+  function setCookie(cname,cvalue) {
+    var d = new Date();
+    d.setTime(d.getTime()+(30*24*60*60*1000));
+    var expires = "expires="+d.toGMTString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+    } 
+    
+    

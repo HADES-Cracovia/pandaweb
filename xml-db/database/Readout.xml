@@ -67,7 +67,44 @@
         <enumItem value="2">Data writing</enumItem>
         <enumItem value="4">Wait for release</enumItem>
       </field>       
+    </register> 
+    
+    <register name="EventSizeLimit" address="0111"  purpose="status">
+      <description>Setting of the maximal event size</description>
+      <field name="SetMaxEventSize" start="0" bits="16" format="unsigned" mode="rw" >
+        <description>The setting of the maximum allowed event size. Must not be bigger than MaxEventSize</description>
+      </field>
+      <field name="MaxEventSize" start="16" bits="16" format="unsigned" >
+        <description>The possible event size as configured during compilation. Events must not be bigger than this</description>
+      </field>
+    </register>
+    
+    <register name="DataBuffers" address="0112"  purpose="status">
+      <description>Configuration of data buffers</description>
+      <field name="InterfaceNumber" start="0" bits="8" format="unsigned" >
+        <description>Number of individual event data interfaces in the design</description>
+      </field>
+      <field name="DataBufferDepth" start="8" bits="8" format="unsigned" >
+        <description>Size of the data buffer - log2 of the actual number of words that fit inside</description>
+      </field>
+      <field name="DataBufferThreshold" start="16" bits="16" format="unsigned" >
+        <description>Number of data words the fifo can hold before it stops the trigger release to prevent buffer overflows </description>
+      </field>
     </register>    
+
+    <register name="HeaderBuffers" address="0113"  purpose="status">
+      <description>Configuration of event header buffers</description>
+      <field name="HeaderBufferDepth" start="0" bits="8" format="unsigned" >
+        <description>Size of the event header buffer - log2 of the actual number of words that fit inside</description>
+      </field>
+      <field name="HeaderBufferThreshold" start="8" bits="16" format="unsigned" >
+        <description>Number of data words the event header fifo can hold before it stops the trigger release to prevent buffer overflows </description>
+      </field>
+      <field name="ReleaseAfterWrite" start="31" bits="1" format="boolean" noflag="true">
+        <description>The trigger release is only sent after writing of data is completed.</description>
+      </field>
+    </register>    
+    
 
     <register name="Lvl1ReleaseStatus" address="0200"  purpose="status">
       <description>Status of the individual data handlers. Bit is set if the handler did not get a release from the data handler. Content is only valid while the handler is not idle.</description>

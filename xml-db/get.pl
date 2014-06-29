@@ -2,8 +2,10 @@
 use HADES::TrbNet;
 use Storable qw(lock_store lock_retrieve);
 use feature "switch";
-use Time::HiRes qw( time );
+use Time::HiRes qw( time usleep );
 use CGI::Carp qw(fatalsToBrowser);
+
+no if $] >= 5.017011, warnings => 'experimental::smartmatch';
 
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
@@ -13,13 +15,14 @@ use if (!defined $ENV{'QUERY_STRING'}), Data::TreeDumper;
 use if (!defined $ENV{'QUERY_STRING'}), Getopt::Long;
 
 # use Data::TreeDumper;
+use Data::Dumper;
 my ($db,$data,$once,$slice);
 my $help = 0;
 my $verbose = 0;
 my $isbrowser = 0;
 my $server = $ENV{'SERVER_SOFTWARE'} || "";
 my @request;
-my ($file,$entity,$netaddr,$name, $style, $storefile, $rates, $cache,$olddata);
+my ($file,$entity,$netaddr,@spi_chains,$name, $style, $storefile, $rates, $cache,$olddata);
 my $lastboards;
 
 $ENV{'DAQOPSERVER'}="localhost:7" unless (defined $ENV{'DAQOPSERVER'});
@@ -49,6 +52,7 @@ foreach my $req (@request) {
 #### Check if browser or command line
 ###############################
 
+  
   if(defined $ENV{'QUERY_STRING'}) {
     if($server =~ /HTTPi/i) {
       $isbrowser = 1;
@@ -94,9 +98,16 @@ foreach my $req (@request) {
 ###############################
 
   die "Entity $file not found.\n" unless(-e $file) ;
-    
-  if    ($netaddr=~ m/0x([0-9a-fA-F]{4})/) {$netaddr = hex($1);}
-  elsif ($netaddr=~ m/([0-9]{1,5})/) {$netaddr = $1;}
+
+
+  # trim whitespace from netaddr
+  $netaddr =~ s/^\s+|\s+$//g;
+
+  # split off some spi chain, if any, after reading the $db, it is parsed
+  ($netaddr, $spi_chains[0]) = split(':',$netaddr);
+
+  if    ($netaddr=~ m/^0x([0-9a-fA-F]{4})$/) {$netaddr = hex($1);}
+  elsif ($netaddr=~ m/^([0-9]{1,5})$/) {$netaddr = $1;}
   else {die "Could not parse address $netaddr\n";}
 
 
@@ -107,6 +118,9 @@ foreach my $req (@request) {
 
   $db = lock_retrieve($file);
   die "Unable to read cache file\n" unless defined $db;
+  die "Your cached database is outdated. Update by running xml-db.pl"
+    unless exists $db->{'§EntityType'};
+
   
   if($rates || $cache) {
     if(-e $storefile) {
@@ -114,7 +128,25 @@ foreach my $req (@request) {
       }
     }
 
-  die "Name not found in entity file\n" unless(exists $db->{$name});
+  die "Name $name not found in entity file\n" unless(exists $db->{$name});
+
+  # parse the spi chains
+  if (defined $spi_chains[0]) {
+    die "You specified some SPI chains but $entity is not an SpiEntity"
+      if $db->{'§EntityType'} ne 'SpiEntity';
+    die "SPI range '$spi_chains[0]' is invalid"
+      unless $spi_chains[0] =~ m/^[0-9.,]+$/;
+    @spi_chains = eval $spi_chains[0];
+    die "Could not eval SPI range: $@"
+      if $@;
+    die "Empty SPI range supplied"
+      if @spi_chains==0;
+  }
+  elsif($db->{'§EntityType'} eq 'SpiEntity') {
+    # no spi range supplied, just use chain 0 by default
+    @spi_chains = (0);
+  }
+
 
 ###############################
 #### Main "do the job"
@@ -238,7 +270,7 @@ sub FormatPretty {
       when ("bitmask")  {$ret = sprintf("%0".$obj->{bits}."b",$value);}
       when ("time")     {require Date::Format; $ret = Date::Format::time2str('%Y-%m-%d %H:%M',$value);}
       when ("hex")      {$ret = sprintf("0x%0".int(($obj->{bits}+3)/4)."x",$value);}
-      when ("e1num")     { my $t = sprintf("%x",$value);
+      when ("enum")     { my $t = sprintf("%x",$value);
                           if (exists $obj->{enumItems}->{$t}) {
                             $ret = $obj->{enumItems}->{$t} 
                             }
@@ -265,14 +297,17 @@ sub requestdata {
     print "Slice number out of range.\n";
     return -1;
     }
+
+  # only read "readable" objects (matches 'r' and 'rw')
+  return unless $obj->{mode} =~ /r/;
   
-  if($obj->{type} eq "group" && $obj->{mode} =~ /r/) {
+  if($obj->{type} eq "group") {
     if(defined $obj->{continuous} && $obj->{continuous} eq "true") {
       my $stepsize = $obj->{stepsize} || 1;
       my $size   = $obj->{size};
       $slice = $slice || 0;
       do{
-        $o = trb_register_read_mem($netaddr,$obj->{address}+$slice*$stepsize,0,$size);
+        $o = register_read_mem($netaddr,$obj->{address}+$slice*$stepsize,0,$size);
         next unless defined $o;
         foreach my $k (keys %$o) {
           for(my $i = 0; $i < $size; $i++) {
@@ -287,11 +322,11 @@ sub requestdata {
         }
       }
     }
-  elsif(($obj->{type} eq "register" || $obj->{type} eq "registerfield" || $obj->{type} eq "field")  && $obj->{mode} =~ /r/) {
+  elsif($obj->{type} =~ /^(register|field|registerfield)$/) { # matches register, registerfield, field
     my $stepsize = $obj->{stepsize} || 1;
     $slice = 0 unless defined $slice;
     do {
-      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      $o = register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       foreach my $k (keys %$o) {
         $data->{$obj->{address}+$slice*$stepsize}->{$k} = $o->{$k};
@@ -300,8 +335,78 @@ sub requestdata {
     }
   }
 
-  
-  
+sub register_read {
+  my ($netaddr, $regaddr) = @_;
+  for($db->{'§EntityType'}) {
+    when ("TrbNetEntity")  {
+      return convert_keys_to_hex(trb_register_read($netaddr, $regaddr));
+    }
+    when ("SpiEntity") {
+      return spi_register_read($netaddr, $regaddr);
+    }
+    default {die "EntityType not recognized";}
+  }
+}
+
+sub register_read_mem {
+  my ($netaddr, $regaddr, $start, $size) = @_;
+  for($db->{'§EntityType'}) {
+    when ("TrbNetEntity")  {
+      $o = convert_keys_to_hex(trb_register_read_mem($netaddr, $regaddr, $start, $size));
+    }
+    when ("SpiEntity") {
+      die "Reading SpiEntity Memory not implemented yet...";
+    }
+    default {die "EntityType not recognized";}
+  }
+  #die Dumper($o);
+  return $o;
+}
+
+sub convert_keys_to_hex {
+  # replace all keys with string in hex representation
+  # this makes the keys more flexible, especially for providing chains...
+  my %h = %{$_[0]};
+  my @keys = keys %h;
+  for($i=0;$i<@keys;$i++) {
+    $keys[$i]=sprintf('%04x',$keys[$i]);
+  }
+  @h{@keys} = delete @h{keys %h}; # this is pure Perl magic :)
+  return \%h;
+}
+
+sub spi_register_read {
+  # inspired by the simple padiwa.pl
+  my ($netaddr, $regaddr) = @_;
+  $o = {};
+  foreach my $chain (@spi_chains) {
+    # in $cmd, the lower 16 bits are the payload
+    # the upper 16 bits control:
+    # 31..24: select (something like an address)
+    # 23..20: command read=0x0, write=0x8
+    # 19..16: channel/register (something like an address)
+
+    # the lower 4 bits directly map:
+    my $cmd = $regaddr & 0xF;
+    # the next 8 bits need to be shifted
+    $cmd |= (($regaddr >> 4) & 0xFF) << 8;
+    # shift it to the upper 16 bits finally
+    $cmd <<= 16;
+
+    my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
+    trb_register_write_mem($netaddr,0xd400,0,$c,scalar @{$c});
+    usleep(1000);
+    my $res = trb_register_read($netaddr,0xd412);
+    next unless defined $res;
+    foreach my $board (keys %$res) {
+      my $b = sprintf('%04x:%d', $board, $chain);
+      $o->{$b} = $res->{$board};
+    }
+  }
+
+  return $o;
+}
+
   
 sub generateoutput {
   my ($obj,$name,$slice,$once) = @_;
@@ -349,12 +454,12 @@ sub generateoutput {
         next unless defined $data->{$addr}->{$b};
         $sl = sprintf("<td class=\"slice\"><div>%i<span class=\"tooltip\"><b>$name.$slice</b> (0x%04x)</span></div>",$slice,$addr) if ($once != 1 && defined $obj->{repeat});
         
-        $ttmp .= sprintf("<tr><td><div>%04x<span class=\"tooltip\"><b>$name</b> on 0x%04x<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
+        $ttmp .= sprintf("<tr><td><div>%s<span class=\"tooltip\"><b>$name</b> on 0x%s<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
         if($obj->{type} eq "register") {
           foreach my $c (@{$obj->{children}}) {
             my $fullc = $c;
             $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
-            my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+            my $cstr = sprintf("%s-0x%s-%s", $entity,$b,$fullc );
             my $wr = 1 if $db->{$c}->{mode} =~ /w/;
             $ttmp .= FormatPretty($data->{$addr}->{$b},$db->{$c},$c,"td",($wr?"editable":""),$cstr,$addr,$b);
             }
@@ -362,11 +467,11 @@ sub generateoutput {
         elsif($obj->{type} eq "field" || $obj->{type} eq "registerfield") {
           my $fullc = $name;
           $fullc .= ".$slice" if ($once != 1 && defined $obj->{repeat});
-          my $cstr = sprintf("%s-0x%04x-%s", $entity,$b,$fullc );
+          my $cstr = sprintf("%s-0x%s-%s", $entity,$b,$fullc );
           my $wr = 1 if $obj->{mode} =~ /w/;
           $ttmp .= FormatPretty($data->{$addr}->{$b},$obj,$fullc,"td",($wr?"editable":""),$cstr,$addr,$b);
           }
-        $tarr{sprintf("%05i%04i",$b,$slice)}=$ttmp;
+        $tarr{sprintf("0x%s%04i",$b,$slice)}=$ttmp;
         }
       
       } while($once != 1 && defined $obj->{repeat} && ++$slice < $obj->{repeat});
@@ -419,7 +524,7 @@ sub runandprint {
         print "Slice number out of range.\n";
         return -1;
         }
-      $o = trb_register_read($netaddr,$obj->{address}+$slice*$stepsize);
+      $o = register_read($netaddr,$obj->{address}+$slice*$stepsize);
       next unless defined $o;
       
       #### Prepare table header line
@@ -456,7 +561,7 @@ sub runandprint {
       #### Fill table with information
       foreach my $b (sort keys %$o) {
         my @l;
-        push(@l,sprintf("%04x",$b));
+        push(@l,sprintf("0x%s",$b));
         push(@l,sprintf("%04x",$obj->{address}+$slice*$stepsize));
         push(@l,sprintf("%08x",$o->{$b}));
         if($obj->{type} eq "register") {
