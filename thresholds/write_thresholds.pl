@@ -17,21 +17,28 @@ my $result = GetOptions (
     );
 
 if($help) {
-    usage();
-    exit;
+  usage();
+  exit;
+}
 
 if ($offset) {
+  my $sign = 1;
+  if( $offset =~/^-/ ) {
+    $offset =~ s/^-//;
+    $sign = -1;
+  }
+
   if($offset =~ /^0x/) {
-    $offset = hex($offset);
+    $offset = hex($offset) * $sign;
   }
   else {
     die "wrong number format for offset parameter: \"$offset\"" unless $offset =~ /^\d+$/;
-    $offset = int($offset);
+    $offset = int($offset) * $sign;
   }
 
   #print "called with offset: $offset\n";
 }
-}
+
 
 trb_init_ports() or die trb_strerror();
 

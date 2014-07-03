@@ -16,8 +16,8 @@ use CGI::Carp qw(fatalsToBrowser);
 use lib qw|../commands htdocs/commands|;
 use xmlpage;
 use Data::Dumper;
-use Date::Format;
-use v5.14;
+use Date::Format qw(time2str);
+use v5.16;
 
 ###############################################################################  
 ##  Network Map
@@ -42,6 +42,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
   foreach my $id (keys %{$boards}) {
     foreach my $f (keys %{$boards->{$id}}) {
       my $addr = $boards->{$id}->{$f};
+      next if $addr == 0xfc00;
       my @path = trb_nettrace($addr);
       my $parent, my $port;
       if(scalar @path == 0) {
@@ -74,6 +75,8 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         when (0x91) {$btype= "TRB3 periph";}
         when (0x92) {$btype= "CBM-Rich";}
         when (0x93) {$btype= "CBM-Tof";}
+        when (0x83) {$btype= "TRB2 RPC";}
+        when (0x81) {$btype= "TRB2 TOF";}
         when (0x62) {$btype= "Hub AddOn";}
         when (0x52) {$btype= "CTS";}
         when (0x42) {$btype= "Shower AddOn";}
@@ -122,28 +125,35 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           if(($hw & 0x0080) != 0x0000) {$feat .= "opt. sctrl out, ";}
           $feat = substr($feat,0,-2);          
           }
+        if ($feat eq "") {$feat = "N/A";}
         }
       if($table == 1) {
-        $feat = "Table1";
+        if($inclLow->{$addr}&0x8000) { #CTS
+          $feat .= "\nCTS: ";
+          if(($inclLow->{$addr} & 0xF) == 1) { $feat .= "CBM-MBS module, ";}
+          if(($inclLow->{$addr} & 0xF) == 2) { $feat .= "Mainz A2 module, ";}
+          if(($inclLow->{$addr} & 0x10))     { 
+            $feat .= "\nTDC: ";
+            if(($inclLow->{$addr} & 0x20)) { $feat .= "non-standard pinout, ";}
+            $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
+            }
+          }
+        if($inclLow->{$addr}&0x800000) { #GbE
+          $feat .= "\nGbE: ";
+          if($inclLow->{$addr} & 0x10000) {$feat .= "data sending, ";}
+          if($inclLow->{$addr} & 0x20000) {
+            $feat .="slow control, ";
+            if($inclLow->{$addr} & 0x400000) {
+              $feat .= "with multi-packet";
+              }
+            }
+          }
+        $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0x7)." SFPs";  
         }
       if($table == 2) {
-        if($inclLow->{$addr}&0x1000 || 1) {  # ||1 just because this not implemented yet in the test design..
+        if($inclLow->{$addr}&0x8000 || 1) {  # ||1 just because this not implemented yet in the test design..
           $feat .="\nTDC:";
-          my $d = trb_register_read($addr,0xc100);
-          $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
-          $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
-          for($inclLow->{$addr}&0xFF) {
-            when (0) {$feat .=", input select by mux";}
-            when (1) {$feat .=", input 1-to-1";}
-            when (2) {$feat .=", on every second input";}
-            when (3) {$feat .=", on every fourth input";}
-            }
-          for($inclLow->{$addr}>>8&0xF) {
-            when (0) {$feat .=", single edge";}
-            when (1) {$feat .=", dual edge in same channel";}
-            when (2) {$feat .=", dual edge in alternating channels";}
-            when (3) {$feat .=", dual edge same channel + stretcher";}
-            }
+          $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
         }
       if($table == 1 || $table == 2) {
@@ -156,9 +166,14 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           $feat .= ", single Fifo" if     $d->{$addr}&0x1000;
           $feat .= ", indiv. Fifos" unless $d->{$addr}&0x1000;
           }
-        for($inclHigh->{$addr}>>16&0xF) {  
-          when(1) {$feat .="\nTrigger Module: simple or";}
-          when(2) {$feat .="\nTrigger Module: edge detect";}
+
+        if(($inclHigh->{$addr}>>16&0xF) == 1 || ($inclHigh->{$addr}>>16&0xF) == 2) {
+          for($inclHigh->{$addr}>>16&0xF) {  
+            when(1) {$feat .="\nTrigger Module: simple or";}
+            when(2) {$feat .="\nTrigger Module: edge detect";}
+            }
+          my $d = trb_register_read($addr,0xcf27);
+          $feat .= sprintf(", %i inputs, %i outputs",($d->{$addr}&0x3F),($d->{$addr}>>8&0xF));
           }
         for($inclHigh->{$addr}>>20&0xF) {  
           when(0) {$feat .="\nClock: on-board 200 MHz";}
@@ -212,7 +227,28 @@ else {
   xmlpage::initPage(\@setup,$page);
   } 
 
- 
+sub GetTDCInfo {
+  my ($addr,$info,$inp) = @_;
+  my $d = trb_register_read($addr,0xc100);
+  my $feat = "";
+  $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
+  $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
+  if($inp) {
+    for($info&0xFF) {
+      when (0) {$feat .=", input select by mux";}
+      when (1) {$feat .=", input 1-to-1";}
+      when (2) {$feat .=", on every second input";}
+      when (3) {$feat .=", on every fourth input";}
+      }
+    }
+  for($info>>8&0xF) {
+    when (0) {$feat .=", single edge";}
+    when (1) {$feat .=", dual edge in same channel";}
+    when (2) {$feat .=", dual edge in alternating channels";}
+    when (3) {$feat .=", dual edge same channel + stretcher";}
+    }
+  return $feat;
+  }
 
 1;
 

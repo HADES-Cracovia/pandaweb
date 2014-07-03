@@ -35,8 +35,10 @@ $board = hex($board);
  
 sub sendcmd {
   my ($cmd,$chain) = @_;
-  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
-  trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+  do{
+    trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+    } while(trb_strerror() ne "No Error");
   return trb_register_read($board,0xd412);
   }
    

@@ -5,6 +5,8 @@ use feature "switch";
 use Time::HiRes qw( time usleep );
 use CGI::Carp qw(fatalsToBrowser);
 
+no if $] >= 5.017011, warnings => 'experimental::smartmatch';
+
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
 use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;

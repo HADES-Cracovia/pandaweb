@@ -42,9 +42,10 @@
       <field name="TestpulseRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>   
 
-    <register name="CTSBypass" address="0006" purpose="config" mode="rw">
-      <description>Bypass/ignore CTS Timing Triggers</description>
-      <field name="CTSBypass" start="0" bits="1" format="boolean" />
+    <register name="TrigBypass" address="0006" purpose="config" mode="rw">
+      <description>Bypass/ignore Status and CTS Timing Triggers</description>
+      <field name="CTSBypass"    start="0" bits="1" format="boolean" />
+      <field name="StatusBypass" start="1" bits="1" format="boolean" />
     </register>   
    
   </group>  
@@ -85,7 +86,7 @@
   <!-- ##################################################################### -->
 
   <group name="TriggerValidate"
-         address="0400"  size="32"  purpose="config"  mode="rw"  continuous="true">
+         address="0400"  size="34"  purpose="config"  mode="rw"  continuous="true">
     <register name="ReadoutMode" address="0000" purpose="config">
       <description>Readout mode selection</description>
 
@@ -202,24 +203,22 @@
       <field name="WinLowCtr" start="0" bits="15" format="unsigned"/>
     </register>
     
-    <!--
     <register name="WinHitCtr" address="001d" purpose="status" mode="r">
       <description>Window Hit Counter</description>
       <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
     </register>
-    -->    
-   
-    <register name="WinHighCtr" address="001d" purpose="status" mode="r">
+    
+    <register name="WinHighCtr" address="001e" purpose="status" mode="r">
       <description>Out of Window High Counter</description>
       <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
     </register>
 
-    <register name="DataRate" address="001e" purpose="status" mode="r">
+    <register name="DataRate" address="001f" purpose="status" mode="r">
       <description>Data Rate being written to Event Buffer in s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="DataRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
 
-    <register name="HistLimits" address="001f" purpose="status" mode="rw">
+    <register name="HistLimits" address="0020" purpose="status" mode="rw">
       <description>HistLimits Setup</description>
       <field name="EnableFilter" start="31" bits="1" format="bitmask" />
       <field name="HistLimitsOn" start="30" bits="1" format="bitmask" />
@@ -227,7 +226,11 @@
       <field name="HistUpperThr" start="15" bits="14" format="unsigned" unit="ns"/>
       <field name="HistLowerThr" start="0"  bits="14" format="unsigned" unit="ns"/>
     </register>
-
+    
+    <register name="HistTSRange" address="0021" purpose="config" mode="rw">
+      <description>Timestamp Histogram Range (5=16&#956;s 4=8&#956;s 3=4&#956;s 2=2&#956;s 1=1&#956;s 0=0.5&#956;s)</description>
+      <field name="HistTSRange" start="0" bits="3" format="unsigned"/>
+    </register>
   </group>
   
   <!-- ##################################################################### -->
@@ -796,9 +799,9 @@
 
     <register name="ErrorStatus" address="0009" purpose="status" mode="r" >
       <description>Error Status of all Entities</description>
-      <field name="DataRec"   start="0" bits="1" format="bitmask" purpose="status"/>
-      <field name="DataValid" start="1" bits="1" format="bitmask" purpose="status"/>
       <field name="EventBuf"  start="2" bits="1" format="bitmask" purpose="status"/>
+      <field name="DataValid" start="1" bits="1" format="bitmask" purpose="status"/>
+      <field name="DataRec"   start="0" bits="1" format="bitmask" purpose="status"/>
     </register>
 
     <register name="SetOffline" address="0000" purpose="config" mode="rw" >
@@ -911,7 +914,7 @@
   <group name="RateHist"
          address="0800"  size="128"  purpose="config"  mode="r" continuous="true">    
     <register name="ChannelHitCtr" address="0000" purpose="status" mode="r" repeat="128">
-      <description>Continuous Hit Counter per Channel</description>
+      <description>Hit Counter per Channel</description>
       <field name="ChannelHitCtr" start="0" bits="32" format="unsigned" rate="1" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
   </group>
@@ -939,10 +942,18 @@
       <field name="ChannelADCVal" start="0" bits="32" format="unsigned"/>
     </register>
     
-    <register name="ADCNumAverages" address="0080" purpose="status" mode="rw">
+    <register name="ADCNumAverages" address="0b80" purpose="status" mode="rw">
       <description>Number of Averages per Channel, power of two (2^n)</description>
       <field name="ADCNumAverages" start="0" bits="3" format="unsigned"/>
     </register>
   </group>
-  
+
+  <group name="TSHist"
+         address="0c00"  size="512"  purpose="config"  mode="r" continuous="true">    
+    <register name="TSVal" address="0000" purpose="status" mode="r" repeat="512">
+      <description>Timestamp Hit Counter</description>
+      <field name="TSVal" start="0" bits="32" format="unsigned"/>
+    </register>
+  </group>
+
 </TrbNetEntity>

@@ -19,6 +19,7 @@
     }
     
   function refresh(time = 0) {
+//     alert(time);
     if(time == -1) {  //call immediately and only once
       getdataprint(GETCOMMAND+'?'+command,'content',false,0);
       }
@@ -40,10 +41,10 @@
     else if (period < 100) {
       period = 1000;
       document.getElementById("period").value = period;
-      refresh(period);
+      if(e != -1) {refresh(period);}
       }
     else {
-      refresh(period);
+      if(e != -1) {refresh(period);}
       }
     makeCookies();
    
@@ -65,7 +66,7 @@
          }
       }
       
-    refresh(period);
+    if(e != -1) {refresh(period);}
     makeCookies();
   
     }
@@ -86,10 +87,10 @@
     for(i = 0; i < com.length; i++) {
       if (com[i] != "") { 
          var part = com[i].split('-');
-         command += part[0]+"-"+part[1]+"-"+part[2] + "-" + part[3] + "&";
+         command += part[0]+"-"+address+"-"+part[2] + "-" + part[3] + "&";
          }
-      }    
-    refresh(period);
+      }
+    if(e != -1) {refresh(period);}
     makeCookies();
     }
 
@@ -129,9 +130,17 @@
     if (t != "" && document.getElementById("rate")) {
       document.getElementById("rate").checked = (t=="true")?true:false;
       }      
-    setperiod();
-    settarget();
-    setaddress();
+    setperiod(-1);
+    settarget(-1);
+    setaddress(-1);
+  
+    if(period != -1) {
+      Timeoutvar = setTimeout("refresh(0)",400);
+      }
+    else {
+      Timeoutvar = setTimeout("refresh(-1)",400);
+      }
+        
     }
  
 /*From w3schools.com*/ 
