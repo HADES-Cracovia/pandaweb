@@ -84,12 +84,12 @@ $endpoint = hex($endpoint);
 
 Log::Log4perl->init("logger_threshold.conf");
 
-my $logger = get_logger("padiwa_threshold_read.log");
+#my $logger = get_logger("padiwa_threshold_read.log");
 my $logger_data = get_logger("padiwa_threshold_dump");
 
 
 my $startup_str = sprintf "startup with: endpoint: $endpoint, chain: $chain, offset: $offset, polarity: $polarity";
-$logger->info($startup_str);
+#$logger->info($startup_str);
 
 trb_init_ports() or die trb_strerror();
 
@@ -243,7 +243,7 @@ sub send_command_error {
   my $s= sprintf "error output for access to endpoint 0x%04x: $res\n", $endpoint;
   print $s;
   $s=~s/\n/, /g;
-  $logger->error($s);
+  #$logger->error($s);
   $logger_data->error($s);
   exit();
 }
