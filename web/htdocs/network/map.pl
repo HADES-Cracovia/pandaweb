@@ -17,7 +17,7 @@ use lib qw|../commands htdocs/commands|;
 use xmlpage;
 use Data::Dumper;
 use Date::Format qw(time2str);
-use v5.16;
+use v5.14;
 
 ###############################################################################  
 ##  Network Map
