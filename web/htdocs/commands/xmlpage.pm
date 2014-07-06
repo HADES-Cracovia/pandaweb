@@ -115,18 +115,13 @@ sub printJavaScripts {
   var currentpage = $active;
   var Timeoutvar;
   
-  
-  if(period != -1) {
-    Timeoutvar = setTimeout("refresh(0)",400);
-    }
-  else {
-    Timeoutvar = setTimeout("refresh(-1)",400);
-    }
-  setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);
-  setTimeout('document.getElementById("period").value = period;',300);
-  
+
   setTimeout('eatCookies()',100);
-</script>
+//   setTimeout('document.getElementById("period").value = period;',300);
+  setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);
+
+  
+  </script>
 |;
 }
 
