@@ -36,10 +36,10 @@
               start="0"  bits="16"  mode="rw"  purpose="config"  format="bitmask">
       </field>
     </register>
-    <register  name="UartBaudrateDial"
+    <register  name="UartBaud"
               address="0040" purpose="config" mode="rw" >
         <description>Select UART baudrate: 0->300, 1->600, 2->1200, 3->2400, 4->4800, 5->9600, 6->19200, 7->38400, 8->57600, 9->115200</description>
-      <field name="UartBaudrateDial"
+      <field name="UartBaud"
               start="0"  bits="4"  mode="rw"  purpose="config"  format="integer" >
       </field>
     </register>
@@ -63,10 +63,10 @@
         <description>HI if UART receive buffer empty</description>
       </field>
     </register>
-    <register  name="UartManOverride"
+    <register  name="UartManOvr"
               address="0043" purpose="config" mode="rw" >
       <description>Override the default UART functionality for debug reasons. If set HI, UartDataIn and UartDataOut operate the UART directly.</description>
-      <field name="UartManOverride"
+      <field name="UartManOvr"
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
@@ -205,13 +205,13 @@
           <description>Reception timestamp</description>
         </field>
       </register>
-      <register name="SensorTemperature" address="0005">
+      <register name="SensorTemp" address="0005">
         <description>Voltage measured at the M26 temperature diode, relative to GND sense</description>
-        <field name="SensorTemperatureD"
+        <field name="SensorTempD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
           <description>Voltage [mV] = AdcVal x 0.038147</description>
         </field>
-        <field name="SensorTemperatureTS"
+        <field name="SensorTempTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
           <description>Reception timestamp</description>
         </field>
@@ -328,7 +328,7 @@
       </register>    
     </group>
     <group name="SensorControlStatusGroup" size="1" repeat="2" address="0020" >
-      <register  name="SensorControlStatus" address="0000" purpose="status" mode="r" >
+      <register  name="CbStatus" address="0000" purpose="status" mode="r" >
       <description>Status of CB switches and Overcurrent indicators (read only)</description>
         <field name="DisA_"
                 start="4" bits="1"  format="bitmask" >
