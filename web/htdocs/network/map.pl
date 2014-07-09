@@ -226,7 +226,9 @@ sub GetTDCInfo {
   my ($addr,$info,$inp) = @_;
   my $d = trb_register_read($addr,0xc100);
   my $feat = "";
+  my $module = ($info>>16&0x3)+1;
   $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
+  $feat .= " read by ".$module." module(s)";
   $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
   if($inp) {
     for($info&0xFF) {
@@ -241,6 +243,12 @@ sub GetTDCInfo {
     when (1) {$feat .=", dual edge in same channel";}
     when (2) {$feat .=", dual edge in alternating channels";}
     when (3) {$feat .=", dual edge same channel + stretcher";}
+    }
+  for($info>>12&0x7) {
+    when (0) {$feat .=", RingBuffer size: 12 words";}
+    when (1) {$feat .=", RingBuffer size: 44 words";}
+    when (2) {$feat .=", RingBuffer size: 76 words";}
+    when (3) {$feat .=", RingBuffer size: 108 words";}
     }
   return $feat;
   }
