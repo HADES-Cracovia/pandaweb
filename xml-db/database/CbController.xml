@@ -13,33 +13,33 @@
   
   
   
-  <group name="CbStatus"
+  <group name="CbCtrlReg"
          address="0000"  size="130"  purpose="status"  mode="r" continuous="false">
     <register name="GpioPort"
-              address="0030" purpose="status" mode="r" >
-      <description>Register containing the bit pattern that can be measured at the corresponding pins.</description>
-      <field name="GpioPortBits"
+              address="0030" purpose="status" mode="rw" >
+      <description>Output bit pattern of the TRB3 peripheral SPARE lines</description>
+      <field name="GpioPort"
               start="0"   bits="16"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
     <register name="GpioPin"
               address="0031" purpose="status" mode="r" >
-      <description>Register containing the bit pattern that can be measured at the corresponding pins.</description>
-      <field name="GpioPinBits"
-              start="0"   bits="16"  mode="rw"  purpose="config"  format="bitmask" >
+      <description>Current state of the SPARE lines</description>
+      <field name="GpioPin"
+              start="0"   bits="16"  mode="r"  purpose="config"  format="bitmask" >
       </field>
     </register>
     <register  name="GpioDdr"
-              address="0032" purpose="status" mode="r" >
-      <description>a bitmask that defines the data direction (input or output) of the GPIO pins</description>
-      <field name="GpioDdrBits"
+              address="0032" purpose="status" mode="rw" >
+      <description>Bitmask defining data direction (LO=input, HI=output) of the SPARE lines</description>
+      <field name="GpioDdr"
               start="0"  bits="16"  mode="rw"  purpose="config"  format="bitmask">
       </field>
     </register>
-    <register  name="UartBaudrateDial"
+    <register  name="UartBaud"
               address="0040" purpose="config" mode="rw" >
-      <description>Select UART baudrate: 0->300, 1->600, 2->1200, 3->2400, 4->4800, 5->9600, 6->19200, 7->38400, 8->57600, 9->115200</description>
-      <field name="UartBaudrateNo"
+        <description>Select UART baudrate: 0->300, 1->600, 2->1200, 3->2400, 4->4800, 5->9600, 6->19200, 7->38400, 8->57600, 9->115200</description>
+      <field name="UartBaud"
               start="0"  bits="4"  mode="rw"  purpose="config"  format="integer" >
       </field>
     </register>
@@ -47,21 +47,26 @@
     <register  name="UartDataIn"
               address="0041" purpose="config" mode="rw" >
       <description>Write a byte here to send it via UART, returns fill status of input FIFO</description>
-      <field name="UartDataInWord"
+      <field name="UartDataIn"
               start="0"  bits="8"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
     <register  name="UartDataOut"
               address="0042" purpose="status" mode="r" >
-      <description>Shows rx_buffer_empty_bit(MSB) and the last received UART byte.</description>
+      <description>Pops a byte from the UART receive buffer</description>
       <field name="UartDataOutWord"
-              start="0"  bits="9"  mode="rw"  purpose="config"  format="hex" >
+              start="0"  bits="8"  mode="r"  purpose="config"  format="hex" >
+        <description>Received byte</description>
+      </field>
+      <field name="UartRxBufEmpty"
+              start="8"  bits="1"  mode="r"  purpose="config"  format="hex" >
+        <description>HI if UART receive buffer empty</description>
       </field>
     </register>
-    <register  name="UartManOverride"
+    <register  name="UartManOvr"
               address="0043" purpose="config" mode="rw" >
-      <description>Override the default UART functionality for debug reasons. If set to 1, UartDataIn and UartDataOut operate the UART directly.</description>
-      <field name="UartManOverride"
+      <description>Override the default UART functionality for debug reasons. If set HI, UartDataIn and UartDataOut operate the UART directly.</description>
+      <field name="UartManOvr"
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
@@ -75,51 +80,62 @@
     
     <register  name="SpiDataOut"
               address="0050" purpose="status" mode="r" >
-      <description>the last received SPI word</description>
-      <field name="SpiDataOutWord"
+      <description>Last received SPI word from CB uC</description>
+      <field name="SpiDataOut"
               start="0"  bits="16"  mode="r"  purpose="status"  format="hex" >
       </field>
     </register>
     <register  name="SpiDataIn"
               address="0051" purpose="config" mode="rw" >
-      <description>Set what the FPGA returns to the microcontroller over SPI line.</description>
+      <description>This word is returned by the FPGA's SPI slave each transmission</description>
       <field name="SpiDataIn"
               start="0"  bits="16"  mode="rw"  purpose="config"  format="hex" >
       </field>
     </register>
     <register  name="SpiCounter"
               address="0052" purpose="status" mode="r" >
-      <description>counts how many spi data words have been received</description>
+      <description>Counts received SPI data words. 1 SPI word = 16 bit.</description>
       <field name="SpiCounter"
               start="0" bits="32"  mode="r"  purpose="status"  format="integer" rate="1">
       </field>
     </register>
     <register  name="SpiFifoSelect"
               address="0053" purpose="config" mode="rw" >
-      <description>Select a SPI channel to monitor in the Fifo</description>
+      <description>Select an SPI data channel to monitor in the FIFO</description>
       <field name="SpiFifoSelect" start="0" bits="8" format="hex" >
+      </field>
+    </register>
+    <register  name="SpiFifoRead"
+              address="0054" purpose="config" mode="r" >
+      <description>Pops a word from the SPI monitor FIFO</description>
+      <field name="SpiFifoD" start="0" bits="16" format="hex" >
+        <description>SPI data word</description>
+      </field>
+      <field name="SpiFifoTS" start="16" bits="16" format="unsigned" >
+        <description>Reception timestamp</description>
       </field>
     </register>
     <register  name="UcReset"
               address="0060" purpose="config" mode="rw" >
-      <description>Brings the uC to reset, when set Lo.</description>
+      <description>Reset CB uC when LO</description>
       <field name="UcReset"
               start="0"  bits="1"  mode="rw"  purpose="config"  format="bitmask" >
       </field>
     </register>
     <register  name="Overcurrent" address="0070" purpose="status" mode="r" >
-      <description>Status of the four overcurrent detection inputs of the FPGA.</description>
+      <description>Status of the four overcurrent detection inputs of the FPGA that are directly
+        connected to the current drain comparators of the CB power supplies</description>
       <field name="OvCD0" start="0"  bits="1" format="boolean" errorflag="true" >
-        <description>Overcurrent on digital voltage of sensor 0.</description>
+        <description>HI if overcurrent on digital voltage of sensor 0</description>
       </field>
       <field name="OvCA0" start="4"  bits="1" format="boolean" errorflag="true" >
-        <description>Overcurrent on analog voltage of sensor 0.</description>
+        <description>HI if overcurrent on analog voltage of sensor 0</description>
       </field>
       <field name="OvCD1" start="8"  bits="1" format="boolean" errorflag="true" >
-        <description>Overcurrent on digital voltage of sensor 1.</description>
+        <description>HI if overcurrent on digital voltage of sensor 1</description>
       </field>
       <field name="OvCA1" start="12"  bits="1" format="boolean" errorflag="true" >
-        <description>Overcurrent on analog voltage of sensor 1.</description>
+        <description>HI if overcurrent on analog voltage of sensor 1</description>
       </field>
     </register>
 
@@ -132,190 +148,218 @@
   
   
   
-  <group name="CbAdc"
+  <group name="CbSpiStream"
          address="0100" size="34" purpose="status" mode="r" continuous="true">
     <group name="AdcSensor" size="16" repeat="2">
       <register name="CurrentDigital" address="0000">
-        <description>Current on the digital power supply.</description>
+        <description>Current on the digital power supply</description>
         <field name="CurrentDigitalD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+          <description>Current [mA] = AdcVal x 0.0038147</description>
         </field>
         <field name="CurrentDigitalTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
         </field>
       </register>
       <register name="CurrentAnalog" address="0001">
-        <description>Current on the analog power supply.</description>
+        <description>Current on the analog power supply</description>
         <field name="CurrentAnalogD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mA" scale="0.0038147" >
+          <description>Current [mA] = AdcVal x 0.0038147</description>
         </field>
         <field name="CurrentAnalogTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="VoltageDigital" address="0002">
         <description>Voltage of the digital power supply, sensed at the FEB</description>
         <field name="VoltageDigitalD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VoltageDigitalTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="VoltageAnalog" address="0003">
         <description>Voltage of the analog power supply, sensed at the FEB</description>
         <field name="VoltageAnalogD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VoltageAnalogTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="VoltageGnd" address="0004">
         <description>Voltage on the ground sense line from the FEB</description>
         <field name="VoltageGndD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+          <description>Voltage [mV] = AdcVal x 0.038147</description>
         </field>
         <field name="VoltageGndTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
-      <register name="SensorTemperature" address="0005">
-        <description>Voltage measured at the Temperature diode, relative to Gnd sense</description>
-        <field name="SensorTemperatureD"
+      <register name="SensorTemp" address="0005">
+        <description>Voltage measured at the M26 temperature diode, relative to GND sense</description>
+        <field name="SensorTempD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+          <description>Voltage [mV] = AdcVal x 0.038147</description>
         </field>
-        <field name="SensorTemperatureTS"
+        <field name="SensorTempTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>      
       <register name="ZeroSingle" address="0006">
         <description>Zero calibration of amplifier, single ended</description>
         <field name="ZeroSingleD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.038147" >
+          <description>Voltage [mV] = AdcVal x 0.038147</description>
         </field>
         <field name="ZeroSingleTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="ZeroDifferential" address="0007">
         <description>Zero calibration of amplifier, differential</description>
         <field name="ZeroDifferentialD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.0012186"  scaleoffset="-39.932">
+          <description>Voltage [mV] = (AdcVal x 0.0012186)-39.932</description>
         </field>
         <field name="ZeroDifferentialTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="VDiscRef2A" address="0008">
-        <description>Discriminator reference voltage A, absolute value</description>
+        <description>Discr. baseline A</description>
         <field name="VDiscRef2AD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VDiscRef2ATS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>      
       <register name="VDiscRef2B" address="0009">
-        <description>Discriminator reference voltage B, absolute value</description>
+        <description>Discr. baseline B</description>
         <field name="VDiscRef2BD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VDiscRef2BTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>   
       <register name="VDiscRef2C" address="000a">
-        <description>Discriminator reference voltage C, absolute value</description>
+        <description>Discr. baseline C</description>
         <field name="VDiscRef2CD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VDiscRef2CTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>   
       <register name="VDiscRef2D" address="000b">
-        <description>Discriminator reference voltage D, absolute value</description>
+        <description>Discr. baseline D</description>
         <field name="VDiscRef2DD"
               start="0" bits="16" mode="r" purpose="status" format="unsigned" unit="mV" scale="0.116752" >
+          <description>Voltage [mV] = AdcVal x 0.116752</description>
         </field>
         <field name="VDiscRef2DTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>         
       <register name="VDiscRefA" address="000c">
-        <description>Discriminator reference voltage A, differential 1-2</description>
+        <description>Discr. threshold voltage A (w/o baseline)</description>
         <field name="VDiscRefAD"
               start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.0012186" scaleoffset="-39.932" >
+          <description>Voltage [mV] = (AdcVal x 0.0012186)-39.932</description>
         </field>
         <field name="VDiscRefATS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>      
       <register name="VDiscRefB" address="000d">
-        <description>Discriminator reference voltage B, differential 1-2</description>
+        <description>Discr. threshold voltage B (w/o baseline)</description>
         <field name="VDiscRefBD"
               start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.0012186" scaleoffset="-39.932" >
+          <description>Voltage [mV] = (AdcVal x 0.0012186)-39.932</description>
         </field>
         <field name="VDiscRefBTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>   
       <register name="VDiscRefC" address="000e">
-        <description>Discriminator reference voltage C, differential 1-2</description>
+        <description>Discr. threshold voltage C (w/o baseline)</description>
         <field name="VDiscRefCD"
               start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.0012186" scaleoffset="-39.932" >
+          <description>Voltage [mV] = (AdcVal x 0.0012186)-39.932</description>
         </field>
         <field name="VDiscRefCTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>   
       <register name="VDiscRefD" address="000f">
-        <description>Discriminator reference voltage D, differential 1-2</description>
+        <description>Discr. threshold voltage D (w/o baseline)</description>
         <field name="VDiscRefDD"
               start="0" bits="16" mode="r" purpose="status" format="signed" unit="mV" scale="0.0012186" scaleoffset="-39.932" >
+          <description>Voltage [mV] = (AdcVal x 0.0012186)-39.932</description>
         </field>
         <field name="VDiscRefDTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>    
     </group>
     <group name="SensorControlStatusGroup" size="1" repeat="2" address="0020" >
-      <register  name="SensorControlStatus" address="0000" purpose="status" mode="r" >
-	<description>Status of CB switches and Overcurrent indicators (read only)</description>
-	
+      <register  name="CbStatus" address="0000" purpose="status" mode="r" >
+      <description>Status of CB switches and Overcurrent indicators (read only)</description>
         <field name="DisA_"
                 start="4" bits="1"  format="bitmask" >
-          <description>Discharge analog sensor power.</description>
+          <description>Discharge analog sensor power</description>
         </field>
         <field name="DisD_"
                 start="2" bits="1"  format="bitmask" >
-          <description>Discharge digital sensor power..</description>
+          <description>Discharge digital sensor power</description>
         </field>
-
         <field name="EnaA_"
                 start="5" bits="1"  format="bitmask" >
-          <description>Enable analog sensor power.</description>
+          <description>Analog sensor power enabled</description>
         </field>
         <field name="EnaD_"
                 start="3" bits="1"  format="bitmask" >
-          <description>Enable digital sensor power.</description>
+          <description>Digital sensor power enabled</description>
         </field>
         <field name="SensorEn_"
                 start="1" bits="1"  format="bitmask" >
-          <description>Enable Reset, Start and Clock signals for current sensor.</description>
+          <description>Reset, Start and Clock signals enabled for current sensor</description>
         </field>
         <field name="JtagEn_"
                 start="0" bits="1"  format="bitmask" >
-          <description>Enable JTAG for current sensor.</description>
+          <description>JTAG enabled for current sensor</description>
         </field>
-	<field name="OvCA_" start="7" bits="1" format="bitmask" >
-          <description>indicates current limit is exceeded for analog sensor power.</description>
+        <field name="OvCA_" start="7" bits="1" format="bitmask" >
+          <description>Current limit exceeded for analog sensor power</description>
         </field>
         <field name="OvCD_" start="6" bits="1" format="bitmask" >
-          <description>indicates current limit is exceeded for digital sensor power.</description>
+          <description>Current limit exceeded for digital sensor power</description>
         </field>
-	
       </register>
       
     </group>
@@ -348,7 +392,7 @@
   <!--==============================================-->
   
     
-  <group name="CbUcRegs"
+  <group name="CbUcReg"
          address="0000" size="20" purpose="status" mode="rw" continuous="true">
 <!--    <register name="UcRegister" address="0000" purpose="config" mode="rw" repeat="14">
       <description>The microcontroller config registers.</description>
@@ -358,73 +402,75 @@
     </register>-->
     <register  name="ReadBack"
               address="0000" purpose="config" mode="rw" >
-      <description>Read back register values from the microcontroller.</description>
+      <description>Read back register values from the microcontroller</description>
       <field name="ReadBackAll"
               start="8" bits="1"  mode="rw"  purpose="config"  format="bitmask" >
-      <description>Set to 1 when you want to read back all registers from the microcontroller.</description>
+      <description>Set to 1 when you want to read back all registers from the microcontroller</description>
       </field>
       <field name="ReadBackAddr"
               start="0" bits="8"  mode="rw"  purpose="config"  format="hex" >
-      <description>Address of the register that has to be sent to the FPGA.</description>
+      <description>Address of the register that has to be sent to the FPGA</description>
       </field>
     </register>
     
     <group name="ConfPerChip" address="0001" purpose="config" mode="rw" repeat="2" size="5">
       <register  name="Switches"
                 address="0000" purpose="config" mode="rw" >
-        <description>Set Converter Board switches for current sensor.</description>
+        <description>Set Converter Board switches for current sensor</description>
         <field name="DisA"
                 start="4" bits="1"  format="bitmask" >
-          <description>Discharge analog sensor power.</description>
+          <description>Discharge analog sensor power filter caps</description>
         </field>
         <field name="DisD"
                 start="2" bits="1"  format="bitmask" >
-          <description>Discharge digital sensor power..</description>
+          <description>Discharge digital sensor power filter caps</description>
         </field>
 
         <field name="EnaA"
                 start="5" bits="1"  format="bitmask" >
-          <description>Enable analog sensor power.</description>
+          <description>Enable analog sensor power</description>
         </field>
         <field name="EnaD"
                 start="3" bits="1"  format="bitmask" >
-          <description>Enable digital sensor power.</description>
+          <description>Enable digital sensor power</description>
         </field>
         <field name="SensorEn"
                 start="1" bits="1"  format="bitmask" >
-          <description>Enable Reset, Start and Clock signals for current sensor.</description>
+          <description>Enable Reset, Start and Clock signals for current sensor</description>
         </field>
         <field name="JtagEn"
                 start="0" bits="1"  format="bitmask" >
-          <description>Enable JTAG for current sensor.</description>
+          <description>Enable JTAG for current sensor</description>
         </field>
       </register>
       
       <register  name="DacCurLimA" address="0001" purpose="config" mode="rw" >
-        <description>sets current limit for analog sensor power</description>
+        <description>Current limit for analog sensor power. Max current [mA] = AdcVal x 0.005035</description>
         <field name="DacCurLimA" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
         </field>
       </register>
 
       <register  name="DacCurLimD" address="0002" purpose="config" mode="rw" >
-        <description>sets current limit for digital sensor power</description>
+        <description>Current limit for digital sensor power. Max current [mA] = AdcVal x 0.005035</description>
         <field name="DacCurLimD" start="0" bits="16" format="unsigned" unit="mA" scale="0.005035">
         </field>
       </register>
 
       <register  name="DacVClp" address="0003" purpose="config" mode="rw" >
-        <description>sets clamping voltage for current sensor</description>
+        <description>Clamping voltage for current sensor (if DAC physically connected to sensor via jumper).
+          Vclp [mV] = AdcVal x 0.05035</description>
         <field name="DacVClp" start="0" bits="16"  format="unsigned" unit="mV" scale="0.05035" >
         </field>
       </register>
       
       <register  name="OvCurStatus" address="0004" purpose="config" mode="r" >
-      <description></description>
+      <description>Indicates overcurrent situation. Register has to be read from uC for update.
+        Do not use to trigger latchup protection!</description>
         <field name="OvCA" start="1" bits="1" format="bitmask" >
-          <description>indicates current limit is exceeded for analog sensor power. Register is read from uC.</description>
+          <description>HI if analog current limit exceeded. </description>
         </field>
         <field name="OvCD" start="0" bits="1" format="bitmask" >
-          <description>indicates current limit is exceeded for digital sensor power Register is read from uC.</description>
+          <description>HI if digital current limit exceeded. </description>
         </field>
       </register>
       
@@ -433,9 +479,9 @@
     <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
       <field name="CycleRef" start="0" bits="1" format="bitmask" >
-        <description>periodically measure all reference voltages</description>
+        <description>If HI, periodically read out all ADC channels and send the data</description>
       </field>
-      <field name="CyclePower" start="1" bits="1" format="bitmask" >
+<!--      <field name="CyclePower" start="1" bits="1" format="bitmask" >
         <description>periodically measure read all sensor power supply voltages/currents</description>
       </field>
       <field name="StreamSelected" start="2" bits="1" format="bitmask" >
@@ -455,14 +501,14 @@
       </field>
       <field name="ADC1_chan" start="12" bits="3" format="integer" >
         <description>select ADC1 channel</description>
-      </field>
+      </field>-->
     </register>
 
-    <register  name="ADC_read" address="000C" purpose="config" mode="r" >
+<!--    <register  name="ADC_read" address="000C" purpose="config" mode="r" >
       <description>result of the last analog to digital conversion</description>
       <field name="ADC_read" start="0" bits="16" format="hex" >
       </field>
-    </register>
+    </register>-->
 
 <!--    <register  name="SpiDebugConf" address="000D" purpose="config" mode="rw" >
       <description>settings for the debug spi interface</description>
@@ -495,44 +541,62 @@
     </register>
 -->
     <register  name="CompileDate" address="000F" purpose="status" mode="r" >
-      <description>The day the µC firmware was compiled</description>
-      <field name="CDay" start="0" bits="5" format="integer" />
-      <field name="CMonth" start="5" bits="4" format="integer" />
-      <field name="CYear" start="9" bits="7" format="integer" />
+      <description>The day the CB uC firmware was compiled</description>
+      <field name="CDay" start="0" bits="5" format="integer" >
+        <description>Day (1-31)</description>
+      </field>
+      <field name="CMonth" start="5" bits="4" format="integer" >
+        <description>Month (1-12)</description>
+      </field>
+      <field name="CYear" start="9" bits="7" format="integer" >
+        <description>Year (0-99)</description>
+      </field>
     </register>
     <register  name="CompileTime" address="0010" purpose="status" mode="r" >
-      <description>The time the µC firmware was compiled</description>
-      <field name="CMin" start="0" bits="6" format="integer" />
-      <field name="CHours" start="6" bits="5" format="integer" />
+      <description>The time the CB uC firmware was compiled</description>
+      <field name="CMin" start="0" bits="6" format="integer" >
+        <description>Minutes (0-59)</description>
+      </field>
+      <field name="CHours" start="6" bits="5" format="integer" >
+        <description>Hours (0-23)</description>
+      </field>
     </register>
 
 
 
     <register  name="MiscConf" address="0011" purpose="config" mode="rw" >
-      <description></description>
+      <description>Miscellaneous configuration options</description>
       <field name="OvRideLed4" start="7" bits="1" format="bitmask" >
+        <description>If HI, enable external control over LED 4</description>
       </field>
       <field name="OvRideLed3" start="6" bits="1" format="bitmask" >
+        <description>If HI, enable external control over LED 3</description>
       </field>
       <field name="OvRideLed2" start="5" bits="1" format="bitmask" >
+        <description>If HI, enable external control over LED 2</description>
       </field>
       <field name="OvRideLed1" start="4" bits="1" format="bitmask" >
+        <description>If HI, enable external control over LED 1</description>
       </field>
       <field name="Led4" start="3" bits="1" format="bitmask" >
+        <description>LED4 on if HI</description>
       </field>
       <field name="Led3" start="2" bits="1" format="bitmask" >
+        <description>LED3 on if HI</description>
       </field>
       <field name="Led2" start="1" bits="1" format="bitmask" >
+        <description>LED2 on if HI</description>
       </field>
       <field name="Led1" start="0" bits="1" format="bitmask" >
+        <description>LED1 on if HI</description>
       </field>
     </register>
     
-    <register  name="SendUartByte" address="0012" purpose="config" mode="rw" >
+<!--    <register  name="SendUartByte" address="0012" purpose="config" mode="rw" >
       <description>send a singly byte to FPGA via UART (USART1)</description>
       <field name="SendUartByte" start="0" bits="8" format="hex" >
       </field>
-    </register>
+    </register>-->
 
     <register  name="ReadBackCounter" address="0013" purpose="status" mode="r" >
       <description>shows count of uC register read back operations</description>

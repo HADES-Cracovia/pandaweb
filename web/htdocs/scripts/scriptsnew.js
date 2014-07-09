@@ -22,7 +22,7 @@ function getdataprint(command,dId,async,time,callback) {
   //async==false : do the task after you finished the previous task!
   
   // super duper debug line!
-//   alert("caller is " + arguments.callee.caller.toString());
+  // alert("caller is " + arguments.callee.caller.toString());
   
   var xmlhttp = null;
   var cb = null;

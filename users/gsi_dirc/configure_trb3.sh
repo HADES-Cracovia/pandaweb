@@ -13,10 +13,11 @@ trbcmd w 0x8000 0x830d 0x1          # enable readout bit
 
 #mac address of the EB
 #kp1pc105 00:1b:21:43:97:ea
-trbcmd w 0x8000 0x8100 0x214397ea   # lower 4 bytes 
-trbcmd w 0x8000 0x8101 0x001b       # upper two bytes
+#dircdaq002 d4:ae:52:ba:16:a6
+trbcmd w 0x8000 0x8100 0x52ba16a6   # lower 4 bytes 
+trbcmd w 0x8000 0x8101 0xd4ae       # upper two bytes
 
-trbcmd w 0x8000 0x8102 0xc0a80002   # destination IP-address: 192.168.0.2
+trbcmd w 0x8000 0x8102 0xc0a80001   # destination IP-address: 192.168.0.2
 trbcmd w 0x8000 0x8103 0xc350       # destination port 50000
 trbcmd w 0x8000 0x8104 0xdead0110   # source MAC-address
 trbcmd w 0x8000 0x8105 0x001b       # source MAC: upper bytes
