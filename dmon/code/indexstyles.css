@@ -1,0 +1,178 @@
+
+
+body.index {
+	overflow:auto;
+	font-size:13px;
+  font-family:sans-serif;
+	background: right bottom url('background.png') no-repeat fixed #def;
+	line-height:150%;
+
+	}
+
+body.index h1 {
+	color:white;
+	font-size:25px;
+	background:#346;
+	margin:-8px;
+	width:470px;
+  box-shadow:0px 0px 4px 4px #346;/*, inset 3px 3px 3px 3px #eee, inset -3px -3px 3px 3px #eee;*/
+	padding:20px 10px 15px 10px;
+	}
+
+body.index h2 {
+	color:white;
+	font-size:20px;	
+	background:#346;
+	margin:8px -8px 10px -8px;
+	padding:0 10px 10px 10px;
+  box-shadow:0px 0px 4px 4px #346;/*, inset 3px 3px 3px 3px #eee, inset -3px -3px 3px 3px #eee;*/
+  width:470px;
+
+}
+	
+body.index h3 {
+	font-weight:bold;
+	font-size:18px;
+	display:block;
+	margin:30px 0 20px 0;
+	}
+
+body.index h4 {
+	clear:both;
+	font-weight:bold;
+	font-size:16px;
+	margin:30px 0 20px 0;
+	}
+
+	
+	
+body.index div h4 {
+/* 	text-align:center; */
+	clear:both;
+	font-weight:bold;
+	font-size:15px;
+	margin:0px 0 0 0;
+	}
+	
+body.index div ul{
+	margin:0 20px 0 20px;
+	width:300px;
+	margin-bottom:0px;
+	padding-left:13px;
+	}
+
+body.index ul{
+	margin:0 20px 0 20px;
+	margin-bottom:0px;
+	padding-left:13px;
+	}
+
+
+body.index li {
+	list-style-type: square;
+	}
+	
+
+body>div, .logos {
+  float:left;
+  margin: 0px 8px 12px 8px;
+	padding: 0 0 0 0 ;
+
+  text-align:center;
+  box-shadow:0px 0px 4px 4px #eef8ff;/*, inset 3px 3px 3px 3px #eee, inset -3px -3px 3px 3px #eee;*/
+  border-radius: 5px 5px 5px 5px;
+	background:#eef8ff;
+	overflow-y:auto;	
+}
+
+div.linkbox {
+	text-align:left;
+  width:350px;
+  margin:10px;
+	}
+	
+div.linkbox h4{
+  text-align:left;
+}
+	
+div.linkbox li {
+    list-style: none;
+}
+
+li a{
+    text-decoration: none;
+    color:#346;
+    font-weight:bold;
+}
+
+li a:hover{
+    text-decoration: none;
+    color:#fa0;
+    font-weight:bold;
+}
+
+	
+ul.optionlist li {
+	width:300px;
+	float:left;
+  list-style:none;
+	}
+
+	
+	
+div.button {
+	position:absolute;
+	background:#def;
+  box-shadow:0px 0px 4px 4px #def;/*, inset 3px 3px 3px 3px #eee, inset -3px -3px 3px 3px #eee;*/
+	top:0px;
+	height:16px;
+	cursor:pointer;
+	font-size:12px;
+	border-width:0 1px 1px 1px;
+	border-radius:0 0 0 5px;
+	color:black;
+}	
+
+div#status {
+/* 	float:right; */
+	margin:-20px 15px 10px 15px;
+	padding:10px;
+	width:600px;
+	box-shadow:0px 0px 4px 4px #346;
+	font-family: monospace;
+	color:white;
+	background:#346;
+	border-radius:0 0 5px 5px;	
+}
+
+#status table {
+	vertical-align:top;
+	text-align:left;
+        width:550px;
+}
+
+#status td, #status th {
+	vertical-align:top;
+}
+
+#info {
+	text-align:left;
+	float:left;
+	margin:0;
+	width:480px;
+	background:transparent;
+}
+
+dt {
+	font-weight:bold;
+}
+
+
+
+.bgn {background:#0d0;color:#000;}
+.bye {background:#ff2;color:#000;}
+.bor {background:#fa0;color:#000;}
+.brd, .brdb {background:#f00;}
+.bgr {background:#000;color:#aaa !important;color:#fff;}
+.bwh {background:#eee;color:#000;}
+.bmg {background:#f0a ;color:#000;}
