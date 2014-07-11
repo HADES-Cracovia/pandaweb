@@ -29,6 +29,7 @@ GetOptions(
            'pdf'         => \$opt->{pdf},
            'style=s'     => \$opt->{style},
            'standalone'  => \$opt->{standalone},
+           'wide|w'      => \$opt->{wideformat},
            'dumpItem|d'    => \$opt->{dumpItem}
           );
 
@@ -122,8 +123,12 @@ sub new {
   $self->{table}->{dataKeys} = [ 'name', 'addr', 'bits', 'description' ];
   $self->{table}->{header} = [ 'Register', 'Addr', 'Bits', 'Description' ];
 #   $self->{table}->{format} = '@{} l l l p{8cm} @{}';
-  $self->{table}->{format} = ' p{4cm} l c p{8cm} ';
-  
+  if($opt->{wideformat}) {
+    $self->{table}->{format} = ' p{7cm} l c p{14cm} ';
+    }
+  else {
+    $self->{table}->{format} = ' p{4cm} l c p{8cm} ';
+    }
   $self  = {
     %$self,
     %options
@@ -301,13 +306,13 @@ sub writeTexFile {
   
   if ($standalone){
     print OUTPUT q%
-    \documentclass[a4paper,11pt]{article}
+    \documentclass[a4paper,11pt%.($opt->{wideformat}?",landscape":"").q%]{article}
     \usepackage[T1]{fontenc}
     \usepackage{lmodern}
     \usepackage{booktabs}
     \usepackage{longtable}
     \usepackage{geometry}
-    \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
+    \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=2cm,rmargin=2cm}
     \usepackage[table]{xcolor}
     
     \definecolor{light-gray}{gray}{0.90}
