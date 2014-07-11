@@ -36,9 +36,22 @@ $board = hex($board);
 sub sendcmd {
   my ($cmd,$chain) = @_;
   my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
-  do{
+  my $errcnt = 0;
+  while(1){
     trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
-    } while(trb_strerror() ne "No Error");
+    if (trb_strerror() ne "No Error") {
+      sleep 1;
+      if($errcnt >= 12) {
+        die "SPI still blocked\n";
+        }
+      elsif($errcnt++ >= 10) {
+        trb_register_read($board,0xd412);
+        }
+      }
+    else {
+      last;
+      }
+    } 
   return trb_register_read($board,0xd412);
   }
    
