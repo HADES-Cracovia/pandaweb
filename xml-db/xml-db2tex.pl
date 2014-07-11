@@ -94,6 +94,8 @@ Options:
   -c, --caption    caption of the table
   -l, --label      latex label of the table
   
+  -w, --wide       landscape format instead of portrait (default)
+  
   --style          hline   : separate registers by
                      horizontal lines
                    altgray : separate registers with 
