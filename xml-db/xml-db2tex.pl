@@ -26,12 +26,13 @@ GetOptions(
            'entity|e=s'  => \$opt->{entity},
            'output|o=s'  => \$opt->{output},
            'pdf'         => \$opt->{pdf},
-           'style=s'      => \$opt->{style},
-           'standalone'  => \$opt->{standalone}
+           'style=s'     => \$opt->{style},
+           'standalone'  => \$opt->{standalone},
+           'dumpItem|d'    => \$opt->{dumpItem}
           );
 
 printHelpMessage() if $opt->{help};
-printHelpMessage() unless $opt->{entity} && $opt->{group};
+printHelpMessage() unless $opt->{entity};
 
 
 my $self = this->new();
@@ -40,9 +41,21 @@ $self->{opt} = $opt; # assimilate options
 
 $self->setEntity($opt->{entity});
 # $self->{entityFile} = "/home/micha/mnt/55local1/htdocs/daqtools/xml-db/cache/CbController.entity";
+
+if($opt->{dumpItem}){
+  my $xmldb = xmlDbMethods->new( entityFile => $self->{entityFile} );
+  $xmldb->dumpItem();
+  exit;
+}
+
+
 $self->{group} = $opt->{group};
-$self->{table}->{label}   = $opt->{label}||"tab:".$opt->{group};
-$self->{table}->{caption} = $opt->{caption}||"Registers in group ".$opt->{group};
+$self->{table}->{label}   = $opt->{label}||"tab:".($opt->{group}||$opt->{entity});
+if(defined($opt->{group})){
+  $self->{table}->{caption} = $opt->{caption}||"Registers in group ".$opt->{group};
+}else{
+  $self->{table}->{caption} = $opt->{caption}||"Registers in entity ".$opt->{entity};
+}
 $self->produceTable();
 
 
@@ -62,28 +75,31 @@ if ($opt->{pdf}){
 
 sub printHelpMessage{
 print <<EOF;
-xml-db2tex.pl -e <entityName> -g <group> [-o <output.tex>] [OPTIONS]
+xml-db2tex.pl -e <entityName> [-g <group>] [-o <output.tex>] [OPTIONS]
 
-Generates a latex table of an xml-db group.
+Generates a latex table of an xml-db group or entire entity.
+The tex file must be compiled at least two times for the table alignment
+to work out correctly.
 
 Options:
   -h, --help       brief help/usage message
   -e, --entity     enter entity name or /path/to/entityName.entity
-  -g, --group      the xml-db group to be transformed into a table
+  -g, --group      the xml-db group to be transformed into a table,
+                   if left out, will process whole entity
   -o, --output     write tex output to this file, if left out,
                    will write tex code to STDOUT
                    
   -c, --caption    caption of the table
   -l, --label      latex label of the table
   
-  --style          hline : separate registers by
+  --style          hline   : separate registers by
                      horizontal lines
                    altgray : separate registers with 
                      alternating gray and white boxes
                      (default)
   
   --standalone     generate standalone compilable latex file
-  --pdf            compile directly to pdf
+  --pdf            compile directly to pdf (compiles twice)
   
 
 EOF
@@ -105,7 +121,7 @@ sub new {
   $self->{table}->{dataKeys} = [ 'name', 'addr', 'bits', 'description' ];
   $self->{table}->{header} = [ 'Register', 'Addr', 'Bits', 'Description' ];
 #   $self->{table}->{format} = '@{} l l l p{8cm} @{}';
-  $self->{table}->{format} = ' l l c p{8cm} ';
+  $self->{table}->{format} = ' p{4cm} l c p{8cm} ';
   
   $self  = {
     %$self,
@@ -118,6 +134,8 @@ sub new {
 sub setEntity {
   my $self=shift;
   my $entity=shift;
+  
+  $self->{entity}=$entity;
   
   if(-e $entity) { # treat as /path/to/File
     $self->{entityFile} = $entity;
@@ -137,7 +155,7 @@ sub produceTable {
     my $node = $xmldb->{entity}->{$name};
     my $type = $node->{type};
     my $repeat = $node->{repeat} || 1;
-    my $stepsize = $node->{stepsize}||0;
+    my $stepsize = $node->{stepsize}||1;
     my $bits = " ";
     if ($type ne 'register'){
       my $start = $node->{start};
@@ -158,11 +176,12 @@ sub produceTable {
         $name_ = $name.".$i";
       }  
       my $addr_ = $node->{address}+$i*$stepsize;
-      my $hexaddr = sprintf("0x%04x",$addr_ );
+      my $hexaddr = sprintf("%04x",$addr_ );
+      my $rw = $node->{mode};
       
-      if ($type eq 'register' || $type eq 'registerfield'){
+      if ($type eq 'register' || $type eq 'registerfield' || $type eq 'memory'){
         #write register names bold
-        $name_ = '\textbf{'.$name_.'}';
+        $name_ = '\textbf{'.$name_.'}'.'\hfill('.$rw.')';
       }
       if ($type eq 'field'){
         $hexaddr = ''; # don't print addr it's already in the register
@@ -198,6 +217,7 @@ sub produceTable {
   
   my $last_addr;
   my $addr_counter=0;
+  my $last_register_desc="";
   for my $item (@$data){
     
     # make hline at each new register
@@ -209,6 +229,13 @@ sub produceTable {
         }
         $addr_counter++;
       }
+    }
+    
+    # don't print double descriptions in fields, when register description is
+    # identical
+    $last_register_desc = $item->{description} if ($item->{type} eq 'register');
+    if(($item->{type} eq "field") and ($item->{description} eq $last_register_desc)){
+      $item->{description} = '';
     }
     
     
@@ -270,8 +297,8 @@ sub pdflatex{
   unless(-e $directory or mkdir $directory) {
 	  die "Unable to create $directory\n";
   }
-  my $texfile = $self->{group}.".tex";
-  my $pdffile = $self->{group}.".pdf";
+  my $texfile = ($self->{group}||$self->{entity}).".tex";
+  my $pdffile = ($self->{group}||$self->{entity}).".pdf";
   
   $output =~ s/\.(tex|pdf)//;
   $output.= ".pdf";
@@ -325,17 +352,34 @@ sub unfoldTree {
   my $depth = shift||0;
   my $list = shift || [];
   
-  my $node = $self->{entity}->{$name};
-  unless($node->{type} eq 'group'){
-    push(@{$list},$name);
+  my @nodes;
+  
+  if( defined($name)){
+    # check if current item has to be added to
+    # the list
+    my $node = $self->{entity}->{$name};
+    unless($node->{type} eq 'group'){
+      push(@{$list},$name);
+    }
+    # add children of registers and groups recursively
+    if ($node->{type} eq 'group' || $node->{type} eq 'register' ){
+      for my $child (@{$node->{'children'}}){
+  #       print $child."\n";
+        $self->unfoldTree($child,$depth+1,$list);
+      }
+    }
+  } else {
+    # no group or register given, add all registers and fields
+    # to the list
+    for my $name ( keys %{$self->{entity}}) {
+      next if(ref($self->{entity}->{$name}) ne "HASH");
+      unless($self->{entity}->{$name}->{type} eq 'group'){
+        push(@{$list},$name);
+      }
+    }
+    
   }
   
-  if ($node->{type} eq 'group' || $node->{type} eq 'register' ){
-    for my $child (@{$node->{'children'}}){
-#       print $child."\n";
-      $self->unfoldTree($child,$depth+1,$list);
-    }
-  }
   
   return $list;
 }
