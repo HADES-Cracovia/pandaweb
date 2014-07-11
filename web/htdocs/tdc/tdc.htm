@@ -23,7 +23,7 @@
         <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
 
 <tr><td title="For huge set-ups, enable this to split data queries in several smaller chunks">Split Table
-    <td title="For huge set-ups, enable this to split data queries in several smaller chunks"><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
+    <td title="For huge set-ups, enable this to split data queries in several smaller chunks"><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="4">
     <td title="Show only the difference of input signal counters since the last read-out, not absolute value">Differences
     <td title="Show only the difference of input signal counters since the last read-out, not absolute value"><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
 
@@ -50,7 +50,7 @@ var updaterate2= document.getElementById("form_rate2").value;
 var filter     = document.getElementById("form_filter").value;
 var board      = document.getElementById("form_board").value;
 var channels   = document.getElementById("form_channels").value;
-var split      = document.getElementById("form_split").checked?"-2":"";
+var split      = document.getElementById("form_split").checked?"-4":"";
 var differences= document.getElementById("form_diff").checked;
 var showstatus = document.getElementById("form_status").checked;
 var showenable = document.getElementById("form_enable").checked;
@@ -167,7 +167,7 @@ function setValues() {
   updaterate2= document.getElementById("form_rate2").value;
   board      = document.getElementById("form_board").value;
   filter     = document.getElementById("form_filter").value;
-  split      = document.getElementById("form_split").checked?"-2":"";
+  split      = document.getElementById("form_split").checked?"-4":"";
   differences= document.getElementById("form_diff").checked;
   showstatus = document.getElementById("form_status").checked;
   channels   = document.getElementById("form_channels").value;

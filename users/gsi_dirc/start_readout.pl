@@ -37,13 +37,17 @@ $c=qq|pkill -f "daq_evtbuild -S $label"|; qx($c); # if any, kill existing daq_ev
 $c=qq|pkill -f "daq_netmem -S $label"|;   qx($c); # if any, kill existing daq_netmem
 
 
-$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 1 -d file -o $dataPath'|;
+$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 22 -x cc -d file -o $dataPath'|;
+#$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 1 -d file -o $dataPath'|;
 print $c;
 
 system("$c &");
 
 sleep 1;
-$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 1 -i UDP:127.0.0.1:50000'";
+#$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 1 -i UDP:127.0.0.1:50000 '";
+$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 22 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 -i UDP:127.0.0.1:50006 -i UDP:127.0.0.1:50007 -i UDP:127.0.0.1:50008 -i UDP:127.0.0.1:50009 -i UDP:127.0.0.1:50010 -i UDP:127.0.0.1:50011 -i UDP:127.0.0.1:50012 -i UDP:127.0.0.1:50013 -i UDP:127.0.0.1:50014 -i UDP:127.0.0.1:50015 -i UDP:127.0.0.1:50016 -i UDP:127.0.0.1:50017 -i UDP:127.0.0.1:50018 -i UDP:127.0.0.1:50019 -i UDP:127.0.0.1:50020 -i UDP:127.0.0.1:50021
+ '";
+#$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 2 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50002'";
 system("$c &");
 
 print "Saving data to $dataPath\n";
