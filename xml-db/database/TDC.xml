@@ -53,9 +53,10 @@
       <field name="ChannelCount" start="8" bits="8" format="unsigned">
         <description>Number of implemented channels</description>
       </field>
-      <field name="RefTimeSyncedTo100" start="16" bits="1" invertflag="true" format="boolean">
-        <description>Reference time synchronised to 100 MHz Trb-Net
-        clock</description>
+      <field name="RefTimePolarity" start="16" bits="1" invertflag="true" format="enum">
+        <description>Reference time polarity</description>
+        <enumItem value="0">Polarity Correct</enumItem>
+        <enumItem value="1">Polarity Wrong</enumItem>
       </field>
       <field name="TdcVersion" start="17" bits="11" invertflag="true" format="hex">
         <description>TDC core version number</description>
