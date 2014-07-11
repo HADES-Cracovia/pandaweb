@@ -50,7 +50,7 @@ store data in lmd files.
           <FlushTimeout value="2.0"/>   
        </InputPort>
        
-       <OutputPort name="Output1" url="hld:///data.local2/dabc.hld?maxsize=500"/>
+       <OutputPort name="Output1" url="hld:///data.local2/dabc.hld?maxsize=1500"/>
 
        <DoShmControl value="false"/>  
        <FlushTimeout value="2.0"/>   
