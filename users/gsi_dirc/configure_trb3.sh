@@ -1,3 +1,11 @@
+#########################
+# old, don't use anymore!
+########################
+
+echo "don't use this file"
+
+
+exit;
 
 
 trbcmd w 0xff7f 0x8305 0x1          # use GbE

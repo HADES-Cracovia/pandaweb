@@ -37,7 +37,7 @@ $c=qq|pkill -f "daq_evtbuild -S $label"|; qx($c); # if any, kill existing daq_ev
 $c=qq|pkill -f "daq_netmem -S $label"|;   qx($c); # if any, kill existing daq_netmem
 
 
-$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 22 -x cc -d file -o $dataPath'|;
+$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 22 -x te -d file -o $dataPath'|;
 #$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 1 -d file -o $dataPath'|;
 print $c;
 
