@@ -11,6 +11,7 @@ use FileHandle;
 use Getopt::Long;
 use File::Basename;
 use File::Copy;
+
 # use Cwd;
 
 my $opt;
@@ -28,6 +29,7 @@ GetOptions(
            'pdf'         => \$opt->{pdf},
            'style=s'     => \$opt->{style},
            'standalone'  => \$opt->{standalone},
+           'wide|w'      => \$opt->{wideformat},
            'dumpItem|d'    => \$opt->{dumpItem}
           );
 
@@ -92,6 +94,8 @@ Options:
   -c, --caption    caption of the table
   -l, --label      latex label of the table
   
+  -w, --wide       landscape format instead of portrait (default)
+  
   --style          hline   : separate registers by
                      horizontal lines
                    altgray : separate registers with 
@@ -121,8 +125,12 @@ sub new {
   $self->{table}->{dataKeys} = [ 'name', 'addr', 'bits', 'description' ];
   $self->{table}->{header} = [ 'Register', 'Addr', 'Bits', 'Description' ];
 #   $self->{table}->{format} = '@{} l l l p{8cm} @{}';
-  $self->{table}->{format} = ' p{4cm} l c p{8cm} ';
-  
+  if($opt->{wideformat}) {
+    $self->{table}->{format} = ' p{7cm} l c p{14cm} ';
+    }
+  else {
+    $self->{table}->{format} = ' p{4cm} l c p{8cm} ';
+    }
   $self  = {
     %$self,
     %options
@@ -137,11 +145,12 @@ sub setEntity {
   
   $self->{entity}=$entity;
   
-  if(-e $entity) { # treat as /path/to/File
-    $self->{entityFile} = $entity;
-  } elsif (-e dirname($0)."/cache/".$entity.".entity"){
+  if (-e dirname($0)."/cache/".$entity.".entity"){
+    # look in ./cache/ for "EntityName.entity"
     $self->{entityFile} = dirname($0)."/cache/".$entity.".entity";
-  } else {
+  } elsif(-e $entity) { # treat as /path/to/File
+    $self->{entityFile} = $entity;
+  } else { 
     die "Entity $entity not found (not even in xml-db/cache)\n";
   }
 }
@@ -154,6 +163,7 @@ sub produceTable {
   for my $name (@$list) { # processing the list
     my $node = $xmldb->{entity}->{$name};
     my $type = $node->{type};
+    my $description = $node->{description};
     my $repeat = $node->{repeat} || 1;
     my $stepsize = $node->{stepsize}||1;
     my $bits = " ";
@@ -166,6 +176,10 @@ sub produceTable {
 	$bits = "$start--$stop";
       }
     }
+    # escape special latex characters
+    $name = escapelatex($name);
+    $description = escapelatex($description);
+    
     #indent register fields
     if ($type eq 'field'){
       $name= '\quad  '.$name;
@@ -192,7 +206,8 @@ sub produceTable {
         name => $name_,
         addr => $hexaddr,
         bits => $bits,
-        addr_uint => $addr_
+        addr_uint => $addr_,
+        description => $description
       });
     }
   }
@@ -253,6 +268,31 @@ sub produceTable {
 
 }
 
+
+sub escapelatex{
+  
+  my $text = shift;
+  $text =~ s/\\/\\textbackslash /g;
+  $text =~ s/~/\\textasciitilde /g;
+  
+  $text =~ s/#/\\#/g;
+  $text =~ s/%/\\%/g;
+  $text =~ s/&/\\&/g;
+  $text =~ s/{/\\{/g;
+  $text =~ s/}/\\}/g;
+#   $text =~ s/>/\\>/g;
+#   $text =~ s/</\\</g;
+#   $text =~ s/"/\\"/g;
+  $text =~ s/\^/\\^/g;
+  $text =~ s/_/\\_/g;
+#   $text =~ s/\[/\\\[/g;
+#   $text =~ s/\]/\\\]/g;
+  
+  return $text;
+  
+}
+
+
 sub writeTexFile {
   my $self = shift;
   my $output = shift;
@@ -268,13 +308,13 @@ sub writeTexFile {
   
   if ($standalone){
     print OUTPUT q%
-    \documentclass[a4paper,11pt]{article}
+    \documentclass[a4paper,11pt%.($opt->{wideformat}?",landscape":"").q%]{article}
     \usepackage[T1]{fontenc}
     \usepackage{lmodern}
     \usepackage{booktabs}
     \usepackage{longtable}
     \usepackage{geometry}
-    \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
+    \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=2cm,rmargin=2cm}
     \usepackage[table]{xcolor}
     
     \definecolor{light-gray}{gray}{0.90}
@@ -464,7 +504,8 @@ sub generateString {
         push(@line,$data->{$dataKey});
       }
       my $line = "  ".join(" & ", @line) . ' \\\\'."\n";
-      $line =~ s/_/\\_/g; # remove all stupid underscores
+#       $line =~ s/_/\\_/g; # remove all stupid underscores
+#       $line = escapelatex($line);
       $str.=$line;
       
     }
@@ -480,3 +521,5 @@ sub generateString {
 #   $str.='\end{table}'."\n";
   return $str;
 }
+
+

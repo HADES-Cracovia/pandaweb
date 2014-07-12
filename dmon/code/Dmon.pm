@@ -171,6 +171,7 @@ sub OpenQAFile {
 # $longtext  Long description text (PopUp)
 sub WriteQALog {
   my ($fh, $entry, $ttl, $status, $title, $value, $longtext,$link) = @_;
+  $link = "" unless defined $link;
   my $tmp = time()."\t$entry\t$ttl\t$status\t$title\t$value\t$longtext\t$link\n";
 
   if ($fh == 0) {

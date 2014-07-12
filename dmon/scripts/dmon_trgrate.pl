@@ -12,59 +12,59 @@ use HPlot;
 
 my %config = do $ARGV[0];
 my $flog = Dmon::OpenQAFile();
-trb_init_ports() or die trb_strerror();
+
 
 my $old;
 my $summing = 0;
 my $cnt = 0;
 
-
-my $plot = ();
-$plot->{name}    = "TriggerRate";
-$plot->{file}    = Dmon::DMONDIR."TriggerRate";
-$plot->{entries} = 600;
-$plot->{type}    = HPlot::TYPE_HISTORY;
-$plot->{output}  = HPlot::OUT_PNG;
-$plot->{titles}->[0] = "";
-$plot->{xlabel}  = "Time [s]";
-$plot->{ylabel}  = "Rate [Hz]";
-$plot->{sizex}   = 750;
-$plot->{sizey}   = 270;
-$plot->{xscale}  = 5;
-$plot->{nokey}   = 1;
-$plot->{buffer}  = 1;
-HPlot::PlotInit($plot);
+HPlot::PlotInit({
+  name    => "TriggerRate",
+  file    => Dmon::DMONDIR."TriggerRate",
+  entries => 600,
+  type    => HPlot::TYPE_HISTORY,
+  output  => HPlot::OUT_PNG,
+  titles  => ["Trigger Rate"],
+  xlabel  => "Time [s]",
+  ylabel  => "Rate [Hz]",
+  sizex   => 750,
+  sizey   => 270,
+  xscale  => 5,
+  nokey   => 1,
+  buffer  => 1
+  });
 
 my $str = Dmon::MakeTitle(10,6,"TriggerRate",0);
    $str .= qq@<img src="%ADDPNG TriggerRate.png%" type="image/png">@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("TriggerRate",$str);
 
-
-
-
 while(1) {
-  my $r = trb_register_read($config{CtsAddress},0xa000);
-  my $value    = $r->{$config{CtsAddress}};
-  my $rate     = ($value||0) - ($old||0);
-     $rate += 2**32 if $rate < 0;
-  
-  if( defined $old) {
-    $summing += $rate;
-    HPlot::PlotAdd('TriggerRate',$rate*5,0);
-    print $rate;
+  trb_init_ports() or die trb_strerror();
+
+  while(1) {
+    my $r = trb_register_read($config{CtsAddress},0xa000);
+    my $value    = $r->{$config{CtsAddress}};
+    my $rate     = ($value||0) - ($old||0);
+      $rate += 2**32 if $rate < 0;
     
-    unless($cnt++ % 10) {
-      my $title    = "Rate";
-      my $value    = $summing/2;
-      my $longtext = $value." triggers pre second";
-      my $status   = Dmon::GetQAState('above',$value,(15,2,1));
-      Dmon::WriteQALog($flog,"trgrate",5,$status,$title,$value,$longtext,'2-TriggerRate');
- 
-      HPlot::PlotDraw('TriggerRate');
-      $summing = 0;
+    if( defined $old) {
+      $summing += $rate;
+      HPlot::PlotAdd('TriggerRate',$rate*5,0);
+      
+      unless($cnt++ % 10) {
+        my $title    = "Rate";
+        my $value    = $summing/2;
+        my $longtext = $value." triggers pre second";
+        my $status   = Dmon::GetQAState('above',$value,(15,2,1));
+        Dmon::WriteQALog($flog,"trgrate",5,$status,$title,$value,$longtext,'2-TriggerRate');
+  
+        HPlot::PlotDraw('TriggerRate');
+        $summing = 0;
+        }
       }
+    $old = $value;    
+    usleep(200000);
     }
-  $old = $value;    
-  usleep(200000);
-}
+  sleep 10;
+  }
