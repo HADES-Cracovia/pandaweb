@@ -128,9 +128,19 @@ for(my $i=0;$i<16;$i++) {
   $fifomode->[$i]    = 0   unless defined $fifomode->[$i];
   }
 
+
+for(my $k = 0; $k < scalar @$address; $k++) {
+  if($address->[$k] =~ /^0x/) {
+    $address->[$k] = hex($address->[$k]);
+    }
+  if($register->[$k] =~ /^0x/) {
+    $register->[$k] = hex($register->[$k]);
+    }
+  }       
+  
 for(my $i=0;$i < scalar @{$address};$i++) {
   if(!defined($title->[$i])) {
-    $title->[$i] = hex($address->[$i])." $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
+    $title->[$i] = "$address->[$i] $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
     }
   }
 
@@ -141,11 +151,6 @@ if($style == 2) {$curvestyle="histo";      $xticks=0;}
 if($style == 3) {$curvestyle="histo";      $xticks=1;}
 if($style == 4) {$curvestyle="histostacked";      $xticks=0;}
 if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
-
-for(my $k = 0; $k < scalar @$address; $k++) {
-  $address->[$k] = hex($address->[$k]);
-  $register->[$k] = hex($register->[$k]);
-  }
 
 #Open Gnuplot
 our $fh;
