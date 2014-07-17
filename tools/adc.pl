@@ -16,28 +16,29 @@ if (!defined &trb_init_ports()) {
 }
 
 unless(defined $ARGV[0] && defined $ARGV[1]) {
-  print 'usage: adc.pl $FPGA $cmd [$value]',"\n\n";
+  print 'usage: adc.pl $FPGA $cmd',"\n\n";
   print "\t time\t\t read compile time of MachXO firmware\n";
-  print "\t led\t\t set/read onboard LEDs controlled by MachXO\n";
+  print "\t",' led [$value]',"\t set/read onboard LEDs controlled by MachXO\n";
   print "\t init_lmk\t init the clock chip\n";
+  print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are in hex!\n";
   exit;
 }
 
 # define "constants" to make code more readable
 # chain=0 : MachXO on addon
-# chain=1 : 1st chain on Addon connector SPI_CONN_L
-# chain=2 : 2nd chain on Addon connector SPI_CONN_H
+# chain=1 : 1st frontend chain on Addon connector SPI_CONN_L
+# chain=2 : 2nd frontend chain on Addon connector SPI_CONN_H
 # chain=3 : ADC chains (CS via MachXO!)
 # chain=4 : 1st LMK clock chip
 # chain=5 : 2nd LMK clock chip
 # see VHDL of periph FPGA for details
 my %chain = (
-             'machxo'  => 0,
-             'addon_0' => 1,
-             'addon_1' => 2,
-             'adc'     => 3,
-             'lmk_0'   => 4,
-             'lmk_1'   => 5
+             'machxo'     => 0,
+             'frontend_0' => 1,
+             'frontend_1' => 2,
+             'adc'        => 3,
+             'lmk_0'      => 4,
+             'lmk_1'      => 5
             );
 
 my $board;
@@ -51,7 +52,7 @@ sub sendcmd {
   die "No Chain provided" unless defined $chain;
   my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
   trb_register_write_mem($board,0xd400,0,$c,scalar @{$c}) or die "trb_register_write_mem: ", trb_strerror();;
-  return trb_register_read($board,0xd412);  
+  return trb_register_read($board,0xd412);
 }
 
 if ($ARGV[1] eq "time") {
@@ -131,4 +132,35 @@ if ($ARGV[1] eq "init_lmk") {
   print ">>> Both clock chips LMK01010 initialized.\n"
 }
 
+sub sendcmd_adc {
+  my $adc_reg = shift; # register address
+  my $adc_val = shift;
 
+  # since the ADC CS lines are controlled by
+  # the MachXO in reg21, we first pull the ADC CS lines low
+  # by setting the lower 12 bits in reg21 to high
+  sendcmd(0x20810fff, $chain{machxo});
+
+  # then we send data over the ADC SPI chain
+  # the 16 higher bits are the instruction word,
+  # following by one 8bit data word. the 8 lowest bits
+  # should be ignored...
+  # the instruction bits is simply the $adc_reg value, since
+  # the bit31 should be zero for writing, and bit30/29 should be
+  # 0 to request to write one byte
+  sendcmd(  (($adc_reg & 0x1fff) << 16)
+          + (($adc_val & 0xff) << 8),
+          $chain{adc});
+
+  # and set the ADC CS high again:
+  # write zero to machxo reg21
+  sendcmd(0x20810000, $chain{machxo});
+}
+
+if ($ARGV[1] eq "adc_reg" && defined $ARGV[2] && defined $ARGV[3]) {
+  # interpret the arguments as hex
+  sendcmd_adc(hex($ARGV[2]),hex($ARGV[3]));
+  # initiate transfer
+  sendcmd_adc(0xFF,0x1);
+  print "Wrote ADC register.\n";
+}
