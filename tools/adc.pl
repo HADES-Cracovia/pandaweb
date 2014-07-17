@@ -20,7 +20,8 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t time\t\t read compile time of MachXO firmware\n";
   print "\t",' led [$value]',"\t set/read onboard LEDs controlled by MachXO\n";
   print "\t init_lmk\t init the clock chip\n";
-  print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are in hex!\n";
+  print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are oct()'ed\n";
+  print "\t",' adc_testio [$pattern_id]',"\t enable testio of all ADCs, id=0 disables\n";
   exit;
 }
 
@@ -133,8 +134,9 @@ if ($ARGV[1] eq "init_lmk") {
 }
 
 sub sendcmd_adc {
-  my $adc_reg = shift; # register address
-  my $adc_val = shift;
+  my $adc_reg = (shift) & 0xfff; # register address
+  my $adc_val = (shift) & 0xff; # register value
+  printf("Set ADC Reg 0x%03x to 0x%02x\n", $adc_reg, $adc_val);
 
   # since the ADC CS lines are controlled by
   # the MachXO in reg21, we first pull the ADC CS lines low
@@ -148,8 +150,8 @@ sub sendcmd_adc {
   # the instruction bits is simply the $adc_reg value, since
   # the bit31 should be zero for writing, and bit30/29 should be
   # 0 to request to write one byte
-  sendcmd(  (($adc_reg & 0x1fff) << 16)
-          + (($adc_val & 0xff) << 8),
+  sendcmd(  ($adc_reg << 16)
+          + ($adc_val << 8),
           $chain{adc});
 
   # and set the ADC CS high again:
@@ -159,8 +161,17 @@ sub sendcmd_adc {
 
 if ($ARGV[1] eq "adc_reg" && defined $ARGV[2] && defined $ARGV[3]) {
   # interpret the arguments as hex
-  sendcmd_adc(hex($ARGV[2]),hex($ARGV[3]));
+  sendcmd_adc(oct($ARGV[2]),oct($ARGV[3]));
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
   print "Wrote ADC register.\n";
 }
+
+if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
+  # interpret the arguments as hex
+  sendcmd_adc(0xd,oct($ARGV[2]) & 0xf);
+  # initiate transfer
+  sendcmd_adc(0xFF,0x1);
+  print "Set ADC test mode.\n";
+}
+
