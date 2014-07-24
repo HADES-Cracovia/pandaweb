@@ -22,6 +22,7 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t init_lmk\t init the clock chip\n";
   print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are oct()'ed\n";
   print "\t",' adc_testio [$pattern_id]',"\t enable testio of all ADCs, id=0 disables\n";
+  print "\t",' adc_bitbang',"\t send test sequence via bitbanging\n";
   exit;
 }
 
@@ -56,6 +57,48 @@ sub sendcmd {
   return trb_register_read($board,0xd412);
 }
 
+
+sub bitbangtestsequence {
+  #power down
+  trb_register_write(0xf30a,0xe080,0x00);
+  usleep(200000);
+
+  #power on
+  trb_register_write(0xf30a,0xe080,0x01);
+  usleep(100000);
+
+  #sck and csb high
+  trb_register_write(0xf30a,0xe080,0x51);
+  usleep(100000);
+
+
+  #send commands
+  my @data = (0x00000d04,0x0000ff01);
+
+  for my $i (@data) {
+
+    #csb low
+    trb_register_write(0xf30a,0xe080,0x11);
+
+    for my $j (0..23) {
+      my $b = ($i>>(23-$j)) & 1;
+        $b = $b << 5;
+
+      trb_register_write(0xf30a,0xe080,0x01 | $b);
+      trb_register_write(0xf30a,0xe080,0x11 | $b);
+      }
+
+    #csb high
+    trb_register_write(0xf30a,0xe080,0x51);
+
+    }
+  }
+
+if ($ARGV[1] eq "adc_bitbang") {
+  print "Running simple bitbanging with fixed commands\n";
+  bitbangtestsequence();
+  }
+  
 if ($ARGV[1] eq "time") {
   my $ids;
   for (my $i = 0; $i <= 1; $i++) {
@@ -141,8 +184,8 @@ sub sendcmd_adc {
   # since the ADC CS lines are controlled by
   # the MachXO in reg21, we first pull the ADC CS lines low
   # by setting the lower 12 bits in reg21 to high
-  sendcmd(0x20810fff, $chain{machxo});
-
+  #sendcmd(0x20810fff, $chain{machxo});
+  
   # then we send data over the ADC SPI chain
   # the 16 higher bits are the instruction word,
   # following by one 8bit data word. the 8 lowest bits
@@ -150,13 +193,13 @@ sub sendcmd_adc {
   # the instruction bits is simply the $adc_reg value, since
   # the bit31 should be zero for writing, and bit30/29 should be
   # 0 to request to write one byte
-  sendcmd(  ($adc_reg << 16)
-          + ($adc_val << 8),
+  sendcmd(  ($adc_reg << 8)
+          + ($adc_val << 0),
           $chain{adc});
 
   # and set the ADC CS high again:
   # write zero to machxo reg21
-  sendcmd(0x20810000, $chain{machxo});
+  #sendcmd(0x20810000, $chain{machxo});
 }
 
 if ($ARGV[1] eq "adc_reg" && defined $ARGV[2] && defined $ARGV[3]) {
