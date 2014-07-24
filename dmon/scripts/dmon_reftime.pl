@@ -35,7 +35,7 @@ while(1) {
   my $longtext = "Polarity of the reference time signals on TDCs seems to be: ".$value;
   if($errors && $lasterrors) {  $status   = Dmon::GetQAState('below',$errors,(0,1,4));}
   else                       {  $status   = Dmon::OK;}
-  Dmon::WriteQALog($flog,"reftime",10,$status,$title,$value,$longtext);
+  Dmon::WriteQALog($flog,"reftime",20,$status,$title,$value,$longtext);
   $lasterrors = $errors;
   sleep 10;
   }

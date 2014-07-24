@@ -3,7 +3,7 @@ use POSIX qw/floor ceil strftime/;
 use Data::Dumper;
 use warnings;
 use strict;
-
+use HADES::TrbNet;
 
 
 print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
@@ -15,12 +15,53 @@ print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\
 ###############################################################################
 
 use constant DMONDIR => "/dev/shm/dmon/";
-our $AcceleratorCycle = 7;
-our $CTSAddress = 0x8000;
 
 
+###############################################################################
+#  Initializing file handles and TrbNet link
+###############################################################################
+sub StartUp {
+  my %config = do $ARGV[0];
+  $config{flog} = OpenQAFile();
+  trb_init_ports() or die trb_strerror();
+  return %config;
+  }
 
-
+###############################################################################
+#  Make Rates from register read
+###############################################################################
+my $OldValues; my $firstrun = 1;
+sub MakeRate {
+  my ($pos,$width,$usets,$t) = @_;
+  my $res;
+  
+  foreach my $b (keys $t) {
+    for my $i (0..((scalar @{$t->{$b}{value}})-1)) {
+      my $value    = $t->{$b}{value}[$i]||0;
+         $value    = ($value>>$pos) & (2**$width-1);
+      my $diff     = $value - ($OldValues->{$b}{value}[$i]||0);
+         $diff    += 2**$width if $diff < 0;
+      my $tdiff    = $t->{$b}{time}[$i] - ($OldValues->{$b}{time}[$i]||0);
+         $tdiff   += 2**16 if $tdiff < 0;
+      my $rate     = $diff;
+         $rate     = $diff / (($tdiff*16E-6)||1) if $usets;
+      $res->{$b}{rate}[$i]  = $rate;
+      $res->{$b}{value}[$i] = $value;
+      $res->{$b}{time}[$i]  = $t->{$b}{time}[$i];
+      $res->{$b}{tdiff}[$i] = $tdiff;
+      }
+    }
+  if (!$firstrun) {  
+    $OldValues = $res;  
+    return $res;
+    }
+  else {
+    $OldValues = $res;  
+    $firstrun = 0;
+    return undef;
+    }
+  }
+  
 
 ###############################################################################
 #  Make Title & Footer

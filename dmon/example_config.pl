@@ -4,11 +4,12 @@
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','-','-','-','daqop'],
                   ['numfee','temperature','reftime','-','-'],
-                  ['trgrate','-','-','-','-'],
+                  ['trgrate','datarate','deadtime','-','-'],
+                  ['-','-','-','-','-'],
                   ['-','-','-','-','-'],],
                   
-#Names to be shown in left column of Overview
-qaNames => ['system','main','trigger','-','-','-'],                  
+#Names to be shown in left column of Overview (max 4 letters!)
+qaNames => ['sys','main','rate','-','-','-'],                  
 
 #Expected number of FPGAs in system
 NumberOfFpga => 11,       
