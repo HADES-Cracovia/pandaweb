@@ -86,7 +86,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         }
       my $addontype = "";  
       if(($hardware->{$addr}>>24&0xff) == 0x91) {
-        for($hardware->{$addr}>>12 & 0x7) {
+        for($hardware->{$addr}>>12 & 0xF) {
           when (0) {$addontype= " & ADA v1";}
           when (1) {$addontype= " & ADA v2";}
           when (2) {$addontype= " & Multitest";}
@@ -95,7 +95,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           when (5) {$addontype= " & GPIN";}
           when (6) {$addontype= " & Nxyter";}
           when (7) {$addontype= " & 32PinAddOn";}
-          when (9) {$addontype= " & MVD AddOn 13";}
+          when (9) {$addontype= " & ADC AddOn";}
           }
         }      
       my $feat = "";
@@ -151,7 +151,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0x7)." SFPs";  
         }
       if($table == 2) {
-        if($inclLow->{$addr}&0x8000 || 1) {  # ||1 just because this not implemented yet in the test design..
+        if($inclLow->{$addr}&0x8000) {  # ||1 just because this not implemented yet in the test design..
           $feat .="\nTDC:";
           $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
