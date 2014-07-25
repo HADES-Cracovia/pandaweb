@@ -60,15 +60,15 @@ sub sendcmd {
 
 sub bitbangtestsequence {
   #power down
-  trb_register_write(0xf30a,0xe080,0x00);
+  trb_register_write($board,0xe080,0x00);
   usleep(200000);
 
   #power on
-  trb_register_write(0xf30a,0xe080,0x01);
+  trb_register_write($board,0xe080,0x01);
   usleep(100000);
 
   #sck and csb high
-  trb_register_write(0xf30a,0xe080,0x51);
+  trb_register_write($board,0xe080,0x51);
   usleep(100000);
 
 
@@ -78,18 +78,18 @@ sub bitbangtestsequence {
   for my $i (@data) {
 
     #csb low
-    trb_register_write(0xf30a,0xe080,0x11);
+    trb_register_write($board,0xe080,0x11);
 
     for my $j (0..23) {
       my $b = ($i>>(23-$j)) & 1;
         $b = $b << 5;
 
-      trb_register_write(0xf30a,0xe080,0x01 | $b);
-      trb_register_write(0xf30a,0xe080,0x11 | $b);
+      trb_register_write($board,0xe080,0x01 | $b);
+      trb_register_write($board,0xe080,0x11 | $b);
       }
 
     #csb high
-    trb_register_write(0xf30a,0xe080,0x51);
+    trb_register_write($board,0xe080,0x51);
 
     }
   }
