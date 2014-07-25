@@ -22,7 +22,7 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t init_lmk\t init the clock chip\n";
   print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are oct()'ed\n";
   print "\t",' adc_testio [$pattern_id]',"\t enable testio of all ADCs, id=0 disables\n";
-  print "\t",' adc_bitbang',"\t send test sequence via bitbanging\n";
+  print "\t",' adc_init',"\t power up and initialize ADC\n";
   exit;
 }
 
@@ -57,14 +57,30 @@ sub sendcmd {
   return trb_register_read($board,0xd412);
 }
 
+sub sendcmd_bitbang {
+  my $cmd = shift;
 
-sub bitbangtestsequence {
+  #csb low
+  trb_register_write($board,0xe080,0x11);
+
+  for my $j (0..23) {
+    my $b = ($cmd>>(23-$j)) & 1;
+    $b = $b << 5;
+    trb_register_write($board,0xe080,0x01 | $b);
+    trb_register_write($board,0xe080,0x11 | $b);
+    }
+   #csb high
+  trb_register_write($board,0xe080,0x51);
+  }
+
+
+sub adc_init {
   #power down
-  trb_register_write($board,0xe080,0x00);
+  trb_register_write($board,0xe080,0x40);
   usleep(200000);
 
   #power on
-  trb_register_write($board,0xe080,0x01);
+  trb_register_write($board,0xe080,0x41);
   usleep(100000);
 
   #sck and csb high
@@ -72,31 +88,14 @@ sub bitbangtestsequence {
   usleep(100000);
 
 
-  #send commands
-  my @data = (0x00000d04,0x0000ff01);
-
-  for my $i (@data) {
-
-    #csb low
-    trb_register_write($board,0xe080,0x11);
-
-    for my $j (0..23) {
-      my $b = ($i>>(23-$j)) & 1;
-        $b = $b << 5;
-
-      trb_register_write($board,0xe080,0x01 | $b);
-      trb_register_write($board,0xe080,0x11 | $b);
-      }
-
-    #csb high
-    trb_register_write($board,0xe080,0x51);
-
-    }
+  #send commands (at least 1 needed!)
+  sendcmd_adc(0x0d,0x00);
+  sendcmd_adc(0xff,0x01);
   }
 
-if ($ARGV[1] eq "adc_bitbang") {
-  print "Running simple bitbanging with fixed commands\n";
-  bitbangtestsequence();
+if ($ARGV[1] eq "adc_init") {
+  print "Power-up and init of ADC\n";
+  adc_init();
   }
   
 if ($ARGV[1] eq "time") {
@@ -193,9 +192,9 @@ sub sendcmd_adc {
   # the instruction bits is simply the $adc_reg value, since
   # the bit31 should be zero for writing, and bit30/29 should be
   # 0 to request to write one byte
-  sendcmd(  ($adc_reg << 8)
-          + ($adc_val << 0),
-          $chain{adc});
+  sendcmd_bitbang(  ($adc_reg << 8)
+          + ($adc_val << 0));#,
+          #$chain{adc});
 
   # and set the ADC CS high again:
   # write zero to machxo reg21
