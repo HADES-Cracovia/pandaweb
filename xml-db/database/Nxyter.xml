@@ -10,7 +10,7 @@
   <!-- ##################################################################### -->
 
   <group name="TriggerHandler"
-         address="0160"  size="7"  purpose="config"  mode="rw"  continuous="true">
+         address="0160"  size="11"  purpose="config"  mode="rw"  continuous="true">
     
     <register name="TestPulseEnable" address="0000" purpose="config">
       <description>Enable test pulse</description>
@@ -43,11 +43,32 @@
     </register>   
 
     <register name="TrigBypass" address="0006" purpose="config" mode="rw">
-      <description>Bypass/ignore Status and CTS Timing Triggers</description>
-      <field name="CTSBypass"    start="0" bits="1" format="boolean" />
-      <field name="StatusBypass" start="1" bits="1" format="boolean" />
+      <description>Bypass/ignore CTS Triggers</description>
+      <field name="AllBypass"         start="3" bits="1" format="boolean" />
+      <field name="CalibrationBypass" start="2" bits="1" format="boolean" />
+      <field name="StatusBypass"      start="1" bits="1" format="boolean" />
+      <field name="TimimgBypass"      start="0" bits="1" format="boolean" />
     </register>   
    
+    <register name="DownscaleCalibTrig" address="0007" purpose="status" mode="rw">
+      <description>Downscale Calibration Trigger</description>
+      <field name="DownscaleCalibTrig" start="0" bits="16" format="unsigned"/>
+    </register>   
+    
+    <register name="TimingTrigType" address="0008" purpose="status" mode="rw">
+      <description>Timing Trigger Type</description>
+      <field name="TimingTrigType" start="0" bits="4" format="unsigned"/>
+    </register> 
+  
+    <register name="StatusTrigType" address="0009" purpose="status" mode="rw">
+      <description>Timing Trigger Type</description>
+      <field name="StatusTrigType" start="0" bits="4" format="unsigned"/>
+    </register> 
+    
+    <register name="CalibTrigType" address="000a" purpose="status" mode="rw">
+      <description>Timing Trigger Type</description>
+      <field name="CalibTrigType" start="0" bits="4" format="unsigned"/>
+    </register> 
   </group>  
 
   <!-- ##################################################################### -->
@@ -200,17 +221,17 @@
 
     <register name="WinLowCtr" address="001c" purpose="status" mode="r">
       <description>Out of Window Low Counter</description>
-      <field name="WinLowCtr" start="0" bits="15" format="unsigned"/>
+      <field name="WinLowCtr" start="0" bits="16" format="unsigned"/>
     </register>
     
     <register name="WinHitCtr" address="001d" purpose="status" mode="r">
       <description>Window Hit Counter</description>
-      <field name="WinHitCtr" start="0" bits="15" format="unsigned"/>
+      <field name="WinHitCtr" start="0" bits="16" format="unsigned"/>
     </register>
     
     <register name="WinHighCtr" address="001e" purpose="status" mode="r">
       <description>Out of Window High Counter</description>
-      <field name="WinHighCtr" start="0" bits="15" format="unsigned"/>
+      <field name="WinHighCtr" start="0" bits="16" format="unsigned"/>
     </register>
 
     <register name="DataRate" address="001f" purpose="status" mode="r">
@@ -334,7 +355,9 @@
     
     <register name="TSDelay" address="0010" purpose="config" mode="rw">
       <description>Delay of Timestamp Fifo</description>
-      <field name="TSDelayB" start="0" bits="3" format="unsigned" />
+      <field name="TSDelayAdjust" start="15" bits="1" format="boolean" purpose="config"/>
+      <field name="TSDelayACtr" start="16" bits="16" format="unsigned" purpose="status" mode="r"/>
+      <field name="TSDelayB" start="0" bits="3" format="unsigned"  purpose="config" />
       <field name="TSDelayF" start="4" bits="2" format="unsigned" purpose="status" mode="r"/>
     </register>
 
@@ -445,7 +468,7 @@
 
     <register name="ParityErrCtr" address="0009" purpose="status" mode="r">
       <description>Parity Error Counter</description>
-      <field name="ParityErrCtr" start="0" bits="15" format="unsigned"/>
+      <field name="ParityErrCtr" start="0" bits="16" format="unsigned"/>
     </register>
 
     
@@ -853,7 +876,7 @@
   
   <!-- ##################################################################### -->
 
-  <group name="ADCMonitor"
+  <group name="Status"
          address="0280"  size="4"  purpose="status"  mode="r" continuous="true">
 
     <register name="NXSlow" address="0000" purpose="status" mode="r" >
