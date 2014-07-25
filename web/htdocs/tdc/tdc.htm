@@ -275,9 +275,9 @@ function updatestatregs(data) {
           if((val>>16 & 1)) 
             o += "<span class=\"over\" style=\"background:#faa;display:block;width:100%;float:right\">";
           if((val>>16 & 1))
-            o += "polarity wrong";
+            o += "<font color=#ff0000> <strong>polarity wrong</strong> </font> ";
           else
-            o += "polarity correct";
+            o += "<font color=#007f00> <strong>polarity correct</strong> </font> ";
           if((val>>16 & 1)) 
             o += "</span>";
           }
@@ -344,9 +344,15 @@ function updatectrlregs(data) {
           if(i==3) enableGroup[j][1] = val*1.;
           }
         else if(i==4) {
-          o += "<input onChange=\"setDataLimit(this,'"+c[j][0]+"')\" type=\"text\" id=\"datalimit\" name=\"datalimit\" class=\"small\" maxlength=\"4\" value=\""+val+"\">";
-          }
-        else {
+	  if((val&0xFF)==0x80)
+            o += (val&0xFF); <!-- "<input onChange=\"setDataLimit(this,'"+c[j][0]+"')\" type=\"text\" id=\"datalimit\" name=\"datalimit\" class=\"small\" maxlength=\"4\" value=\""+val+"\">"; -->
+	  else{
+            o += (val&0xFF);
+
+            o += "<font color=#ff0000> <strong><br>Sure about this?</strong> </font> ";
+            }
+	  }
+	else {
           o += val;
           }
         }
