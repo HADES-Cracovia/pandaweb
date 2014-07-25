@@ -746,18 +746,17 @@ sub genreg {
     }
   plot_write(""); 
 
-
   while(1) {
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       my $c;
       if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
-        $c = trb_register_read(($address->[$i]),($register->[$i]));
-        foreach my $s (keys $c) {
+        $c = trb_register_read(($address->[$i]),($register->[$i])) or die trb_strerror();
+        foreach my $s (keys %$c) {
           $c->{$s}=[$c->{$s}];
           }
         }
       else {
-        $c = trb_register_read_mem(($address->[$i]),($register->[$i]),$fifomode->[$i],$regamount->[$i]);
+        $c = trb_register_read_mem(($address->[$i]),($register->[$i]),$fifomode->[$i],$regamount->[$i]) or die trb_strerror();
         }
       foreach my $s (sort keys $c) {
         for(my $r = 0; $r < scalar @{$c->{$s}};$r++) {
