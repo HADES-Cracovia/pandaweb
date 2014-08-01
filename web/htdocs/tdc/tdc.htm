@@ -117,8 +117,8 @@ function update(data) {
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
         o += "<th>";
-        for(k=3;k>=0;k--) {
-          o += "<span style=\"display:block;float:left;width:20px;font-size:80%\">"+k+"</span>";
+        for(k=0;k<=3;k++) {
+          o += "<span style=\"display:block;float:right;width:22px;font-size:80%\">"+k+"</span>";
           }
         o+="<br>";
         for(k=3;k>=0;k--) {

@@ -89,9 +89,10 @@ table.content {
 
 table.content td:first-child, table.content th:first-child{
   width:40px;
-  
+  height:20px;  
   padding-right:0px;
   text-align:center;
+
 }
 
 
@@ -192,9 +193,11 @@ table.content  tr:hover td.under {
   border-color:#dfd;
 }
 
+/* This pushes the enable boxes in the tdc.htm
 input {
   width:182px;
 }
+*/
 
 input.small {
   width:90px;
@@ -289,5 +292,4 @@ table#server-details pre {
 
 .smallboxes input {
   width:40px;
-  }  
-   
+  }
