@@ -61,30 +61,30 @@ sub sendcmd_bitbang {
   my $cmd = shift;
 
   #csb low
-  trb_register_write($board,0xe080,0x11);
+  trb_register_write($board,0xa080,0x11);
 
   for my $j (0..23) {
     my $b = ($cmd>>(23-$j)) & 1;
     $b = $b << 5;
-    trb_register_write($board,0xe080,0x01 | $b);
-    trb_register_write($board,0xe080,0x11 | $b);
+    trb_register_write($board,0xa080,0x01 | $b);
+    trb_register_write($board,0xa080,0x11 | $b);
     }
    #csb high
-  trb_register_write($board,0xe080,0x51);
+  trb_register_write($board,0xa080,0x51);
   }
 
 
 sub adc_init {
   #power down
-  trb_register_write($board,0xe080,0x40);
+  trb_register_write($board,0xa080,0x40);
   usleep(200000);
 
   #power on
-  trb_register_write($board,0xe080,0x41);
+  trb_register_write($board,0xa080,0x41);
   usleep(100000);
 
   #sck and csb high
-  trb_register_write($board,0xe080,0x51);
+  trb_register_write($board,0xa080,0x51);
   usleep(100000);
 
 
