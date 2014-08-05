@@ -157,14 +157,15 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           }
         }
       if($table == 1 || $table == 2) {
+	if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
         if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
         if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
         if ($inclHigh->{$addr}>>12&0xF) {
           $feat .= "\nInput monitor:";
           my $d = trb_register_read($addr,0xcf8f);
           $feat .= " ".($d->{$addr}>>8&0x1F)." inputs";
-          $feat .= ", single Fifo" if     $d->{$addr}&0x1000;
-          $feat .= ", indiv. Fifos" unless $d->{$addr}&0x1000;
+          $feat .= ", single Fifo" if     $d->{$addr}&0x8000;
+          $feat .= ", indiv. Fifos" unless $d->{$addr}&0x8000;
           }
 
         if(($inclHigh->{$addr}>>16&0xF) == 1 || ($inclHigh->{$addr}>>16&0xF) == 2) {
