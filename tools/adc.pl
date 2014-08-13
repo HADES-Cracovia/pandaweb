@@ -264,7 +264,7 @@ sub read_channels {
   usleep(100000);
   trb_register_write($board,$ctrlreg,2);
   for (my $ch=0;$ch<48;$ch++) {
-    my $r = trb_register_read_mem($board,0xa000+$ch,1,2);
+    my $r = trb_register_read_mem($board,0xa000+$ch,1,300);
     push(@result, $r->{$board});
     #print Dumper($r);
   }
