@@ -46,6 +46,8 @@ my %chain = (
              'lmk_1'      => 5
             );
 
+my $verbose=1;
+
 my $board;
 ($board) = $ARGV[0] =~ /^0?x?(\w+)/;
 $board = hex($board);
@@ -139,43 +141,43 @@ sub lmk_init {
   # bit31 is reset
   sendcmd(0x80000000, $chain{lmk_0});
   # CE is bit27, ClkIn_select is bit29
-  print "Programming R14=0xE: global clock enable, select ClkIn_0, no power down\n";
+  print "Programming R14=0xE: global clock enable, select ClkIn_0, no power down\n" if $verbose;
   sendcmd(0x6800000E, $chain{lmk_0});
 
   # bit16 is the clock enable,
   # bit8 is the unused divider setting, but 0x0 is invalid, so set it to 0x1
-  print "Enable ClkOut_0=ADC9\n";
+  print "Enable ClkOut_0=ADC9\n" if $verbose;
   sendcmd(0x00010100, $chain{lmk_0});
-  print "Enable ClkOut_1=ADC12\n";
+  print "Enable ClkOut_1=ADC12\n" if $verbose;
   sendcmd(0x00010101, $chain{lmk_0});
   # ClkOut2 is unconnected
-  print "Enable ClkOut_3=2nd LMK\n";
+  print "Enable ClkOut_3=2nd LMK\n" if $verbose;
   sendcmd(0x00010103, $chain{lmk_0});
-  print "Enable ClkOut_4=ADC1\n";
+  print "Enable ClkOut_4=ADC1\n" if $verbose;
   sendcmd(0x00010104, $chain{lmk_0});
-  print "Enable ClkOut_5=ADC3\n";
+  print "Enable ClkOut_5=ADC3\n" if $verbose;
   sendcmd(0x00010105, $chain{lmk_0});
-  print "Enable ClkOut_6=ADC8\n";
+  print "Enable ClkOut_6=ADC8\n" if $verbose;
   sendcmd(0x00010106, $chain{lmk_0});
-  print "Enable ClkOut_7=ADC7\n";
+  print "Enable ClkOut_7=ADC7\n" if $verbose;
   sendcmd(0x00010107, $chain{lmk_0});
 
   # similar for the second LMK
   print ">>> Programming second LMK: Issue reset\n";
   sendcmd(0x80000000, $chain{lmk_1});
-  print "Programming R14=0xE: global clock enable, select ClkIn_0, no power down\n";
+  print "Programming R14=0xE: global clock enable, select ClkIn_0, no power down\n" if $verbose;
   sendcmd(0x6800000E, $chain{lmk_1});
-  print "Enable ClkOut_0=ADC11\n";
+  print "Enable ClkOut_0=ADC11\n" if $verbose;
   sendcmd(0x00010100, $chain{lmk_1});
-  print "Enable ClkOut_1=ADC10\n";
+  print "Enable ClkOut_1=ADC10\n" if $verbose;
   sendcmd(0x00010101, $chain{lmk_1});
-  print "Enable ClkOut_2=ADC6\n";
+  print "Enable ClkOut_2=ADC6\n" if $verbose;
   sendcmd(0x00010102, $chain{lmk_1});
-  print "Enable ClkOut_3=ADC5\n";
+  print "Enable ClkOut_3=ADC5\n" if $verbose;
   sendcmd(0x00010103, $chain{lmk_1});
-  print "Enable ClkOut_4=ADC4\n";
+  print "Enable ClkOut_4=ADC4\n" if $verbose;
   sendcmd(0x00010104, $chain{lmk_1});
-  print "Enable ClkOut_5=ADC2\n";
+  print "Enable ClkOut_5=ADC2\n" if $verbose;
   sendcmd(0x00010105, $chain{lmk_1});
   # ClkOut6/7 are unconnected
 
@@ -189,7 +191,7 @@ if ($ARGV[1] eq "lmk_init") {
 sub sendcmd_adc {
   my $adc_reg = (shift) & 0xfff; # register address
   my $adc_val = (shift) & 0xff; # register value
-  printf("Set ADC Reg 0x%03x to 0x%02x\n", $adc_reg, $adc_val);
+  printf("Set ADC Reg 0x%03x to 0x%02x\n", $adc_reg, $adc_val) if $verbose;
 
   # since the ADC CS lines are controlled by
   # the MachXO in reg21, we first pull the ADC CS lines low
@@ -226,7 +228,7 @@ sub adc_testio {
   sendcmd_adc(0xd, $pattern);
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC testio mode.\n";
+  print "Set ADC testio mode.\n" if $verbose;
 }
 
 if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
@@ -238,10 +240,11 @@ if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
   sendcmd_adc( 0x16 , oct($ARGV[2]) & 0xf );
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC output phase mode.\n";
+  print "Set ADC output phase mode.\n" if $verbose;
 }
 
 if ($ARGV[1] eq "init") {
+  $verbose=0;
   # init stuff
   &lmk_init;
   &adc_init;
@@ -249,9 +252,9 @@ if ($ARGV[1] eq "init") {
   # set the ADC phase to 0x0
   # this is mandatory in order to get
   # working communication!
-  sendcmd_adc(0x16, 0);
+  sendcmd_adc(0x16, 0b0);
   sendcmd_adc(0xFF, 0x1);
-  print ">>> Phase set to 0°, your board should be working now.\n";
+  print ">>> Phase set to 0°, your board should be working now...\n";
 }
 
 sub read_channels {
@@ -260,8 +263,8 @@ sub read_channels {
   trb_register_write($board,$ctrlreg,0);
   usleep(100000);
   trb_register_write($board,$ctrlreg,2);
-  for (my $ch=0;$ch<2;$ch++) {
-    my $r = trb_register_read_mem($board,0xa000+$ch,1,10);
+  for (my $ch=0;$ch<48;$ch++) {
+    my $r = trb_register_read_mem($board,0xa000+$ch,1,2);
     push(@result, $r->{$board});
     #print Dumper($r);
   }
@@ -271,22 +274,80 @@ sub read_channels {
 }
 
 if ($ARGV[1] eq "adc_testall") {
+  $verbose=0;
+  
   # set pattern to checkerboard,
   # should give alternating 0x155, 0x2aa, 0x155, 0x2aa ...
+  my $ok_checkerboard = 1;
   adc_testio(0b0100);
+  my @r = read_channels();
+  #print Dumper(\@r);
+  for(my $ch=0;$ch<@r;$ch++) {
+    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
+    # look at first value
+  
+    my @checkerboard;
+    my $firstval = $vals[0];
+    if($firstval == 0x2aa) {
+      @checkerboard = (0x2aa, 0x155);
+    }
+    elsif($firstval == 0x155) {
+      @checkerboard = (0x155, 0x2aa);
+    }
+    else {
+      printf("ERROR: First value 0x%x from checkerboard not recognized, ch=$ch\n",$firstval);
+      $ok_checkerboard = 0;
+      next;
+    }
 
-  my @result = read_channels();
-  print Dumper(\@result);
+    
+    # compare the remaining values
+    for(my $i=1;$i<@vals;$i++) {
+      if($vals[$i] != $checkerboard[$i % 2]) {
+        printf("ERROR: Value 0x%x (idx=$i) from checkerboard not recognized, ch=$ch\n",$vals[$i]);
+        $ok_checkerboard = 0;
+        last;
+      }
+    }
+  }
+  if($ok_checkerboard) {
+    print ">>> Tested all channels with checkerboard pattern successfully\n";
+  }
+  else {
+    print ">>> Test with checkerboard failed, see above.\n";
+  }
 
-
+  # set testmode to mixed frequency,
+  # should give 0b1001100011
   adc_testio(0b1100);
-  
-  my @result = read_channels();
-  print Dumper(\@result);
-  
-  
+  my $ok_mixed = 1;
+  @r = read_channels();
+  for(my $ch=0;$ch<@r;$ch++) {
+    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
+
+    for(my $i=0;$i<@vals;$i++) {
+      if ($vals[$i] != 0b1001100011) {
+        printf("ERROR: Value 0x%x (idx=$i) from mixed-frequency not recognized, ch=$ch\n", $vals[$i]);
+        $ok_mixed = 0;
+        last;
+      }
+    }
+  }
+  if($ok_checkerboard) {
+    print ">>> Tested all channels with mixed frequency pattern successfully\n";
+  }
+  else {
+    print ">>> Test with mixed-frequency pattern failed\n";
+  }
   # disable testio
   adc_testio(0);
+
+  if($ok_checkerboard && $ok_mixed) {
+    print ">>> All ADC channels seem to be nicely working with testpatterns!\n";
+  }
+  else {
+    print ">>> Test of ADC channels failed :(((\n";
+  }
 }
 
 
