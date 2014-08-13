@@ -20,9 +20,10 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t time\t\t read compile time of MachXO firmware\n";
   print "\t",' led [$value]',"\t set/read onboard LEDs controlled by MachXO\n";
   print "\t init_lmk\t init the clock chip\n";
-  print "\t",' adc_reg [$reg_addr] [$reg_val]',"\t write to register of all ADCs, arguments are oct()'ed\n";
-  print "\t",' adc_testio [$pattern_id]',"\t enable testio of all ADCs, id=0 disables\n";
   print "\t",' adc_init',"\t power up and initialize ADC\n";
+  print "\t",' adc_reg $addr $val',"\t write to register of all ADCs, arguments are oct()'ed\n";
+  print "\t",' adc_testio $id',"\t enable testio of all ADCs, id=0 disables\n";
+  print "\t",' adc_phase $phase',"\t set the clock-data output phase\n";
   exit;
 }
 
@@ -214,6 +215,14 @@ if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
   sendcmd_adc(0xd,oct($ARGV[2]) & 0xf);
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC test mode.\n";
+  print "Set ADC testio mode.\n";
+}
+
+if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
+  # interpret the arguments as hex
+  sendcmd_adc( 0x16 , oct($ARGV[2]) & 0xf );
+  # initiate transfer
+  sendcmd_adc(0xFF,0x1);
+  print "Set ADC output phase mode.\n";
 }
 
