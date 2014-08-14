@@ -17,7 +17,7 @@ use lib qw|../commands htdocs/commands|;
 use xmlpage;
 use Data::Dumper;
 use Date::Format qw(time2str);
-use v5.14;
+use v5.10;
 
 ###############################################################################  
 ##  Network Map
@@ -66,7 +66,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
     my ($parent,$layer) = @_;
     if($layer > 16) {die "More than 16 layers of network devices found. Aborting."}
     my @o;
-    foreach my $p (keys @{$tree->{$parent}}) {
+    foreach my $p (keys $tree->{$parent}) {
       next unless defined $tree->{$parent}->[$p];
       my $addr = $tree->{$parent}->[$p]->{addr};
       my $btype = "";

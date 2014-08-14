@@ -257,7 +257,7 @@
   <!-- ##################################################################### -->
   
   <group name="DataReceiver"
-         address="0500"  size="19"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="18"  purpose="status"  mode="rw"  continuous="true">
     
     <register name="ErrorBits" address="0000" purpose="status" mode="r">
       <description>Status of Error Bits</description>
@@ -302,70 +302,65 @@
       <description>Parity Error Rate, must be 0, &amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
       <field name="ParityErrRate" start="0" bits="27" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
-    
-    <register name="ResetCounter" address="0006" purpose="status" mode="r">
+  
+    <register name="TSDelay" address="0006" purpose="config" mode="rw">
+      <description>Delay of Timestamp Fifo</description>
+      <field name="TSDelayAdjust" start="15" bits="1" format="boolean" purpose="config"/>
+      <field name="TSDelayVal" start="0" bits="3" format="unsigned" purpose="config" />
+    </register>
+  
+    <register name="PllPhaseAdj" address="0007" purpose="config" mode="rw">
+      <description>PLL ADC Sampling Clock PHASE</description>
+      <field name="PllDPhase"   start="0"  bits="4" format="unsigned" scale="2" unit="ns" />
+      <field name="PllFineDelb" start="16" bits="4" format="unsigned" scale="125" unit="ps" />
+    </register>
+     
+    <register name="ResetCounter" address="0008" purpose="status" mode="r">
       <description>Reset Handler Counter</description>
       <field name="ResetCounter" start="0" bits="16" format="unsigned" />
     </register>
 
-    <register name="ADCResetCtr" address="0007" purpose="status" mode="r">
+    <register name="ADCResetCtr" address="0009" purpose="status" mode="r">
       <description>ADC Reset counter</description>
       <field name="ADCResetCtr" start="0" bits="32" format="unsigned"/>
     </register>
    
-    <register name="ADCNotLockCounter" address="0008" purpose="status" mode="r">
+    <register name="ADCNotLockCounter" address="000a" purpose="status" mode="r">
       <description>ADC Handler not Lock Counter</description>
       <field name="ADCNotLockCounter" start="0" bits="8" format="unsigned" />
     </register>
 
-    <register name="FMergeErrorCtr" address="0009" purpose="status" mode="r">
+    <register name="FMergeErrorCtr" address="000b" purpose="status" mode="r">
       <description>Frames Merge Error Counter</description>
       <field name="FMergeErrorCounter" start="0" bits="8" format="unsigned" />
     </register>
 
-    <register name="ResyncCounter" address="000a" purpose="status" mode="r">
+    <register name="ResyncCounter" address="000c" purpose="status" mode="r">
       <description>Number of Resyncs</description>
       <field name="ResyncCounter" start="0" bits="12" format="unsigned" />
     </register>
 
-    <register name="ParityErrorCounter" address="000b" purpose="status" mode="r">
+    <register name="ParityErrorCounter" address="000d" purpose="status" mode="r">
       <description>Number of Parity Errors</description>
       <field name="ParityErrorCounter" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
 
-    <register name="ADCSNotLockCount" address="000c" purpose="status" mode="r">
+    <register name="ADCSNotLockCount" address="000e" purpose="status" mode="r">
       <description>ADC Sampling PLL Clock Not Lock Counter</description>
       <field name="ADCSNotLockCount" start="0" bits="32" format="unsigned" errorflag="true" />
     </register>
-    
-    <register name="PllDPhase" address="000d" purpose="config" mode="rw">
-      <description>PLL ADC Sampling Clock DPHASE</description>
-      <field name="PllDPhase" start="0" bits="4" format="unsigned" scale="2" unit="ns" />
-    </register>
-    
-    <register name="PllFineDelb" address="000e" purpose="config" mode="rw">
-      <description>PLL ADC Sampling Clock FINEDELB</description>
-      <field name="PllFineDelb" start="0" bits="4" format="unsigned" scale="125" unit="ps" />
-    </register>
- 
-    <register name="TSDelay" address="000f" purpose="config" mode="rw">
-      <description>Delay of Timestamp Fifo</description>
-      <field name="TSDelayAdjust" start="15" bits="1" format="boolean" purpose="config"/>
-      <field name="TSDelayACtr" start="16" bits="16" format="unsigned" purpose="status" mode="r"/>
-      <field name="TSDelay" start="0" bits="3" format="unsigned" purpose="config" />
-    </register>
-
-    <register name="ADCDTErrorCtr" address="0010" purpose="status" mode="r">
+  
+    <register name="ADCDTErrorCtr" address="000f" purpose="status" mode="r">
       <description>ADC Data Rate Error Counter</description>
       <field name="ADCDTErrorCtr" start="0" bits="11" format="unsigned" />
     </register>
 
-    <register name="TSDTErrorCtr" address="0011" purpose="status" mode="r">
+    <register name="TSDTErrorCtr" address="0010" purpose="status" mode="r">
       <description>Timestamp Data Rate Error Counter</description>
       <field name="TSDTErrorCtr" start="0" bits="11" format="unsigned" />
     </register>
     
-    <register name="ADCNLockCtr" address="0012" purpose="status" mode="r">
+    <register name="ADCNLockCtr" address="0011" purpose="status" mode="r">
       <description>ADC Not Locked counter</description>
       <field name="ADCNLockCtr" start="0" bits="28" format="unsigned" rate="1" />
     </register>
