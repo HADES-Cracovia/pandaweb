@@ -386,12 +386,13 @@
     
     <register name="HitRate" address="0000" purpose="status">
       <description>Total hit rate summed over all channels</description>
-      <field name="HitRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+      <field name="HitRate" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
     
-    <register name="FrameRate" address="0001" purpose="status">
+    <register name="FrameRate" address="0001" purpose="status" mode="r">
       <description>Rate of Incoming Nxyter + ADC Frames, must be 31.25&amp;middot;10&lt;sup&gt;6&lt;/sup&gt;s&lt;sup&gt;-1&lt;/sup&gt;</description>
-      <field name="FrameRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+      <field name="FrameRateCtr" start="0" bits="28" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
+      <field name="FrameRateError" start="31" bits="1" format="bitmask"/>
     </register>
 
     <register name="ParityErrCtr" address="0002" purpose="status" mode="r">
