@@ -393,27 +393,27 @@
       <field name="FrameRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;"/>
     </register>
 
-    <register name="PileupRate" address="0002" purpose="status" mode="r">
+    <register name="ParityErrCtr" address="0002" purpose="status" mode="r">
+      <description>Parity Error Counter</description>
+      <field name="ParityErrCtr" start="0" bits="16" format="unsigned"/>
+    </register>
+
+    <register name="InvalidFrameCtr" address="0003" purpose="status">
+      <description>Number of invalid frames</description>
+      <field name="InvalidFrameCtr" start="0" bits="16" format="unsigned" />
+    </register>
+       
+    <register name="PileupRate" address="0004" purpose="status" mode="r">
       <description>Pileup Rate</description>
       <field name="PileupRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
      
-    <register name="OverflowRate" address="0003" purpose="status" mode="r">
+    <register name="OverflowRate" address="0005" purpose="status" mode="r">
       <description>Overflow Rate</description>
       <field name="OverflowRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
        
-    <register name="ADCAverageNum" address="0004" purpose="config" mode="rw">
-      <description>Number of Averages, power of two (2^n)</description>
-      <field name="ADCAverageNum" start="0" bits="4" format="unsigned" />
-    </register>
-
-    <register name="ADCAverage" address="0005" purpose="status" mode="r">
-      <description>Average of last valid ADC Values</description>
-      <field name="ADCAverage" start="0" bits="12" format="unsigned"/>
-    </register>
-           
-    <register name="ADCTRError" address="0006" purpose="config" mode="rw">
+    <register name="ADCTRError" address="0006" purpose="status" mode="r">
       <description>ADCTR Error Status</description>
       <field name="ADCTRError" start="0" bits="2" format="bitmask"/>
     </register>
@@ -422,50 +422,58 @@
       <description>ADCTR Error Rate</description>
       <field name="ADCTRErrorRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
-
+    
     <register name="ADCTRValue" address="0008" purpose="status" mode="r">
       <description>Average of last Token Return ADC Values</description>
       <field name="ADCTRValue" start="0" bits="12" format="unsigned"/>
     </register>
-    
-
-    <register name="ParityErrCtr" address="0009" purpose="status" mode="r">
-      <description>Parity Error Counter</description>
-      <field name="ParityErrCtr" start="0" bits="16" format="unsigned"/>
+ 
+    <register name="ADCTRUpdateRate" address="0009" purpose="status" mode="r">
+      <description>ADCTR Update Rate</description>
+      <field name="ADCTRUpdateRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
     </register>
 
+    <register name="ADCTRDataRate" address="000a" purpose="status" mode="r">
+      <description>ADCTR Data Rate</description>
+      <field name="ADCTRDataRate" start="0" bits="32" format="unsigned" unit="s&lt;sup&gt;-1&lt;/sup&gt;" />
+    </register>
     
-    <register name="ADCTRLimit" address="000a" purpose="config" mode="rw">
+    <register name="ADCTRLimit" address="000b" purpose="config" mode="rw">
       <description>ADCTR Limit</description>
       <field name="ADCTRLimit" start="0" bits="12" format="unsigned"/>
     </register>
-    
-    <register name="ADCTRErrorCtr" address="000b" purpose="status" mode="r">
-      <description>ADCTR Error Counter</description>
-      <field name="ADCTRErrorCtr" start="0" bits="12" format="unsigned"/>
+   
+    <register name="ADCAverage" address="000c" purpose="status" mode="r">
+      <description>Average of last valid ADC Values</description>
+      <field name="ADCAverage" start="0" bits="12" format="unsigned"/>
     </register>
-  
-    <register name="PileupCount" address="000c" purpose="status">
+ 
+    <register name="ADCAverageNum" address="000d" purpose="config" mode="rw">
+      <description>Number of Averages, power of two (2^n)</description>
+      <field name="ADCAverageNum" start="0" bits="4" format="unsigned" />
+    </register>
+
+    <register name="PileupCount" address="000e" purpose="status">
       <description>Pileup Counter</description>
       <field name="PileupCount" start="0" bits="16" format="unsigned" />
     </register>
 
-    <register name="OverflowCount" address="000d" purpose="status">
+    <register name="OverflowCount" address="000f" purpose="status">
       <description>Number of hit overflows</description>
       <field name="OverflowCount" start="0" bits="16" format="unsigned" />
     </register>
-    
-    <register name="InvalidFrameCtr" address="000e" purpose="status">
-      <description>Number of invalid frames</description>
-      <field name="InvalidFrameCtr" start="0" bits="16" format="unsigned" />
+ 
+    <register name="ADCTRErrorCtr" address="0010" purpose="status" mode="r">
+      <description>ADCTR Error Counter</description>
+      <field name="ADCTRErrorCtr" start="0" bits="12" format="unsigned"/>
     </register>
-       
-    <register name="ADCTRDebug" address="000f" purpose="config" mode="rw">
+    
+    <register name="ADCTRDebug" address="0011" purpose="config" mode="rw">
       <description>Reserved</description>
       <field name="ADCTRDebug" start="0" bits="1" format="boolean" />
     </register>
 
-    <register name="HitRateCtr" address="0010" purpose="status" mode="r">
+    <register name="HitRateCtr" address="0012" purpose="status" mode="r">
       <description>Hit wraparound counter</description>
       <field name="HitRateCtr" start="0" bits="32" format="unsigned" rate="1" />
     </register>
