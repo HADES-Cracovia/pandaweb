@@ -333,7 +333,7 @@
 
     <register name="FMergeErrorCtr" address="000b" purpose="status" mode="r">
       <description>Frames Merge Error Counter</description>
-      <field name="FMergeErrorCounter" start="0" bits="8" format="unsigned" />
+      <field name="FMergeErrorCounter" start="0" bits="12" format="unsigned" />
     </register>
 
     <register name="ResyncCounter" address="000c" purpose="status" mode="r">
@@ -343,22 +343,22 @@
 
     <register name="ParityErrorCounter" address="000d" purpose="status" mode="r">
       <description>Number of Parity Errors</description>
-      <field name="ParityErrorCounter" start="0" bits="32" format="unsigned" errorflag="true" />
+      <field name="ParityErrorCounter" start="0" bits="12" format="unsigned" errorflag="true" />
     </register>
 
     <register name="ADCSNotLockCount" address="000e" purpose="status" mode="r">
       <description>ADC Sampling PLL Clock Not Lock Counter</description>
-      <field name="ADCSNotLockCount" start="0" bits="32" format="unsigned" errorflag="true" />
+      <field name="ADCSNotLockCount" start="0" bits="12" format="unsigned" errorflag="true" />
     </register>
   
     <register name="ADCDTErrorCtr" address="000f" purpose="status" mode="r">
       <description>ADC Data Rate Error Counter</description>
-      <field name="ADCDTErrorCtr" start="0" bits="11" format="unsigned" />
+      <field name="ADCDTErrorCtr" start="0" bits="12" format="unsigned" />
     </register>
 
     <register name="TSDTErrorCtr" address="0010" purpose="status" mode="r">
       <description>Timestamp Data Rate Error Counter</description>
-      <field name="TSDTErrorCtr" start="0" bits="11" format="unsigned" />
+      <field name="TSDTErrorCtr" start="0" bits="12" format="unsigned" />
     </register>
     
     <register name="ADCNLockCtr" address="0011" purpose="status" mode="r">
