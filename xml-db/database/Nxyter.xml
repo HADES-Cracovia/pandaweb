@@ -138,9 +138,10 @@
       <field name="TriggerWindowWidth" start="0" bits="10" format="unsigned" unit="ns" scale="4"/>
     </register>     
     
-    <register name="CtsTriggerDelay" address="0003" purpose="config">
+    <register name="TriggerDelays" address="0003" purpose="config">
       <description>CTS Trigger Delay</description>
       <field name="CtsTriggerDelay" start="0" bits="10" format="unsigned" unit="ns" scale="4"/>
+      <field name="CalibTriggerDelay" start="16" bits="12" format="unsigned" unit="ns" scale="4"/>
     </register>     
     
     <register name="ReadoutTimeMax" address="0004" purpose="config">
