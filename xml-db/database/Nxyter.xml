@@ -801,6 +801,7 @@
 
     <register name="ErrorStatus" address="0009" purpose="status" mode="r" >
       <description>Error Status of all Entities</description>
+      <field name="Offline"   start="3" bits="1" format="bitmask" purpose="status"/>
       <field name="EventBuf"  start="2" bits="1" format="bitmask" purpose="status"/>
       <field name="DataValid" start="1" bits="1" format="bitmask" purpose="status"/>
       <field name="DataRec"   start="0" bits="1" format="bitmask" purpose="status"/>
