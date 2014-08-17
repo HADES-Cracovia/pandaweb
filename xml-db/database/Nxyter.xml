@@ -258,7 +258,7 @@
   <!-- ##################################################################### -->
   
   <group name="DataReceiver"
-         address="0500"  size="19"  purpose="status"  mode="rw"  continuous="true">
+         address="0500"  size="18"  purpose="status"  mode="rw"  continuous="true">
     
     <register name="ErrorBits" address="0000" purpose="status" mode="r">
       <description>Status of Error Bits</description>
@@ -330,7 +330,7 @@
    
     <register name="ADCNotLockCounter" address="000a" purpose="status" mode="r">
       <description>ADC Handler not Lock Counter</description>
-      <field name="ADCNotLockCounter" start="0" bits="8" format="unsigned" />
+      <field name="ADCNotLockCounter" start="0" bits="27" format="unsigned" />
     </register>
 
     <register name="FMergeErrorCtr" address="000b" purpose="status" mode="r">
@@ -363,12 +363,7 @@
       <field name="TSDTErrorCtr" start="0" bits="12" format="unsigned" />
     </register>
     
-    <register name="ADCNLockCtr" address="0011" purpose="status" mode="r">
-      <description>ADC Not Locked counter</description>
-      <field name="ADCNLockCtr" start="0" bits="28" format="unsigned" rate="1" />
-    </register>
-   
-    <register name="ADCErrorCtr" address="0012" purpose="status" mode="r">
+    <register name="ADCErrorCtr" address="0011" purpose="status" mode="r">
       <description>ADC Error Counter</description>
       <field name="ADCErrorCtr" start="0" bits="28" format="unsigned" rate="1" />
     </register>
