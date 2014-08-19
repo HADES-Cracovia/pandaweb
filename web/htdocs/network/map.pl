@@ -66,7 +66,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
     my ($parent,$layer) = @_;
     if($layer > 16) {die "More than 16 layers of network devices found. Aborting."}
     my @o;
-    foreach my $p (keys $tree->{$parent}) {
+    foreach my $p (keys @{$tree->{$parent}}) {
       next unless defined $tree->{$parent}->[$p];
       my $addr = $tree->{$parent}->[$p]->{addr};
       my $btype = "";
