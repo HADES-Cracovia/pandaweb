@@ -275,6 +275,9 @@
       <field name="TS_DT"          start="10" bits="1" format="bitmask" purpose="status" mode="r"/>
       <field name="ADC_DT"         start="11" bits="1" format="bitmask" purpose="status" mode="r"/>
       <field name="RS"             start="12" bits="1" format="bitmask" purpose="status" mode="r"/>
+      <field name="AES"             start="15" bits="3" format="bitmask" purpose="status" mode="r"/>
+    
+
     </register>
     
     <register name="ResetStatus" address="0001" purpose="status" mode="r">
