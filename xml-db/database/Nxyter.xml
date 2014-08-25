@@ -47,7 +47,7 @@
       <field name="AllBypass"         start="3" bits="1" format="boolean" />
       <field name="CalibrationBypass" start="2" bits="1" format="boolean" />
       <field name="StatusBypass"      start="1" bits="1" format="boolean" />
-      <field name="TimimgBypass"      start="0" bits="1" format="boolean" />
+      <field name="TimingBypass"      start="0" bits="1" format="boolean" />
     </register>   
    
     <register name="DownscaleCalibTrig" address="0007" purpose="status" mode="rw">
