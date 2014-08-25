@@ -282,7 +282,8 @@
     
     <register name="ResetStatus" address="0001" purpose="status" mode="r">
       <description>Reset Busy Status, Click to force reset</description>
-      <field name="DisabelReset" start="2" bits="1" format="bitmask"  purpose="status" mode="rw"/>
+      <field name="DisableReset" start="3" bits="1" format="bitmask"  purpose="status" mode="rw"/>
+      <field name="DisableAdcReset" start="2" bits="1" format="bitmask"  purpose="status" mode="rw"/>
       <field name="RTimeout" start="1" bits="1" format="bitmask"  purpose="status" mode="r"/>
       <field name="ResetBusy" start="0" bits="1" format="bitmask" purpose="status" mode="rw"/>
       <field name="ResetTrigger" start="16" bits="14" format="bitmask" purpose="status" mode="r"/>
