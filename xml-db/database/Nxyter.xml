@@ -80,7 +80,7 @@
       <field name="InternOut"  start="2" bits="1" format="bitmask"/>
       <field name="PulserOn"   start="1" bits="1" format="bitmask"/>
       <field name="SelfTrigOn" start="0" bits="1" format="bitmask"/>
-      <field name="NoDeadTime"  start="3" bits="1" format="bitmask"/>
+      <field name="NoDeadTime"  start="15" bits="1" format="bitmask"/>
     </register>
     
     <register name="PulserT" address="0001" purpose="config" mode="rw">
