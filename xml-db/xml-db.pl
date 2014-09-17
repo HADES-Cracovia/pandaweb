@@ -159,6 +159,21 @@ sub WorkOnDoc {
       push(@{$dbitem->{'children'}}, $childname);
     }
   }
+
+
+  # add a HeadNode with its top-level children
+  my $headnode = {};
+  my $hn_children = $doc->getDocumentElement->findnodes('group | register | memory | fifo');
+  foreach my $childnode (@$hn_children) {
+    my $childname = $childnode->getAttribute('name');
+
+    if (not defined $db->{$childname}) {
+      PrintMessage($childnode, "Fatal Error: Child $childname of §HeadNode not found in database", 1)
+    }
+    push(@{$headnode->{'children'}}, $childname);
+  }
+  $db->{'§HeadNode'} = $headnode;
+
   return $db;
 }
 

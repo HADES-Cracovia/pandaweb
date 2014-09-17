@@ -53,20 +53,24 @@
       <field name="ChannelCount" start="8" bits="8" format="unsigned">
         <description>Number of implemented channels</description>
       </field>
-      <field name="RefTimeSyncedTo100" start="16" bits="1" invertflag="true" format="boolean">
-        <description>Reference time synchronised to 100 MHz Trb-Net
-        clock</description>
+      <field name="RefTimePolarity" start="16" bits="1" invertflag="true" format="enum">
+        <description>Reference time polarity</description>
+        <enumItem value="0">Polarity Correct</enumItem>
+        <enumItem value="1">Polarity Wrong</enumItem>
+      </field>
+      <field name="TdcVersion" start="17" bits="11" invertflag="true" format="hex">
+        <description>TDC core version number</description>
       </field>
       <field name="TriggerType" start="28" bits="4" format="hex" purpose="status">
         <description>Trigger type</description>
       </field>
     </register>
 
-    <memory name="EmptyChannels" address="0001" size="2" mode="w" purpose="trigger">
-      <description>Empty the signals/hits of the specific channel. LSB
-      is channel 1.</description>
-      <field name="EmptyChannels" start="0" bits="64" format="bitmask" />
-    </memory>
+<!--    <memory name="EmptyChannels" address="0001" size="2" mode="w" purpose="trigger"> -->
+<!--      <description>Empty the signals/hits of the specific channel. LSB               -->
+<!--      is channel 1.</description>                                                    -->
+<!--      <field name="EmptyChannels" start="0" bits="64" format="bitmask" />            -->
+<!--    </memory>                                                                        -->
 
     <register name="TriggerWindowStatus" address="0003" purpose="status">
       <description>Status of the TriggerWindow feature</description>
@@ -195,6 +199,12 @@
         trigger-less mode</description>
         <enumItem value="0">TRIGGERED</enumItem>
         <enumItem value="1">TRIGGERLESS</enumItem>
+      </field>
+      <field name="ResetCoarseCounter" start="13" bits="1" mode="rw" format="boolean">
+        <description>Used to reset the coarse counters. Setting this bit signals for the coarse counter reset but the action will take place with the arrival of the next valid trigger in order to synchronise the coarse counters in a large system.</description>
+      </field>
+      <field name="CalibrationPrescaler" start="28" bits="4" mode="rw" format="unsigned">
+        <description>Used to divide the calibration hit frequency.</description>
       </field>
     </register>
 

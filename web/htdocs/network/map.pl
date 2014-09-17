@@ -17,7 +17,7 @@ use lib qw|../commands htdocs/commands|;
 use xmlpage;
 use Data::Dumper;
 use Date::Format qw(time2str);
-use v5.16;
+use v5.10;
 
 ###############################################################################  
 ##  Network Map
@@ -66,7 +66,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
     my ($parent,$layer) = @_;
     if($layer > 16) {die "More than 16 layers of network devices found. Aborting."}
     my @o;
-    foreach my $p (keys @{$tree->{$parent}}) {
+    for (my $p = 0; $p < scalar (@{$tree->{$parent}}); $p++) {
       next unless defined $tree->{$parent}->[$p];
       my $addr = $tree->{$parent}->[$p]->{addr};
       my $btype = "";
@@ -86,7 +86,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         }
       my $addontype = "";  
       if(($hardware->{$addr}>>24&0xff) == 0x91) {
-        for($hardware->{$addr}>>12 & 0x7) {
+        for($hardware->{$addr}>>12 & 0xF) {
           when (0) {$addontype= " & ADA v1";}
           when (1) {$addontype= " & ADA v2";}
           when (2) {$addontype= " & Multitest";}
@@ -95,7 +95,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           when (5) {$addontype= " & GPIN";}
           when (6) {$addontype= " & Nxyter";}
           when (7) {$addontype= " & 32PinAddOn";}
-          when (9) {$addontype= " & MVD AddOn 13";}
+          when (9) {$addontype= " & ADC AddOn";}
           }
         }      
       my $feat = "";
@@ -151,20 +151,21 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0x7)." SFPs";  
         }
       if($table == 2) {
-        if($inclLow->{$addr}&0x8000 || 1) {  # ||1 just because this not implemented yet in the test design..
+        if($inclLow->{$addr}&0x8000) {  # ||1 just because this not implemented yet in the test design..
           $feat .="\nTDC:";
           $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
         }
       if($table == 1 || $table == 2) {
+	if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
         if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
         if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
         if ($inclHigh->{$addr}>>12&0xF) {
           $feat .= "\nInput monitor:";
           my $d = trb_register_read($addr,0xcf8f);
           $feat .= " ".($d->{$addr}>>8&0x1F)." inputs";
-          $feat .= ", single Fifo" if     $d->{$addr}&0x1000;
-          $feat .= ", indiv. Fifos" unless $d->{$addr}&0x1000;
+          $feat .= ", single Fifo" if     $d->{$addr}&0x8000;
+          $feat .= ", indiv. Fifos" unless $d->{$addr}&0x8000;
           }
 
         if(($inclHigh->{$addr}>>16&0xF) == 1 || ($inclHigh->{$addr}>>16&0xF) == 2) {
@@ -231,7 +232,9 @@ sub GetTDCInfo {
   my ($addr,$info,$inp) = @_;
   my $d = trb_register_read($addr,0xc100);
   my $feat = "";
+  my $module = ($info>>16&0x3)+1;
   $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
+  $feat .= " read by ".$module." module(s)";
   $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
   if($inp) {
     for($info&0xFF) {
@@ -246,6 +249,12 @@ sub GetTDCInfo {
     when (1) {$feat .=", dual edge in same channel";}
     when (2) {$feat .=", dual edge in alternating channels";}
     when (3) {$feat .=", dual edge same channel + stretcher";}
+    }
+  for($info>>12&0x7) {
+    when (0) {$feat .=", RingBuffer size: 12 words";}
+    when (1) {$feat .=", RingBuffer size: 44 words";}
+    when (2) {$feat .=", RingBuffer size: 76 words";}
+    when (3) {$feat .=", RingBuffer size: 108 words";}
     }
   return $feat;
   }
