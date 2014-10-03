@@ -12,9 +12,11 @@ body {
 /*   width:320px; */
   padding:10px;
   margin:50px 10px 0 30px;
+  border:1px solid #78b;
   border-radius:5px;
   background:#eef;
-  box-shadow: 0 0 10px 5px #fff,  0 0 4px 1px #78b inset;
+
+  /*box-shadow: 0 0 10px 5px #fff,  0 0 4px 1px #78b inset;*/
   }
 
 #fileSelection {
@@ -249,7 +251,7 @@ div.header {
   font-weight:bold;
   top:-20px;
   color:#88a;
-  z-index:-1;
+/*   z-index:-1; */
   }
 
 ul    {  padding-left:20px;}
@@ -291,6 +293,9 @@ div.header span a {
 div.header span a:hover {
 }
 
+table.queryresult {
+  table-layout:fixed;
+}
   
 table.queryresult td.high {
   background-color:#e0eae0;
@@ -369,15 +374,15 @@ span.tooltip  {
   left: 1em;
   top: 2em;  
   padding:3px 5px 5px 5px;
-/*   background:#ffe; */
-  background: linear-gradient(135deg, rgba(255,255,238,1) 0%,rgba(250,250,220,1) 100%);
+  background:#ffe;
+/*   background: linear-gradient(135deg, rgba(255,255,238,1) 0%,rgba(250,250,220,1) 100%); */
   border:2px solid #fff;
   color:black;
   text-align:left;
   font-weight:normal;
   min-width: 250px;
   border-radius:5px;
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+/*   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1); */
   opacity:0;
 }
 
@@ -391,6 +396,8 @@ table.queryresult th div, table.queryresult td div {
   position:relative;
   cursor:default;
 }
+
+
 /*****************
  * Table for scaler view
  *****************/
