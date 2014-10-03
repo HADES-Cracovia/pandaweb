@@ -451,7 +451,7 @@ sub generateoutput {
       foreach my $b (sort keys %{$lastboards}) {
         my $ttmp = "";
         my $sl;
-        next unless defined $data->{$addr}->{$b};
+        next unless defined $data->{$addr}->{$b} || !($obj->{mode} =~ /r/);
         $sl = sprintf("<td class=\"slice\"><div>%i<span class=\"tooltip\"><b>$name.$slice</b> (0x%04x)</span></div>",$slice,$addr) if ($once != 1 && defined $obj->{repeat});
         
         $ttmp .= sprintf("<tr><td><div>%s<span class=\"tooltip\"><b>$name</b> on 0x%s<br>raw: 0x%x</span></div>%s",$b,$b,$data->{$addr}->{$b},$sl);
