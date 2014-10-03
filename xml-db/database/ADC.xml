@@ -1,0 +1,78 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="ADC"
+              address="a000"
+              >
+  <description>Control and Status registers related to ADC AddOn</description>
+
+
+<!--
+ 000 - 0ff configuration
+       000 reset, buffer clear strobes
+
+ 100 - 1ff status
+       100 clock valid (1 bit per ADC)
+       101 fco valid (1 bit per ADC)
+       102 readout state
+ 800 - 83f last ADC values              (local 0x0 - 0x3)
+ 840 - 87f long-term average / baseline (local 0x4 - 0x7)
+ 880 - 8bf fifo access (debugging only) (local 0x8 - 0xb)-->
+
+  
+<group name="BufferConfig"
+           address="0010"  size="7"  purpose="config" mode="rw" continuous="true">
+      <description>Configuration of buffer handling</description>
+      <register name="BufferDepth" address="0000" >
+        <description>Number of samples to be stored in the buffer</description>
+        <field  name="BufferDepth" start="0"   bits="10"  format="unsigned"  noflag="true"/>
+      </register>
+      
+      <register name="SamplesAfterTrg" address="0001" >
+        <description>Number of samples to take after reference time signal arrived</description>
+        <field  name="SamplesAfterTrg" start="0"   bits="10"  format="unsigned"  noflag="true"/>
+      </register>
+      
+      <register name="ProcessBlocks" address="0002" >
+        <description>How many blocks of different downsampling settings should be processed</description>
+        <field  name="ProcessBlocks" start="0"   bits="2"  format="unsigned" noflag="true" />
+      </register>
+      
+      <register name="TriggerOffset" address="0003" >
+        <description>Offset from the calculated baseline that must be reached to generate a trigger signal for the CTS</description>
+        <field  name="TriggerOffset" start="0"   bits="11"  format="signed" noflag="true" />
+      </register>
+
+      <register name="ReadoutOffset" address="0004" >
+        <description>Offset from the calculated baseline that must be reached to transmit data during readout (Zero Suppression)</description>
+        <field  name="ReadoutOffset" start="0"   bits="11"  format="signed" noflag="true" />
+      </register>
+
+      <register name="Downsampling" address="0005" >
+        <description>Downsampling of ADC samples before storing in buffer</description>
+        <field  name="Downsampling" start="0"   bits="8"  format="unsigned" noflag="true" />
+      </register>
+
+      <register name="BaselineAvg" address="0006" >
+        <description>Averaging time for baseline calculation. 2**N samples are taken. Baseline is calculated from buffer output data, triggered events are suppressed.</description>
+        <field  name="BaselineAvg" start="0"   bits="4"  format="unsigned" noflag="true" />
+      </register>
+</group>  
+
+<group name="ProcessingConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
+      <register name="ValuesToSum" address="0000" repeat="4">
+        <description>Number of values to sum for each output data word</description>
+        <field  name="ValuesToSum" start="0"   bits="8"  format="unsigned" noflag="true" />
+      </register>
+      <register name="NumberOfWords" address="0004" repeat="4">
+        <description>Number of output data words to produce</description>
+        <field  name="NumberOfWords" start="0"   bits="10"  format="unsigned" noflag="true" />
+      </register>  
+      <register name="Scaling" address="0008" repeat="4">
+        <description>Scaling factor. Sums are divided by 2**N before written to the data stream.</description>
+        <field  name="Scaling" start="0"   bits="4"  format="unsigned" noflag="true" />
+      </register>  
+</group>
+
+ 
+</TrbNetEntity>
