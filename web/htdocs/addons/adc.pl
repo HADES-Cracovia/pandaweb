@@ -23,16 +23,43 @@ $page->{title} = "ADC AddOn";
 $page->{link}  = "../";
 
 my @setup;
-$setup[0]->{name}    = "BufferConfig";
-$setup[0]->{cmd}     = "ADC-0xfe4b-BufferConfig";
-$setup[0]->{period}  = 5000;
-$setup[0]->{address} = 1;
 
-$setup[1]->{name}    = "ProcessingConfig";
-$setup[1]->{cmd}     = "ADC-0xfe4b-ProcessingConfig";
-$setup[1]->{period}  = 5000;
-$setup[1]->{address} = 1;
+push(@setup,({name      => "Control", 
+              cmd       => "ADC-0xfe4b-Control",
+              period    => 1000,
+              address   => 1}));
 
+push(@setup,({name      => "Input", 
+              cmd       => "ADC-0xfe4b-InputHandler",
+              period    => 1000,
+              address   => 1}));              
+              
+push(@setup,({name      => "BufferConfig", 
+              cmd       => "ADC-0xfe4b-BufferConfig",
+              period    => 1000,
+              address   => 1}));
+
+push(@setup,({name      => "ConfigProcessor", 
+              cmd       => "ADC-0xfe4b-ProcessorConfig",
+              period    => 1000,
+              address   => 1}));
+
+push(@setup,({name      => "StatusProcessor", 
+              cmd       => "ADC-0xfe4b-ProcessorStatus",
+              period    => 1000,
+              address   => 1}));
+
+
+push(@setup,({name      => "LastValues", 
+              cmd       => "ADC-0xfe4b-LastValues",
+              period    => 1000,
+              address   => 1}));
+              
+push(@setup,({name      => "Baseline", 
+              cmd       => "ADC-0xfe4b-Baseline",
+              period    => 1000,
+              address   => 1}));
+              
 
 xmlpage::initPage(\@setup,$page);
  

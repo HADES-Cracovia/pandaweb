@@ -7,7 +7,7 @@
   <description>Register of the trigger and read-out handler in full_endpoint (on front-ends only)</description>
 
   <group name="Status" address="0000" mode="r" continuous="false">
-    <register name="DataBufferStatus" address="0100" repeat="4" purpose="status">
+    <register name="DataBufferStatus" address="0100" repeat="12" purpose="status">
       <description>Status of the event data buffers</description>
       <field name="DataFifoLevel" start="0" bits="16" format="unsigned" >
         <description>Fill level of the data Fifo in 32 Bit words</description>
