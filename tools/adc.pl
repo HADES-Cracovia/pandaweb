@@ -24,7 +24,7 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t",' adc_init',"\t power up and initialize ADC\n";
   print "\t",' adc_reg $addr $val',"\t write to register of all ADCs, arguments are oct()'ed\n";
   print "\t",' adc_testio $id',"\t enable testio of all ADCs, id=0 disables\n";
-  print "\t",' adc_phase $phase',"\t set the clock-data output phase\n";
+  print "\t",' adc_phase $phase [ADCs]',"\t set the clock-data output phase\n";
   print "\t",' adc_testall',"\t test all ADC channels with patterns\n";
   exit;
 }
@@ -46,6 +46,7 @@ my %chain = (
              'lmk_1'      => 5
             );
 
+my @adcs = (0..11); # by default, program all ADCs
 my $verbose=1;
 
 my $board;
@@ -79,11 +80,6 @@ sub sendcmd_bitbang {
 
 sub sendcmd_bitbang_single {
   my $cmd = shift;
-  my @adcs = @_;
-  # by default, all ADCs
-  if(@adcs==0) {
-    @adcs = (0..11);
-  }
   # we use the padiwa register to control
   # so set the global CSB high (and keep it high, see for loop
   trb_register_write($board,0xa080,0x51);
@@ -262,11 +258,21 @@ if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
 }
 
 if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
+  if(defined $ARGV[3]) {
+    # some adc Ids given, eval this statement
+    die "ADC range '$ARGV[3]' is invalid"
+      unless $ARGV[3] =~ m/^[0-9.,]+$/;
+    @adcs = eval $ARGV[3];
+    die "Could not eval ADC range: $@"
+      if $@;
+    die "Empty ADC range supplied"
+      if @adcs==0;
+  }
   # interpret the arguments as hex
   sendcmd_adc( 0x16 , oct($ARGV[2]) & 0xf );
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC output phase mode.\n" if $verbose;
+  print "Set ADC output phase for ADCs ",join(",",@adcs),"\n" if $verbose;
 }
 
 if ($ARGV[1] eq "init") {
