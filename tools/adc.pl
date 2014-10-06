@@ -64,7 +64,6 @@ sub sendcmd {
 
 sub sendcmd_bitbang {
   my $cmd = shift;
-
   #csb low
   trb_register_write($board,0xa080,0x11);
 
@@ -76,7 +75,34 @@ sub sendcmd_bitbang {
     }
    #csb high
   trb_register_write($board,0xa080,0x51);
+}
+
+sub sendcmd_bitbang_single {
+  my $cmd = shift;
+  my @adcs = @_;
+  # by default, all ADCs
+  if(@adcs==0) {
+    @adcs = (0..11);
   }
+  # we use the padiwa register to control
+  # so set the global CSB high (and keep it high, see for loop
+  trb_register_write($board,0xa080,0x51);
+
+  my $csb_single = 0;
+  for(@adcs) {
+    $csb_single |= 1 << $_;
+  }
+  sendcmd(0x20810000+($csb_single&0xfff), $chain{machxo});
+
+  for my $j (0..23) {
+    my $b = ($cmd>>(23-$j)) & 1;
+    $b = $b << 5;
+    trb_register_write($board,0xa080,0x41 | $b);
+    trb_register_write($board,0xa080,0x51 | $b);
+  }
+
+  sendcmd(0x20810000, $chain{machxo});
+}
 
 
 sub adc_init {
@@ -205,7 +231,7 @@ sub sendcmd_adc {
   # the instruction bits is simply the $adc_reg value, since
   # the bit31 should be zero for writing, and bit30/29 should be
   # 0 to request to write one byte
-  sendcmd_bitbang(  ($adc_reg << 8)
+  sendcmd_bitbang_single(  ($adc_reg << 8)
           + ($adc_val << 0));#,
           #$chain{adc});
 
