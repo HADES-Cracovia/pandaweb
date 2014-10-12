@@ -1,0 +1,322 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="CBMNetBridge"
+              address="0000"
+>
+  <description>CBMNet Bridge for Read-out and Synchronisation</description>
+
+  
+  <group name="Readout" address="a800" purpose="status" mode="rw" continuous="false">
+    <register name="ReadoutCtrl" address="0000" mode="rw" purpose="config">
+      <description>General purpose control of the read-out</description>
+      <field name="Listen" start="0" bits="1" format="boolean">
+        <description>0: Disable CBMNet readout, 1: Receive data sent by TrbNet Hub and forward it</description>
+      </field>
+    </register>
+    <register name="SubEventID" address="0001" mode="rw" purpose="config">
+      <description>Control sub-event-id included in the sub-event header sent to the FLIB</description>
+      <field name="SubEventID" start="0" bits="16" format="hex" noflag="true" />
+      <field name="SubEventIDOverride" start="16" bits="1" format="boolean">
+        <description>0: Use id provided by hub, 1: Use SubEventID specified here</description>
+      </field>
+    </register> 
+
+    <register name="stat_connections_i" address="0002" mode="r">
+      <description>Counts number of time the CBMNet Link becomes active (i.e. hints reconnects)</description>
+      <field name="stat_connections_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_clks_dead_i" address="0003" mode="r">
+      <description>Dead time of the CBMNet data channel, i.e. cycles with stop asserted (125 MHz domain)</description>
+      <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_num_send_completed_i" address="0004" mode="r">
+      <description>Number of Transactions completed</description>
+      <field name="stat_num_send_completed_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_num_packets_i" address="0005" mode="r">
+      <description>Number of CBM Frames handed over</description>
+      <field name="stat_num_packets_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_num_recv_completed_i" address="0006" mode="r">
+      <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
+      <field name="stat_num_recv_completed_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_link_inactive_i" address="0007" mode="r">
+      <description>Number of cycles CBMNet link is inactive (100 MHz domain)</description>
+      <field name="stat_link_inactive_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+    
+    <register name="stat_num_packets_aborted_i" address="0008" mode="r">
+      <description>Number of TrbNet events aborted, e.g. because FIFO is full</description>
+      <field name="stat_num_packets_aborted_i" start="0" bits="32" format="unsigned" noflag="1" />
+    </register>
+  </group>
+  
+  <group name="ReadoutDebug" address="a800" purpose="status" mode="r" continuous="false">
+    <register name="DebugDecoder" address="0009" mode="r">
+      <description>Debug Data of TrbNet Decoder</description>
+      
+      <field name="FSM_STATE" start="0" bits="4" format="enum" noflag="1">
+        <enumItem value="0">WAIT_FOR_IDLE</enumItem>
+        <enumItem value="1">IDLE</enumItem>
+        <enumItem value="2">RECV_EVT_INFO_H</enumItem>
+        <enumItem value="3">RECV_EVT_INFO_L</enumItem>
+        <enumItem value="4">RECV_EVT_LENGTH</enumItem>
+        <enumItem value="5">RECV_EVT_SOURCE</enumItem>
+        <enumItem value="6">RECV_PAYLOAD</enumItem>
+        <enumItem value="7">ERROR_COND</enumItem>
+      </field>
+    </register>
+        
+    <register name="DebugEventPacker" address="000a" mode="r">
+      <description>Debug Data of the Event Packer</description>
+      <field name="EP_fsm_state" start="0" bits="4" format="enum" noflag="1">
+        <enumItem value="0">WAIT_FOR_IDLE</enumItem>
+        <enumItem value="1">IDLE</enumItem>
+        <enumItem value="2">HDR_SIZE_H</enumItem>
+        <enumItem value="3">HDR_SIZE_L</enumItem>
+        <enumItem value="4">HDR_DECODING_H=></enumItem>
+        <enumItem value="5">HDR_DECODING_L=></enumItem>
+        <enumItem value="6">HDR_ID_H</enumItem>
+        <enumItem value="7">HDR_ID_L</enumItem>
+        <enumItem value="8">HDR_NUMBER_H</enumItem>
+        <enumItem value="9">HDR_NUMBER_L</enumItem>
+        <enumItem value="a">PAYLOAD</enumItem>
+        <enumItem value="b">TRL_TRAILER_H</enumItem>
+        <enumItem value="c">TRL_TRAILER_L</enumItem>
+        <enumItem value="d">TRL_STATUS_H</enumItem>
+        <enumItem value="e">TRL_STATUS_L</enumItem>
+      </field>
+      
+      <!-- the further field are rather use-less in the only view, but are included for documentation of the register -->
+      <field name="EP_WFULL_IN" start="12" bits="1" format="binary" noflag="1">
+        <description>Indicates that FIFO is full and hence on-going TrbNet event has to be discarded</description>
+      </field>
+      <field name="EP_wpacket_complete_i" start="11" bits="1" format="binary" noflag="1">
+        <description>Strobe. Asserted when event was successfully packed and stored</description>
+      </field>
+      <field name="EP_waddr_restore_i" start="10" bits="1" format="binary" noflag="1">
+        <description>Strobe. Asserted if event is aborted to reset FIFO</description>
+      </field>
+      <field name="EP_waddr_store_i" start="9" bits="1" format="binary" noflag="1">
+        <description>Strobe. Asserted when event begins in order to prepare FIFO</description>
+      </field>
+      <field name="EP_wenqueue_i" start="8" bits="1" format="binary" noflag="1">
+        <description>Strobe. Enqueue data word to FIFO</description>
+      </field>
+      <field name="EP_DEC_DATA_READY_IN" start="7" bits="1" format="binary" noflag="1">
+        <description>Strobe. Asserted when decoder has data available</description>
+      </field>
+      <field name="EP_DEC_ACTIVE_IN" start="6" bits="1" format="binary" noflag="1">
+        <description>Asserted while decoder receives an event</description>
+      </field>
+      <field name="EP_DEC_ERROR_IN" start="5" bits="1" format="binary" noflag="1">
+        <description>Asserted when decoder detects an errornous situation (i.e. buffer full) from which it cannot recover.</description>
+      </field>
+      <field name="EP_data_read_i" start="4" bits="1" format="binary" noflag="1">
+        <description>Receive one word from the decoder</description>
+      </field>
+    </register>
+    
+    <register name="DebugFramePacker" address="000b" mode="r">
+      <description>Debug Data of the Frame Packer</description>
+      
+      <field name="FP_fsm_state" start="0" bits="4" format="enum" noflag="1">
+        <enumItem value="0">IDLE</enumItem>
+        <enumItem value="1">SETUP_TRANSACTION</enumItem>
+        <enumItem value="2">SETUP_TRANSACTION_WAIT</enumItem>
+        <enumItem value="3">SETUP_TRANSACTION_FETCH_LENGTH_H</enumItem>
+        <enumItem value="4">SETUP_TRANSACTION_FETCH_LENGTH_L</enumItem>
+        <enumItem value="5">FIRST_FRAME_SEND_HDR</enumItem>
+        <enumItem value="6">FIRST_FRAME_SEND_LENGTH_H</enumItem>
+        <enumItem value="7">BEGIN_FRAME</enumItem>
+        <enumItem value="8">SEND_HDR</enumItem>
+        <enumItem value="9">SEND_PAYLOAD</enumItem>
+        <enumItem value="a">SEND_STOP_WORD</enumItem>
+        <enumItem value="b">COMPLETE_TRANSACTION</enumItem>
+        <enumItem value="c">BEGIN_FRAME_WAIT</enumItem>
+        <enumItem value="d">BEGIN_FRAME_PRE_WAITx</enumItem>
+      </field>
+    </register>
+    
+    <register name="DebugFifo" address="0010" mode="r">
+      <description>Debug Data of the Fifo</description>
+      
+      <field name="FF_write_fifo_i" start="0" bits="4" format="unsigned" noflag="1" />
+      <field name="FF_read_fifo_i"  start="4" bits="4" format="unsigned" noflag="1" />
+      <field name="FF_wfsm_i" start="8" bits="4" format="enum" noflag="1">
+        <enumItem value="1">WAIT_FOR_FREE_FIFO</enumItem>
+        <enumItem value="2">WAIT_FOR_RESET</enumItem>
+        <enumItem value="3">WAIT_FOR_COMPLETE</enumItem>
+        <enumItem value="4">COMPLETED</enumItem>
+      </field>
+      
+      <field name="FF_rfsm_i" start="12" bits="4" format="enum" noflag="1">
+        <enumItem value="1">WAIT_FOR_COMPLETED_FIFO</enumItem>
+        <enumItem value="2">READ_FIRST_WORD</enumItem>
+        <enumItem value="3">WAIT_FOR_ACK</enumItem>
+        <enumItem value="4">WAIT_UNTIL_RESET</enumItem>
+      </field>
+      
+      <field name="FF_fifo_full_i_0" start="18" bits="1" format="binary" noflag="1" />
+      <field name="FF_fifo_almost_full_i_0" start="17" bits="1" format="binary" noflag="1" />
+      <field name="FF_fifo_empty_i_0" start="16" bits="1" format="binary" noflag="1" />
+      <field name="FF_fifo_full_i_1" start="22" bits="1" format="binary" noflag="1" />
+      <field name="FF_fifo_almost_full_i_1" start="21" bits="1" format="binary" noflag="1" />
+      <field name="FF_fifo_empty_i_1" start="20" bits="1" format="binary" noflag="1" />
+      
+      <field name="FF_wfifo_complete_i" start="24" bits="2" format="bitmask" noflag="1" />
+      <field name="FF_fifo_wreset_i" start="28" bits="2" format="bitmask" noflag="1" />
+    </register>    
+    
+    <register name="CTS_INFO" address="000d" mode="r">
+      <description>CTS information currently provided by hub</description>
+      <field name="HUB_CTS_NUMBER_IN" start="0" bits="16" format="hex" noflag="1" />
+      <field name="HUB_CTS_CODE_IN"   start="16" bits="8" format="hex" noflag="1" />
+      <field name="HUB_CTS_INFORMATION_IN" start="24" bits="8" format="hex" noflag="1" />
+    </register>
+    
+    <register name="DebugOutBuffer" address="0011" mode="r">
+      <description>Debug Data of the Frame Packer</description>
+      
+      <field name="OB_write_fifo_i" start="0" bits="4" format="unsigned" noflag="1" />
+      <field name="OB_read_fifo_i"  start="4" bits="4" format="unsigned" noflag="1" />
+      <field name="OB_wfsm_i" start="8" bits="4" format="enum" noflag="1">
+        <enumItem value="1">OBTAIN_FREE_BUFFER</enumItem>
+        <enumItem value="2">WAIT_FOR_START</enumItem>
+        <enumItem value="3">WAIT_FOR_END</enumItem>
+        <enumItem value="4">COMPLETE</enumItem>
+      </field>
+      
+      <field name="OB_rfsm_i" start="12" bits="4" format="enum" noflag="1">
+        <enumItem value="1">OBTAIN_FULL_BUFFER</enumItem>
+        <enumItem value="2">WAIT_WHILE_STOP</enumItem>
+        <enumItem value="3">COPY</enumItem>
+        <enumItem value="4">COMPLETE</enumItem>
+      </field>
+
+      <!-- the further field are rather use-less in the only view, but are included for documentation of the register -->
+      <field name="OB_fifo_get_filled_i_0" start="19" bits="1" format="binary" noflag="1" >
+          <description>Asserted when transaction stored in FIFO0 is complete.</description>
+      </field>
+      <field name="OB_fifo_last_i_0" start="18" bits="1" format="binary" noflag="1">
+          <description>Asserted when FIFO0 is full.</description>
+      </field>
+      <field name="OB_fifo_enqueue_i_0" start="17" bits="1" format="binary" noflag="1">
+          <description>Strobe. Asserted when FIFO0 enqueues a word.</description>
+      </field>
+      <field name="OB_fifo_dequeue_i_0" start="16" bits="1" format="binary" noflag="1">
+          <description>Strobe. Asserted when FIFO0 dequeues a word.</description>
+      </field>
+      <field name="OB_fifo_get_filled_i_1" start="23" bits="1" format="binary" noflag="1">
+          <description>Asserted when transaction stored in FIFO1 is complete.</description>
+      </field>
+      <field name="OB_fifo_last_i_1" start="22" bits="1" format="binary" noflag="1">
+          <description>Asserted when FIFO1 is full.</description>
+      </field>
+      <field name="OB_fifo_enqueue_i_1" start="21" bits="1" format="binary" noflag="1">
+          <description>Strobe. Asserted when FIFO1 enqueues a word.</description>
+      </field>
+      <field name="OB_fifo_dequeue_i_1" start="20" bits="1" format="binary" noflag="1">
+          <description>Strobe. Asserted when FIFO1 dequeues a word.</description>
+      </field>
+    </register>
+  </group>
+  
+  <group name="SyncModule" address="a900" mode="rw">
+    <register name="StatusCtrl" address="0000" purpose="config" mode="rw">
+      <description>General status and control register</description>
+      <field name="EpochUpdateScheme" mode="rw" start="0" bits="2" noflag="true" format="enum">
+        <description>Action performed on arrival of next valid DLM</description>
+        <enumItem value="0">Increment epoch</enumItem>
+        <enumItem value="1">Apply epoch set by TrbNet</enumItem>
+        <enumItem value="2">Apply epoch set by CBMNet</enumItem>
+      </field>
+      <field name="EpochUpdatedProperly" mode="r" start="4" bits="1" format="boolean">
+        <description>If asserted, the last DLM applied an epoch value that was not updated since next-to-last DLM (if any)</description>
+      </field>
+      <field name="CBMNetLinkActive" mode="r" start="5" bits="1" format="boolean">
+        <description>CBMNet Link active, i.e. initialisation phase of lp_top successfully complete</description>
+      </field>
+      <field name="ReadoutFSMState" mode="r" start="8" bits="4" format="enum" noflag="true">
+        <description>State machine responsible for the TrbNet read-out process.</description>
+        <enumItem value="0">WAIT_FOR_TRIGGER</enumItem>
+        <enumItem value="1">WAIT_FOR_VALID</enumItem>
+        <enumItem value="2">COPY_DATA</enumItem>
+        <enumItem value="3">FINISH</enumItem>
+      </field>
+      <field name="DLMSenseMask" mode="rw" start="16" bits="16" format="bitmask" noflag="true">
+        <description>An asserted bit at position i instructs the module to accept an arriving DLM i</description>
+      </field>
+    </register>
+    
+    <register name="PulserDuration" address="0001" purpose="config" mode="rw">
+      <description>Pulser generates period events in the CBMNet clock domain, that are measured in the TrbNet domain</description>
+      <field name="PulserThreshold" start="0" bits="32" format="unsigned">
+        <description>Number of clocks in the CBMNet domain between to pulses. 0 disables counter</description>
+      </field>
+    </register>
+    
+    <register name="NextTrbEpoch" address="0002" purpose="config" mode="rw">
+      <description>This value will be applied with the next valid DLM (but only if EpochUpdateScheme is set to TrbNet)</description>
+      <field name="NextTrbEpochValue" start="0" bits="32" format="hex" />
+    </register>
+    
+    <register name="CurrentEpoch" address="0003" purpose="status" mode="r">
+      <description>Epoch value applied with last DLM. Access to this address freezes values of next 10 addresses</description>
+      <field name="CurrentEpochValue" start="0" bits="32" format="hex" />
+    </register>
+    
+    <register name="CBMTimestamp" address="0004" purpose="status" mode="r">
+      <description>CBMnet timestamp when address ...3 was last accessed.</description>
+      <field name="CBMTimestampValue" start="0" bits="32" format="unsigned" />
+    </register>
+    
+    <register name="CBMTimestampDLM" address="0005" purpose="status" mode="r">
+      <description>CBMnet timestamp of last DLM (freezed since address ...3 was last accessed)</description>
+      <field name="CBMTimestampDLMValue" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="CBMTimestampPulse" address="0006" purpose="status" mode="r">
+      <description>CBMnet timestamp of last pulser pulse (freezed since address ...3 was last accessed)</description>
+      <field name="CBMTimestampPulseValue" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="TrbTimestamp" address="0007" purpose="status" mode="r">
+      <description>TrbNet timestamp when address ...3 was last accessed.</description>
+      <field name="TrbTimestampValue" start="0" bits="32" format="unsigned" />
+    </register>
+    
+    <register name="TrbTimestampDLM" address="0008" purpose="status" mode="r">
+      <description>TrbNet timestamp of last DLM (freezed since address ...3 was last accessed)</description>
+      <field name="TrbTimestampDLMValue" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="TrbTimestampPulse" address="0009" purpose="status" mode="r">
+      <description>TrbNet timestamp of last pulser pulse (freezed since address ...3 was last accessed)</description>
+      <field name="TrbTimestampPulseValue" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="DLMCounter" address="000a" purpose="status" mode="r">
+      <description>Number of valid DLMs received (freezed since address ...3 was last accessed)</description>
+      <field name="DLMCounterValue" start="0" bits="32" format="unsigned" />
+    </register>
+    
+    <register name="PulseCounter" address="000b" purpose="status" mode="r">
+      <description>Number of pulses generated by pulser (freezed since address ...3 was last accessed)</description>
+      <field name="PulseCounterValue" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="ResetCounter" address="000c" purpose="status" mode="r">
+      <description>Number of resets in both network domains (freezed since address ...3 was last accessed)</description>
+      <field name="CBMNetResetCounterValue" start="0"  bits="16" format="unsigned" />
+      <field name="TrbNetResetCounterValue" start="16" bits="16" format="unsigned" />
+    </register>
+  </group>
+</TrbNetEntity>

@@ -54,6 +54,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="network/hub.pl">Network Hubs</a>
 <li><a href="network/gbe.htm">GbE status</a>
 <li><a href="network/map.pl">Network Map</a>
+<li><a href="cbmnet/bridge.pl">CBMNet Bridge</a>
 </ul>
 </div>
 </div>
