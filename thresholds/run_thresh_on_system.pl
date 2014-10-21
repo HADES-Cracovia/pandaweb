@@ -103,8 +103,8 @@ sub get_ranges {
 
     my @array;
     foreach my $str (@$ra_data) {
-        $str=~s/-/\.\./;
-        $str=~s/\.\.\./\.\./;
+        $str=~s/-/\.\./g;
+        $str=~s/\.\.\./\.\./g;
         my @val = split(/\,/, $str);
         #print Dumper \@val;
         foreach my $c_val (@val) {

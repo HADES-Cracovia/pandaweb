@@ -79,9 +79,6 @@ exit;
 sub write_threshold {
   (my $mode, my $endpoint, my $chain, my $current_channel, my $thresh) = @_;
 
-  my $rh_res = trb_register_write($endpoint,0xd410, 1<<$chain);
-
-  my $command;
   my $fixed_bits;
   my $shift_bits;
   
@@ -94,22 +91,17 @@ sub write_threshold {
       $shift_bits = 4;
   }
 
-  $command= $fixed_bits | ($current_channel<<16) | ($thresh << $shift_bits);
-  send_command($endpoint, $command);
+  my $command= $fixed_bits | ($current_channel<<16) | ($thresh << $shift_bits);
 
-
+  send_command($endpoint, $chain, $command);
 }
 
 
-
-
 sub send_command {
-  (my $endpoint, my $command) = @_;
+  (my $endpoint, my $chain, my $command) = @_;
 
-  my $rh_res = trb_register_write($endpoint,0xd400, $command);
-  send_command_error($endpoint) if (!defined $rh_res);
-
-  $rh_res = trb_register_write($endpoint,0xd411, 0x1);
+  my $ra_atomic = [$command,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+  my $rh_res = trb_register_write_mem($endpoint, 0xd400, 0, $ra_atomic, scalar @{$ra_atomic});
   send_command_error($endpoint) if (!defined $rh_res);
 
   $rh_res = trb_register_read($endpoint,0xd412);

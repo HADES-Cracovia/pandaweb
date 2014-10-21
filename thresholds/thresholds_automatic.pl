@@ -234,7 +234,7 @@ write_thresholds($mode, $chain, \@best_thresh);
 my $uid;
 foreach my $i (reverse (0..3)) {
   #print "send command: $endpoint , i: $i\n";
-  $rh_res = send_command($endpoint, 0x10000000 | $i * 0x10000);
+  $rh_res = send_command($endpoint, $chain, 0x10000000 | $i * 0x10000);
   $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
 }
@@ -305,8 +305,7 @@ sub write_thresholds {
       die "could not lock shared element";
   }
 
-
-  my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+  ### old and wrong way #my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   foreach my $current_channel (0..15) {
 
@@ -324,7 +323,7 @@ sub write_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) | ($ra_thresh->[$current_channel] << $shift_bits);
-    send_command($endpoint, $command);
+    send_command($endpoint, $chain, $command);
 
 
   }
@@ -335,8 +334,22 @@ sub write_thresholds {
 
 }
 
-
 sub send_command {
+    (my $endpoint, my $chain, my $command) = @_;
+
+    my $ra_atomic = [$command,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+    my $rh_res = trb_register_write_mem($endpoint, 0xd400, 0, $ra_atomic, scalar @{$ra_atomic});
+    send_command_error($endpoint) if (!defined $rh_res);
+
+    $rh_res = trb_register_read($endpoint,0xd412);
+  #print Dumper $rh_res;
+    send_command_error($endpoint) if (!defined $rh_res);
+    return $rh_res;
+
+}
+
+
+sub send_command_old {
   (my $endpoint, my $command) = @_;
 
   my $rh_res = trb_register_write($endpoint,0xd400, $command);
