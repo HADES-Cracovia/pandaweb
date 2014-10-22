@@ -30,8 +30,8 @@ my @valid_interval = (0x8000, 0x9000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
-my $sleep_time = 0.2;
-my $accepted_dark_rate = 30;
+my $sleep_time = 1.0;
+my $accepted_dark_rate = 150;
 my $number_of_iterations = 40; # at least 15 are recommended
 
 my $endpoint = 0x0303;
@@ -124,7 +124,7 @@ if (defined $opt_skip && $opt_skip < 15) {
 if ($opt_finetune == true) {
     my $ra_thresh = read_thresholds("padiwa", $chain);
     @current_thresh = @$ra_thresh;
-    #print Dumper \@current_thresh;
+    print Dumper \@current_thresh;
 
     $interval_step = 4;
 
@@ -281,7 +281,7 @@ sub read_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) ;
-    my $rh_res = send_command($endpoint, $command);
+    my $rh_res = send_command($endpoint, $chain, $command);
     push (@thresh , $rh_res->{$endpoint});
   }
 
