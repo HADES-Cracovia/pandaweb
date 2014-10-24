@@ -23,20 +23,37 @@ $page->{title} = "CBMNet Bridge";
 $page->{link}  = "../";
 
 my @setup;
-$setup[0]->{name}    = "Readout";
-$setup[0]->{cmd}     = "CBMNetBridge-0xf3c0-Readout";
-$setup[0]->{period}  = -1;
-$setup[0]->{address} = 1;
+my $i = 0;
 
-$setup[1]->{name}    = "ReadoutDebug";
-$setup[1]->{cmd}     = "CBMNetBridge-0xf3c0-ReadoutDebug";
-$setup[1]->{period}  = -1;
-$setup[1]->{address} = 1;
+$setup[$i]->{name}    = "Readout";
+$setup[$i]->{cmd}     = "CBMNetBridge-0xf3c0-Readout";
+$setup[$i]->{period}  = -1;
+$setup[$i]->{address} = 1;
 
-$setup[2]->{name}    = "SyncModule";
-$setup[2]->{cmd}     = "CBMNetBridge-0xf3c0-SyncModule";
-$setup[2]->{period}  = 1;
-$setup[2]->{address} = 1;
+$i++;
+$setup[$i]->{name}    = "ReadoutDebug";
+$setup[$i]->{cmd}     = "CBMNetBridge-0xf3c0-ReadoutDebug";
+$setup[$i]->{period}  = -1;
+$setup[$i]->{address} = 1;
+
+$i++;
+$setup[$i]->{name}    = "SyncModule";
+$setup[$i]->{cmd}     = "CBMNetBridge-0xf3c0-SyncModule";
+$setup[$i]->{period}  = 1;
+$setup[$i]->{address} = 1;
+
+$i++;
+$setup[$i]->{name}    = "LinkDebug";
+$setup[$i]->{cmd}     = "CBMNetBridge-0xf3c0-LinkDebug";
+$setup[$i]->{period}  = 1;
+$setup[$i]->{address} = 1;
+
+$i++;
+$setup[$i]->{name}    = "TrbNetPatternGen";
+$setup[$i]->{cmd}     = "CBMNetBridge-0x8001-TrbNetPatternGen";
+$setup[$i]->{period}  = 1;
+$setup[$i]->{address} = 1;
+
 
 xmlpage::initPage(\@setup,$page);
 

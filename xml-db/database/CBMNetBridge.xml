@@ -2,12 +2,12 @@
 <TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
               name="CBMNetBridge"
-              address="0000"
+              address="a800"
 >
   <description>CBMNet Bridge for Read-out and Synchronisation</description>
 
   
-  <group name="Readout" address="a800" purpose="status" mode="rw" continuous="false">
+  <group name="Readout" address="0000" purpose="status" mode="rw" continuous="false">
     <register name="ReadoutCtrl" address="0000" mode="rw" purpose="config">
       <description>General purpose control of the read-out</description>
       <field name="Listen" start="0" bits="1" format="boolean">
@@ -26,39 +26,41 @@
       <description>Counts number of time the CBMNet Link becomes active (i.e. hints reconnects)</description>
       <field name="stat_connections_i" start="0" bits="32" format="unsigned" noflag="1" />
     </register>
+
+    <register name="stat_link_inactive_i" address="0007" mode="r">
+      <description>Number of cycles CBMNet link is inactive (100 MHz domain)</description>
+      <field name="stat_link_inactive_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.001" />
+    </register>
     
     <register name="stat_clks_dead_i" address="0003" mode="r">
       <description>Dead time of the CBMNet data channel, i.e. cycles with stop asserted (125 MHz domain)</description>
-      <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" />
+      <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.008" />
+    </register>
+
+    <register name="stat_num_recv_completed_i" address="0006" mode="r">
+      <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
+      <field name="stat_num_recv_completed_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
     
     <register name="stat_num_send_completed_i" address="0004" mode="r">
       <description>Number of Transactions completed</description>
-      <field name="stat_num_send_completed_i" start="0" bits="32" format="unsigned" noflag="1" />
+      <field name="stat_num_send_completed_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
+    </register>
+
+    <register name="stat_num_packets_aborted_i" address="0008" mode="r">
+      <description>Number of TrbNet events aborted, e.g. because FIFO is full</description>
+      <field name="stat_num_packets_aborted_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
     
     <register name="stat_num_packets_i" address="0005" mode="r">
       <description>Number of CBM Frames handed over</description>
-      <field name="stat_num_packets_i" start="0" bits="32" format="unsigned" noflag="1" />
+      <field name="stat_num_packets_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="CBMNet frms" />
     </register>
     
-    <register name="stat_num_recv_completed_i" address="0006" mode="r">
-      <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
-      <field name="stat_num_recv_completed_i" start="0" bits="32" format="unsigned" noflag="1" />
-    </register>
     
-    <register name="stat_link_inactive_i" address="0007" mode="r">
-      <description>Number of cycles CBMNet link is inactive (100 MHz domain)</description>
-      <field name="stat_link_inactive_i" start="0" bits="32" format="unsigned" noflag="1" />
-    </register>
-    
-    <register name="stat_num_packets_aborted_i" address="0008" mode="r">
-      <description>Number of TrbNet events aborted, e.g. because FIFO is full</description>
-      <field name="stat_num_packets_aborted_i" start="0" bits="32" format="unsigned" noflag="1" />
-    </register>
   </group>
   
-  <group name="ReadoutDebug" address="a800" purpose="status" mode="r" continuous="false">
+  <group name="ReadoutDebug" address="0000" purpose="status" mode="r" continuous="false">
     <register name="DebugDecoder" address="0009" mode="r">
       <description>Debug Data of TrbNet Decoder</description>
       
@@ -229,7 +231,25 @@
     </register>
   </group>
   
-  <group name="SyncModule" address="a900" mode="rw">
+  <group name="LinkDebug" address="0080" purpose="config" mode="rw" continuous="false">
+    <description>Low-Level testing feature of the CBMNet link</description>
+    <register name="LinkTester" address="0010" purpose="config" mode="rw">
+      <description>Low-Level testing feature of the CBMNet link</description>
+      <field name="data2send_stop" start="10" bits="1" format="boolean" mode="r" purpose="status" />
+      <field name="serdes_ready" start="9" bits="1" format="boolean" mode="r" purpose="status" />
+      <field name="link_active" start="8" bits="1" format="boolean" mode="r" purpose="status" />
+      <field name="lt_dlm_valid" start="5" bits="1" format="boolean" mode="r" purpose="status" />
+      <field name="lt_ctrl_valid" start="4" bits="1" format="boolean" mode="r" purpose="status" />
+      <field name="linkTesterMux" start="3" bits="1" format="boolean" mode="rw" purpose="config">
+        <description>0: Normal function (read-out), 1: Link-Tester</description>
+      </field>
+      <field name="ltDataEnable" start="2" bits="1" format="boolean" mode="rw" purpose="config" />
+      <field name="ltCtrlEnable" start="1" bits="1" format="boolean" mode="rw" purpose="config" />
+      <field name="ltForceStop" start="0" bits="1" format="boolean" mode="rw" purpose="config" />
+    </register>
+  </group>
+  
+  <group name="SyncModule" address="0100" mode="rw">
     <register name="StatusCtrl" address="0000" purpose="config" mode="rw">
       <description>General status and control register</description>
       <field name="EpochUpdateScheme" mode="rw" start="0" bits="2" noflag="true" format="enum">
@@ -319,4 +339,39 @@
       <field name="TrbNetResetCounterValue" start="16" bits="16" format="unsigned" />
     </register>
   </group>
+  
+  <group name="TrbNetPatternGen" address="0200" purpose="config" mode="rw" continuous="0">
+    <description>PGen is only available in the peripheral CBMNet FPGA</description>
+    <register name="PGenStatusCtrl" address="0000"  purpose="config" mode="rw">
+      <description>Status and Configuration of pattern generator</description>
+      <field name="PGenEnable" start="0" bits="1" format="boolean" />
+    </register>
+
+    <register name="PGenSendLengthStep" address="0003"  purpose="config" mode="rw">
+      <description>Number the length gets incremented between two events</description>
+      <field name="PGenSendLengthStep" start="0" bits="16" format="unsigned" />
+    </register>
+
+    <register name="PGenSendLengthMin" address="0001"  purpose="config" mode="rw">
+      <description>Minimal SE-payload length send by generator</description>
+      <field name="PGenSendLengthMin" start="0" bits="16" format="unsigned" />
+    </register>
+
+    <register name="PGenSendLengthMax" address="0002"  purpose="config" mode="rw">
+      <description>Maximal SE-payload length send by generator</description>
+      <field name="PGenSendLengthMax" start="0" bits="16" format="unsigned" />
+    </register>
+
+
+    <register name="PGenEventId" address="0004"  purpose="status" mode="r">
+      <description>Event-Id is incremented with each new event</description>
+      <field name="PGenEventId" start="0" bits="32" format="unsigned" rate="1" unit="evts" />
+    </register>
+
+    <register name="PGenEventGap" address="0005"  purpose="config" mode="rw">
+      <description>Number of clock cycles between two events (waiting time in 10ns)</description>
+      <field name="PGenEventGap" start="0" bits="32" format="unsigned"  />
+    </register>
+  </group>
+
 </TrbNetEntity>
