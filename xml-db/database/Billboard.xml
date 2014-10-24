@@ -1,0 +1,57 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Billboard"
+              address="b000"
+>
+  <description>Billboard for storing data</description>
+
+  
+  <group name="StatusAndControl" address="0000" purpose="config" mode="rw" continuous="false">
+    <register name="CommitReg" address="0000" mode="rw" purpose="config">
+      <description>When reading: Length of data block used for current read-out, When writing: Commit data in memory and set length of data</description>
+      <field name="CommitLength" start="0" bits="8" format="unsigned">
+        <description>Length of data in 32-bit words</description>
+      </field>
+    </register>
+    <register name="TimeThresholdReg" address="0001" mode="rw" purpose="config">
+      <description>Time-Out used for time-based trigger decision (Once a read-out happened use first trigger after at least the time specified)</description>
+      <field name="TimeThreshold" start="0" bits="32" format="unsigned" unit="us" scale="0.01"  defaultValue="0">
+        <description>0: Disable timing-based decision, otherwise: Minimal time between two events in TrbNet clock cycles</description>
+      </field>
+    </register> 
+
+    <register name="FramesSentReg" address="0002" mode="r" purpose="statistics">
+      <description>Statistics: Number of triggers with active read-out (frames sent)</description>
+      <field name="FramesSent" start="0" bits="32" format="unsigned" rate="1" scale="1" unit="frames" />
+    </register>
+
+    <register name="WordsSentReg" address="0003" mode="r" purpose="statistics">
+      <description>Statistics: Number of words sent (incl. header)</description>
+      <field name="WordsSent" start="0" bits="32" format="unsigned" rate="1" scale="0.004" unit="kb" />
+    </register>
+    
+    <register name="NumberCommitsReg" address="0004" mode="r" purpose="statistics">
+      <description>Statistics: Number of commits issued</description>
+      <field name="NumberCommits" start="0" bits="32" format="unsigned" rate="1" scale="1" unit="commits" />
+    </register>
+
+    <register name="AgeLastCommitReg" address="0005" mode="r" purpose="statistics">
+      <description>TrbNet clock cycles since last commit</description>
+      <field name="AgeLastCommit" start="0" bits="32" format="unsigned" noflag="1" rate="0" scale="0.01" unit="us" />
+    </register>
+    
+    <register name="SkipTriggerReg" address="0010" repeat="16">
+      <description>Number of event of trigger type addr[3:0] to be skipped</description>
+      <field name="SkipTrigger" start="0" bits="32" format="unsigned" noflag="1" defaultValue="0xffffffff" mode="rw" purpose="config"  />
+    </register>
+  </group>
+  
+  <group name="Memory" address="0100" purpose="config" mode="rw" continuous="true">
+    <register name="MemoryAddress" address="0000" mode="rw" purpose="config" repeat="256">
+      <description>Memory data</description>
+      <field name="Memory" start="0" bits="32" format="hex" />
+    </register>
+  </group>
+
+</TrbNetEntity>
