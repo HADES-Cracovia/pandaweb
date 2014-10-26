@@ -12,14 +12,23 @@ cd ../../tools/
 cd ../users/frankfurt_test
 
 
-trbcmd w 0xfe4b 0xa010 1000        #Buffer depth
+trbcmd w 0xfe4b 0xa010 24          #Buffer depth
 trbcmd w 0xfe4b 0xa011 8           #Samples after trigger
-trbcmd w 0xfe4b 0xa012 1           #Process blocks
+trbcmd w 0xfe4b 0xa012 2           #Process blocks
 trbcmd w 0xfe4b 0xa013 40          #Trigger offset
 trbcmd w 0xfe4b 0xa014 40          #Readout offset
 trbcmd w 0xfe4b 0xa015 0           #Downsampling
 trbcmd w 0xfe4b 0xa016 8           #Baseline
 trbcmd w 0xfe4b 0xa017 1           #Trigger Enable
+
+trbcmd w 0xfe4b 0xa020 0           #Sum values
+trbcmd w 0xfe4b 0xa021 0           #Sum values
+trbcmd w 0xfe4b 0xa022 0           #Sum values
+trbcmd w 0xfe4b 0xa023 0           #Sum values
+trbcmd w 0xfe4b 0xa024 15          #word count
+trbcmd w 0xfe4b 0xa025 7           #word count
+trbcmd w 0xfe4b 0xa026 0           #word count
+trbcmd w 0xfe4b 0xa027 0           #word count
 
 trbcmd w 0xfe4b 0xa000 0x100       #Reset Baseline
 
