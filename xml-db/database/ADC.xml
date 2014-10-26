@@ -91,7 +91,12 @@
         <description>Trigger enable for channels 47 - 32</description>
         <field  name="TriggerEnable1" start="0"   bits="16"  format="bitmask" noflag="true" />
       </register>
-      
+      <register name="WordChecker" address="0009" >
+        <description>Check incoming words for validity. Two accepted words can be specified.</description>
+        <field  name="Word1Check" start="0"   bits="10"   format="hex" noflag="true" />
+        <field  name="Word2Check" start="16"   bits="10"  format="hex" noflag="true" />
+      </register>
+            
 </group>  
 
 <group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
@@ -235,5 +240,10 @@
         <field  name="Baseline" start="0"   bits="18"  format="unsigned" noflag="true" />
       </register>
 </group>
- 
+<group name="InvalidWordsg" address="08C0"  size="48"  purpose="status" mode="r" continuous="true">
+      <register name="InvalidWords" address="0000" repeat="48" >
+        <description>Number of words not matching the given pattern </description>
+        <field  name="InvalidWords" start="0"   bits="32"  format="unsigned" errorflag="true" rate="true" />
+      </register>
+</group> 
 </TrbNetEntity>

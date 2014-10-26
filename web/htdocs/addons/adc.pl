@@ -30,7 +30,7 @@ push(@setup,({name      => "Control",
               address   => 1}));
 
 push(@setup,({name      => "Input", 
-              cmd       => "ADC-0xfe4b-InputHandler",
+              cmd       => "ADC-0xfe4b-InputHandler&ADC-0xfe4b-InvalidWords",
               period    => 1000,
               address   => 1}));              
               
