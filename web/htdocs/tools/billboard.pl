@@ -19,7 +19,7 @@ use xmlpage;
 
 my $page;
 
-$page->{title} = "CBMNet Bridge";
+$page->{title} = "Billboard";
 $page->{link}  = "../";
 
 my @setup;
