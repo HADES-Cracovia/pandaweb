@@ -38,19 +38,19 @@
 
     <register name="AgeLastCommitReg" address="0005" mode="r" purpose="statistics">
       <description>TrbNet clock cycles since last commit</description>
-      <field name="AgeLastCommit" start="0" bits="32" format="unsigned" noflag="1" rate="0" scale="0.01" unit="us" />
+      <field name="AgeLastCommit" start="0" bits="32" format="unsigned" rate="0" scale="0.01" unit="us" />
     </register>
     
     <register name="SkipTriggerReg" address="0010" repeat="16">
       <description>Number of event of trigger type addr[3:0] to be skipped</description>
-      <field name="SkipTrigger" start="0" bits="32" format="unsigned" noflag="1" defaultValue="0xffffffff" mode="rw" purpose="config"  />
+      <field name="SkipTrigger" start="0" bits="32" format="unsigned" defaultValue="0xffffffff" noflag="1" mode="rw" purpose="config"  />
     </register>
   </group>
   
   <group name="Memory" address="0100" purpose="config" mode="rw" continuous="true">
     <register name="MemoryAddress" address="0000" mode="rw" purpose="config" repeat="256">
       <description>Memory data</description>
-      <field name="Memory" start="0" bits="32" format="hex" />
+      <field name="Memory" start="0" bits="32" format="hex" noflag="1" />
     </register>
   </group>
 
