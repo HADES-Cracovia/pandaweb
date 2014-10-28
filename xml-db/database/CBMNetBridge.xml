@@ -37,6 +37,11 @@
       <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.008" />
     </register>
 
+    <register name="stat_hwords_sent_i" address="0009" mode="r">
+      <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
+      <field name="stat_hwords_sent_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="kb" scale="0.002" />
+    </register>
+
     <register name="stat_num_recv_completed_i" address="0006" mode="r">
       <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
       <field name="stat_num_recv_completed_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
@@ -57,11 +62,15 @@
       <field name="stat_num_packets_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="CBMNet frms" />
     </register>
     
+    <register name="stat_frame_length_i" address="000a" mode="r">
+      <description>Size of last frame</description>
+      <field name="stat_frame_length_i" start="0" bits="32" format="unsigned" noflag="1" rate="0" unit="b" scale="2" />
+    </register>
     
   </group>
   
   <group name="ReadoutDebug" address="0000" purpose="status" mode="r" continuous="false">
-    <register name="DebugDecoder" address="0009" mode="r">
+    <register name="DebugDecoder" address="0010" mode="r">
       <description>Debug Data of TrbNet Decoder</description>
       
       <field name="FSM_STATE" start="0" bits="4" format="enum" noflag="1">
@@ -76,7 +85,7 @@
       </field>
     </register>
         
-    <register name="DebugEventPacker" address="000a" mode="r">
+    <register name="DebugEventPacker" address="0011" mode="r">
       <description>Debug Data of the Event Packer</description>
       <field name="EP_fsm_state" start="0" bits="4" format="enum" noflag="1">
         <enumItem value="0">WAIT_FOR_IDLE</enumItem>
@@ -126,7 +135,7 @@
       </field>
     </register>
     
-    <register name="DebugFramePacker" address="000b" mode="r">
+    <register name="DebugFramePacker" address="0012" mode="r">
       <description>Debug Data of the Frame Packer</description>
       
       <field name="FP_fsm_state" start="0" bits="4" format="enum" noflag="1">
@@ -147,7 +156,7 @@
       </field>
     </register>
     
-    <register name="DebugFifo" address="0010" mode="r">
+    <register name="DebugFifo" address="0017" mode="r">
       <description>Debug Data of the Fifo</description>
       
       <field name="FF_write_fifo_i" start="0" bits="4" format="unsigned" noflag="1" />
@@ -177,14 +186,14 @@
       <field name="FF_fifo_wreset_i" start="28" bits="2" format="bitmask" noflag="1" />
     </register>    
     
-    <register name="CTS_INFO" address="000d" mode="r">
+    <register name="CTS_INFO" address="0014" mode="r">
       <description>CTS information currently provided by hub</description>
       <field name="HUB_CTS_NUMBER_IN" start="0" bits="16" format="hex" noflag="1" />
       <field name="HUB_CTS_CODE_IN"   start="16" bits="8" format="hex" noflag="1" />
       <field name="HUB_CTS_INFORMATION_IN" start="24" bits="8" format="hex" noflag="1" />
     </register>
     
-    <register name="DebugOutBuffer" address="0011" mode="r">
+    <register name="DebugOutBuffer" address="0018" mode="r">
       <description>Debug Data of the Frame Packer</description>
       
       <field name="OB_write_fifo_i" start="0" bits="4" format="unsigned" noflag="1" />
@@ -246,6 +255,26 @@
       <field name="ltDataEnable" start="2" bits="1" format="boolean" mode="rw" purpose="config" />
       <field name="ltCtrlEnable" start="1" bits="1" format="boolean" mode="rw" purpose="config" />
       <field name="ltForceStop" start="0" bits="1" format="boolean" mode="rw" purpose="config" />
+    </register>
+    
+    <register name="SerdesReady" address="0011" purpose="statistics" mode="r">
+      <description>Number of Times Serdes became read (rising edges)</description>
+      <field name="SerdesReadyCounter" start="0" bits="32" format="unsigned" />
+    </register>
+
+    <register name="DataOverride" address="0012" purpose="config" mode="rw">
+      <description>CBMNnet data override</description>
+      <field name="DataWord" start="0" bits="16" format="hex" />
+      <field name="DataOverrideEnable" start="16" bits="1" format="boolean" />
+    </register>
+
+    <register name="PhyCtrl" address="0013" purpose="config" mode="rw">
+      <description>Low-Level PHY ctrl (dont mess with this!)</description>
+      <field name="rst_i" start="0" bits="1" format="boolean" />
+      <field name="DisBarrel" start="3" bits="1" format="boolean" />
+      <field name="RxRMReset" start="4" bits="1" format="boolean" />
+      <field name="DisGearAlign" start="5" bits="1" format="boolean" />
+      <field name="RxRstWhenReinit" start="8" bits="1" format="boolean" />
     </register>
   </group>
   
