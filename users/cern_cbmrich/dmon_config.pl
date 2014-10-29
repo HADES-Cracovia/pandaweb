@@ -5,7 +5,7 @@
 activeScripts => [['time','-','-','-','daqop'],
                   ['numfee','temperature','reftime','-','-'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['-','-','-','-','-'],
+                  ['heatmaprich','-','-','-','-'],
                   ['-','-','-','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
@@ -15,7 +15,10 @@ qaNames => ['sys','main','rate','-','-','-'],
 NumberOfFpga => 90,       
 
 #The address of the CTS
-CtsAddress   => 0x7999,   
+CtsAddress   => 0x7005,   
 
 #Addresses of all TDCs. Either single or broadcast addresses
 TdcAddress   => [0xfe48,0xfe4e,0x7999],  
+
+#User directory
+UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/';
