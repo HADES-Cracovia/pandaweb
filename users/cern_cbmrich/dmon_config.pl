@@ -3,13 +3,13 @@
 
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','ping','-','-','daqop'],
-                  ['numfee','temperature','reftime','-','-'],
+                  ['numfee','temperature','reftime','billboard','mbs'],
                   ['trgrate','datarate','deadtime','-','-'],
                   ['heatmaprich','-','-','-','-'],
-                  ['-','-','-','-','-'],],
+                  ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
-qaNames => ['sys','main','rate','Pdwa','-','-'],                  
+qaNames => ['sys','main','rate','Pdwa','CNet','-'],                  
 
 #Expected number of FPGAs in system
 NumberOfFpga => 90,       
@@ -54,6 +54,9 @@ HubTrbAdresses =>  [0x7005,0x7000,0x7001,0x7002,0x7003,
                     0x0105,
                     0x0115],
 
+BillboardAddress => 0xf30a,
+MBSAddress => 0xf30a,
+                    
 #Addresses of all TDCs. Either single or broadcast addresses
 TdcAddress   => [0xfe48,0xfe4e,0x7005],  
 
