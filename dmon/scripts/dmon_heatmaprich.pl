@@ -74,7 +74,7 @@ while (1) {
       }
     HPlot::PlotDraw('HeatmapRich');      
     }
-  my $status = QA::OK;
+  my $status = Dmon::OK;
   my $title  = "Heatmap";
   my $value = "";
   my $longtext = "See plot";
