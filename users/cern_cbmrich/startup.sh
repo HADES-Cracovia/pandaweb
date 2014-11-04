@@ -25,7 +25,7 @@ trbcmd i 0xffff | wc -l
 ##################################################
 ## System Reset
 ##################################################
-#trbcmd reset
+trbcmd reset
 
 ##################################################
 ## Set addresses
@@ -52,10 +52,10 @@ echo "XXX: Running script loadregisterdb.pl register_configgbe_ip.db"
 #trbcmd w 0xfe48 0xc801 0x000f0005 ## trigger window enable & trigger window width
 
 trbcmd w 0xfe48 0xc800 0x00001001 ## logic analyser control register #tiggerless
-trbcmd w 0xfe48 0xc801 0x80620062 ##  triggerwindow +/-490ns ;5ns granularity
+trbcmd w 0xfe48 0xc801 0x00620062 ## no triggerwindow +/-490ns ;5ns granularity
 trbcmd w 0xfe48 0xc802 0xffffffff ## channel 01-32 enable
 trbcmd w 0xfe48 0xc803 0x00000000 ## channel 33-64 enable
-trbcmd w 0xfe48 0xc804 0x00000080 ## data transfer limit
+trbcmd w 0xfe48 0xc804 0x00000080 ## data transfer limit (0x80 = off)
 
 
 #trbcmd w 0x1510 0xc800 0x00001001 ## logic analyser control register
@@ -108,8 +108,8 @@ trbcmd w 0xfffe 0xc5 0x800050ff
 #trbcmd w 0x8000 0xa140 0x0001869f
 
 echo "- setting trigger rate register in TDC";
-# trigger rate 150Hz
-trbcmd w 0x7005 0xa150 0x100000
+# trigger rate 10kHz
+trbcmd w 0x7005 0xa150 0x0001869f
 
 # pulser enable
 trbcmd setbit 0x7005 0xa101 0x2
@@ -125,7 +125,8 @@ trbcmd setbit 0xfe48 0xcf00 0x1
 
 
 #set MAPMT Thresholds
-thresholdfile="thresholds_2310_full_offset0.thr"
+thresholdfile="thresh/stdthresh.thr"
+thresholdfile="thresh/dummythresholds.thr"
 offset="100"
 echo
 echo "loading MAPMT thresholds: ${thresholdfile}"
