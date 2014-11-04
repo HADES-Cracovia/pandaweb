@@ -184,6 +184,19 @@ sub init {
       }
    }
 
+   if ($prop->{'trb_compiletime'} >  1415039170) {
+    eval {
+        $regs->{'cts_cnt_total_dead_time'} = TrbRegister->new(0x0e + $debug_block, $trb, {}, {
+            'accessmode' => "ro",
+            'label' => "Total Dead Time Counter",
+            'monitorrate' => 1
+        });   
+        $regs->{'cts_cnt_total_dead_time'}->read();
+        1;
+    } and do {
+        $prop->{'cts_cnt_total_dead_time'} = 1;
+    }
+  }
 }
 
 1;
