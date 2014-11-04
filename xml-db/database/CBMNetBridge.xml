@@ -33,7 +33,7 @@
     </register>
     
     <register name="stat_clks_dead_i" address="0003" mode="r">
-      <description>Dead time of the CBMNet data channel, i.e. cycles with stop asserted (125 MHz domain)</description>
+      <description>Dead time of the CBMNet data channel, i.e. cycles with stop asserted (125 MHz domain) and no transmission happens</description>
       <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.008" />
     </register>
 
@@ -42,9 +42,9 @@
       <field name="stat_hwords_sent_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="kb" scale="0.002" />
     </register>
 
-    <register name="stat_num_recv_completed_i" address="0006" mode="r">
-      <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
-      <field name="stat_num_recv_completed_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
+    <register name="stat_rdo_event_counter_i" address="0006" mode="r">
+      <description>Number of TrbNet events available (rising edge of CTS_START_READOUT_IN)</description>
+      <field name="stat_rdo_event_counter_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
     
     <register name="stat_num_send_completed_i" address="0004" mode="r">
