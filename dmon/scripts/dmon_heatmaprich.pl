@@ -20,7 +20,7 @@ my %config = Dmon::StartUp();
 
 my $plot2 = ();
 $plot2->{name}    = "HeatmapRich";
-$plot2->{file}    = Dmon::DMONDIR."heatmaprich";
+$plot2->{file}    = Dmon::DMONDIR."HeatmapRich";
 $plot2->{entries} = 33;
 $plot2->{curves}  = 33;
 $plot2->{type}    = HPlot::TYPE_HEATMAP;
@@ -34,7 +34,7 @@ $plot2->{xmin}    = 0.5;
 $plot2->{xmax}    = 32.5;
 $plot2->{ymin}    = 0.5;
 $plot2->{ymax}    = 32.5;
-$plot2->{showvalues} = 1;
+$plot2->{showvalues} = 0;
 $plot2->{xlabel} = "column";
 $plot2->{ylabel} = "row";
 HPlot::PlotInit($plot2);
@@ -53,6 +53,7 @@ my $diff;
 
 while (1) {
   my $t = trb_register_read_mem(0xfe48,0xc000,0,33);
+
 
   if (defined $old) {
     foreach my $b (keys %$o) {

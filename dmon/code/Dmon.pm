@@ -34,7 +34,8 @@ my $OldValues; my $firstrun = 1;
 sub MakeRate {
   my ($pos,$width,$usets,$t) = @_;
   my $res;
-  
+  return unless defined $t;  
+
   foreach my $b (keys $t) {
     for my $i (0..((scalar @{$t->{$b}{value}})-1)) {
       my $value    = $t->{$b}{value}[$i]||0;

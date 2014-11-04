@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+M#!/usr/bin/perl -w
 
 use warnings;
 use POSIX qw(strftime);
@@ -40,7 +40,8 @@ Dmon::WriteFile("TriggerRate",$str);
 
 while(1) {
   my $r = trb_registertime_read($config{CtsAddress},0xa002) ;
-  my $t = Dmon::MakeRate(0,32,1,$r);
+  my $t;
+  $t = Dmon::MakeRate(0,32,1,$r)   if( defined $r );
 
   if( defined $t) {
     $summing += $t->{$config{CtsAddress}}{rate}[0];

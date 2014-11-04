@@ -22,7 +22,8 @@ while(1) {
   
   if( defined $regs->{$config{CtsAddress}}) {
     my $linkActive    = $regs->{$config{CtsAddress}}[0] & 0x20;
-    my $pulserFreqKHz = 125e3 / $regs->{$config{CtsAddress}}[1];
+    my $pulserFreqKHz = $regs->{$config{CtsAddress}}[1] | 0;
+    $pulserFreqKHz = 125e3 / ($regs->{$config{CtsAddress}}[1]) if $regs->{$config{CtsAddress}}[1];
     $dlmCnt = $linkActive ? $regs->{$config{CtsAddress}}[0xa] : -1;
     
     $value = "$dlmCnt DLMs";
