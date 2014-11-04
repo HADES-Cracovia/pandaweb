@@ -51,11 +51,13 @@ echo "XXX: Running script loadregisterdb.pl register_configgbe_ip.db"
 #trbcmd w 0xfe48 0xc800 0x00003000 ## Triggerless   mode
 #trbcmd w 0xfe48 0xc801 0x000f0005 ## trigger window enable & trigger window width
 
-trbcmd w 0xfe48 0xc800 0x00001001 ## logic analyser control register #tiggerless
-trbcmd w 0xfe48 0xc801 0x00620062 ## no triggerwindow +/-490ns ;5ns granularity
-trbcmd w 0xfe48 0xc802 0xffffffff ## channel 01-32 enable
-trbcmd w 0xfe48 0xc803 0x00000000 ## channel 33-64 enable
-trbcmd w 0xfe48 0xc804 0x00000080 ## data transfer limit (0x80 = off)
+trbcmd w 0xfe4c 0xc800 0x00001001 ## logic analyser control register #tiggerless
+trbcmd w 0xfe4c 0xc801 0x00620062 ## no triggerwindow +/-490ns ;5ns granularity
+trbcmd w 0xfe4c 0xc804 0x00000080 ## data transfer limit (0x80 = off)
+
+trbcmd w 0xfe4a 0xc800 0x00001001 ## logic analyser control register #tiggerless
+trbcmd w 0xfe4a 0xc801 0x00620062 ## no triggerwindow +/-490ns ;5ns granularity
+trbcmd w 0xfe4a 0xc804 0x00000080 ## data transfer limit (0x80 = off)
 
 
 #trbcmd w 0x1510 0xc800 0x00001001 ## logic analyser control register
@@ -112,12 +114,13 @@ echo "- setting trigger rate register in TDC";
 trbcmd w 0x7005 0xa150 0x0001869f
 
 # pulser enable
-trbcmd setbit 0x7005 0xa101 0x2
+trbcmd setbit 0x7005 0xa101 0x1
 #trbcmd clearbit 0x8000 0xa101 0x3
 
 # divert TDC inputs to the CTS for trigger
 echo "- divert TDC inputs to the CTS for trigger";
-trbcmd setbit 0xfe48 0xcf00 0x1 
+trbcmd setbit 0xfe4c 0xcf00 0x1 
+trbcmd setbit 0xfe4a 0xcf00 0x1 
 
 
 

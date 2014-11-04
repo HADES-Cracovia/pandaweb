@@ -76,7 +76,8 @@ while($a = <FLOG>) {
 
         
         $str .= "<div id=\"$e\" class=\"".($sev||0)." $sevcol\" alt=\"$title $time: ".Dmon::LevelName($sev)."&lt;br /&gt; $text\" onmouseover=\"clk(this);\"";
-        $str .= "onclick=\"openhelp('$link')\" >".$title."<br/>".$value."</div>\n";
+        $str .= "onclick=\"openhelp('$link')\""  if $link ne "";
+        $str .= "> ".$title."<br/>".$value."</div>\n";
         }
  
       }

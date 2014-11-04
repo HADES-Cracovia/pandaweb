@@ -226,15 +226,16 @@ sub PlotDraw {
       
       
   if($p->{$name}->{type} == TYPE_HEATMAP) {    
-      for(my $j=0; $j<$p->{$name}->{curves}; $j++) {
-        for(my $i=0; $i< $p->{$name}->{entries}; $i++) {
-          plot_write($p->{$name}->{fh},($p->{$name}->{value}->[$j]->[$i]||0)." ",1);
+      if($p->{$name}->{showvalues}) {
+        for(my $j=0; $j<$p->{$name}->{curves}; $j++) {
+          for(my $i=0; $i< $p->{$name}->{entries}; $i++) {
+            plot_write($p->{$name}->{fh},($p->{$name}->{value}->[$j]->[$i]||0)." ",1);
+            }
+          plot_write($p->{$name}->{fh}," ",0);
           }
-        plot_write($p->{$name}->{fh}," ",0);
+        plot_write($p->{$name}->{fh},"e");      
+        plot_write($p->{$name}->{fh},"e");     
         }
-      plot_write($p->{$name}->{fh},"e");      
-      plot_write($p->{$name}->{fh},"e");     
-#       }
       for(my $j=0; $j<$p->{$name}->{curves}; $j++) {
         for(my $i=0; $i< $p->{$name}->{entries}; $i++) {
           plot_write($p->{$name}->{fh},($p->{$name}->{value}->[$j]->[$i]||0)." ",1);

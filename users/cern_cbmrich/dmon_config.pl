@@ -58,7 +58,7 @@ BillboardAddress => 0xf30a,
 MBSAddress => 0xf30a,
                     
 #Addresses of all TDCs. Either single or broadcast addresses
-TdcAddress   => [0xfe48,0xfe4e,0x7005],  
+TdcAddress   => [0xfe4c,0xfe4e,0x7005],  
 
 TrbIP => ["192.168.0.0",
           "192.168.0.1",

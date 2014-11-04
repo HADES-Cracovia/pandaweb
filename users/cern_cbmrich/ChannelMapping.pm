@@ -1,4 +1,4 @@
-package channelmapping;
+package ChannelMapping;
 use warnings;
 use strict;
 

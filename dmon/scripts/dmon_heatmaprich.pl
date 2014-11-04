@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 use warnings;
+use strict;
 use POSIX qw(strftime);
 use FileHandle;
 use lib "./code";
@@ -26,8 +27,8 @@ $plot2->{curves}  = 33;
 $plot2->{type}    = HPlot::TYPE_HEATMAP;
 $plot2->{output}  = HPlot::OUT_PNG;
 $plot2->{zlabel}  = "Hitrate";
-$plot2->{sizex}   = 800;
-$plot2->{sizey}   = 750;
+$plot2->{sizex}   = 700;
+$plot2->{sizey}   = 650;
 $plot2->{nokey}   = 1;
 $plot2->{buffer}  = 1;
 $plot2->{xmin}    = 0.5;
@@ -39,7 +40,7 @@ $plot2->{xlabel} = "column";
 $plot2->{ylabel} = "row";
 HPlot::PlotInit($plot2);
 
-my $str = Dmon::MakeTitle(12,12,"HeatmapRich",0);
+my $str = Dmon::MakeTitle(10,15,"HeatmapRich",0);
    $str .= qq@<img src="%ADDPNG HeatmapRich.png%" type="image/png">@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("HeatmapRich",$str);
@@ -52,8 +53,7 @@ my $diff;
 
 
 while (1) {
-  my $t = trb_register_read_mem(0xfe48,0xc000,0,33);
-
+  my $o = trb_register_read_mem(0xfe4c,0xc000,0,33);
 
   if (defined $old) {
     foreach my $b (keys %$o) {
@@ -64,13 +64,12 @@ while (1) {
         $diff->{$b}->[$v] = $vdiff/($tdiff|1);
         }
       }
-
-
-    for my $x (0..31) {
-      for my $y (0..31) {
+#     print Dumper $diff;
+    for my $x (1..32) {
+      for my $y (1..32) {
         my $fpga    = $ChannelMapping::chanmap->{fpga}->[$x]->[$y];
         my $channel = $ChannelMapping::chanmap->{chan}->[$x]->[$y];
-        HPlot::PlotFill('HeatmapRich',$diff->{$fpga}->[$channel],$x+1,$y+1);
+        HPlot::PlotFill('HeatmapRich',$diff->{$fpga}->[$channel],$x,$y);
         }
       }
     HPlot::PlotDraw('HeatmapRich');      

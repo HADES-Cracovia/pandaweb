@@ -1,4 +1,4 @@
-M#!/usr/bin/perl -w
+#!/usr/bin/perl -w
 
 use warnings;
 use POSIX qw(strftime);
