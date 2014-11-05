@@ -2,11 +2,13 @@
 
 use warnings;
 use lib "./code";
+use lib "../tools";
 use HADES::TrbNet;
 use Dmon;
+use HPlot;
 use Data::Dumper;
 
-my %config = do $ARGV[0];
+my %config = Dmon::StartUp();
 
 
 
@@ -34,12 +36,13 @@ sub sendcmd {
    
 
 while(1) {
-  my $r = sendcmd(0x10040000,0xfe48,0);
   my $max = 1; 
   my $min = 100;  
   my ($maxboard, $minboard);
 
-  foreach my $b (keys %$r) {
+  foreach my $b ($config{PadiwaTrbAdresses}) {
+    my $r = sendcmd(0x10040000,$b,0);
+    next unless defined $r;
     my $temp = (($r->{$b} & 0xFFF))/16;
     next if ($temp < 10 || $temp > 90);
     if ($max < $temp) {

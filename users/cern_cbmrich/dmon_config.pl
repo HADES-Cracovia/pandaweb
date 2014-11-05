@@ -5,7 +5,7 @@
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['heatmaprich','-','-','-','-'],
+                  ['heatmaprich','padiwatemp','-','-','-'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
@@ -33,8 +33,7 @@ PadiwaTrbAdresses => [0x0010,0x0011,0x0012,0x0013,
                       0x00d0,0x00d1,0x00d2,0x00d3,
                       0x00e0,0x00e1,0x00e2,0x00e3,
                       0x00f0,0x00f1,0x00f2,0x00f3,
-                      0x0100,0x0101,0x0102,0x0103,
-                      0x0110,0x0111,0x0112,0x0113],
+                      0x0100,0x0101,0x0102,0x0103],
 
 HubTrbAdresses =>  [0x7005,0x7000,0x7001,0x7002,0x7003,
                     0x0015,

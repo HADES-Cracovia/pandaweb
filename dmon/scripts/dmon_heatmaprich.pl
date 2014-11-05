@@ -41,7 +41,7 @@ $plot2->{ylabel} = "row";
 $plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.85\nset bmargin at screen 0.07\nset tmargin at screen 0.95";
 HPlot::PlotInit($plot2);
 
-my $str = Dmon::MakeTitle(10,15,"HeatmapRich",0);
+my $str = Dmon::MakeTitle(9,14,"HeatmapRich",0);
    $str .= qq@<img src="%ADDPNG HeatmapRich.png%" type="image/png">@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("HeatmapRich",$str);
