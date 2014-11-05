@@ -22,11 +22,9 @@ HPlot::PlotInit({
   ylabel  => "Temperature",
   sizex   => 300,
   sizey   => 200,
-  ymin    => 10,
-  ymax    => 90,
   xscale  => 1,
   nokey   => 1,
-  buffer  => 1
+  buffer  => 0
   });
 
 my $str = Dmon::MakeTitle(6,7,"PadiwaTemp",0);
@@ -70,16 +68,20 @@ while(1) {
     my $r = sendcmd(0x10040000,$b,0);
     next unless defined $r;
     my $temp = (($r->{$b} & 0xFFF))/16;
-    next if ($temp < 10 || $temp > 90);
-    if ($max < $temp) {
-      $max = $temp;
-      $maxboard = $b;
+    unless ($temp < 10 || $temp > 90) {
+      if ($max < $temp) {
+        $max = $temp;
+        $maxboard = $b;
+        }
+      elsif ($min > $temp) { 
+        $min = $temp;
+        $minboard = $b;
+        }
+      HPlot::PlotFill('PadiwaTemp',$temp,$i++);      
+      }  
+    else {
+      HPlot::PlotFill('PadiwaTemp',10,$i++);      
       }
-    elsif ($min > $temp) { 
-      $min = $temp;
-      $minboard = $b;
-      }
-    HPlot::PlotFill('PadiwaTemp',$temp,$i++);      
     }
   
   my $title    = "Temperature";
@@ -87,7 +89,7 @@ while(1) {
   my $longtext = sprintf("Maximum: %.1f on board 0x%04x<br>Minimum: %.1f on board 0x%04x",$max,$maxboard,$min,$minboard);
   my $status   = Dmon::GetQAState('below',$max,(50,60,70));
   
-  
+  HPlot::PlotDraw('PadiwaTemp');
   Dmon::WriteQALog($config{flog},"padiwatemp",30,$status,$title,$value,$longtext,"10-PadiwaTemp");
 
   sleep(15);
