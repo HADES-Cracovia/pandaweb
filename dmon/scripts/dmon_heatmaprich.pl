@@ -38,6 +38,7 @@ $plot2->{ymax}    = 32.5;
 $plot2->{showvalues} = 0;
 $plot2->{xlabel} = "column";
 $plot2->{ylabel} = "row";
+$plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.85\nset bmargin at screen 0.07\nset tmargin at screen 0.95";
 HPlot::PlotInit($plot2);
 
 my $str = Dmon::MakeTitle(10,15,"HeatmapRich",0);
@@ -53,7 +54,7 @@ my $diff;
 
 
 while (1) {
-  my $o = trb_register_read_mem(0xfe4c,0xc000,0,33);
+  my $o = trb_register_read_mem($config{PadiwaBroadcastAddress},0xc000,0,33);
 
   if (defined $old) {
     foreach my $b (keys %$o) {

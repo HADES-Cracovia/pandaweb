@@ -122,6 +122,10 @@ sub PlotInit {
   elsif(defined $p->{$name}->{xmin}) {
     plot_write($fh,"set xrange [".$p->{$name}->{xmin}.":]");
     }
+
+  if($p->{$name}->{addCmd} && $p->{$name}->{addCmd} ne "") {  
+    plot_write($fh,$p->{$name}->{addCmd});
+    }
     
   if($p->{$name}->{type} == TYPE_HISTORY) {
     if($p->{$name}->{fill}) {
