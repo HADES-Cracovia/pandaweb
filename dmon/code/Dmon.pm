@@ -4,7 +4,7 @@ use Data::Dumper;
 use warnings;
 use strict;
 use HADES::TrbNet;
-
+use Time::HiRes qq|usleep|;
 
 print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
 
@@ -292,6 +292,34 @@ sub SciNotation {
     return sprintf("%.1fm", $v*1E3);
     }
 }
+
+
+############################################
+# Sends a command to a Padiwa
+sub PadiwaSendCmd {
+  my ($cmd,$board,$chain) = @_;
+  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+  my $errcnt = 0;
+  while(1){
+    trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+
+    if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
+    if (trb_strerror() ne "No Error") {
+      usleep 1E5;
+      if($errcnt >= 12) {
+        return "SPI still blocked\n";
+        }
+      elsif($errcnt++ >= 10) {
+        trb_register_read($board,0xd412);
+        }
+      }
+    else {
+      last;
+      }
+    } 
+  return trb_register_read($board,0xd412);
+  }
+
 
 
 1;

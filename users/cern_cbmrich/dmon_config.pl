@@ -5,7 +5,7 @@
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['heatmaprich','padiwatemp','-','-','-'],
+                  ['heatmaprich','padiwatemp','padiwaonline','-','-'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
