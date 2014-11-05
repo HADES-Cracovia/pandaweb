@@ -75,9 +75,9 @@ while(1) {
   Dmon::WriteQALog($config{flog},"padiwatemp",30,$status,$title,$value,$longtext,"10-PadiwaTemp");
 
   $title    = "Online";
-  $value    = sprintf("%i / %i",(scalar @{$config{PadiwaTrbAdresses}})-$notonline,scalar @{$config{PadiwaTrbAdresses}});
+  $value    = sprintf("%i / %i",(scalar @{$config{PadiwaTrbAdresses}})-$notonlinecnt,scalar @{$config{PadiwaTrbAdresses}});
   $longtext = "Boards not reacting:".$notonline;
-  $status   = Dmon::GetQAState('above',$notonline,(0,1,4));
+  $status   = Dmon::GetQAState('above',$notonlinecnt,(0,1,4));
   Dmon::WriteQALog($config{flog},"padiwaonline",30,$status,$title,$value,$longtext,"10-PadiwaOnline");  
   
   HPlot::PlotDraw('PadiwaTemp');
