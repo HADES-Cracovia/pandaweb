@@ -20,8 +20,8 @@ HPlot::PlotInit({
   output  => HPlot::OUT_PNG,
   xlabel  => "Board",
   ylabel  => "Temperature",
-  sizex   => 300,
-  sizey   => 200,
+  sizex   => 400,
+  sizey   => 250,
   xscale  => 1,
   nokey   => 1,
   buffer  => 0
@@ -62,9 +62,10 @@ while(1) {
   my $max = 1; 
   my $min = 100;  
   my ($maxboard, $minboard);
-  my $i = 0;
+  my $i = -1;
 
   foreach my $b (@{$config{PadiwaTrbAdresses}}) {
+    $i++;
     my $r = sendcmd(0x10040000,$b,0);
     next unless defined $r;
     my $temp = (($r->{$b} & 0xFFF))/16;
@@ -77,10 +78,10 @@ while(1) {
         $min = $temp;
         $minboard = $b;
         }
-      HPlot::PlotFill('PadiwaTemp',$temp,$i++);      
+      HPlot::PlotFill('PadiwaTemp',$temp,$i);      
       }  
     else {
-      HPlot::PlotFill('PadiwaTemp',10,$i++);      
+      HPlot::PlotFill('PadiwaTemp',10,$i);      
       }
     }
   
