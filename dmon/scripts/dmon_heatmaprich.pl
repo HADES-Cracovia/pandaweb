@@ -79,7 +79,7 @@ while (1) {
   my $title  = "Heatmap";
   my $value = "";
   my $longtext = "See plot";
-  Dmon::WriteQALog($config{flog},"heatmaprich",5,$status,$title,$value,$longtext,'2-HeatmapRich');
+  Dmon::WriteQALog($config{flog},"heatmaprich",5,$status,$title,$value,$longtext,'1-HeatmapRich');
   $old = $o;
   $oldtime = time();
   sleep(1);
