@@ -16,6 +16,7 @@ NumberOfFpga => 90,
 
 #The address of the individual boards
 CtsAddress   => 0x7005,   
+PadiwaBroadcastAddress => 0xfe4c,
 
 PadiwaTrbAdresses => [0x0010,0x0011,0x0012,0x0013,
                       0x0020,0x0021,0x0022,0x0023,
