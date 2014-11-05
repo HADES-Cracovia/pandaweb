@@ -14,7 +14,7 @@ my %config = Dmon::StartUp();
 
 HPlot::PlotInit({
   name    => "PadiwaTemp",
-  file    => Dmon::DMONDIR."PadiwaTemperature",
+  file    => Dmon::DMONDIR."PadiwaTemp",
   entries => scalar @{$config{PadiwaTrbAdresses}},
   type    => HPlot::TYPE_HISTORY,
   output  => HPlot::OUT_PNG,
@@ -29,7 +29,7 @@ HPlot::PlotInit({
   buffer  => 1
   });
 
-my $str = Dmon::MakeTitle(9,14,"PadiwaTemp",0);
+my $str = Dmon::MakeTitle(6,7,"PadiwaTemp",0);
    $str .= qq@<img src="%ADDPNG PadiwaTemp.png%" type="image/png">@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("PadiwaTemp",$str);  
