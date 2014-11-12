@@ -15,7 +15,8 @@ use constant {OUT_PNG    => 1,
               OUT_SVG    => 2,  #n/a
               OUT_SCREEN => 3}; #n/a
 
-my @color= ('#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22','#8888dd','#8822bb','#444444');
+my @color= ('#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22','#8888dd','#8822bb','#444444',
+ '#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22','#8888dd','#8822bb','#444444');
 
 sub plot_write {
   my ($file,$str,$no) = @_;

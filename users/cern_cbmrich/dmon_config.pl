@@ -5,7 +5,7 @@
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['heatmaprich','padiwatemp','padiwaonline','-','-'],
+                  ['heatmaprich','padiwatemp','padiwaonline','currents','-'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
@@ -54,8 +54,8 @@ HubTrbAdresses =>  [0x7005,0x7000,0x7001,0x7002,0x7003,
                     0x0105,
                     0x0115],
 
-BillboardAddress => 0xf30a,
-MBSAddress => 0xf30a,
+BillboardAddress => 0x0112,
+MBSAddress => 0x0112,
                     
 #Addresses of all TDCs. Either single or broadcast addresses
 TdcAddress   => [0xfe4c,0xfe4e,0x7005],  
