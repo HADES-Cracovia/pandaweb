@@ -4,7 +4,7 @@ use warnings;
 use POSIX qw(strftime);
 use FileHandle;
 use lib "./code";
-use lib "../tools";
+use lib "./tools";
 use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Dmon;
@@ -13,7 +13,7 @@ use Net::Ping;
 my %config = Dmon::StartUp();
 
 
-my $ping = Net::Ping->new();
+my $ping = Net::Ping->new("external");
 while(1) {
   my $found = 0;
   my $notavail = 0;
@@ -21,6 +21,7 @@ while(1) {
   my $total = scalar @{$config{TrbIP}};
   foreach my $p (@{$config{TrbIP}}) {
     my $r = $ping->ping($p,1);
+#     print $p."\t$r\n";
     $found    += $r || 0;
     $notavail += 1-($r||0);
     $list .= " $p" unless $r;

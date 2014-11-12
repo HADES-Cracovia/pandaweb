@@ -2,6 +2,8 @@
 use FileHandle;
 use Data::Dumper;
 use POSIX qw(strftime);
+use FindBin;                 # locate this script
+use lib "$FindBin::Bin/..";
 use lib "./code";
 use Dmon;
 
