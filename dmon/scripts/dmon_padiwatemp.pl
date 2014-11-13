@@ -55,7 +55,7 @@ while(1) {
         $max = $temp;
         $maxboard = $b;
         }
-      elsif ($min > $temp) { 
+      if ($min > $temp) { 
         $min = $temp;
         $minboard = $b;
         }

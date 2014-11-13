@@ -16,17 +16,19 @@ then
 fi
 
 #export TRB3_SERVER=trb056
-export DAQOPSERVER=localhost:56
+export DAQOPSERVER=10.160.0.77:56
 
-echo -n "- number of trb endpoints in the system: "
-trbcmd i 0xffff | wc -l
+
 
 
 ##################################################
 ## System Reset
 ##################################################
+echo "Doing reset"
 trbcmd reset
 
+echo -n "- number of trb endpoints in the system: "
+trbcmd i 0xffff | wc -l
 ##################################################
 ## Set addresses
 ##################################################
@@ -89,7 +91,7 @@ echo "XXX: Running prepare padiwas invert leds"
 0x00d0 0x00d1 0x00d2 0x00d3 \
 0x00e0 0x00e1 0x00e2 0x00e3 \
 0x00f0 0x00f1 0x00f2 0x00f3 \
-0x0100 0x0101 0x0102 0x0103 "
+0x0100 0x0101 0x0102 0x0103 0x111"
 echo "done..."
 
 # enable used channels

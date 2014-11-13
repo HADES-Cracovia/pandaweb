@@ -10,18 +10,44 @@ use Time::HiRes qw(usleep gettimeofday tv_interval);
 use Dmon;
 use HPlot;
 use Data::Dumper;
+use Perl2Epics;
 
 my %config = Dmon::StartUp();
 my $t0;
 
+for(my $i = 1; $i<=20; $i++) {
+  my $name = sprintf('CBM:PWRSWITCH:GetCurrent%02x',$i);
+  Perl2Epics::Connect("C".$i,$name);
+}
+
 while(1) {
+# update billboard
+  my @billboardValues = ();
+  my $reg;
+
+  my $epicsData = Perl2Epics::GetAll();
+
+  # temp & pressure
+  $billboardValues[0] = 0xdeadc0de;
+
+  # currents
+  for(my $i = 1; $i<=20; $i++) {
+    my $milAmp = $epicsData->{"C".$i}->{"val"} * 1000;
+    $reg = 0 unless $i & 1;
+    $reg |= ($milAmp & 0xffff) << (16 * ($i&1));
+    $billboardValues[$i / 2 + 1] = $reg;
+  }
+
+  trb_register_write_mem($config{BillboardAddress}, 0xb100, 0, \@billboardValues, scalar @billboardValues); # copy data
+  trb_register_write($config{BillboardAddress}, 0xb000, scalar @billboardValues); # commit
+
+# build statistics
   my $title = "Billboard";
   my $longtext='';
   my $value='';
   my $status = Dmon::OK;
 
   my $regs = trb_registertime_read_mem($config{BillboardAddress},0xb000, 0, 5);
-  
   if(defined $regs->{$config{BillboardAddress}}) {
     my $rates = Dmon::MakeRate(0,32,0,$regs);
     if (defined($rates->{$config{BillboardAddress}}{rate}) && $t0) {
@@ -46,6 +72,6 @@ while(1) {
   
   $t0 = [gettimeofday];
   Dmon::WriteQALog($config{flog},"billboard",6,$status,$title,$value,$longtext) if ($longtext);
-  usleep(5e6);
+  usleep(5e5);
 }
 
