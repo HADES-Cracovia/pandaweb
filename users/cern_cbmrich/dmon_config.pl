@@ -5,7 +5,7 @@
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['heatmaprich','padiwatemp','padiwaonline','currents','-'],
+                  ['heatmaprich','padiwatemp','padiwaonline','currents','pscurrents'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
@@ -83,4 +83,5 @@ TrbIP => ["192.168.0.29",
 
 
 #User directory
-UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/'
+UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',
+PowerSupScript => 'measure_powers.sh' # relative to UserDirectory
