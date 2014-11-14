@@ -116,6 +116,8 @@ function reload() {
       reloadevery = setTimeout('reload()',$.($delay*1000).qq$);
       delete xmlhttp;
       delete saveScrollTop;
+
+      heatmapRegister();
       }
     };
   if(document.getElementById('logbox')) {
@@ -170,6 +172,30 @@ function blink() {
     }
   blinkcnt++;
   }
+
+ function heatmapRegister() {
+  if (!document.getElementById('heatmap-img')) return;
+
+  if (typeof HeatmapDef === 'undefined') {
+    var js = document.createElement("script");
+    js.type = "text/javascript";
+    js.src = '../HeatmapRichDefs.js';
+    document.body.appendChild(js);
+  }
+
+  document.getElementById('heatmap-img').onmousemove =  document.getElementById('heatmap-img').onmouseover = function(e) {
+    var cx = e.clientX;
+    var cy = e.clientY;
+
+    if (!cx || !cy) return;
+
+    var ix = parseInt((cx - HeatmapDef.x) / HeatmapDef.w);
+    var iy = 32- parseInt((cy - HeatmapDef.y) / HeatmapDef.h);
+    if (ix < 0 || ix > 31 || iy < 0 || iy > 31) return;
+
+    document.getElementById('heatmap-caption').innerHTML = HeatmapDef.labels[ix][iy];
+  }
+ }
 
 </script>$;
 	      }
