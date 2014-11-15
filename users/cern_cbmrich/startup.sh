@@ -3,32 +3,31 @@
 #PATH=${HOME}/trbsoft/bin:${PATH}
 #PATH=${HOME}/trbsoft/daqdata/bin:${PATH}
 #PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
-#export TRB3_SERVER=trb056:26000 
+export TRB3_SERVER=trb056:26000 
 
-#export TRBNETDPID=$(pgrep trbnetd)
+export TRBNETDPID=$(pgrep trbnetd)
 
-#echo "- trbnetd pid: $TRBNETDPID"
-#
-#if [[ -z "$TRBNETDPID" ]] 
-#then
-#    ~/bin/trbnetd -i 56
-#    #~/trbsoft/trbnettools/binlocal/trbnetd -i 56
-#fi
-#
+echo "- trbnetd pid: $TRBNETDPID"
+
+# if [[ -z "$TRBNETDPID" ]] 
+# then
+#     #~/bin/trbnetd -i 56
+#     #~/trbsoft/trbnettools/binlocal/trbnetd -i 56
+# fi
+
 #export TRB3_SERVER=trb056
-#export DAQOPSERVER=10.160.0.78:56
-
-
+export DAQOPSERVER=10.160.0.77:56
 
 
 ##################################################
 ## System Reset
 ##################################################
 echo "Doing reset"
-trbcmd reset
+perl -e 'for(my $i=0; $i < 5; $i++) {`trbcmd reset`; my $n = `trbcmd i 0xffff | wc -l`; exit if $n == 90; print "found only $n fpgas. try it again";} print "Give up\n"'
 
 echo -n "- number of trb endpoints in the system: "
 trbcmd i 0xffff | wc -l
+
 ##################################################
 ## Set addresses
 ##################################################
@@ -113,7 +112,18 @@ trbcmd w 0xfffe 0xc5 0x800050ff
 
 echo "- setting trigger rate register in TDC";
 # trigger rate 10kHz
-trbcmd w 0x7005 0xa150 0x0001869f
+trbcmd w 0x7005 0xa150     9999 # 10 khz
+trbcmd w 0x7005 0xa151 99999990 # ~ 1 hz 
+trbcmd setbit 0x7005 0xa009 0x10 # include timestamp
+trbcmd w 0x7005 0xa155 0x111111e1
+
+
+# billboard
+trbcmd w 0x0112 0xb01e 0  # include billboard info with e-trigger
+
+#cbmnet
+trbcmd w 0x7005 0xa800 0x3   # enable CBMNet AND GbE
+trbcmd w 0x7005 0xa901 62500 # enable sync pulser with 2 khz ... prob. dont need it, but better safe thEn sorry
 
 # pulser enable
 #trbcmd setbit 0x7005 0xa101 0x1
@@ -130,17 +140,18 @@ trbcmd setbit 0xfe4a 0xcf00 0x1
 
 
 #set MAPMT Thresholds
-thresholdfile="thresh/stdthresh.thr"
-thresholdfile="thresh/dummythresholds.thr"
-offset="100"
+#thresholdfile="thresh/stdthresh.thr"
+#thresholdfile="thresh/dummythresholds.thr"
+#offset="100"
 echo
 echo "loading MAPMT thresholds: ${thresholdfile}"
 echo "offset is ${offset}   (200=1mv on input)"
-../../thresholds/write_thresholds.pl $thresholdfile -o $offset
+../../thresholds/write_thresholds.pl thresh/current_thresholds.thr -o 200
 
 echo "Loading Padiwa Amps Settings"
 /home/hadaq/trbsoft/daqtools/padiwa.pl 0x111 0 invert 0xaaaa
-../../thresholds/write_thresholds.pl thresh/thresholds_padiwa_amps.thr -o 0
+/home/hadaq/trbsoft/daqtools/padiwa.pl 0x113 0 invert 0xaaaa
+../../thresholds/write_thresholds.pl thresh/thresholds_padiwa_amps.thr
 
 
 echo "Disable noisy pixel in Padiwa"
@@ -154,4 +165,10 @@ echo "Disable noisy pixel in Padiwa"
 #trbcmd clearbit 0x8103 0xc0 0xf6
 #trbcmd clearbit 0x8103 0xc1 0xf6
 #trbcmd clearbit 0x8103 0xc3 0xf6
-echo "ready to go"
+
+sleep 1
+
+echo "Wait a sec (http://goo.gl/bdWW1g)"
+trbcmd w 0x7005 0xa101 0x3   # activate trigger
+
+echo "Trigger activated. I'm done"
