@@ -4,12 +4,13 @@
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
+                  ['beamintensity','-','-','-','-'],
                   ['trgrate','datarate','deadtime','-','-'],
                   ['heatmaprich','padiwatemp','padiwaonline','currents','pscurrents'],
-                  ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
+                  ['cbmnetlink','cbmnetdata','cbmnetsync','-','-']],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
-qaNames => ['sys','main','rate','Pdwa','CNet','-'],                  
+qaNames => ['sys','main','beam','rate','Pdwa','CNet','-'],                  
 
 #Expected number of FPGAs in system
 NumberOfFpga => 90,       
@@ -61,10 +62,11 @@ MBSAddress => 0x0112,
 #Addresses of all TDCs. Either single or broadcast addresses
 TdcAddress   => [0xfe4c,0xfe4e,0x7005],  
 
+#IPs of all devices which should react on a ping
 TrbIP => ["192.168.0.29",
           "192.168.0.47",
           "192.168.0.56",
-          "192.168.0.57",
+#           "192.168.0.57",#extra TRB3
           "192.168.0.59",
           "192.168.0.72",
           "192.168.0.73",
@@ -80,8 +82,16 @@ TrbIP => ["192.168.0.29",
           "192.168.0.104",
           "192.168.0.105"],
 
+#Channel to read spill intensity from. Give limit for off-spill detection
+BeamTRB => 0x0110,
+BeamChan => 0xc005,
+SpillThreshold => 30,
 
+#Name detectors 
+BeamDetectorsTrb  => [0x0111,0x0111,0x0111,0x0110],
+BeamDetectorsChan => [0xc001,0xc005,0xc009,0xc005],
 
 #User directory
 UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',
-PowerSupScript => 'measure_powers.sh' # relative to UserDirectory
+PowerSupScript => 'measure_powers.sh' # relative to user dir
+

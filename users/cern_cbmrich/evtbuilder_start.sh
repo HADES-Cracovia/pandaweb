@@ -51,7 +51,7 @@ extraopts="--online"
 cd $tmpdir
 
 
-  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/home/hadaq/bin/daq_evtbuild -m 18 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file \
+  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/home/hadaq/bin/daq_evtbuild -m 17 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file \
 ${extraopts}; read; bash" &
 
 
@@ -60,7 +60,7 @@ echo $pid > $tmpdir/.daq_evtbuild.pid
 
 sleep 1
 
-  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "/home/hadaq/bin/daq_netmem -m 18 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50001 -i UDP:0.0.0.0:50002 -i UDP:0.0.0.0:50003 -i UDP:0.0.0.0:50004 -i UDP:0.0.0.0:50005 -i UDP:0.0.0.0:50006 -i UDP:0.0.0.0:50007 -i UDP:0.0.0.0:50008 -i UDP:0.0.0.0:50009 -i UDP:0.0.0.0:50010 -i UDP:0.0.0.0:50011 -i UDP:0.0.0.0:50012 -i UDP:0.0.0.0:50013 -i UDP:0.0.0.0:50014 -i UDP:0.0.0.0:50015 -i UDP:0.0.0.0:50016 -i UDP:0.0.0.0:50017 -q 32 -d 1 -S test ;  " &
+  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "/home/hadaq/bin/daq_netmem -m 17 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50001 -i UDP:0.0.0.0:50002 -i UDP:0.0.0.0:50003 -i UDP:0.0.0.0:50004 -i UDP:0.0.0.0:50005 -i UDP:0.0.0.0:50006 -i UDP:0.0.0.0:50007 -i UDP:0.0.0.0:50008 -i UDP:0.0.0.0:50009 -i UDP:0.0.0.0:50010 -i UDP:0.0.0.0:50011 -i UDP:0.0.0.0:50012 -i UDP:0.0.0.0:50013 -i UDP:0.0.0.0:50014 -i UDP:0.0.0.0:50015 -i UDP:0.0.0.0:50016 -q 32 -d 1 -S test ;  " &
 
 pid=$!
 echo $pid > $tmpdir/.daq_netmem.pid

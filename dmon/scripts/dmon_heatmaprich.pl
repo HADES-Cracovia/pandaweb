@@ -44,12 +44,12 @@ $plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.80\nset 
 HPlot::PlotInit($plot2);
 
 my $str = Dmon::MakeTitle(9,14,"HeatmapRich",0);
-   $str .= qq@<img src="%ADDPNG HeatmapRich.png%" type="image/png" id="heatmap-img"><div id="heatmap-caption" style="margin-top: -5px;"></div>@;
+   $str .= qq@<div style="padding:0"><img src="%ADDPNG HeatmapRich.png%" type="image/png" id="heatmap-img"></div><div id="heatmap-caption" style="margin-top: -5px;"></div>@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("HeatmapRich",$str);
 
 sub generateDef {
-  my $x = 55; my $y = 50; my $w = (566-$x) / 32.0; my $h = (619-$y) / 32.0;
+  my $x = 56; my $y = 51; my $w = (564-$x) / 32.0; my $h = (619-$y) / 32.0;
 
   $str = qq@
   var HeatmapDef = {

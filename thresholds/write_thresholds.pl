@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-use lib "/home/hadaq/trbsoft/daqtools/dmon/code";
 use Dmon;
 
 use Getopt::Long;
@@ -96,7 +95,8 @@ sub write_threshold {
 
   my $command= $fixed_bits | ($current_channel << 16) | ($thresh << $shift_bits);
 
-  Dmon::PadiwaSendCmd($endpoint, $chain, $command);
+  #Dmon::PadiwaSendCmd($endpoint, $chain, $command);
+  send_command($endpoint, $chain, $command);
 }
 
 

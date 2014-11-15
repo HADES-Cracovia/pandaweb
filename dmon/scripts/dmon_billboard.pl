@@ -3,8 +3,7 @@
 use warnings;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "./code";
-use lib "../tools";
+
 use HADES::TrbNet;
 use Time::HiRes qw(usleep gettimeofday tv_interval);
 use Dmon;

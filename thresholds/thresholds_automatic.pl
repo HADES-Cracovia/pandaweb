@@ -236,7 +236,7 @@ write_thresholds($mode, $chain, \@best_thresh);
 my $uid;
 foreach my $i (reverse (0..3)) {
   #print "send command: $endpoint , i: $i\n";
-  $rh_res = Dmon::PadiwaSendCmd($endpoint, $chain, 0x10000000 | $i * 0x10000);
+  $rh_res = Dmon::PadiwaSendCmd(0x10000000 | $i * 0x10000, $endpoint, $chain);
   $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
 }
@@ -283,7 +283,7 @@ sub read_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) ;
-    my $rh_res = Dmon::PadiwaSendCmd($endpoint, $chain, $command);
+    my $rh_res = Dmon::PadiwaSendCmd($command,$endpoint, $chain);
     push (@thresh , $rh_res->{$endpoint});
   }
 
@@ -325,7 +325,7 @@ sub write_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) | ($ra_thresh->[$current_channel] << $shift_bits);
-    Dmon::PadiwaSendCmd($endpoint, $chain, $command);
+    Dmon::PadiwaSendCmd($command,$endpoint, $chain);
 
 
   }

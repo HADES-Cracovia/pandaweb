@@ -3,20 +3,20 @@
 #PATH=${HOME}/trbsoft/bin:${PATH}
 #PATH=${HOME}/trbsoft/daqdata/bin:${PATH}
 #PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
-export TRB3_SERVER=trb056:26000 
+#export TRB3_SERVER=trb056:26000 
 
-export TRBNETDPID=$(pgrep trbnetd)
+#export TRBNETDPID=$(pgrep trbnetd)
 
-echo "- trbnetd pid: $TRBNETDPID"
-
-if [[ -z "$TRBNETDPID" ]] 
-then
-    ~/bin/trbnetd -i 56
-    #~/trbsoft/trbnettools/binlocal/trbnetd -i 56
-fi
-
+#echo "- trbnetd pid: $TRBNETDPID"
+#
+#if [[ -z "$TRBNETDPID" ]] 
+#then
+#    ~/bin/trbnetd -i 56
+#    #~/trbsoft/trbnettools/binlocal/trbnetd -i 56
+#fi
+#
 #export TRB3_SERVER=trb056
-export DAQOPSERVER=10.160.0.77:56
+#export DAQOPSERVER=10.160.0.78:56
 
 
 
@@ -116,7 +116,7 @@ echo "- setting trigger rate register in TDC";
 trbcmd w 0x7005 0xa150 0x0001869f
 
 # pulser enable
-trbcmd setbit 0x7005 0xa101 0x1
+#trbcmd setbit 0x7005 0xa101 0x1
 #trbcmd clearbit 0x8000 0xa101 0x3
 
 # divert TDC inputs to the CTS for trigger
@@ -137,6 +137,14 @@ echo
 echo "loading MAPMT thresholds: ${thresholdfile}"
 echo "offset is ${offset}   (200=1mv on input)"
 ../../thresholds/write_thresholds.pl $thresholdfile -o $offset
+
+echo "Loading Padiwa Amps Settings"
+/home/hadaq/trbsoft/daqtools/padiwa.pl 0x111 0 invert 0xaaaa
+../../thresholds/write_thresholds.pl thresh/thresholds_padiwa_amps.thr -o 0
+
+
+echo "Disable noisy pixel in Padiwa"
+/home/hadaq/trbsoft/daqtools/padiwa.pl 0x073 0 disable 0x0001
 
 #8103 3
 #trbcmd clearbit 0x7005 0xc0 0x7

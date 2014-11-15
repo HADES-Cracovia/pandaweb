@@ -11,31 +11,31 @@ use Dmon;
 use Data::Dumper;
 
 
-my %config = do $ARGV[0];
-my $flog = Dmon::OpenQAFile();
-trb_init_ports() or die trb_strerror();
+my %config = Dmon::StartUp();
 
-
-my $value, my $longtext, my $status;
-
+my $old, my $value;
 my $lasterrors = 0;
 while(1) {
   my $errors = 0;
-  foreach my $b (@{$config{TdcAddress}}) {
-    my $r = trb_register_read($b,0xc100);
-    foreach my $c (%{$r}) {
-      if ($c & 0x10000) {$errors++;}
-      }
+  my $sig = trb_register_read($config{BeamTRB},$config{BeamChan});
+  my $title    = "Last Spill";
+  
+  my $curr = $sig->{$config{BeamTRB}} & 0xffffff;
+
+  if($curr - $old > $config{SpillThreshold}) {
+    $value += $curr - $old||0;
     }
-  my $title    = "Ref Polarity";
-  
-  if ($errors) { $value = $errors." errors"; }
-  else         { $value = "OK";}
-  
-  my $longtext = "Polarity of the reference time signals on TDCs seems to be: ".$value;
-  if($errors && $lasterrors) {  $status   = Dmon::GetQAState('below',$errors,(0,1,4));}
-  else                       {  $status   = Dmon::OK;}
-  Dmon::WriteQALog($flog,"reftime",20,$status,$title,$value,$longtext);
-  $lasterrors = $errors;
-  sleep 10;
+  else {
+    if ($value > 0) {
+      my $longtext = "Number of signals in last spill: ".$value;
+      my $status = Dmon::OK;
+      Dmon::WriteQALog($config{flog},"beamintensity",60,$status,$title,$value,$longtext);
+      $value = 0;
+      }
+    }      
+
+
+
+  $old = $curr;
+  sleep 1;
   }

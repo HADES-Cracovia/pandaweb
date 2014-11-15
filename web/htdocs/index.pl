@@ -106,6 +106,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="tools/pwr/index.html" title="Currently supported: GW-Instek PSP-405 family, HMP2020 - HMP4040 family">Control for power supplies</a>
 <li><a href="tools/vxi/index.html" title="Tested with Tektronix AFG3000 function generator">Control for devices running the VXI-11 protocol</a>
 <li><a href="dmon/index.pl" title="DMON">DMON DAQ Monitoring</a></li>
+<li><a href="daqi/index.html" title="DMON">DAQi Control</a></li>
 </ul>
 </div>
 </div>

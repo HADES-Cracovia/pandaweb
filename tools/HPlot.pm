@@ -121,6 +121,9 @@ sub PlotInit {
   setranges($fh,'zrange',$p->{$name}->{zmin},$p->{$name}->{zmax});
   setranges($fh,'cbrange',$p->{$name}->{cbmin},$p->{$name}->{cbmax});
 
+  if($p->{$name}->{addCmd} && $p->{$name}->{addCmd} ne "") {  
+    plot_write($fh,$p->{$name}->{addCmd});
+    }
     
   if($p->{$name}->{type} == TYPE_HISTORY) {
     if($p->{$name}->{fill}) {
@@ -173,7 +176,12 @@ sub PlotInit {
     }
   elsif($p->{$name}->{type} == TYPE_HEATMAP) {
     plot_write($fh,"set view map");
-    plot_write($fh,"set palette rgbformulae 22,13,-31");
+    if(defined $p->{$name}->{palette}) {
+      plot_write($fh,"set palette ".$p->{$name}->{palette});
+      }
+    else {
+      plot_write($fh,"set palette rgbformulae 22,13,-31");
+      }
     if ($p->{$name}->{showvalues} == 0) {
       plot_write($fh,"splot '-' matrix with image");
       }

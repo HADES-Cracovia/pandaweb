@@ -4,13 +4,14 @@ use strict;
 use Data::Dumper;
 # use Hmon;
 
+#Add all possible paths here...
+use lib '/home/hadaq/EPICS/base-3.14.12.3/lib/perl';
 use lib '/mnt/home_cbm02/hadaq/EPICS/base-3.14.12.3/lib/perl';
 use CA;
 
+# Address list for Epics IOCs. Don't remove unused values
+$ENV{EPICS_CA_ADDR_LIST} = "10.160.0.63 192.168.1.100";
 $ENV{EPICS_CA_AUTO_ADDR_LIST} = 'YES';
-# JAM added fixed port numbers of EB epics
-$ENV{EPICS_CA_ADDR_LIST} = "10.160.0.63 cbmpi2";
-#$ENV{EPICS_CA_ADDR_LIST} = "192.168.100.11 192.168.100.12 192.168.100.13 192.168.100.14 192.168.100.15 localhost";
 
 my $EpicsValues = {};
 my $EpicsStore = {};
