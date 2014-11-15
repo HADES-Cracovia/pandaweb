@@ -38,7 +38,7 @@ HPlot::PlotInit($plot2);
 
 sub readSettings {
   my $fn = shift;
-  open(my $fh,  $fn || die "could not open file '$ARGV[0]'");
+  open(my $fh,  $fn) || die "could not open file '$fn'";
   my @f = <$fh>;
   close $fh;
 
@@ -73,9 +73,18 @@ sub readSettings {
       my $fpga    = $ChannelMapping::chanmap->{fpga}->[$x]->[$y];
       my $channel = ($ChannelMapping::chanmap->{chan}->[$x]->[$y]-1)/2;
       
-      my $value = $threshs1{$fpga.":".$channel} or die(sprintf("endpoint 0x%04x, channel %d (%d:%d) not found in $fn1", $fpga, $channel, $fpga, $channel));
+      unless (defined $threshs1{$fpga.":".$channel}) {
+        printf("endpoint 0x%04x, channel %d (%d:%d) not found in $fn1", $fpga, $channel, $fpga, $channel);
+        next;
+      }
+
+      my $value = $threshs1{$fpga.":".$channel};
       if ($fn2) {
-        $value -= ($threshs2{$fpga.":".$channel} or die(sprintf("endpoint 0x%04x, channel %d (%d:%d) not found in $fn2", $fpga, $channel, $fpga, $channel)));
+        if (defined $threshs2{$fpga.":".$channel}) {
+          $value -= $threshs2{$fpga.":".$channel};
+        } else {
+          printf("endpoint 0x%04x, channel %d (%d:%d) not found in $fn2", $fpga, $channel, $fpga, $channel);
+        }
       }
 
       HPlot::PlotFill('HeatmapRich',$value,$x,$y);
