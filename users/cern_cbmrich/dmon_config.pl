@@ -4,7 +4,7 @@
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
-                  ['beamintensity','-','-','-','-'],
+                  ['beamintensity','beammonitors','-','-','richenvironment'],
                   ['trgrate','datarate','deadtime','-','-'],
                   ['heatmaprich','padiwatemp','padiwaonline','currents','pscurrents'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-']],
@@ -13,7 +13,7 @@ activeScripts => [['time','ping','-','-','daqop'],
 qaNames => ['sys','main','beam','rate','Pdwa','CNet','-'],                  
 
 #Expected number of FPGAs in system
-NumberOfFpga => 90,       
+NumberOfFpga => 90,
 
 #The address of the individual boards
 CtsAddress   => 0x7005,   
@@ -88,8 +88,9 @@ BeamChan => 0xc005,
 SpillThreshold => 30,
 
 #Name detectors 
-BeamDetectorsTrb  => [0x0111,0x0111,0x0111,0x0110],
-BeamDetectorsChan => [0xc001,0xc005,0xc009,0xc005],
+BeamDetectorsTrb  => [0x0111,0x0110,0x0111,0x0110,0x0113,0x0110],
+BeamDetectorsChan => [0xc001,0xc009,0xc005,0xc00b,0xc009,0xc005],
+BeamDetectorsName => ['C1',  'C1d', 'C2',  'C2d', 'Lead', 'Hodo'],
 
 #User directory
 UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',

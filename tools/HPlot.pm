@@ -77,9 +77,10 @@ sub PlotInit {
 
   my $filename = $p->{$name}->{file};
   $filename =~ s%/%%;
-  $storefile->{$name} = "/dev/shm/".$name.'-'.$p->{$name}->{curves}.'-'.$p->{$name}->{entries}.'-'.$filename.'.store';
-
-    
+  $storefile->{$name} = $name.'-'.$p->{$name}->{curves}.'-'.$p->{$name}->{entries}.'-'.$filename.'.store';
+  $storefile->{$name} =~ s%/%%g;
+  $storefile->{$name} = "/dev/shm/".$storefile->{$name};
+  
   foreach my $i (0..($c->{entries}-1)) {
     for my $j (0..($c->{curves}-1)) {
       push(@{$p->{$name}->{value}->[$j]},0) ;

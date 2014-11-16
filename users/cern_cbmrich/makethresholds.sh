@@ -1,7 +1,7 @@
 #!/bin/bash
 rm padiwa_threshold_results.log
 ./write_thresholds.pl thresh/dummythresholds.thr -o 0
-
+trbcmd setbit 0x7005 0xa00c 0x80000000
 
 # ./run_thresh_on_system.pl \
 #  --endpoints=0x0013,0x0021,0x0033,0x0041,0x0053,0x0061,0x0073,0x0081,0x0093,0x00a1,0x00b3,0x00c1,0x00d3,0x00e1,0x00f3,0x0101 \
@@ -27,3 +27,4 @@ rm padiwa_threshold_results.log
   --32channel --chains=0 --offset=0 --polarity 1  --tool ./thresholds_new.pl 
 
 ./write_thresholds.pl padiwa_threshold_results.log -o 0
+trbcmd clearbit 0x7005 0xa00c 0x80000000

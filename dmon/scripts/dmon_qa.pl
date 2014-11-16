@@ -50,7 +50,7 @@ while($a = <FLOG>) {
 #Generate output file at most once per second
   if(1 || $oldtime < time) {
     $oldtime = scalar time();
-    $str  = Dmon::MakeTitle($width,7,"Tactical Overview",1);
+    $str  = Dmon::MakeTitle($width,8,"Tactical Overview",1);
     $str .= "<div class=\"QA\">";
     foreach my $row (@{$config{activeScripts}}) {
       $str .= "<div class=\"header\" style=\"clear:both\">".($config{qaNames}->[$i++])."</div>\n";

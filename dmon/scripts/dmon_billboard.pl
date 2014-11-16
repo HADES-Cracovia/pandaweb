@@ -14,10 +14,15 @@ use Perl2Epics;
 my %config = Dmon::StartUp();
 my $t0;
 
-for(my $i = 1; $i<=20; $i++) {
-  my $name = sprintf('CBM:PWRSWITCH:GetCurrent%02x',$i);
-  Perl2Epics::Connect("C".$i,$name);
+for(my $i = 0; $i< 16 ; $i++) {
+  Perl2Epics::Connect("PC".$i, sprintf('CBM:PWRSWITCH:GetCurrent%02x',$i));
+
+  Perl2Epics::Connect("HV_U".$i, sprintf('OUTPUT_TERMINAL_VOLTAGE_U%d',$i));
+  Perl2Epics::Connect("HV_I".$i, sprintf('MEASUREMENT_CURRENT_U%d',$i));
 }
+
+Perl2Epics::Connect("Pres","CBM:BMP180:GetPressure");
+Perl2Epics::Connect("Temp","CBM:BMP180:GetTemp");
 
 while(1) {
 # update billboard
@@ -27,19 +32,33 @@ while(1) {
   my $epicsData = Perl2Epics::GetAll();
 
   # temp & pressure
-  $billboardValues[0] = 0xdeadc0de;
+  push @billboardValues,
+    (($billboardVersion  & 0x3)      << 30) | # version   2 bit
+    (($epicsData{"Pres"} & 0x1fffff) <<  9) | # pressure 21 bit
+    (($epicsData{"Temp"} & 0x1ff   ) <<  0);  # temp      9 bit
 
-  # currents
-  for(my $i = 1; $i<=20; $i++) {
-    my $milAmp = $epicsData->{"C".$i}->{"val"} * 1000;
+  # padiwa currents
+  for(my $i = 0; $i < 16; $i++) {
+    my $milAmp = $epicsData->{"PC".$i}->{"val"} * 1000;
     $reg = 0 unless $i & 1;
     $reg |= ($milAmp & 0xffff) << (16 * ($i&1));
-    $billboardValues[$i / 2 + 1] = $reg;
+    push @billboardValues, $reg if $i & 1;
   }
 
+  # threshold timestamp
+  my $threshTime = do($config{UserDirectory} . '/thresh/billboard_info') || 0;
+  push @billboardValues, $threshTime & 0xffffffff;
+  
+  # hv values
+  for(my $i=0; $i < 16; $i++) {
+    push @billboardValues,
+      ((("HV_I".$i) * 1e6) & 0xffff) << 16) |
+      ((("HV_U".$i) * 1e2) & 0xffff) <<  0);
+  }
+  
   trb_register_write_mem($config{BillboardAddress}, 0xb100, 0, \@billboardValues, scalar @billboardValues); # copy data
   trb_register_write($config{BillboardAddress}, 0xb000, scalar @billboardValues); # commit
-
+  
 # build statistics
   my $title = "Billboard";
   my $longtext='';

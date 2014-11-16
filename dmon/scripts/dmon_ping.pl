@@ -3,8 +3,6 @@
 use warnings;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "./code";
-use lib "./tools";
 use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Dmon;
@@ -21,7 +19,6 @@ while(1) {
   my $total = scalar @{$config{TrbIP}};
   foreach my $p (@{$config{TrbIP}}) {
     my $r = $ping->ping($p,1);
-#     print $p."\t$r\n";
     $found    += $r || 0;
     $notavail += 1-($r||0);
     $list .= " $p" unless $r;

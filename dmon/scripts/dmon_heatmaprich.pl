@@ -4,8 +4,6 @@ use warnings;
 use strict;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "./code";
-use lib "../tools";
 use lib "../users/cern_cbmrich";
 use HADES::TrbNet;
 use Time::HiRes qw(usleep);
@@ -36,53 +34,26 @@ $plot2->{xmax}    = 32.5;
 $plot2->{ymin}    = 0.5;
 $plot2->{ymax}    = 32.5;
 $plot2->{cbmin}   = "0";
-$plot2->{cbmax}   = "100<*<1000000";
+$plot2->{cbmax}   = "100<*";
 $plot2->{showvalues} = 0;
 $plot2->{xlabel} = "column";
 $plot2->{ylabel} = "row";
-$plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.80\nset bmargin at screen 0.07\nset tmargin at screen 0.95";
+$plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.85\nset bmargin at screen 0.07\nset tmargin at screen 0.95";
 HPlot::PlotInit($plot2);
 
 my $str = Dmon::MakeTitle(9,14,"HeatmapRich",0);
-   $str .= qq@<div style="padding:0"><img src="%ADDPNG HeatmapRich.png%" type="image/png" id="heatmap-img"></div><div id="heatmap-caption" style="margin-top: -5px;"></div>@;
+   $str .= qq@<img src="%ADDPNG HeatmapRich.png%" type="image/png">@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("HeatmapRich",$str);
 
-sub generateDef {
-  my $x = 56; my $y = 51; my $w = (564-$x) / 32.0; my $h = (619-$y) / 32.0;
-
-  $str = qq@
-  var HeatmapDef = {
-    'x': $x, 'y': $y, 'w': $w, 'h': $h,
-    'labels': [
-  @;
-
-  for my $ix (1..32) {
-    $str .= '[';
-    for my $iy (1..32) {
-      my $fpga    = $ChannelMapping::chanmap->{fpga}->[$ix]->[$iy];
-      my $channel = ($ChannelMapping::chanmap->{chan}->[$ix]->[$iy]-1) / 2;
-
-      $str .= sprintf("'0x%04x CH: %d'", $fpga, $channel) . ($iy == 32 ? '' : ',');
-    }
-    $str .= ']' . ($ix == 32 ? '' : ',') . "\n";
-  }
-
-  $str .= ']};';
-  return $str;
-}
-
-open FH, ">", Dmon::DMONDIR . '/HeatmapRichDefs.js';
-print FH generateDef;
-close FH;
 
 my $old;
 my $oldtime = time();
 my $time = time();
 my $diff;
 
-
 while (1) {
+  my $sum = 0;
   my $o = trb_register_read_mem($config{PadiwaBroadcastAddress},0xc000,0,33);
 
   if (defined $old) {
@@ -100,14 +71,15 @@ while (1) {
         my $fpga    = $ChannelMapping::chanmap->{fpga}->[$x]->[$y];
         my $channel = $ChannelMapping::chanmap->{chan}->[$x]->[$y];
         HPlot::PlotFill('HeatmapRich',$diff->{$fpga}->[$channel],$x,$y);
+        $sum += $diff->{$fpga}->[$channel];
         }
       }
     HPlot::PlotDraw('HeatmapRich');      
     }
   my $status = Dmon::OK;
   my $title  = "Heatmap";
-  my $value = "";
-  my $longtext = "See plot";
+  my $value = Dmon::SciNotation($sum);
+  my $longtext = "Total: ".$value;
   Dmon::WriteQALog($config{flog},"heatmaprich",5,$status,$title,$value,$longtext,'1-HeatmapRich');
   $old = $o;
   $oldtime = time();

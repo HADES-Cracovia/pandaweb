@@ -3,7 +3,6 @@
 use warnings;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "./code";
 use HADES::TrbNet;
 use Dmon;
 
