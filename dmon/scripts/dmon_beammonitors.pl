@@ -23,7 +23,7 @@ HPlot::PlotInit({
   sizex   => 430,
   sizey   => 360,
   curvewidth => 1.5,
-#   ymin    => -1,
+  ymin    => 0,
   ymax    => "1000<*",
 #   xscale  => 5,
   nokey   => 1,

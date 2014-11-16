@@ -33,9 +33,9 @@ while(1) {
 
   # temp & pressure
   push @billboardValues,
-    (($billboardVersion  & 0x3)      << 30) | # version   2 bit
-    (($epicsData{"Pres"} & 0x1fffff) <<  9) | # pressure 21 bit
-    (($epicsData{"Temp"} & 0x1ff   ) <<  0);  # temp      9 bit
+    (( 0                      )      << 30) | # version   2 bit
+    (($epicsData->{"Pres"}->{"val"} & 0x1fffff) <<  9) | # pressure 21 bit
+    (($epicsData->{"Temp"}->{"val"} & 0x1ff   ) <<  0);  # temp      9 bit
 
   # padiwa currents
   for(my $i = 0; $i < 16; $i++) {
@@ -52,8 +52,10 @@ while(1) {
   # hv values
   for(my $i=0; $i < 16; $i++) {
     push @billboardValues,
-      ((("HV_I".$i) * 1e6) & 0xffff) << 16) |
-      ((("HV_U".$i) * 1e2) & 0xffff) <<  0);
+      ((($epicsData->{"HV_I".$i}->{"val"} * 1e6) & 0xffff) << 16) |
+      ((($epicsData->{"HV_U".$i}->{"val"} * 1e2) & 0xffff) <<  0);
+      
+    #print(($epicsData->{"HV_I".$i}->{"val"} * 1e6) . "uA @ " . ($epicsData->{"HV_U".$i}->{"val"} * 1e3) . " mV \n");
   }
   
   trb_register_write_mem($config{BillboardAddress}, 0xb100, 0, \@billboardValues, scalar @billboardValues); # copy data
