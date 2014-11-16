@@ -44,7 +44,15 @@ sub init {
          'monitor' => '1',
          'label' => "Input Multiplexer $i"
       });
+   
+      if ($prop->{'trb_compiletime'} => 1416136409) {
+        for(my $k=0; $k<16; $k++) {
+          $regs->{$key}{'_defs'}{'input'}{'enum'}{$k+22} = "itc[$k]";
+        }
+      }
+
    }
+   
 
    for(my $i = 0; $i < $header->{'itc_len'}; $i++) {
       $self->{'_cts'}->getProperties->{'itc_assignments'}[$i + $header->{'itc_base'}] = "AddOn Multiplexer $i";
