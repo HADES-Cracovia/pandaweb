@@ -2,8 +2,8 @@
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 01 threshold: 0xDA00, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 02 threshold: 0x0744, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 03 threshold: 0xDB10, uid: 0
-2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 04 threshold: 0x0600, uid: 0
-2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 05 threshold: 0xD880, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 04 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 05 threshold: 0x0000, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 06 threshold: 0x0600, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 07 threshold: 0xdf80, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 08 threshold: 0xffff, uid: 0
@@ -14,3 +14,20 @@
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 13 threshold: 0x0000, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 14 threshold: 0xffff, uid: 0
 2014/10/20 00:00:00 endpoint: 0x0111, chain: 00, channel: 15 threshold: 0x0000, uid: 0
+
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 00 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 01 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 02 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 03 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 04 threshold: 0x0942, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 05 threshold: 0xD511, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 06 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 07 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 08 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 09 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 10 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 11 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 12 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 13 threshold: 0x0000, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 14 threshold: 0xffff, uid: 0
+2014/10/20 00:00:00 endpoint: 0x0113, chain: 00, channel: 15 threshold: 0x0000, uid: 0
