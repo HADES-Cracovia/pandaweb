@@ -84,7 +84,7 @@ my $diff;
 
 while (1) {
   my $o = trb_register_read_mem($config{PadiwaBroadcastAddress},0xc000,0,33);
-
+  my $sum = 0;
   if (defined $old) {
     foreach my $b (keys %$o) {
       for my $v (0..32) {
@@ -100,13 +100,14 @@ while (1) {
         my $fpga    = $ChannelMapping::chanmap->{fpga}->[$x]->[$y];
         my $channel = $ChannelMapping::chanmap->{chan}->[$x]->[$y];
         HPlot::PlotFill('HeatmapRich',$diff->{$fpga}->[$channel],$x,$y);
+        $sum += $diff->{$fpga}->[$channel];
         }
       }
     HPlot::PlotDraw('HeatmapRich');      
     }
   my $status = Dmon::OK;
   my $title  = "Heatmap";
-  my $value = "";
+  my $value = Dmon::SciNotation($sum);
   my $longtext = "See plot";
   Dmon::WriteQALog($config{flog},"heatmaprich",5,$status,$title,$value,$longtext,'1-HeatmapRich');
   $old = $o;

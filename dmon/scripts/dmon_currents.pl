@@ -46,12 +46,16 @@ while (1) {
   my $data = Perl2Epics::GetAll();
   my $maximum = 0;
   my $total = 0;
+  my $updatemissing = 0;
 
   for(my $i = 0; $i<16; $i++) {
     my $val = $data->{"C".$i}->{"val"};
     $total += $val || 0;
     $maximum = max($maximum,$val||0);
     HPlot::PlotAdd('PadiwaCurrents',$val,$i);
+    if (time - $data->{"C".$i}->{"tme"} > 240) {
+      $updatemissing = 1;
+      }
     }
   HPlot::PlotDraw('PadiwaCurrents');
 
@@ -59,6 +63,12 @@ while (1) {
     my $value    = sprintf("%.2fA / %.2fA", $maximum, $total);
     my $longtext = "Maximum / Total current: ". $value;
     my $status   = Dmon::OK;
+
+  if ($updatemissing) {
+    $status = Dmon::WARN;
+    $longtext .="<br>Updates missing";
+    }
+
     Dmon::WriteQALog($config{flog},"currents",30,$status,$title,$value,$longtext,'2-PadiwaCurrents');
 
 

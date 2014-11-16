@@ -51,7 +51,7 @@ extraopts="--online"
 cd $tmpdir
 
 
-  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/home/hadaq/bin/daq_evtbuild -m 17 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file \
+  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/home/hadaq/bin/daq_evtbuild -m 17 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file --filesize 512 \
 ${extraopts}; read; bash" &
 
 

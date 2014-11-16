@@ -11,6 +11,7 @@ use Getopt::Long;
 use Time::HiRes qw(time usleep);
 use Log::Log4perl qw(get_logger);
 use List::Util qw(min max);
+use POSIX qw(strftime);
 use HADES::TrbNet;
 
 # use IPC::ShareLite qw( :lock );
@@ -239,6 +240,7 @@ foreach my $i (reverse (0..3)) {
 
 my $str;
 
+$logger_data->info(time);
 foreach my $i (0..15) {
   $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid );
 }

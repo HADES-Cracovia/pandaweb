@@ -4,7 +4,7 @@
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
-                  ['beamintensity','beammonitors','-','-','richenvironment'],
+                  ['beamintensity','beammonitors','-','richhvres','richenvironment'],
                   ['trgrate','datarate','deadtime','-','-'],
                   ['heatmaprich','padiwatemp','padiwaonline','currents','pscurrents'],
                   ['cbmnetlink','cbmnetdata','cbmnetsync','-','-']],

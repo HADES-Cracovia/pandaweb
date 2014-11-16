@@ -3,12 +3,10 @@
 use strict;
 use warnings;
 use Data::Dumper;
-
 use Dmon;
-
 use Getopt::Long;
-
 use HADES::TrbNet;
+use POSIX qw(strftime);
 
 my $offset = 0;
 my $help;
@@ -46,10 +44,16 @@ trb_init_ports() or die trb_strerror();
 
 
 open(my $fh, "<$ARGV[0]" || die "could not open file '$ARGV[0]'");
-
 my @f = <$fh>;
 
 
+#Put Information to logfile and timestamp to billboard information
+chomp $f[0];
+system("echo ".time.'     '.strftime("%Y-%m-%d %H:%M:%S",localtime()).'     '." $f[0]>>threshold_log.txt");
+my ($t) = $f[0] =~ /(\d{10})/;
+system("echo $t>billboard_info");
+
+exit;
 my $count=0;
 foreach my $cl (@f) {
     (my $ep, my $chain, my $channel, my $thresh, my $uid) = 
@@ -142,6 +146,9 @@ filename:
 has to be in the format of the output of the automatic threshold determination
 
 currently only mode "padiwa" is implemented.
+
+The script puts a timestamp of execution and the timestamp of the thresholds file to threshold_log.txt.
+The script puts the timestamp of the threshold file to billboard_info.
 
 EOF
 
