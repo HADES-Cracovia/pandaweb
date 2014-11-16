@@ -112,11 +112,36 @@ trbcmd w 0xfffe 0xc5 0x800050ff
 
 echo "- setting trigger rate register in TDC";
 # trigger rate 10kHz
-trbcmd w 0x7005 0xa150     9999 # 10 khz
-trbcmd w 0x7005 0xa151 99999990 # ~ 1 hz 
-trbcmd setbit 0x7005 0xa009 0x10 # include timestamp
-trbcmd w 0x7005 0xa155 0x111111e1
+trbcmd w 0x7005 0xa14e 0x00002710  # trg_pulser_config0: low_duration=  10 KHz
+trbcmd w 0x7005 0xa14f 0x000f4240  # trg_pulser_config1: low_duration= 100  Hz
+trbcmd w 0x7005 0xa150 0x05f5e0f0  # trg_pulser_config2: low_duration= ~ 1 Hz
 
+trbcmd w 0x7005 0xa155 0x11111e11  # _trg_trigger_types0: 
+                            # type0=0x1_physics_trigger, type1=0xe_status_information_trigger
+                            # type2=0xe_status_information_trigger, type3=0x1_physics_trigger
+                            # type4=0x1_physics_trigger, type5=0x1_physics_trigger
+                            # type6=0x1_physics_trigger, type7=0x1_physics_trigger
+
+trbcmd w 0x7005 0xa138 0x000f0102  # trg_coin_config0: 
+                            # coin_mask=0000 0010, inhibit_mask=0000 0001
+                            # window=15
+trbcmd w 0x7005 0xa139 0x000f0408  # trg_coin_config1: 
+                            # coin_mask=0000 1000, inhibit_mask=0000 0100
+                            # window=15
+
+trbcmd w 0x7005 0xa13b 0x00000008  # trg_input_mux0: input=jin1[0]                            
+trbcmd w 0x7005 0xa13c 0x00000016  # trg_input_mux1: input=itc[0]                            
+trbcmd w 0x7005 0xa13d 0x00000008  # trg_input_mux2: input=jin1[0]                            
+trbcmd w 0x7005 0xa13e 0x00000017  # trg_input_mux3: input=itc[1]
+                            
+trbcmd w 0x7005 0xa124 0x00000000  # trg_input_config0: delay=0, invert=false, override=off, spike_rej=0
+trbcmd w 0x7005 0xa125 0x00000000  # trg_input_config1: delay=0, invert=false, override=off, spike_rej=0
+trbcmd w 0x7005 0xa126 0x00000100  # trg_input_config2: delay=0, invert=true, override=off, spike_rej=0
+trbcmd w 0x7005 0xa127 0x00000000  # trg_input_config3: delay=0, invert=false, override=off, spike_rej=0
+
+trbcmd w 0x7005 0xa009 0x00000011  # cts_readout_config: 
+                            # channel_cnt=false, idle_dead_cnt=false, input_cnt=true
+                            # timestamp=true, trg_cnt=false
 
 # billboard
 trbcmd w 0x0112 0xb01e 0  # include billboard info with e-trigger
@@ -166,9 +191,8 @@ echo "Disable noisy pixel in Padiwa"
 #trbcmd clearbit 0x8103 0xc1 0xf6
 #trbcmd clearbit 0x8103 0xc3 0xf6
 
-sleep 1
-
 echo "Wait a sec (http://goo.gl/bdWW1g)"
-trbcmd w 0x7005 0xa101 0x3   # activate trigger
+sleep 1
+trbcmd w 0x7005 0xa101 0xffff6004  # trg_channel_mask: edge=1111 1111 1111 1111, mask=0110 0000 0000 0100
 
 echo "Trigger activated. I'm done"
