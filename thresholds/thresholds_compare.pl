@@ -4,8 +4,6 @@ use warnings;
 use strict;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "../../tools";
-use lib ".";
 use HPlot;
 use Data::Dumper;
 use ChannelMapping;
@@ -13,8 +11,8 @@ use ChannelMapping;
 my $plot2 = ();
 $plot2->{name}    = "HeatmapRich";
 $plot2->{file}    = "thresh_heatmap";
-$plot2->{entries} = 33;
-$plot2->{curves}  = 33;
+$plot2->{entries} = $ChannelMapping::chanmap->{xsize}+1;
+$plot2->{curves}  = $ChannelMapping::chanmap->{ysize}+1;
 $plot2->{type}    = HPlot::TYPE_HEATMAP;
 $plot2->{output}  = HPlot::OUT_PNG;
 $plot2->{zlabel}  = "Hitrate";
@@ -23,9 +21,9 @@ $plot2->{sizey}   = 650;
 $plot2->{nokey}   = 1;
 $plot2->{buffer}  = 0;
 $plot2->{xmin}    = 0.5;
-$plot2->{xmax}    = 32.5;
+$plot2->{xmax}    = $ChannelMapping::chanmap->{xsize}+0.5;
 $plot2->{ymin}    = 0.5;
-$plot2->{ymax}    = 32.5;
+$plot2->{ymax}    = $ChannelMapping::chanmap->{ysize}+0.5;
 $plot2->{cbmin}   = "-400<*";
 $plot2->{cbmax}   = "*<400";
 $plot2->{showvalues} = 0;
@@ -58,18 +56,19 @@ sub readSettings {
   my $fn1 = $ARGV[0] or die("usage: thresholds_compare.pl file1 [file2]. omit file2 to get abs value, include for file1-file2");
   my $fn2 = $ARGV[1];
 
+  my $totalsize = ($ChannelMapping::chanmap->{xsize}*$ChannelMapping::chanmap->{ysize});
   my %threshs1 = readSettings($fn1);
-  print "WARNING: Expected 1024 settings in $fn1. Got " . scalar(keys %threshs1) unless scalar(keys %threshs1) == 1024; 
+  print "WARNING: Expected ".$totalsize." settings in $fn1. Got " . scalar(keys %threshs1) unless scalar(keys %threshs1) == $totalsize; 
 
   my %threshs2 = ();
   if ($fn2) {
     %threshs2 = readSettings($fn2);
-    print "WARNING: Expected 1024 settings in $fn2. Got " . scalar(keys %threshs2) unless scalar(keys %threshs2) == 1024; 
+    print "WARNING: Expected ".$totalsize." settings in $fn2. Got " . scalar(keys %threshs2) unless scalar(keys %threshs2) == $totalsize; 
   }
 
 # plot heatmap
-  for my $x (1..32) {
-    for my $y (1..32) {
+  for my $x (1..$ChannelMapping::chanmap->{xsize}) {
+    for my $y (1..$ChannelMapping::chanmap->{ysize}) {
       my $fpga    = $ChannelMapping::chanmap->{fpga}->[$x]->[$y];
       my $channel = ($ChannelMapping::chanmap->{chan}->[$x]->[$y]-1)/2;
       

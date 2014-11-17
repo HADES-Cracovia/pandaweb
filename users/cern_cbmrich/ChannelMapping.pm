@@ -3,6 +3,8 @@ use warnings;
 use strict;
 
 our $chanmap;
+$chanmap->{xsize} = 32;
+$chanmap->{ysize} = 32;
 
 $chanmap->{fpga}->[32]->[ 32]=0x0010;
 $chanmap->{fpga}->[32]->[ 31]=0x0010;
