@@ -4,9 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-use lib "/home/hadaq/trbsoft/daqtools/dmon/code";
 use Dmon;
-
 use Getopt::Long;
 use Time::HiRes qw(time usleep);
 use Log::Log4perl qw(get_logger);
@@ -14,19 +12,6 @@ use List::Util qw(min max);
 use POSIX qw(strftime);
 use HADES::TrbNet;
 
-# use IPC::ShareLite qw( :lock );
-
-use constant false => 0;
-use constant true => 1;
-
-# my $share = IPC::ShareLite->new(
-#     -key     => 3214,
-#     -create  => 'yes',
-#     -destroy => 'yes'
-#     ) or die $!;
-# 
-# $share->store("dummy text");
-#print "store res: $r\n";
 
 my $hitregister = 0xc001;
 
@@ -35,7 +20,7 @@ my $start_value =  0x7000;
 
 my $sleep_time = 1.0;
 my $accepted_dark_rate = 150;
-my $number_of_iterations = 50; # at least 15 are recommended
+my $number_of_iterations = 50;
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
@@ -44,7 +29,7 @@ my $offset = 0;
 my $polarity = 1;
 my @channels  = ();
 my $channel32 = undef;
-my $opt_finetune = false;
+my $opt_finetune = 0;
 
 our $chain = 0;
 
@@ -117,20 +102,19 @@ my @current_thresh = ($start_value) x 16;
 my @best_thresh = (0) x 16;
 my @hit_diff = (0) x 16;
 my @crossed_thresh = (0) x 16;
-my @interval_step = ($interval_step) x 16;
+
 my @make_it_quiet;
 my $rh_res;
 my $old_rh_res;
 
-if ($opt_finetune == true) {
-    my $ra_thresh = read_thresholds("padiwa", $chain);
-    @current_thresh = @$ra_thresh;
-    print Dumper \@current_thresh;
+if ($opt_finetune) {
+  my $ra_thresh = read_thresholds("padiwa", $chain);
+  @current_thresh = @$ra_thresh;
+#   print Dumper \@current_thresh;
+  $interval_step = 2;
+  }
 
-    $interval_step = 4;
-
-}
-
+my @interval_step = ($interval_step) x 16;
 
 #     foreach my $i (0..15) {
 
@@ -170,7 +154,7 @@ while ($number_of_steps < $number_of_iterations) {
       $hit_diff += 2**24 if $hit_diff < 0;
       $hit_diff[$i] = $hit_diff;
 
-      if($number_of_steps  > $number_of_iterations - 10) {
+      if($number_of_steps  > $number_of_iterations - 10 || $opt_finetune) {
         # select best  threshold, closest from bottom
         if(   $hit_diff[$i] <= $accepted_dark_rate
           && $best_thresh[$i] <= $current_thresh[$i]
@@ -191,11 +175,11 @@ while ($number_of_steps < $number_of_iterations) {
         } 
       elsif ($hit_diff > $accepted_dark_rate 
              && $hit_diff < 10000 ) {
-        $current_thresh[$i] -= max($interval_step * $polarity , 0x10);
+        $current_thresh[$i] -= max($interval_step * $polarity , $opt_finetune?0x2:0x10);
         $interval_step = max(int($interval_step/2),4);
         }
       elsif ($hit_diff > $accepted_dark_rate ) {
-        $current_thresh[$i] -= max($interval_step * 2 * $polarity , 0x50);
+        $current_thresh[$i] -= max($interval_step * 2 * $polarity , $opt_finetune?0x4:0x50);
         $interval_step = max(int($interval_step/2),0x10);
         if ($hit_diff > 20000) {
           $make_it_quiet[$i] = 1;
@@ -240,7 +224,7 @@ foreach my $i (reverse (0..3)) {
 
 my $str;
 
-$logger_data->info(time);
+$logger_data->info("\t".time);
 foreach my $i (0..15) {
   $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid );
 }
@@ -271,8 +255,8 @@ sub read_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) ;
-    my $rh_res = Dmon::PadiwaSendCmd($endpoint, $chain, $command);
-    push (@thresh , $rh_res->{$endpoint});
+    my $rh_res = Dmon::PadiwaSendCmd($command, $endpoint, $chain, );
+    push (@thresh , $rh_res->{$endpoint} & 0xFFFF);
   }
 
 

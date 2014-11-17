@@ -43,11 +43,11 @@ sub readSettings {
   close $fh;
 
   my %thresholds = ();
-
   my $count=0;
   foreach my $cl (@f) {
     (my $ep, my $chain, my $channel, my $thresh, my $uid) = 
       $cl =~ /endpoint:\s+(\w+), chain:\s+(\d+), channel:\s+(\d+) threshold:\s+(\w+), uid: (\w+)/;
+    next unless defined $ep;
     $thresholds{hex($ep) .":". int($channel)} = hex $thresh;
   }
 

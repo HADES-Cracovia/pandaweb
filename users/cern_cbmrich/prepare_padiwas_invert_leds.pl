@@ -41,6 +41,17 @@ foreach (@padiwas) {
     $pm->finish; # Terminates the child process 
 };
 
+# print "padiwas: set temperature compensation: ";
+# 
+# foreach (@padiwas) { 
+#     my $pid = $pm->start and next;
+#     print "$_ ";
+#     my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $_ 0 comp 0x02c0 >/dev/null";
+#     qx($c); die "could not execute command $c" if $?;
+#     $pm->finish; # Terminates the child process 
+# };
+
+
 $pm->wait_all_children;
 
 print "\n";

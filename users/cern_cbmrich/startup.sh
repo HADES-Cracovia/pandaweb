@@ -191,8 +191,12 @@ echo "Disable noisy pixel in Padiwa"
 #trbcmd clearbit 0x8103 0xc1 0xf6
 #trbcmd clearbit 0x8103 0xc3 0xf6
 
+# trbcmd setbit 0x7005 0xa00c 0x80000000
+
 echo "Wait a sec (http://goo.gl/bdWW1g)"
 sleep 1
 trbcmd w 0x7005 0xa101 0xffff6004  # trg_channel_mask: edge=1111 1111 1111 1111, mask=0110 0000 0000 0100
 
 echo "Trigger activated. I'm done"
+
+

@@ -15,7 +15,7 @@ my %config = Dmon::StartUp();
 my $t0;
 
 for(my $i = 0; $i< 16 ; $i++) {
-  Perl2Epics::Connect("PC".$i, sprintf('CBM:PWRSWITCH:GetCurrent%02x',$i));
+  Perl2Epics::Connect("PC".$i, sprintf('CBM:PWRSWITCH:GetCurrent%02X',$i));
 
   Perl2Epics::Connect("HV_U".$i, sprintf('OUTPUT_TERMINAL_VOLTAGE_U%d',$i));
   Perl2Epics::Connect("HV_I".$i, sprintf('MEASUREMENT_CURRENT_U%d',$i));
@@ -42,12 +42,14 @@ while(1) {
     my $milAmp = $epicsData->{"PC".$i}->{"val"} * 1000;
     $reg = 0 unless $i & 1;
     $reg |= ($milAmp & 0xffff) << (16 * ($i&1));
-    push @billboardValues, $reg if $i & 1;
+    
+    push(@billboardValues, $reg) if ($i & 1);
   }
+  
 
   # threshold timestamp
-  my $threshTime = do($config{UserDirectory} . '/thresh/billboard_info') || 0;
-  push @billboardValues, $threshTime & 0xffffffff;
+  my $threshTime = do($config{UserDirectory} . '/thresh/billboard_info');
+  push @billboardValues, ($threshTime & 0xffffffff);
   
   # hv values
   for(my $i=0; $i < 16; $i++) {

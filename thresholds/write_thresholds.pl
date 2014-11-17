@@ -49,11 +49,12 @@ my @f = <$fh>;
 
 #Put Information to logfile and timestamp to billboard information
 chomp $f[0];
-system("echo ".time.'     '.strftime("%Y-%m-%d %H:%M:%S",localtime()).'     '." $f[0]>>threshold_log.txt");
+system("echo \"".strftime("%Y-%m-%d %H:%M:%S",localtime()).'\t'.time.'\t'.
+              $offset.'\t'.$f[0]."\">>threshold_log.txt");
 my ($t) = $f[0] =~ /(\d{10})/;
-system("echo $t>billboard_info");
+system("echo $t>thresh/billboard_info");
 
-exit;
+
 my $count=0;
 foreach my $cl (@f) {
     (my $ep, my $chain, my $channel, my $thresh, my $uid) = 
