@@ -30,6 +30,7 @@ if(!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
   print "\t dischighz \t Set discharge signal to highZ. options: \$mask\n";
   print "\t discdelayinvert \t Invert signal used for delay generation. options: \$mask\n";
   print "\t input \t\t read input status. no options\n";
+  print "\t counter\t input signal counter. options: \$channel\n";
   print "\t invert \t set invert status. options: \$mask\n";
   print "\t led \t\t set led status. options: mask (5 bit, highest bit is override enable)\n";
   print "\t  \t\t read LED status. no options\n";
@@ -247,6 +248,14 @@ if($ARGV[2] eq "led") {
     }
   }     
 
+if($ARGV[2] eq "counter" && defined $ARGV[3]) {
+  my $b = sendcmd(0x22000000+(($mask&0x1f)<< 16));
+  my $c = sendcmd(0x23000000+(($mask&0x1f)<< 16));
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t%8x\n",$e,$chain,($b->{$e}&0xffff)+($c->{$e}&0xff)*2**16);
+    }
+  }      
+  
   
 if($ARGV[2] eq "monitor" && defined $ARGV[3]) {
   my $b = sendcmd(0x20830000+($mask&0x1f));
