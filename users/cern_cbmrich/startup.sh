@@ -4,8 +4,8 @@
 #PATH=${HOME}/trbsoft/daqdata/bin:${PATH}
 #PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
 export TRB3_SERVER=trb056:26000 
-
 export TRBNETDPID=$(pgrep trbnetd)
+export SINGLE_GBE='y'
 
 echo "- trbnetd pid: $TRBNETDPID"
 
@@ -38,11 +38,25 @@ trbcmd i 0xffff | wc -l
 ##################################################
 trbcmd w 0xff7f 0x8308 0xffffff     # Trigger counter   
 
-echo "XXX: Running script loadregisterdb.pl register_configgbe.db"
-~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe.db
+if [ $SINGLE_GBE ] ; then
+  echo -e "\e[31m\e[5m\e[1mConfigure only CTS for GbE\e[0m"
 
-echo "XXX: Running script loadregisterdb.pl register_configgbe_ip.db"
-~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe_ip.db
+  grep -v "^ 0x8[01]" register_configgbe.db > /tmp/register_configgbe.db
+  grep -v "^ 0x8[01]" register_configgbe_ip.db > /tmp/register_configgbe_ip.db
+
+  echo "XXX: Running script loadregisterdb.pl /tmp/register_configgbe.db"
+  ~/trbsoft/daqtools/tools/loadregisterdb.pl /tmp/register_configgbe.db
+
+  echo "XXX: Running script loadregisterdb.pl /tmp/register_configgbe_ip.db"
+  ~/trbsoft/daqtools/tools/loadregisterdb.pl /tmp/register_configgbe_ip.db
+
+else
+  echo "XXX: Running script loadregisterdb.pl register_configgbe.db"
+  ~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe.db
+
+  echo "XXX: Running script loadregisterdb.pl register_configgbe_ip.db"
+  ~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe_ip.db
+fi
 
 ##################################################
 ## Configure TDCs
@@ -147,7 +161,7 @@ trbcmd w 0x7005 0xa009 0x00000011  # cts_readout_config:
 trbcmd w 0x0112 0xb01e 0  # include billboard info with e-trigger
 
 #cbmnet
-trbcmd w 0x7005 0xa800 0x3   # enable CBMNet AND GbE
+trbcmd w 0x7005 0xa800 0x400003   # Listen to DLM 6, Enable CBMNet AND GbE
 trbcmd w 0x7005 0xa901 62500 # enable sync pulser with 2 khz ... prob. dont need it, but better safe thEn sorry
 
 # pulser enable
@@ -163,6 +177,8 @@ trbcmd setbit 0xfe4a 0xcf00 0x1
 
 #trbcmd setbit 0x8000 0xa1d4 0x10000 ## ???
 
+#echo Activating Padiwa Pulse stretching
+#./padiwa.pl 0xfe4c 0 stretch 0xffff
 
 #set MAPMT Thresholds
 #thresholdfile="thresh/stdthresh.thr"
@@ -171,7 +187,7 @@ trbcmd setbit 0xfe4a 0xcf00 0x1
 echo
 echo "loading MAPMT thresholds: ${thresholdfile}"
 echo "offset is ${offset}   (200=1mv on input)"
-../../thresholds/write_thresholds.pl thresh/current_thresholds.thr -o 200
+../../thresholds/write_thresholds.pl thresh/current_thresholds.thr -o 100
 
 echo "Loading Padiwa Amps Settings"
 /home/hadaq/trbsoft/daqtools/padiwa.pl 0x111 0 invert 0xaaaa
