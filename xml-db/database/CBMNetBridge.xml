@@ -13,6 +13,9 @@
       <field name="Listen" start="0" bits="1" format="boolean">
         <description>0: Disable CBMNet readout, 1: Receive data sent by TrbNet Hub and forward it</description>
       </field>
+      <field name="EnableGBE" start="1" bits="1" format="boolean">
+        <description>0: Disable GBE readout (filter packets to GBE stack) 1: Transparent data forwarding</description>
+      </field>
     </register>
     <register name="SubEventID" address="0001" mode="rw" purpose="config">
       <description>Control sub-event-id included in the sub-event header sent to the FLIB</description>
