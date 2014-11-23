@@ -16,22 +16,22 @@ print "usage: [startOff] [stopOff] [stepWidth]\n";
 # my $stopOff = $ARGV[1] || 0;
 # my $step = sprintf("%d", $ARGV[2] || (($stopOff-$startOff) / 60.0));
 
-my $recordTime = 300; # s 
-my $minHodoHits = 60000; # hits to be registered by 
+my $recordTime = 3600;#3600; # s 600 
+my $minHodoHits = 1000000; #1500000; # hits to be registered by 100000 
 
 # die "Need negative step" if ($startOff >= $stopOff and $step >= 0);
 # die "Need positive step" if ($startOff <= $stopOff and $step <= 0);
 
 my $evtBldDir = "/mnt/data/tmp/";
-my $swpDir = "/mnt/data/offset_sweep/ringf/";
+my $swpDir = "/mnt/data/Mirror/TwoMirr/Ref/";
 
 #print "Scan from offset $startOff to $stopOff in steps of $step\n";
 
 my $i = 0;
 #for (my $offset = $startOff; $step * $offset <= $stopOff * $step; $offset += $step) {
 
-for my $offset(0, 50, 100, 150, 200, 400, 750, 1000, 1500, 2000) {
-#for my $offset(400, 750, 1000, 1500, 2000) {
+for my $offset(250) 
+{
   print color 'bold red';
   print strftime("%Y-%m-%d %H:%M:%S",localtime()) . " Iteration " . (++$i) . " Offset $offset <-------------------------------\n ";
   print color 'reset';
@@ -87,7 +87,7 @@ for my $offset(0, 50, 100, 150, 200, 400, 750, 1000, 1500, 2000) {
   
   printf "Found %d files\n", scalar @diff;
   
-  my $newDir = sprintf "$swpDir/offset%05d", $offset;
+  my $newDir = "$swpDir"; #//offset%05d", $offset;
   system "mkdir -p $newDir";
   for my $fn (@diff) {
     $fn =~ /\/(te\d+\.hld)/;

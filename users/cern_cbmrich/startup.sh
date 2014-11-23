@@ -5,7 +5,7 @@
 #PATH=${HOME}/trbsoft/trbnettools/bin:${PATH}
 export TRB3_SERVER=trb056:26000 
 export TRBNETDPID=$(pgrep trbnetd)
-export SINGLE_GBE='y'
+export SINGLE_GBE=''
 
 echo "- trbnetd pid: $TRBNETDPID"
 
@@ -66,7 +66,7 @@ fi
 #trbcmd w 0xfe48 0xc800 0x00003000 ## Triggerless   mode
 #trbcmd w 0xfe48 0xc801 0x000f0005 ## trigger window enable & trigger window width
 
-trbcmd w 0xfe4c 0xc800 0x00001001 ## logic analyser control register #tiggerless
+trbcmd w 0xfe4c 0xc800 0x00003001 ## logic analyser control register #tiggerless, reset epoch counter with first trigger
 trbcmd w 0xfe4c 0xc801 0x00620062 ## no triggerwindow +/-490ns ;5ns granularity
 trbcmd w 0xfe4c 0xc804 0x00000080 ## data transfer limit (0x80 = off)
 

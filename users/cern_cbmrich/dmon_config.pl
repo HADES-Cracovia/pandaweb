@@ -63,24 +63,26 @@ MBSAddress => 0x0112,
 TdcAddress   => [0xfe4c,0xfe4e,0x7005],  
 
 #IPs of all devices which should react on a ping
-TrbIP => ["192.168.0.29",
-          "192.168.0.47",
-          "192.168.0.56",
+TrbIP => [
+"192.168.0.29",
+    "192.168.0.47",
+    "192.168.0.56",
 #           "192.168.0.57",#extra TRB3
-          "192.168.0.59",
-          "192.168.0.72",
-          "192.168.0.73",
-          "192.168.0.74",
-          "192.168.0.78",
-          "192.168.0.83",
-          "192.168.0.84",
-          "192.168.0.89",
-          "192.168.0.97",
-          "192.168.0.99",
-          "192.168.0.101",
-          "192.168.0.102",
-          "192.168.0.104",
-          "192.168.0.105"],
+    "192.168.0.59",
+    "192.168.0.72",
+    "192.168.0.73",
+    "192.168.0.74",
+    "192.168.0.78",
+    "192.168.0.83",
+    "192.168.0.84",
+    "192.168.0.89",
+    "192.168.0.97",
+    "192.168.0.99",
+    "192.168.0.101",
+    "192.168.0.102",
+    "192.168.0.104",
+    "192.168.0.105"
+],
 
 #Channel to read spill intensity from. Give limit for off-spill detection
 BeamTRB => 0x0110,
@@ -88,9 +90,9 @@ BeamChan => 0xc005,
 SpillThreshold => 30,
 
 #Name detectors 
-BeamDetectorsTrb  => [0x0111,0x0110,0x0111,0x0110,0x0113,0x0110],
-BeamDetectorsChan => [0xc001,0xc009,0xc005,0xc00b,0xc009,0xc005],
-BeamDetectorsName => ['C1',  'C1d', 'C2',  'C2d', 'Lead', 'Hodo'],
+BeamDetectorsTrb  => [0x0110, 0x0110, 0x0111,0x0110,0x0111,0x0110,0x0113,0x0110],
+BeamDetectorsChan => [0xc001, 0xc003, 0xc001,0xc009,0xc005,0xc00b,0xc009,0xc005],
+BeamDetectorsName => ['Fngr_d', 'Lead_d', 'C1',  'C1_d', 'C2',  'C2_d', 'Lead', 'Hodo'],
 
 #User directory
 UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',

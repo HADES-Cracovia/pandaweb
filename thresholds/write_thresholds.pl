@@ -52,7 +52,9 @@ chomp $f[0];
 system("echo \"".strftime("%Y-%m-%d %H:%M:%S",localtime()).'\t'.time.'\t'.
               $offset.'\t'.$f[0]."\">>threshold_log.txt");
 my ($t) = $f[0] =~ /(\d{10})/;
-system("echo $t>thresh/billboard_info");
+system("echo $t>thresh/billboard_timestamp");
+my $offsetV = (32768 + $offset) & 0xffff;;
+system("echo $offsetV > thresh/billboard_offset");
 
 
 my $count=0;

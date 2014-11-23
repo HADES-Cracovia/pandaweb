@@ -18,9 +18,9 @@ my $hitregister = 0xc001;
 my $interval_step = 0x0400;
 my $start_value =  0x7000;
 
-my $sleep_time = 1.0;
+my $sleep_time = 2.0;
 my $accepted_dark_rate = 150;
-my $number_of_iterations = 50;
+my $number_of_iterations = 40;
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
@@ -154,7 +154,7 @@ while ($number_of_steps < $number_of_iterations) {
       $hit_diff += 2**24 if $hit_diff < 0;
       $hit_diff[$i] = $hit_diff;
 
-      if($number_of_steps  > $number_of_iterations - 10 || $opt_finetune) {
+      if($number_of_steps  > $number_of_iterations - 20 || $opt_finetune) {
         # select best  threshold, closest from bottom
         if(   $hit_diff[$i] <= $accepted_dark_rate
           && $best_thresh[$i] <= $current_thresh[$i]
@@ -226,7 +226,7 @@ my $str;
 
 $logger_data->info("\t".time);
 foreach my $i (0..15) {
-  $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid );
+  $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i]||$current_thresh[$i], $uid );
 }
 
 
