@@ -90,9 +90,9 @@ BeamChan => 0xc005,
 SpillThreshold => 30,
 
 #Name detectors 
-BeamDetectorsTrb  => [0x0110, 0x0110, 0x0111,0x0110,0x0111,0x0110,0x0113,0x0110],
-BeamDetectorsChan => [0xc001, 0xc003, 0xc001,0xc009,0xc005,0xc00b,0xc009,0xc005],
-BeamDetectorsName => ['Fngr_d', 'Lead_d', 'C1',  'C1_d', 'C2',  'C2_d', 'Lead', 'Hodo'],
+BeamDetectorsTrb  => [0x0110, 0x0110, 0x0111,0x0110,0x0111,0x0110,0x0113,0x0111,0x0110],
+BeamDetectorsChan => [0xc001, 0xc003, 0xc001,0xc009,0xc005,0xc00b,0xc009,0xc009,0xc005],
+BeamDetectorsName => ['Fngr_d', 'Lead_d', 'C1',  'C1_d', 'C2',  'C2_d', 'Lead1', 'Lead2', 'Hodo'],
 
 #User directory
 UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',

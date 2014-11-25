@@ -161,7 +161,8 @@ trbcmd w 0x7005 0xa009 0x00000011  # cts_readout_config:
 trbcmd w 0x0112 0xb01e 0  # include billboard info with e-trigger
 
 #cbmnet
-trbcmd w 0x7005 0xa800 0x400003   # Listen to DLM 6, Enable CBMNet AND GbE
+trbcmd w 0x7005 0xa800 0x3   # Listen to DLM 6, Enable CBMNet AND GbE
+trbcmd w 0x7005 0xa900 0x400000   # Listen to DLM 6, Enable CBMNet AND GbE
 trbcmd w 0x7005 0xa901 62500 # enable sync pulser with 2 khz ... prob. dont need it, but better safe thEn sorry
 
 # pulser enable
@@ -208,6 +209,13 @@ echo "Disable noisy pixel in Padiwa"
 #trbcmd clearbit 0x8103 0xc3 0xf6
 
 # trbcmd setbit 0x7005 0xa00c 0x80000000
+
+echo "Disable leds of PMTS"
+for i in $( padiwa.pl 0xfe4c 0 time | grep "2014-11-21" | cut -d$'\t' -f1 - ); do
+  ./padiwa.pl $i 0 led 0 &
+done
+
+wait
 
 echo "Wait a sec (http://goo.gl/bdWW1g)"
 sleep 1

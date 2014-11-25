@@ -8,6 +8,10 @@ use HPlot;
 use Data::Dumper;
 use ChannelMapping;
 
+my $fn1 = $ARGV[0] or die("usage: thresholds_compare.pl file1 [file2]. omit file2 to get abs value, include for file1-file2");
+my $fn2 = $ARGV[1];
+
+
 my $plot2 = ();
 $plot2->{name}    = "HeatmapRich";
 $plot2->{file}    = "thresh_heatmap";
@@ -24,13 +28,13 @@ $plot2->{xmin}    = 0.5;
 $plot2->{xmax}    = $ChannelMapping::chanmap->{xsize}+0.5;
 $plot2->{ymin}    = 0.5;
 $plot2->{ymax}    = $ChannelMapping::chanmap->{ysize}+0.5;
-$plot2->{cbmin}   = "-400<*";
-$plot2->{cbmax}   = "*<400";
+$plot2->{cbmin}   = "-400<*" if $fn2;
+$plot2->{cbmax}   = "*<" . ($fn2 ? '400' : '45000'); 
 $plot2->{showvalues} = 0;
 $plot2->{xlabel} = "column";
 $plot2->{ylabel} = "row";
-$plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.85\nset bmargin at screen 0.07\nset tmargin at screen 0.95";
-$plot2->{palette} = "defined (  0 0 0 1,  0.5 1 1 1,  1 1 0 0 )";
+$plot2->{addCmd} = "set lmargin at screen 0.07\nset rmargin at screen 0.85\nset bmargin at screen 0.07\nset tmargin at screen 0.95";# . ($fn2 ? "": "\n set logscale cb");
+$plot2->{palette} = "defined (  0 0 0 1,  0.5 1 1 1,  1 1 0 0 )" if $fn2;
 
 HPlot::PlotInit($plot2);
 
@@ -53,8 +57,6 @@ sub readSettings {
 }
 
 # load files
-  my $fn1 = $ARGV[0] or die("usage: thresholds_compare.pl file1 [file2]. omit file2 to get abs value, include for file1-file2");
-  my $fn2 = $ARGV[1];
 
   my $totalsize = ($ChannelMapping::chanmap->{xsize}*$ChannelMapping::chanmap->{ysize});
   my %threshs1 = readSettings($fn1);
@@ -64,6 +66,11 @@ sub readSettings {
   if ($fn2) {
     %threshs2 = readSettings($fn2);
     print "WARNING: Expected ".$totalsize." settings in $fn2. Got " . scalar(keys %threshs2) unless scalar(keys %threshs2) == $totalsize; 
+  } else {
+    for my $key (keys %threshs1) {
+      $threshs2{$key} = 0;
+    }
+    $fn2 = 'n/a';
   }
 
 # plot heatmap
@@ -119,7 +126,7 @@ set output "thresh_hist.png"
 
 set xrange [$min:$max]
 
-binwidth=20
+binwidth=50
 bin(x,width)=width*floor(x/width)
 
 set style line 1 lt 1 lc rgb "green"

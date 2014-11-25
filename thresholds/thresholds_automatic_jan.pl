@@ -15,12 +15,10 @@ use HADES::TrbNet;
 
 my $hitregister = 0xc001;
 
-my $interval_step = 0x0400;
-my $start_value =  0x7000;
 
 my $sleep_time = 2.0;
 my $accepted_dark_rate = 150;
-my $number_of_iterations = 40;
+my $number_of_iterations = 50;
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
@@ -72,7 +70,9 @@ if($endpoint !~ /^0x/) {
 }
 $endpoint = hex($endpoint);
 
-
+my $interval_step = 0x0400;
+my $start_value =  0x7000;
+if ($polarity == -1) {$start_value = 0xb000;}
 
 
 # go to the right position
@@ -155,15 +155,18 @@ while ($number_of_steps < $number_of_iterations) {
       $hit_diff[$i] = $hit_diff;
 
       if($number_of_steps  > $number_of_iterations - 20 || $opt_finetune) {
-        # select best  threshold, closest from bottom
+        # select best  threshold
         if(   $hit_diff[$i] <= $accepted_dark_rate
-          && $best_thresh[$i] <= $current_thresh[$i]
+          && (   ($best_thresh[$i] <= $current_thresh[$i] && $polarity == 1) 
+              || ($best_thresh[$i] >= $current_thresh[$i] && $polarity == -1)) 
           && $static_value == (($polarity==1)?0:1)) {
           $best_thresh[$i] = $current_thresh[$i];
           }
 
         #delete bogus entries
-        if($hit_diff[$i] >= $accepted_dark_rate && $current_thresh[$i] < $best_thresh[$i]) {
+        if($hit_diff[$i] >= $accepted_dark_rate 
+           && (   ($current_thresh[$i] < $best_thresh[$i] && $polarity == 1)
+               || ($current_thresh[$i] > $best_thresh[$i] && $polarity == -1))) {
           $best_thresh[$i] = $current_thresh[$i];
           }
         }
@@ -175,11 +178,11 @@ while ($number_of_steps < $number_of_iterations) {
         } 
       elsif ($hit_diff > $accepted_dark_rate 
              && $hit_diff < 10000 ) {
-        $current_thresh[$i] -= max($interval_step * $polarity , $opt_finetune?0x2:0x10);
+        $current_thresh[$i] -= max($interval_step , $opt_finetune?0x2:0x10) * $polarity;
         $interval_step = max(int($interval_step/2),4);
         }
       elsif ($hit_diff > $accepted_dark_rate ) {
-        $current_thresh[$i] -= max($interval_step * 2 * $polarity , $opt_finetune?0x4:0x50);
+        $current_thresh[$i] -= max($interval_step * 2  , $opt_finetune?0x4:0x50)* $polarity;
         $interval_step = max(int($interval_step/2),0x10);
         if ($hit_diff > 20000) {
           $make_it_quiet[$i] = 1;
@@ -285,7 +288,7 @@ sub write_thresholds {
       $shift_bits = 4;
     }
     my $thresh = $ra_thresh->[$current_channel];
-    if($make_it_quiet[$current_channel]) {$thresh = 0x0000;}
+    if($make_it_quiet[$current_channel]) {if($polarity == 1) {$thresh = 0x0000;} else {$thresh = 0xffff;}}
     push(@commands,$fixed_bits | ($current_channel << 16) | ($thresh << $shift_bits));
   }
   Dmon::PadiwaSendCmdMultiple(\@commands,$endpoint,$chain,5E3);
