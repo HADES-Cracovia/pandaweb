@@ -66,7 +66,7 @@ foreach my $req (@request) {
       ($entity,$netaddr,$name,$style) = split("-",$req);
       $file = "$RealBin/cache/$entity.entity";
       }
-    $storefile = "/dev/shm/xmldb-".$ENV{'QUERY_STRING'}.".store";
+    $storefile = "/dev/shm/xmldb-".$req.".store";
     }
   else {
   #   use FindBin qw($RealBin);
