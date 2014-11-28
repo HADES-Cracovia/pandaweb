@@ -91,10 +91,11 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="mvd/jtag.pl">MVD Jtag Controller</a>
 <li><a href="mvd/roc.pl">MVD read-out Controller</a>
 <li><a href="mvd/cb_controller.pl">MVD Converter Board Controller</a>
-<li><a href="network/generic.pl">Everything else</a>
 <li><a href="padiwa/padiwa.pl">Padiwa (xml-based, with thresholds)</a>
 <li><a href="tools/billboard.pl">Billboard</a>
 <li><a href="tools/cbmmbs.pl">CBM-MBS Receiver</a>
+<li><a href="addons/adc.pl">48ch sampling ADC</a>
+<li><a href="network/generic.pl">Everything else</a>
 </ul>
 </div>
 </div>
