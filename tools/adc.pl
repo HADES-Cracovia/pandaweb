@@ -236,12 +236,22 @@ sub adc_testio {
   sendcmd_adc(0xd, $pattern);
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC testio mode.\n" if $verbose;
+  print "Set ADC testio mode for ADCs ",join(",",@adcs),"\n" if $verbose;
 }
 
 if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
   adc_testio(oct($ARGV[2]) & 0xf);
 }
+
+sub adc_phase {
+  my $phase = shift;
+  # interpret the arguments as hex
+  sendcmd_adc( 0x16 , $phase );
+  # initiate transfer
+  sendcmd_adc(0xFF,0x1);
+  print "Set ADC output phase for ADCs ",join(",",@adcs),"\n" if $verbose;
+}
+
 
 if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
   if(defined $ARGV[3]) {
@@ -254,11 +264,7 @@ if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
     die "Empty ADC range supplied"
       if @adcs==0;
   }
-  # interpret the arguments as hex
-  sendcmd_adc( 0x16 , oct($ARGV[2]) & 0xf );
-  # initiate transfer
-  sendcmd_adc(0xFF,0x1);
-  print "Set ADC output phase for ADCs ",join(",",@adcs),"\n" if $verbose;
+  adc_phase(oct($ARGV[2]) & 0xf);
 }
 
 if ($ARGV[1] eq "init") {
@@ -270,102 +276,151 @@ if ($ARGV[1] eq "init") {
   # set the ADC phase to 0x0
   # this is mandatory in order to get
   # working communication!
-  sendcmd_adc(0x16, 0b0);
-  sendcmd_adc(0xFF, 0x1);
-  print ">>> Phase set to 0°, your board should be working now...\n";
+  #sendcmd_adc(0x16, 0b0);
+  #sendcmd_adc(0xFF, 0x1);
+  #print ">>> Phase set to 0°, your board should be working now...\n";
 }
 
-sub read_channels {
-  my @result;
-  my $ctrlreg = 0xa081;
-  trb_register_write($board,$ctrlreg,0);
-  usleep(100000);
-  trb_register_write($board,$ctrlreg,2);
-  for (my $ch=0;$ch<48;$ch++) {
-    my $r = trb_register_read_mem($board,0xa000+$ch,1,300);
-    push(@result, $r->{$board});
-    #print Dumper($r);
-  }
-  trb_register_write($board,$ctrlreg,0);
+# sub read_channels {
+#   my @result;
+#   my $ctrlreg = 0xa081;
+#   trb_register_write($board,$ctrlreg,0);
+#   usleep(100000);
+#   trb_register_write($board,$ctrlreg,2);
+#   for (my $ch=0;$ch<48;$ch++) {
+#     my $r = trb_register_read_mem($board,0xa000+$ch,1,300);
+#     push(@result, $r->{$board});
+#     #print Dumper($r);
+#   }
+#   trb_register_write($board,$ctrlreg,0);
 
-  return @result;
+#   return @result;
+# }
+
+
+
+sub read_rates {
+  my $addr=shift;
+  my $size=shift;
+  my $start=shift;
+  my $bits=shift;
+  my $mask = 0;
+  $mask |= (1<<$_) for ($start..$start+$bits-1);
+
+  my $us = 1000000;
+  # read it
+  my $r1 = trb_register_read_mem($board,$addr,0,$size);
+  usleep($us);
+  my $r2 = trb_register_read_mem($board,$addr,0,$size);
+  $r1=$r1->{$board}; # broadcasts unsupported for now...
+  $r2=$r2->{$board}; # broadcasts unsupported for now...
+
+  my @rates;
+  for my $i (0..$size-1) {
+    my $val1 = ($r1->[$i] & $mask) >> $start;
+    my $val2 = ($r2->[$i] & $mask) >> $start;
+    # detect overflow
+    if($val2<$val1) {
+      print "Overflow\n";
+      $val2 += 1<<$bits;
+    }
+    my $t1 = 0; #$r1->{time}->[$i];
+    my $t2 = $us/1e6; # $r2->{time}->[$i];
+    my $rate = ($val2-$val1)/($t2-$t1);
+    #print $r2->{value}->[$i]-$r1->{value}->[$i],"\n";
+    print $val2-$val1," ",$rate,"\n";
+  }
+  #print 
+  #print $bits,"\n";
+  #print 36 & vec($mask, 0, 32),"\n";
+  return \@rates;
 }
 
 if ($ARGV[1] eq "adc_testall") {
   $verbose=0;
+  @adcs=(0);
+
+  # word counts per ADC (12 items) at 0xa030 (upper 28bits)
+  my $word_counts = read_rates(0xa030,12,4,28);
+
+  print Dumper($word_counts);
+}
+
+# if ($ARGV[1] eq "adc_testall") {
+#   $verbose=0;
   
-  # set pattern to checkerboard,
-  # should give alternating 0x155, 0x2aa, 0x155, 0x2aa ...
-  my $ok_checkerboard = 1;
-  adc_testio(0b0100);
-  my @r = read_channels();
-  #print Dumper(\@r);
-  for(my $ch=0;$ch<@r;$ch++) {
-    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
-    # look at first value
+#   # set pattern to checkerboard,
+#   # should give alternating 0x155, 0x2aa, 0x155, 0x2aa ...
+#   my $ok_checkerboard = 1;
+#   adc_testio(0b0100);
+#   my @r = read_channels();
+#   #print Dumper(\@r);
+#   for(my $ch=0;$ch<@r;$ch++) {
+#     my @vals = map { $_ & 0x3ff } @{$r[$ch]};
+#     # look at first value
   
-    my @checkerboard;
-    my $firstval = $vals[0];
-    if($firstval == 0x2aa) {
-      @checkerboard = (0x2aa, 0x155);
-    }
-    elsif($firstval == 0x155) {
-      @checkerboard = (0x155, 0x2aa);
-    }
-    else {
-      printf("ERROR: First value 0x%x from checkerboard not recognized, ch=$ch\n",$firstval);
-      $ok_checkerboard = 0;
-      next;
-    }
+#     my @checkerboard;
+#     my $firstval = $vals[0];
+#     if($firstval == 0x2aa) {
+#       @checkerboard = (0x2aa, 0x155);
+#     }
+#     elsif($firstval == 0x155) {
+#       @checkerboard = (0x155, 0x2aa);
+#     }
+#     else {
+#       printf("ERROR: First value 0x%x from checkerboard not recognized, ch=$ch\n",$firstval);
+#       $ok_checkerboard = 0;
+#       next;
+#     }
 
     
-    # compare the remaining values
-    for(my $i=1;$i<@vals;$i++) {
-      if($vals[$i] != $checkerboard[$i % 2]) {
-        printf("ERROR: Value 0x%x (idx=$i) from checkerboard not recognized, ch=$ch\n",$vals[$i]);
-        $ok_checkerboard = 0;
-        last;
-      }
-    }
-  }
-  if($ok_checkerboard) {
-    print ">>> Tested all channels with checkerboard pattern successfully\n";
-  }
-  else {
-    print ">>> Test with checkerboard failed, see above.\n";
-  }
+#     # compare the remaining values
+#     for(my $i=1;$i<@vals;$i++) {
+#       if($vals[$i] != $checkerboard[$i % 2]) {
+#         printf("ERROR: Value 0x%x (idx=$i) from checkerboard not recognized, ch=$ch\n",$vals[$i]);
+#         $ok_checkerboard = 0;
+#         last;
+#       }
+#     }
+#   }
+#   if($ok_checkerboard) {
+#     print ">>> Tested all channels with checkerboard pattern successfully\n";
+#   }
+#   else {
+#     print ">>> Test with checkerboard failed, see above.\n";
+#   }
 
-  # set testmode to mixed frequency,
-  # should give 0b1001100011
-  adc_testio(0b1100);
-  my $ok_mixed = 1;
-  @r = read_channels();
-  for(my $ch=0;$ch<@r;$ch++) {
-    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
+#   # set testmode to mixed frequency,
+#   # should give 0b1001100011
+#   adc_testio(0b1100);
+#   my $ok_mixed = 1;
+#   @r = read_channels();
+#   for(my $ch=0;$ch<@r;$ch++) {
+#     my @vals = map { $_ & 0x3ff } @{$r[$ch]};
 
-    for(my $i=0;$i<@vals;$i++) {
-      if ($vals[$i] != 0b1001100011) {
-        printf("ERROR: Value 0x%x (idx=$i) from mixed-frequency not recognized, ch=$ch\n", $vals[$i]);
-        $ok_mixed = 0;
-        last;
-      }
-    }
-  }
-  if($ok_checkerboard) {
-    print ">>> Tested all channels with mixed frequency pattern successfully\n";
-  }
-  else {
-    print ">>> Test with mixed-frequency pattern failed\n";
-  }
-  # disable testio
-  adc_testio(0);
+#     for(my $i=0;$i<@vals;$i++) {
+#       if ($vals[$i] != 0b1001100011) {
+#         printf("ERROR: Value 0x%x (idx=$i) from mixed-frequency not recognized, ch=$ch\n", $vals[$i]);
+#         $ok_mixed = 0;
+#         last;
+#       }
+#     }
+#   }
+#   if($ok_checkerboard) {
+#     print ">>> Tested all channels with mixed frequency pattern successfully\n";
+#   }
+#   else {
+#     print ">>> Test with mixed-frequency pattern failed\n";
+#   }
+#   # disable testio
+#   adc_testio(0);
 
-  if($ok_checkerboard && $ok_mixed) {
-    print ">>> All ADC channels seem to be nicely working with testpatterns!\n";
-  }
-  else {
-    print ">>> Test of ADC channels failed :(((\n";
-  }
-}
+#   if($ok_checkerboard && $ok_mixed) {
+#     print ">>> All ADC channels seem to be nicely working with testpatterns!\n";
+#   }
+#   else {
+#     print ">>> Test of ADC channels failed :(((\n";
+#   }
+#}
 
 
