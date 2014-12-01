@@ -102,7 +102,7 @@
 <group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
       <register name="ValuesToSum" address="0000" repeat="4" >
         <description>Number of values to sum for each output data word</description>
-        <field  name="ValuesToSum" start="0"   bits="8"  format="unsigned" scaleoffset="1" noflag="true" />
+        <field  name="ValuesToSum" start="0"   bits="8"  format="unsigned" noflag="true" />
       </register>
       <register name="NumberOfWords" address="0004" repeat="4">
         <description>Number of output data words to produce</description>
