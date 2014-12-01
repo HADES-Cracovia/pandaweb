@@ -141,13 +141,13 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         if($inclLow->{$addr}&0x30000) { #GbE
           $feat .= "\nGbE: ";
           if($inclLow->{$addr} & 0x10000) {
-            $feat .= "data sending buffer 64kB, " if(($inclLow->{$addr} & 0xc0000) = 0x40000);
-            $feat .= "data sending, "             if(($inclLow->{$addr} & 0xc0000) = 0x00000);
+            $feat .= "data sending buffer 64kB, " if(($inclLow->{$addr} & 0xc0000) == 0x40000);
+            $feat .= "data sending, "             if(($inclLow->{$addr} & 0xc0000) == 0x00000);
             }
           if($inclLow->{$addr} & 0x20000) {
-            $feat .= "slow control buffer 4kB, "  if(($inclLow->{$addr} & 0x300000) = 0x10000);
-            $feat .= "slow control buffer 64kB, " if(($inclLow->{$addr} & 0x300000) = 0x20000);
-            $feat .= "slow control, "             if(($inclLow->{$addr} & 0x300000) = 0x00000);
+            $feat .= "slow control buffer 4kB, "  if(($inclLow->{$addr} & 0x300000) == 0x10000);
+            $feat .= "slow control buffer 64kB, " if(($inclLow->{$addr} & 0x300000) == 0x20000);
+            $feat .= "slow control, "             if(($inclLow->{$addr} & 0x300000) == 0x00000);
             $feat .= "with multi-packet"          if ($inclLow->{$addr} & 0x400000);
             }
           }
