@@ -30,10 +30,8 @@ while(1) {
       Dmon::WriteQALog($config{flog},"beamintensity",60,$status,$title,$value,$longtext);
       $value = 0;
       }
-    }      
-
-
-
+    }  
+    
   $old = $curr;
   sleep 1;
   }
