@@ -25,49 +25,49 @@
       </field>
     </register> 
 
-    <register name="stat_connections_i" address="0002" mode="r">
+    <register name="ConnectionsCntr" address="0002" mode="r">
       <description>Counts number of time the CBMNet Link becomes active (i.e. hints reconnects)</description>
-      <field name="stat_connections_i" start="0" bits="32" format="unsigned" noflag="1" />
+      <field name="ConnectionsCntr" start="0" bits="32" format="unsigned" noflag="1" />
     </register>
 
-    <register name="stat_link_inactive_i" address="0007" mode="r">
+    <register name="InactiveCntr" address="0007" mode="r">
       <description>Number of cycles CBMNet link is inactive (100 MHz domain)</description>
-      <field name="stat_link_inactive_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.001" />
+      <field name="InactiveCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.001" />
     </register>
     
-    <register name="stat_clks_dead_i" address="0003" mode="r">
+    <register name="DeadTimeCntr" address="0003" mode="r">
       <description>Dead time of the CBMNet data channel, i.e. cycles with stop asserted (125 MHz domain) and no transmission happens</description>
-      <field name="stat_clks_dead_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.008" />
+      <field name="DeadTimeCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="us" scale="0.008" />
     </register>
 
-    <register name="stat_hwords_sent_i" address="0009" mode="r">
+    <register name="FifoWriteCntr" address="0009" mode="r">
       <description>Number of TrbNet events successfully read, i.e. stored in FIFO</description>
-      <field name="stat_hwords_sent_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="kb" scale="0.002" />
+      <field name="FifoWriteCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="kb" scale="0.002" />
     </register>
 
-    <register name="stat_rdo_event_counter_i" address="0006" mode="r">
+    <register name="TrbEvtsSeenCntr" address="0006" mode="r">
       <description>Number of TrbNet events available (rising edge of CTS_START_READOUT_IN)</description>
-      <field name="stat_rdo_event_counter_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
+      <field name="TrbEvtsSeenCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
     
-    <register name="stat_num_send_completed_i" address="0004" mode="r">
+    <register name="TrbEvtsSentCntr" address="0004" mode="r">
       <description>Number of Transactions completed</description>
-      <field name="stat_num_send_completed_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
+      <field name="TrbEvtsSentCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
 
-    <register name="stat_num_packets_aborted_i" address="0008" mode="r">
+    <register name="TrbEvtsAbrtCntr" address="0008" mode="r">
       <description>Number of TrbNet events aborted, e.g. because FIFO is full</description>
-      <field name="stat_num_packets_aborted_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
+      <field name="TrbEvtsAbrtCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="TrbNet evts" />
     </register>
     
-    <register name="stat_num_packets_i" address="0005" mode="r">
+    <register name="CbmFramesCntr" address="0005" mode="r">
       <description>Number of CBM Frames handed over</description>
-      <field name="stat_num_packets_i" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="CBMNet frms" />
+      <field name="CbmFramesCntr" start="0" bits="32" format="unsigned" noflag="1" rate="1" unit="CBMNet frms" />
     </register>
     
-    <register name="stat_frame_length_i" address="000a" mode="r">
+    <register name="LastFrameLength" address="000a" mode="r">
       <description>Size of last frame</description>
-      <field name="stat_frame_length_i" start="0" bits="32" format="unsigned" noflag="1" rate="0" unit="b" scale="2" />
+      <field name="LastFrameLength" start="0" bits="32" format="unsigned" noflag="1" rate="0" unit="b" scale="2" />
     </register>
     
   </group>
@@ -243,43 +243,84 @@
     </register>
   </group>
   
+
   <group name="LinkDebug" address="0080" purpose="config" mode="rw" continuous="false">
     <description>Low-Level testing feature of the CBMNet link</description>
     <register name="LinkTester" address="0010" purpose="config" mode="rw">
       <description>Low-Level testing feature of the CBMNet link</description>
-      <field name="data2send_stop" start="10" bits="1" format="boolean" mode="r" purpose="status" />
-      <field name="serdes_ready" start="9" bits="1" format="boolean" mode="r" purpose="status" />
-      <field name="link_active" start="8" bits="1" format="boolean" mode="r" purpose="status" />
-      <field name="lt_dlm_valid" start="5" bits="1" format="boolean" mode="r" purpose="status" />
-      <field name="lt_ctrl_valid" start="4" bits="1" format="boolean" mode="r" purpose="status" />
-      <field name="linkTesterMux" start="3" bits="1" format="boolean" mode="rw" purpose="config">
+
+      <field name="data2send_stop" start="10" bits="1" format="boolean" mode="r" purpose="status">
+        <description>CBMNet is ready and no back-pressure is applied</description>
+      </field>
+
+      <field name="serdesReady" start="9" bits="1" format="boolean" mode="r" purpose="status">
+        <description>PHY is ready (CDR + Word lock, INIT1 exchanged) </description>
+      </field>
+
+      <field name="linkActive" start="8" bits="1" format="boolean" mode="r" purpose="status">
+        <description>CBMNet stack (lp_top) is ready</description>
+      </field>
+
+      <field name="ltDLMValid" start="5" bits="1" format="boolean" mode="r" purpose="status">
+        <description>Valid DLMs have been received from remote lt.</description>
+      </field>
+
+      <field name="ltCtrlValid" start="4" bits="1" format="boolean" mode="r" purpose="status">
+        <description>Valid DCMs have been received from remote lt.</description>
+      </field>
+
+      <field name="ltMux" start="3" bits="1" format="boolean" mode="rw" purpose="config">
         <description>0: Normal function (read-out), 1: Link-Tester</description>
       </field>
-      <field name="ltDataEnable" start="2" bits="1" format="boolean" mode="rw" purpose="config" />
-      <field name="ltCtrlEnable" start="1" bits="1" format="boolean" mode="rw" purpose="config" />
-      <field name="ltForceStop" start="0" bits="1" format="boolean" mode="rw" purpose="config" />
+
+      <field name="ltDataEnable" start="2" bits="1" format="boolean" mode="rw" purpose="config">
+        <description>Engage pattern generator for data channel</description>
+      </field>
+
+      <field name="ltCtrlEnable" start="1" bits="1" format="boolean" mode="rw" purpose="config">
+        <description>Engage pattern generator for control channel</description>
+      </field>
+
+      <field name="ltForceStop" start="0" bits="1" format="boolean" mode="rw" purpose="config">
+        <description>Not used by pattern generator anymore</description>
+      </field>
     </register>
-    
+
     <register name="SerdesReady" address="0011" purpose="statistics" mode="r">
-      <description>Number of Times Serdes became read (rising edges)</description>
+      <description>Number of Times Serdes became read (rising edges of serdes_ready)</description>
       <field name="SerdesReadyCounter" start="0" bits="32" format="unsigned" />
     </register>
 
     <register name="DataOverride" address="0012" purpose="config" mode="rw">
       <description>CBMNnet data override</description>
-      <field name="DataWord" start="0" bits="16" format="hex" />
-      <field name="DataOverrideEnable" start="16" bits="1" format="boolean" />
+      <field name="DataWord" start="0" bits="16" format="hex">
+        <description>Override any data word to be sent with this word</description>
+      </field>
+      <field name="DataOverrideEnable" start="16" bits="1" format="boolean">
+        <description>If asserted override is applied</description>
+      </field>
     </register>
 
     <register name="PhyCtrl" address="0013" purpose="config" mode="rw">
       <description>Low-Level PHY ctrl (dont mess with this!)</description>
-      <field name="rst_i" start="0" bits="1" format="boolean" />
-      <field name="DisBarrel" start="3" bits="1" format="boolean" />
-      <field name="RxRMReset" start="4" bits="1" format="boolean" />
-      <field name="DisGearAlign" start="5" bits="1" format="boolean" />
-      <field name="RxRstWhenReinit" start="8" bits="1" format="boolean" />
+      <field name="Reset" start="0" bits="1" format="boolean">
+        <description>Serdes/PCS is kept in reset</description>
+      </field>
+      <field name="DisBarrel" start="3" bits="1" format="boolean">
+        <description>If 0: only barrel shifter position 0 is accepted</description>
+      </field>
+      <field name="RxRMReset" start="4" bits="1" format="boolean">
+        <description>Serdes/PCS receive path is kept in reset</description>
+      </field>
+      <field name="DisGearAlign" start="5" bits="1" format="boolean">
+        <description>If 0: the word alignment is skipped while initialisation. Use with caution!</description>
+      </field>
+      <field name="RxRstWhenReinit" start="8" bits="1" format="boolean">
+        <description>If asserted and reinit is received from FLIB, a CDR relock is performed</description>
+      </field>
     </register>
   </group>
+
   
   <group name="SyncModule" address="0100" mode="rw">
     <register name="StatusCtrl" address="0000" purpose="config" mode="rw">
