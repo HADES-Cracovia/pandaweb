@@ -30,6 +30,7 @@ GetOptions(
            'style=s'     => \$opt->{style},
            'standalone'  => \$opt->{standalone},
            'wide|w'      => \$opt->{wideformat},
+           'collapse'    => \$opt->{collapse},
            'dumpItem|d'    => \$opt->{dumpItem}
           );
 
@@ -102,6 +103,9 @@ Options:
                      alternating gray and white boxes
                      (default)
   
+  --collapse       Dont show extra field line, if a register contains
+                   only single field without description
+  
   --standalone     generate standalone compilable latex file
   --pdf            compile directly to pdf (compiles twice)
   
@@ -160,20 +164,38 @@ sub produceTable {
   my $xmldb = xmlDbMethods->new( entityFile => $self->{entityFile} );
   my $list = $xmldb->unfoldTree($self->{group});
   my $data = [];
+  my $skip = 0;
   for my $name (@$list) { # processing the list
+    if ($skip) {
+      $skip=0;
+      next;
+    }
     my $node = $xmldb->{entity}->{$name};
     my $type = $node->{type};
     my $description = $node->{description};
     my $repeat = $node->{repeat} || 1;
     my $stepsize = $node->{stepsize}||1;
     my $bits = " ";
+    
     if ($type ne 'register'){
       my $start = $node->{start};
       my $stop = $node->{start}+$node->{bits}-1;
       if ($start == $stop){
-	$bits = $start;
+        $bits = $start;
       } else {
-	$bits = "$start--$stop";
+        $bits = "$start--$stop";
+      }
+    } elsif ($self->{opt}->{collapse} && (scalar @{$node->{'children'}}) == 1) {
+      my $child = $xmldb->{entity}{$node->{'children'}[0]};
+      if ($child->{'description'} eq $node->{'description'}) {
+        my $start = $child->{start};
+        my $stop = $child->{start}+$child->{bits}-1;
+        if ($start == $stop){
+          $bits = $start;
+        } else {
+          $bits = "$start--$stop";
+        }
+        $skip = 1;
       }
     }
     # escape special latex characters
