@@ -108,6 +108,27 @@ sub adc_init {
   sendcmd_adc(0xff,0x01);
 
   print ">>> ADC initialized\n";
+
+  my $tries = 3;
+  while(1) {
+    print ">>> Optimizing ADC phases...\n";
+    &set_optimal_phases;
+    print ">>> Check ADCs again...\n";
+    my @good = &adc_testall;
+    #print Dumper(\@good);
+    # check if all ADCs are good
+    if(@good == grep { $_ } @good) {
+      last;
+    }
+    elsif($tries>0) {
+      print ">>> Some ADCs are not working, retrying...$tries\n";
+      $tries--;
+    }
+    else {
+      print "WARNING: Could not get all ADCs to work despite retrying...\n";
+      last;
+    }
+  }
 }
 
 if ($ARGV[1] eq "adc_init") {
@@ -272,21 +293,6 @@ if ($ARGV[1] eq "init") {
   # init stuff
   &lmk_init;
   &adc_init;
-  while(1) {
-    print ">>> Optimizing ADC phases...\n";
-    &set_optimal_phases;
-    print ">>> Check ADCs again...\n";
-    my @good = &adc_testall;
-    #print Dumper(\@good);
-    # check if all ADCs are good
-    if(@good == grep { $_ } @good) {
-      last;
-    }
-    else {
-      print ">>> Some ADCs are not working, retrying...\n";
-      #exit;
-    }
-  }
   print ">>> Your board should be working now...\n";
 }
 
