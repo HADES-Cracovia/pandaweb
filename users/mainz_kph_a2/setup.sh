@@ -60,11 +60,11 @@ trbcmd w 0x8000 0x8108 0x0578
 
 
 #####  TDC  #######
-trbcmd w 0x0200 0xc800 0x00000001 ## logic analyser control register
-trbcmd w 0x0200 0xc801 0x000f0005 ## trigger window enable & trigger window width
-trbcmd w 0x0200 0xc802 0x00000000 ## channel 01-31 enable
-trbcmd w 0x0200 0xc803 0x00000000 ## channel 32-63 enable
-trbcmd w 0x0200 0xc804 0x00000080 ## no read out limit
+#trbcmd w 0x0200 0xc800 0x00000001 ## logic analyser control register
+#trbcmd w 0x0200 0xc801 0x000f0005 ## trigger window enable & trigger window width
+#trbcmd w 0x0200 0xc802 0x00000000 ## channel 01-31 enable
+#trbcmd w 0x0200 0xc803 0x00000000 ## channel 32-63 enable
+#trbcmd w 0x0200 0xc804 0x00000080 ## no read out limit
 
 
 #trbcmd w 0x0200 0xc2 0x0000ffff ## channel 01-31 enable
