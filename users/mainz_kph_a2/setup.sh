@@ -69,19 +69,16 @@ trbcmd w 0x8000 0x8108 0x0578
 
 #trbcmd w 0x0200 0xc2 0x0000ffff ## channel 01-31 enable
 
-trbcmd w 0x8000 0xc800 0x00000001      # logic analyser control register
-trbcmd w 0x8000 0xc801 0x000f0005      # trigger window enable & trigger window width (off if MSB not set)
-trbcmd w 0x8000 0xc802 0x00000002      # channel 32- 1 enable (0 is reference time and always on)
-trbcmd w 0x8000 0xc803 0x00000000      # channel 64-33 enable
-trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
-
+#trbcmd w 0x8000 0xc800 0x00000001      # logic analyser control register
+#trbcmd w 0x8000 0xc801 0x000f0005      # trigger window enable & trigger window width (off if MSB not set)
+#trbcmd w 0x8000 0xc802 0x00000002      # channel 32- 1 enable (0 is reference time and always on)
+#trbcmd w 0x8000 0xc803 0x00000000      # channel 64-33 enable
+#trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
 
 
 #####  CTS  #######
-trbcmd w 0x8000 0xa140 0xfffff  #set CTS pulser to 100Hz
+#trbcmd w 0x8000 0xa140 0xfffff  #set CTS pulser to 100Hz
 #trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
-trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
-
-
+#trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
 
 echo "Successfully setup TRB network"
