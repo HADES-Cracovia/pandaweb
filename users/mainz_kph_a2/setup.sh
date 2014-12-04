@@ -75,10 +75,32 @@ trbcmd w 0x8000 0x8108 0x0578
 #trbcmd w 0x8000 0xc803 0x00000000      # channel 64-33 enable
 #trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
 
+##### ADC ######
+FPGA="0x0200"
+trbcmd w $FPGA 0xa010 24          #Buffer depth
+trbcmd w $FPGA 0xa011 8           #Samples after trigger
+trbcmd w $FPGA 0xa012 1           #Process blocks
+trbcmd w $FPGA 0xa013 40          #Trigger offset
+trbcmd w $FPGA 0xa014 40          #Readout offset
+trbcmd w $FPGA 0xa015 0           #Downsampling
+trbcmd w $FPGA 0xa016 8           #Baseline
+trbcmd w $FPGA 0xa017 1           #Trigger Enable
+
+trbcmd w $FPGA 0xa020 1           #Sum values
+trbcmd w $FPGA 0xa021 1           #Sum values
+trbcmd w $FPGA 0xa022 1           #Sum values
+trbcmd w $FPGA 0xa023 1           #Sum values
+trbcmd w $FPGA 0xa024 64          #word count
+trbcmd w $FPGA 0xa025 0           #word count
+trbcmd w $FPGA 0xa026 0           #word count
+trbcmd w $FPGA 0xa027 0           #word count
+
+trbcmd w $FPGA 0xa000 0x100       #Reset Baseline
+
 
 #####  CTS  #######
-#trbcmd w 0x8000 0xa140 0xfffff  #set CTS pulser to 100Hz
-#trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
+trbcmd w 0x8000 0xa150 0x05f5e100  #set CTS pulser to 1Hz
+trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
 #trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
 
 echo "Successfully setup TRB network"
