@@ -159,8 +159,18 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
         }
-      if($table == 1 || $table == 2) {
-	if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
+      if($table == 4) {
+        $feat .= sprintf("Channels: %i",               $inclLow->{$addr}>>16 & 0x000000ff);
+        $feat .= sprintf(", Sampling Frequency %i MHz",$inclLow->{$addr}>>0  & 0x000000ff);
+        $feat .= "\nDummy read-out"                if ($inclLow->{$addr}&0x0f00) == 0x000;
+        $feat .= "\nBasic Processing and trigger"  if ($inclLow->{$addr}&0x0f00) == 0x100;
+        $feat .= "\nAdvanced filtering"            if ($inclLow->{$addr}&0x0f00) == 0x200;
+        $feat .= "\nFeature Extraction"            if ($inclLow->{$addr}&0x0f00) == 0x800;
+        $feat .= ", baseline determination"        if ($inclLow->{$addr}&0x4000);
+        $feat .= ", trigger generation"            if ($inclLow->{$addr}&0x8000);
+        }
+      if($table == 1 || $table == 2 || $table == 4) {
+        if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
         if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
         if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
         if ($inclHigh->{$addr}>>12&0xF) {
