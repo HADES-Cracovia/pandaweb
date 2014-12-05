@@ -6,17 +6,6 @@
               >
   <description>Control and Status registers related to ADC AddOn</description>
 
-
-<!--
- 000 - 0ff configuration
-       000 reset, buffer clear strobes
-
- 100 - 1ff status
-       100 clock valid (1 bit per ADC)
-       101 fco valid (1 bit per ADC)
-       102 readout state
--->
-
 <group name="Control"
            address="0000"  size="7"  purpose="config" mode="rw" continuous="false">  
       <description>Configuration registers</description>
@@ -95,8 +84,16 @@
         <description>Check incoming words for validity. Two accepted words can be specified.</description>
         <field  name="Word1Check" start="0"   bits="10"   format="hex" noflag="true" />
         <field  name="Word2Check" start="16"   bits="10"  format="hex" noflag="true" />
+        <field  name="WordCheckEnable" start="31"   bits="1"  format="boolean" />
       </register>
-            
+      <register name="ChannelDisable0" address="001a" >
+        <description>Channel disable for channels 31 - 0</description>
+        <field  name="ChannelDisable0" start="0"   bits="32"  format="bitmask" noflag="true" />
+      </register>
+      <register name="ChannelDisable1" address="001b" >
+        <description>Channel disable for channels 47 - 32</description>
+        <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
+      </register>            
 </group>  
 
 <group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
