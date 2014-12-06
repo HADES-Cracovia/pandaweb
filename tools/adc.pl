@@ -345,10 +345,10 @@ sub adc_testall {
 
   # checkerboard, sends 0x2aa and 0x155 as ADC words
   adc_testio(0b0100);
-  trb_register_write($board, 0xa019, 0x015502aa);
+  trb_register_write($board, 0xa019, 0x815502aa);
   # midscale short
   #adc_testio(0b0001);
-  #trb_register_write($board, 0xa019, 0x02000200);
+  #trb_register_write($board, 0xa019, 0x82000200);
 
   my @good_ranges;
   for my $phase (@phases) {
