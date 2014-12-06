@@ -86,11 +86,11 @@
         <field  name="Word2Check" start="16"   bits="10"  format="hex" noflag="true" />
         <field  name="WordCheckEnable" start="31"   bits="1"  format="boolean" />
       </register>
-      <register name="ChannelDisable0" address="001a" >
+      <register name="ChannelDisable0" address="000a" >
         <description>Channel disable for channels 31 - 0</description>
         <field  name="ChannelDisable0" start="0"   bits="32"  format="bitmask" noflag="true" />
       </register>
-      <register name="ChannelDisable1" address="001b" >
+      <register name="ChannelDisable1" address="000b" >
         <description>Channel disable for channels 47 - 32</description>
         <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
       </register>            
