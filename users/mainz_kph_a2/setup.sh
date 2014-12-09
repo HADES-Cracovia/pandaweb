@@ -77,20 +77,23 @@ trbcmd w 0x8000 0x8108 0x0578
 
 ##### ADC ######
 FPGA="0x0200"
-trbcmd w $FPGA 0xa010 24          #Buffer depth
+trbcmd w $FPGA 0xa010 0xff        #Buffer depth
 trbcmd w $FPGA 0xa011 8           #Samples after trigger
 trbcmd w $FPGA 0xa012 1           #Process blocks
 trbcmd w $FPGA 0xa013 40          #Trigger offset
 trbcmd w $FPGA 0xa014 40          #Readout offset
 trbcmd w $FPGA 0xa015 0           #Downsampling
 trbcmd w $FPGA 0xa016 8           #Baseline
-trbcmd w $FPGA 0xa017 1           #Trigger Enable
+trbcmd w $FPGA 0xa017 0           #Trigger Enable ch31-00
+trbcmd w $FPGA 0xa018 0           #Trigger Enable ch47-32
+trbcmd w $FPGA 0xa01a 0xfffffffe  #Channel disable ch31-00, all channels except ch0
+trbcmd w $FPGA 0xa01b 0xffff      #Channel disable ch47-32
 
 trbcmd w $FPGA 0xa020 1           #Sum values
 trbcmd w $FPGA 0xa021 1           #Sum values
 trbcmd w $FPGA 0xa022 1           #Sum values
 trbcmd w $FPGA 0xa023 1           #Sum values
-trbcmd w $FPGA 0xa024 64          #word count
+trbcmd w $FPGA 0xa024 0xff        #word count
 trbcmd w $FPGA 0xa025 0           #word count
 trbcmd w $FPGA 0xa026 0           #word count
 trbcmd w $FPGA 0xa027 0           #word count
