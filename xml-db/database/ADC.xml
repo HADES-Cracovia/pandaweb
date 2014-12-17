@@ -94,11 +94,18 @@
         <description>Channel disable for channels 47 - 32</description>
         <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
       </register>            
+      <register name="ProcessingMode" address="001c" >
+        <description>Kind of data processing - e.g. block read-out or pulse shape processing</description>
+        <field  name="ProcessingMode" start="0"   bits="2"  format="enum" noflag="true" >
+          <enumItem value="0">Block mode</enumItem>
+          <enumItem value="1">Pulse Shape Processing</enumItem>
+        </field>
+      </register>         
 </group>  
 
 <group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
       <register name="ValuesToSum" address="0000" repeat="4" >
-        <description>Number of values to sum for each output data word</description>
+        <description>Block mode: Number of values to sum for each output data word. Pulse shape analysis: Number of factors to use</description>
         <field  name="ValuesToSum" start="0"   bits="8"  format="unsigned" noflag="true" />
       </register>
       <register name="NumberOfWords" address="0004" repeat="4">
@@ -243,4 +250,13 @@
         <field  name="InvalidWords" start="0"   bits="32"  format="unsigned" errorflag="true" rate="true" />
       </register>
 </group> 
+
+<group name="PulseShapeAnalysis"
+           address="0200"  size="256"  purpose="config" mode="w" continuous="true">
+      <register name="PulseShapeFactors" address="0000" repeat="256" >
+        <description>Factors used in pulse shape analysis</description>
+        <field  name="PulseShapeFactors" start="0"  bits="16"  format="signed" noflag="true" />
+      </register>
+</group>  
+
 </TrbNetEntity>
