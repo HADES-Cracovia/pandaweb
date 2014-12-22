@@ -159,6 +159,13 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           $feat .= GetTDCInfo($addr,$inclLow->{$addr},1);
           }
         }
+      if($table == 3) {
+        $feat .= sprintf("%i sensors in %i chains",$inclLow->{$addr} & 0xff,$inclLow->{$addr}>>8 & 0xf);
+        $feat .= ", normal readout"    if ($inclLow->{$addr}>>16 & 0x3) == 0;
+        $feat .= ", testmode"          if ($inclLow->{$addr}>>16 & 0x3) == 1;
+        $feat .= ", testmode optional" if ($inclLow->{$addr}>>16 & 0x3) == 2;
+        $feat .= ", for M26"           if ($inclLow->{$addr}>>20 & 0xf) == 0;
+        }
       if($table == 4) {
         $feat .= sprintf("Channels: %i",               $inclLow->{$addr}>>16 & 0x000000ff);
         $feat .= sprintf(", Sampling Frequency %i MHz",$inclLow->{$addr}>>0  & 0x000000ff);
@@ -169,7 +176,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
         $feat .= ", baseline determination"        if ($inclLow->{$addr}&0x4000);
         $feat .= ", trigger generation"            if ($inclLow->{$addr}&0x8000);
         }
-      if($table == 1 || $table == 2 || $table == 4) {
+      if($table == 1 || $table == 2 || $table ==3 || $table == 4) {
         if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
         if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
         if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
