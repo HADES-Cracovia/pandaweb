@@ -1,4 +1,53 @@
-#to start deamon
+###################################################################################### 
+# bring up the whole chain (in the order given!)
+# On richctl:
+# 
+# as root: 
+#   #NO#   TRB3_SERVER=trb056 ~hadaq/trbsoft/trbnettools/binlocal/trbnetd -i 56
+#   TRB3_SERVER=trb056 ~hadaq/trbsoft/trbnettools/trbnetd/server/trbnetd -i 56
+# as hadaq:
+#   cd ~/trbsoft/daqtools/web; ./cts_gui
+#   cd ~/trbsoft/daqtools/dmon; ./start ../users/cern_cbmrich/dmon_config.pl
+# 
+#   
+#   
+# On richdaq:
+#   cd ~/trbsoft/daqtools/users/cern_cbmrich
+#   ./startup.sh
+#  
+# Have a lot of fun!
+###################################################################################### 
+
+
+# Scanning offsets
+  users/cern_cbmrich/offset_scan.pls
+
+ -> edit line 33:
+       for my $offset(0, 50, 100, 150, 200, 400, 750, 1000, 1500, 2000)
+    do change offsets to be scanned
+    
+ -> edit line 26
+      my $swpDir = "/mnt/data/offset_sweep/ringa/";
+    to change to dir where the files have to be stored.
+    if the dir does not exists, the script will create it (if it has sufficient permissions)
+
+ -> change $recordTime and $minHodoHits and to define limits for each iteration
+
+ 
+# change limits in heatmap
+  dmon/scripts/dmon_heatmap.pl
+  
+  edit line
+    $plot2->{cbmax}   = "100<*<1000000";
+    
+  to set lower and upper bound of max hits
+ 
+  start dmon:
+    cd ~/trbsoft/daqtools/dmon; ./start ../users/cern_cbmrich/dmon_config.pl
+
+ 
+ 
+#to start deamon (as root on richdaq)
 TRB3_SERVER=trb056 ~/trbsoft/trbnettools/binlocal/trbnetd -i 56
 
 #set environment

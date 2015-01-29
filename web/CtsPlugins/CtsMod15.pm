@@ -6,6 +6,7 @@ package CtsMod15;
 use warnings;
 use strict;
 use TrbRegister;
+use Data::Dumper;
 
 sub moduleName {"AddOn Input Multiplexer"}
 
@@ -17,8 +18,8 @@ sub init {
    
    my $regs = $self->{'_registers'};
    my $prop = $self->{'_properties'};
+   
    my $cprop = $self->{'_cts'}{'_properties'};
-
    my $header = $self->{'_cts'}{'_enum'}{0x15}->read();
 
    print "Trigger Modules 0x12 and 0x15 cannot be instantiated in the same design\n" if exists $self->{'_cts'}{'_enum'}{0x12};
@@ -44,7 +45,23 @@ sub init {
          'monitor' => '1',
          'label' => "Input Multiplexer $i"
       });
+      
+      my $chanStart = 22;
+      if ($cprop->{'trb_compiletime'} >= 1418678509) {
+        for(my $k=0; $k<16; $k++) {
+          $regs->{$key}{'_defs'}{'input'}{'enum'}{$k+$chanStart} = "jttl[$k]";
+        }
+        $chanStart += 16;
+      }
+      
+      if ($cprop->{'trb_compiletime'} >= 1416136409) {
+        for(my $k=0; $k<16; $k++) {
+          $regs->{$key}{'_defs'}{'input'}{'enum'}{$k+$chanStart} = "itc[$k]";
+        }
+      }
+
    }
+   
 
    for(my $i = 0; $i < $header->{'itc_len'}; $i++) {
       $self->{'_cts'}->getProperties->{'itc_assignments'}[$i + $header->{'itc_base'}] = "AddOn Multiplexer $i";

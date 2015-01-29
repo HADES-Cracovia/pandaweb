@@ -4,15 +4,16 @@
 #Scripts to start & order of icons in the Overview
 activeScripts => [['time','ping','-','-','daqop'],
                   ['numfee','temperature','reftime','billboard','mbs'],
+                  ['beamintensity','beammonitors','-','richhvres','richenvironment'],
                   ['trgrate','datarate','deadtime','-','-'],
-                  ['heatmaprich','padiwatemp','padiwaonline','-','-'],
-                  ['cbmnetlink','cbmnetdata','cbmnetsync','-','-'],],
+                  ['heatmaprich','padiwatemp','padiwaonline','currents','pscurrents'],
+                  ['cbmnetlink','cbmnetdata','cbmnetsync','-','-']],
                   
 #Names to be shown in left column of Overview (max 4 letters!)
-qaNames => ['sys','main','rate','Pdwa','CNet','-'],                  
+qaNames => ['sys','main','beam','rate','Pdwa','CNet','-'],                  
 
 #Expected number of FPGAs in system
-NumberOfFpga => 90,       
+NumberOfFpga => 90,
 
 #The address of the individual boards
 CtsAddress   => 0x7005,   
@@ -33,7 +34,8 @@ PadiwaTrbAdresses => [0x0010,0x0011,0x0012,0x0013,
                       0x00d0,0x00d1,0x00d2,0x00d3,
                       0x00e0,0x00e1,0x00e2,0x00e3,
                       0x00f0,0x00f1,0x00f2,0x00f3,
-                      0x0100,0x0101,0x0102,0x0103],
+                      0x0100,0x0101,0x0102,0x0103,
+                      0x0111,0x0113],
 
 HubTrbAdresses =>  [0x7005,0x7000,0x7001,0x7002,0x7003,
                     0x0015,
@@ -54,32 +56,45 @@ HubTrbAdresses =>  [0x7005,0x7000,0x7001,0x7002,0x7003,
                     0x0105,
                     0x0115],
 
-BillboardAddress => 0xf30a,
-MBSAddress => 0xf30a,
+BillboardAddress => 0x0112,
+MBSAddress => 0x0112,
                     
 #Addresses of all TDCs. Either single or broadcast addresses
 TdcAddress   => [0xfe4c,0xfe4e,0x7005],  
 
-TrbIP => ["192.168.0.0",
-          "192.168.0.1",
-          "192.168.0.2",
-          "192.168.0.3",
-          "192.168.0.4",
-          "192.168.0.5",
-          "192.168.0.6",
-          "192.168.0.7",
-          "192.168.0.8",
-          "192.168.0.9",
-          "192.168.0.10",
-          "192.168.0.11",
-          "192.168.0.12",
-          "192.168.0.13",
-          "192.168.0.14",
-          "192.168.0.15",
-          "192.168.0.16",
-          "192.168.0.17"],
+#IPs of all devices which should react on a ping
+TrbIP => [
+"192.168.0.29",
+    "192.168.0.47",
+    "192.168.0.56",
+#           "192.168.0.57",#extra TRB3
+    "192.168.0.59",
+    "192.168.0.72",
+    "192.168.0.73",
+    "192.168.0.74",
+    "192.168.0.78",
+    "192.168.0.83",
+    "192.168.0.84",
+    "192.168.0.89",
+    "192.168.0.97",
+    "192.168.0.99",
+    "192.168.0.101",
+    "192.168.0.102",
+    "192.168.0.104",
+    "192.168.0.105"
+],
 
+#Channel to read spill intensity from. Give limit for off-spill detection
+BeamTRB => 0x0110,
+BeamChan => 0xc005,
+SpillThreshold => 30,
 
+#Name detectors 
+BeamDetectorsTrb  => [0x0110, 0x0110, 0x0111,0x0110,0x0111,0x0110,0x0113,0x0111,0x0110],
+BeamDetectorsChan => [0xc001, 0xc003, 0xc001,0xc009,0xc005,0xc00b,0xc009,0xc009,0xc005],
+BeamDetectorsName => ['Fngr_d', 'Lead_d', 'C1',  'C1_d', 'C2',  'C2_d', 'Lead1', 'Lead2', 'Hodo'],
 
 #User directory
-UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/';
+UserDirectory => '/home/hadaq/trbsoft/daqtools/users/cern_cbmrich/',
+PowerSupScript => 'measure_powers.sh' # relative to user dir
+

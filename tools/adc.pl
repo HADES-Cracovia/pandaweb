@@ -25,7 +25,7 @@ unless(defined $ARGV[0] && defined $ARGV[1]) {
   print "\t",' adc_reg $addr $val',"\t write to register of all ADCs, arguments are oct()'ed\n";
   print "\t",' adc_testio $id',"\t enable testio of all ADCs, id=0 disables\n";
   print "\t",' adc_phase $phase [ADCs]',"\t set the clock-data output phase\n";
-  print "\t",' adc_testall',"\t test all ADC channels with patterns\n";
+  print "\t",' adc_testall',"\t test ADC LVDS communication with pattern\n";
   exit;
 }
 
@@ -63,22 +63,8 @@ sub sendcmd {
   return trb_register_read($board,0xd412);
 }
 
+
 sub sendcmd_bitbang {
-  my $cmd = shift;
-  #csb low
-  trb_register_write($board,0xa080,0x11);
-
-  for my $j (0..23) {
-    my $b = ($cmd>>(23-$j)) & 1;
-    $b = $b << 5;
-    trb_register_write($board,0xa080,0x01 | $b);
-    trb_register_write($board,0xa080,0x11 | $b);
-    }
-   #csb high
-  trb_register_write($board,0xa080,0x51);
-}
-
-sub sendcmd_bitbang_single {
   my $cmd = shift;
   # we use the padiwa register to control
   # so set the global CSB high (and keep it high, see for loop
@@ -122,6 +108,27 @@ sub adc_init {
   sendcmd_adc(0xff,0x01);
 
   print ">>> ADC initialized\n";
+
+  my $tries = 3;
+  while(1) {
+    print ">>> Optimizing ADC phases...\n";
+    &set_optimal_phases;
+    print ">>> Check ADCs again...\n";
+    my @good = &adc_testall;
+    #print Dumper(\@good);
+    # check if all ADCs are good
+    if(@good == grep { $_ } @good) {
+      last;
+    }
+    elsif($tries>0) {
+      print ">>> Some ADCs are not working, retrying...$tries\n";
+      $tries--;
+    }
+    else {
+      print "WARNING: Could not get all ADCs to work despite retrying...\n";
+      last;
+    }
+  }
 }
 
 if ($ARGV[1] eq "adc_init") {
@@ -227,7 +234,7 @@ sub sendcmd_adc {
   # the instruction bits is simply the $adc_reg value, since
   # the bit31 should be zero for writing, and bit30/29 should be
   # 0 to request to write one byte
-  sendcmd_bitbang_single(  ($adc_reg << 8)
+  sendcmd_bitbang(  ($adc_reg << 8)
           + ($adc_val << 0));#,
           #$chain{adc});
 
@@ -250,12 +257,22 @@ sub adc_testio {
   sendcmd_adc(0xd, $pattern);
   # initiate transfer
   sendcmd_adc(0xFF,0x1);
-  print "Set ADC testio mode.\n" if $verbose;
+  print "Set ADC testio mode for ADCs ",join(",",@adcs),"\n" if $verbose;
 }
 
 if ($ARGV[1] eq "adc_testio" && defined $ARGV[2]) {
   adc_testio(oct($ARGV[2]) & 0xf);
 }
+
+sub adc_phase {
+  my $phase = shift;
+  # interpret the arguments as hex
+  sendcmd_adc( 0x16 , $phase );
+  # initiate transfer
+  sendcmd_adc(0xFF,0x1);
+  print "Set ADC output phase for ADCs ",join(",",@adcs),"\n" if $verbose;
+}
+
 
 if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
   if(defined $ARGV[3]) {
@@ -268,11 +285,7 @@ if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
     die "Empty ADC range supplied"
       if @adcs==0;
   }
-  # interpret the arguments as hex
-  sendcmd_adc( 0x16 , oct($ARGV[2]) & 0xf );
-  # initiate transfer
-  sendcmd_adc(0xFF,0x1);
-  print "Set ADC output phase for ADCs ",join(",",@adcs),"\n" if $verbose;
+  adc_phase(oct($ARGV[2]) & 0xf);
 }
 
 if ($ARGV[1] eq "init") {
@@ -280,106 +293,153 @@ if ($ARGV[1] eq "init") {
   # init stuff
   &lmk_init;
   &adc_init;
-
-  # set the ADC phase to 0x0
-  # this is mandatory in order to get
-  # working communication!
-  sendcmd_adc(0x16, 0b0);
-  sendcmd_adc(0xFF, 0x1);
-  print ">>> Phase set to 0°, your board should be working now...\n";
+  print ">>> Your board should be working now...\n";
 }
 
-sub read_channels {
-  my @result;
-  my $ctrlreg = 0xa081;
-  trb_register_write($board,$ctrlreg,0);
-  usleep(100000);
-  trb_register_write($board,$ctrlreg,2);
-  for (my $ch=0;$ch<48;$ch++) {
-    my $r = trb_register_read_mem($board,0xa000+$ch,1,300);
-    push(@result, $r->{$board});
-    #print Dumper($r);
-  }
-  trb_register_write($board,$ctrlreg,0);
+sub read_rates {
+  my $addr=shift;
+  my $size=shift;
+  my $start=shift;
+  my $bits=shift;
+  my $mask = 0;
+  $mask |= (1<<$_) for ($start..$start+$bits-1);
 
-  return @result;
+  my $us = 100000;
+  # read it
+  my $r1 = trb_register_read_mem($board,$addr,0,$size);
+  usleep($us);
+  my $r2 = trb_register_read_mem($board,$addr,0,$size);
+  $r1=$r1->{$board}; # broadcasts unsupported for now...
+  $r2=$r2->{$board}; # broadcasts unsupported for now...
+
+  my @rates;
+  for my $i (0..$size-1) {
+    my $val1 = ($r1->[$i] & $mask) >> $start;
+    my $val2 = ($r2->[$i] & $mask) >> $start;
+    # detect overflow
+    if($val2<$val1) {
+      #print "Overflow\n";
+      $val2 += 1<<$bits;
+    }
+    my $t1 = 0; #$r1->{time}->[$i];
+    my $t2 = $us/1e6; # $r2->{time}->[$i];
+    my $rate = ($val2-$val1)/($t2-$t1);
+    #print $r2->{value}->[$i]-$r1->{value}->[$i],"\n";
+    #print $val2-$val1," ",$rate,"\n";
+    push(@rates,$rate);
+  }
+  return @rates;
 }
 
 if ($ARGV[1] eq "adc_testall") {
   $verbose=0;
-  
-  # set pattern to checkerboard,
-  # should give alternating 0x155, 0x2aa, 0x155, 0x2aa ...
-  my $ok_checkerboard = 1;
-  adc_testio(0b0100);
-  my @r = read_channels();
-  #print Dumper(\@r);
-  for(my $ch=0;$ch<@r;$ch++) {
-    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
-    # look at first value
-  
-    my @checkerboard;
-    my $firstval = $vals[0];
-    if($firstval == 0x2aa) {
-      @checkerboard = (0x2aa, 0x155);
-    }
-    elsif($firstval == 0x155) {
-      @checkerboard = (0x155, 0x2aa);
-    }
-    else {
-      printf("ERROR: First value 0x%x from checkerboard not recognized, ch=$ch\n",$firstval);
-      $ok_checkerboard = 0;
-      next;
-    }
-
-    
-    # compare the remaining values
-    for(my $i=1;$i<@vals;$i++) {
-      if($vals[$i] != $checkerboard[$i % 2]) {
-        printf("ERROR: Value 0x%x (idx=$i) from checkerboard not recognized, ch=$ch\n",$vals[$i]);
-        $ok_checkerboard = 0;
-        last;
-      }
-    }
-  }
-  if($ok_checkerboard) {
-    print ">>> Tested all channels with checkerboard pattern successfully\n";
-  }
-  else {
-    print ">>> Test with checkerboard failed, see above.\n";
-  }
-
-  # set testmode to mixed frequency,
-  # should give 0b1001100011
-  adc_testio(0b1100);
-  my $ok_mixed = 1;
-  @r = read_channels();
-  for(my $ch=0;$ch<@r;$ch++) {
-    my @vals = map { $_ & 0x3ff } @{$r[$ch]};
-
-    for(my $i=0;$i<@vals;$i++) {
-      if ($vals[$i] != 0b1001100011) {
-        printf("ERROR: Value 0x%x (idx=$i) from mixed-frequency not recognized, ch=$ch\n", $vals[$i]);
-        $ok_mixed = 0;
-        last;
-      }
-    }
-  }
-  if($ok_checkerboard) {
-    print ">>> Tested all channels with mixed frequency pattern successfully\n";
-  }
-  else {
-    print ">>> Test with mixed-frequency pattern failed\n";
-  }
-  # disable testio
-  adc_testio(0);
-
-  if($ok_checkerboard && $ok_mixed) {
-    print ">>> All ADC channels seem to be nicely working with testpatterns!\n";
-  }
-  else {
-    print ">>> Test of ADC channels failed :(((\n";
+  my @good = &adc_testall;
+  for my $adc (0..11) {
+    printf("ADC %02d: %s\n",$adc,
+           $good[$adc] ? "Working" : "NOT WORKING!!!");
   }
 }
+
+sub adc_testall {
+  my @phases =  @{(shift || [-1])}; # by default dont change phases
+
+  # checkerboard, sends 0x2aa and 0x155 as ADC words
+  adc_testio(0b0100);
+  trb_register_write($board, 0xa019, 0x815502aa);
+  # midscale short
+  #adc_testio(0b0001);
+  #trb_register_write($board, 0xa019, 0x82000200);
+
+  my @good_ranges;
+  for my $phase (@phases) {
+    #print "Setting phase to ",$phase*60,"\n";
+    adc_phase($phase) if $phase>=0;
+    # word counts per ADC (12 items) at 0xa030 (upper 28bits)
+    my @word_rates = read_rates(0xa030, 12, 4, 28);
+
+    # invalid words per channel (4x12=48 items) at 0xa8c0
+    # use only upper 31 bits to account for overflow
+    my @invalid_rates = read_rates(0xa8c0, 48, 1, 31);
+
+    for my $adc (0..11) {
+      my $word_rate = $word_rates[$adc];
+      my $MS = 4e7; # assume 40MS ADC...
+      my $good = $word_rate > 0.98*$MS;
+      for my $i (0..3) {
+        my $ch = $adc*4+$i;
+        my $invalid_rate = $invalid_rates[$ch];
+        $good &= $invalid_rate==0 ? 1 : 0;
+      }
+      #printf("%02d %.0f %d\n", $adc, $word_rate, $good);
+      if($phase<0) {
+        $good_ranges[$adc] = $good;
+      }
+      else {
+        $good_ranges[$adc]->[$phase] = $good;
+        $good_ranges[$adc]->[$phase+@phases] = $good; # another copy to account for cyclic phase
+      }
+    }
+  }
+
+  # disable testio again
+  adc_testio(0);
+  trb_register_write($board, 0xa019, 0x0);
+
+  return @good_ranges;
+}
+
+sub set_optimal_phases {
+  $verbose=0;
+
+  my $max_phase = 0b1011;
+
+  my @good_ranges = adc_testall([0..$max_phase]);
+  
+  # find the optimal phases as largest
+  # consecutive range of good state
+  # then set the phases for each ADC individually
+  my @old_adcs = @adcs;
+  for my $adc (0..11) {
+    my @good = @{$good_ranges[$adc]};
+    #printf("%02d %s\n", $adc, join(' ',@good));
+    # search for largest consecutive ones in @good
+    my $start = -1;
+    my $max_length = 0;
+    my $opt_phase = -1;
+    #my $end = -1;
+    for(my $i=0;$i<@good;$i++) {
+      if($start<0) {
+        if($good[$i]) {
+          #print "Found start at $i\n";
+          $start=$i;
+        }
+      }
+      else {
+        if(!$good[$i] || $i==@good-1) {
+          my $length = $i - $start + ($i==@good-1);
+          #print "Found stop at $i with length $length\n";
+          if($length>$max_length) {
+            $max_length=$length;
+            $opt_phase = int($start+$length/2) % ($max_phase+1);
+          }
+          $start = -1;
+        }
+      }
+    }
+    if($opt_phase<0) {
+      print "Warning: No optimal phase found for ADC $adc, guessing 0\n";
+      $opt_phase=0;
+    }
+    #print "Opt phase: $opt_phase Max length $max_length\n";
+
+    # now set them for each ADC
+    @adcs = ($adc); # used by adc_phase
+    adc_phase($opt_phase);
+    #printf("Set ADC %02d to optimal phase of %03d degrees\n", $adc, $opt_phase*60);
+  }
+
+  @adcs = @old_adcs;
+}
+
 
 

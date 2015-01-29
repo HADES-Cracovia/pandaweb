@@ -116,6 +116,8 @@ function reload() {
       reloadevery = setTimeout('reload()',$.($delay*1000).qq$);
       delete xmlhttp;
       delete saveScrollTop;
+
+      heatmapRegister();
       }
     };
   if(document.getElementById('logbox')) {
@@ -171,6 +173,73 @@ function blink() {
   blinkcnt++;
   }
 
+
+/*Some functions for PMT Heatmap plot for CBM RICH*/
+ function heatmapRegister() {
+  if (!document.getElementById('heatmap-img')) return;
+
+  if (typeof HeatmapDef === 'undefined') {
+    var js = document.createElement("script");
+    js.type = "text/javascript";
+    js.src = '../HeatmapRichDefs.js';
+    document.body.appendChild(js);
+  }
+
+  heatmapPlaceHint("auto");
+
+  document.getElementById('heatmap-img').onmousemove =
+  document.getElementById('heatmap-img').onmouseover = 
+  document.getElementById('heatmap-img').onclick = 
+  function(e) {
+    if (!e.target || e.target.id != 'heatmap-img') return;
+
+    var imgPos = document.getElementById('heatmap-img').getBoundingClientRect();
+    var cx = e.clientX;
+    var cy = e.clientY;
+
+    var ix = parseInt((cx - HeatmapDef.x) / HeatmapDef.w);
+    var iy = 31- parseInt((cy - HeatmapDef.y) / HeatmapDef.h);
+    heatmapPlaceHint( !(ix < 0 || ix > 31 || iy < 0 || iy > 31), ix, iy );
+  }
+ }
+
+ var heatmapPX, heatmapPY, heatmapShow;
+  function heatmapPlaceHint(mode, ix, iy) {
+    if (mode=='auto') {
+      mode = heatmapShow;
+      ix = heatmapPX;
+      iy = heatmapPY;
+    };
+
+    heatmapShow = mode;
+    heatmapPX = ix;
+    heatmapPY = iy;
+
+    var indi = document.getElementById('heatmap-indicator');
+    if (!indi) {
+      indi = document.createElement("div");
+      indi.id = 'heatmap-indicator';
+      indi.style.border="3px solid #ff0000";
+      indi.style.width =  HeatmapDef.w + "px";
+      indi.style.height = HeatmapDef.h + "px";
+      indi.style.position='absolute';
+      document.getElementById('heatmap-img').parentNode.appendChild(indi);
+    }
+
+    if (!mode) {
+      indi.style.display="none";
+      document.getElementById('heatmap-caption').innerHTML = "Hover/Click image for FPGA/Channel info";
+      return;
+    }
+
+    var pmtid = 4 - parseInt(iy / 8) + 4 * (3 - parseInt(ix / 8));
+
+    indi.style.display="block";
+    indi.style.left = parseInt(ix*HeatmapDef.w + HeatmapDef.x - 3) + "px";
+    indi.style.top  = parseInt((31-iy)*HeatmapDef.h +  HeatmapDef.y - 3) + "px";
+    document.getElementById('heatmap-caption').innerHTML = "cell (" + ix + ", " + iy + ") " + HeatmapDef.labels[ix][iy] + " PMT " + pmtid;
+  }
+/*END: Some functions for PMT Heatmap plot for CBM RICH*/
 </script>$;
 	      }
 $out .= qq$

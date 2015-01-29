@@ -320,7 +320,38 @@ sub PadiwaSendCmd {
   return trb_register_read($board,0xd412);
   }
 
+sub PadiwaSendCmdMultiple {
+  my ($cmd,$board,$chain,$delay) = @_;
+  my $length = 0;
+  my $str = "";
+  for (my $i = 0; $i < 16; $i++) {
+    $length++ if defined $cmd->[$i];
+    $cmd->[$i] = $cmd->[$i] || 0;
+    $str .= sprintf("%08x\t",$cmd->[$i]);
+    }
+  push(@{$cmd},1<<$chain);
+  push(@{$cmd},0x1080 + $length);
+#   print STDERR "$str\n";
+  my $errcnt = 0;
+  while(1){
+    trb_register_write_mem($board,0xd400,0,$cmd,scalar @{$cmd});
 
+    if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
+    if (trb_strerror() ne "No Error") {
+      usleep($delay||1E5);
+      if($errcnt >= 12) {
+        return "SPI still blocked\n";
+        }
+      elsif($errcnt++ >= 10) {
+        trb_register_read($board,0xd412);
+        }
+      }
+    else {
+      last;
+      }
+    } 
+  return trb_register_read($board,0xd412);
+  }
 
 1;
 __END__

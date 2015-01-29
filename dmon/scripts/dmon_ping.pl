@@ -3,8 +3,6 @@
 use warnings;
 use POSIX qw(strftime);
 use FileHandle;
-use lib "./code";
-use lib "../tools";
 use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Dmon;
@@ -13,7 +11,7 @@ use Net::Ping;
 my %config = Dmon::StartUp();
 
 
-my $ping = Net::Ping->new();
+my $ping = Net::Ping->new("external");
 while(1) {
   my $found = 0;
   my $notavail = 0;

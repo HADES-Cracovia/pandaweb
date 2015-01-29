@@ -1,8 +1,6 @@
 #!/usr/bin/perl -w
 
 use warnings;
-use lib "./code";
-use lib "../tools";
 use HADES::TrbNet;
 use Dmon;
 use HPlot;
@@ -55,7 +53,7 @@ while(1) {
         $max = $temp;
         $maxboard = $b;
         }
-      elsif ($min > $temp) { 
+      if ($min > $temp) { 
         $min = $temp;
         $minboard = $b;
         }
