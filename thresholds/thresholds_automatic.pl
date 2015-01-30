@@ -32,8 +32,8 @@ my @valid_interval = (0x8000, 0x9000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
-my $sleep_time = 1.0;
-my $accepted_dark_rate = 150;
+my $sleep_time = 0.2;
+my $accepted_dark_rate = 10;
 my $number_of_iterations = 40; # at least 15 are recommended
 
 my $endpoint = 0x0303;

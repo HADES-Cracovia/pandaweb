@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use Dmon;
+#use Dmon;
 use Getopt::Long;
 use HADES::TrbNet;
 use POSIX qw(strftime);
@@ -48,13 +48,13 @@ my @f = <$fh>;
 
 
 #Put Information to logfile and timestamp to billboard information
-chomp $f[0];
-system("echo \"".strftime("%Y-%m-%d %H:%M:%S",localtime()).'\t'.time.'\t'.
-              $offset.'\t'.$f[0]."\">>threshold_log.txt");
-my ($t) = $f[0] =~ /(\d{10})/;
-system("echo $t>thresh/billboard_timestamp");
-my $offsetV = (32768 + $offset) & 0xffff;;
-system("echo $offsetV > thresh/billboard_offset");
+#chomp $f[0];
+#system("echo \"".strftime("%Y-%m-%d %H:%M:%S",localtime()).'\t'.time.'\t'.
+#              $offset.'\t'.$f[0]."\">>threshold_log.txt");
+#my ($t) = $f[0] =~ /(\d{10})/;
+#system("echo $t>thresh/billboard_timestamp");
+#my $offsetV = (32768 + $offset) & 0xffff;;
+#system("echo $offsetV > thresh/billboard_offset");
 
 
 my $count=0;
