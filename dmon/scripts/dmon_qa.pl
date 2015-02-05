@@ -2,6 +2,8 @@
 use FileHandle;
 use Data::Dumper;
 use POSIX qw(strftime);
+use FindBin;                 # locate this script
+use lib "$FindBin::Bin/..";
 use lib "./code";
 use Dmon;
 
@@ -39,6 +41,7 @@ while($a = <FLOG>) {
   if($readlines++ > 10000) {
     $readlines = 0;
     close(FLOG);
+    system "cat " . Dmon::DMONDIR . "/qalog >> " . $config{UserDirectory} . "/qalog_persist";
     open(FL,">".Dmon::DMONDIR."/qalog");
     close(FL);
     open(FLOG, "tail -F ".Dmon::DMONDIR."/qalog|");
@@ -47,7 +50,7 @@ while($a = <FLOG>) {
 #Generate output file at most once per second
   if(1 || $oldtime < time) {
     $oldtime = scalar time();
-    $str  = Dmon::MakeTitle($width,7,"Tactical Overview",1);
+    $str  = Dmon::MakeTitle($width,8,"Tactical Overview",1);
     $str .= "<div class=\"QA\">";
     foreach my $row (@{$config{activeScripts}}) {
       $str .= "<div class=\"header\" style=\"clear:both\">".($config{qaNames}->[$i++])."</div>\n";
@@ -76,7 +79,8 @@ while($a = <FLOG>) {
 
         
         $str .= "<div id=\"$e\" class=\"".($sev||0)." $sevcol\" alt=\"$title $time: ".Dmon::LevelName($sev)."&lt;br /&gt; $text\" onmouseover=\"clk(this);\"";
-        $str .= "onclick=\"openhelp('$link')\" >".$title."<br/>".$value."</div>\n";
+        $str .= "onclick=\"openhelp('$link')\""  if $link ne "";
+        $str .= "> ".$title."<br/>".$value."</div>\n";
         }
  
       }

@@ -54,6 +54,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="network/hub.pl">Network Hubs</a>
 <li><a href="network/gbe.htm">GbE status</a>
 <li><a href="network/map.pl">Network Map</a>
+<li><a href="cbmnet/bridge.pl">CBMNet Bridge</a>
 </ul>
 </div>
 </div>
@@ -90,8 +91,11 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="mvd/jtag.pl">MVD Jtag Controller</a>
 <li><a href="mvd/roc.pl">MVD read-out Controller</a>
 <li><a href="mvd/cb_controller.pl">MVD Converter Board Controller</a>
-<li><a href="network/generic.pl">Everything else</a>
 <li><a href="padiwa/padiwa.pl">Padiwa (xml-based, with thresholds)</a>
+<li><a href="tools/billboard.pl">Billboard</a>
+<li><a href="tools/cbmmbs.pl">CBM-MBS Receiver</a>
+<li><a href="addons/adc.pl">48ch sampling ADC</a>
+<li><a href="network/generic.pl">Everything else</a>
 </ul>
 </div>
 </div>
@@ -102,6 +106,8 @@ The main documentation of the network can be found in these documents and locati
 <ul>
 <li><a href="tools/pwr/index.html" title="Currently supported: GW-Instek PSP-405 family, HMP2020 - HMP4040 family">Control for power supplies</a>
 <li><a href="tools/vxi/index.html" title="Tested with Tektronix AFG3000 function generator">Control for devices running the VXI-11 protocol</a>
+<li><a href="dmon/index.pl" title="DMON">DMON DAQ Monitoring</a></li>
+<li><a href="daqi/index.html" title="DMON">DAQi Control</a></li>
 </ul>
 </div>
 </div>

@@ -1,0 +1,262 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="ADC"
+              address="a000"
+              >
+  <description>Control and Status registers related to ADC AddOn</description>
+
+<group name="Control"
+           address="0000"  size="7"  purpose="config" mode="rw" continuous="false">  
+      <description>Configuration registers</description>
+      <register name="BufferControl" address="0001" >
+        <description>Stop writing to buffers</description>
+        <field  name="StopBuffers" start="0"   bits="1"  format="boolean"  errorflag="true"/>
+        <field  name="BaselineOn"  start="4"   bits="1"  format="boolean"  errorflag="true">
+          <description>Baseline calculation always on (not just when no signal found)</description>
+        </field>
+      </register>  
+      <register name="ProcessorStrobes" address="0000" purpose="trigger" mode="w" >
+        <description>Strobe signals to control processor</description>
+        <field  name="ClearBuffers"  start="4"   bits="1"  format="boolean"  errorflag="true"/>
+        <field  name="ResetBuffers"  start="5"   bits="1"  format="boolean"  errorflag="true"/>
+        <field  name="ResetBaseline" start="8"   bits="1"  format="boolean"  errorflag="true"/>
+        <field  name="ResetReadout"  start="12"  bits="1"  format="boolean"  errorflag="true"/>
+      </register> 
+</group>
+  
+<group name="BufferConfig"
+           address="0010"  size="16"  purpose="config" mode="rw" continuous="true">
+      <description>Configuration of buffer handling</description>
+      <register name="BufferDepth" address="0000" >
+        <description>Number of samples to be stored in the buffer</description>
+        <field  name="BufferDepth" start="0"   bits="10"  format="unsigned"  noflag="true"/>
+      </register>
+      
+      <register name="SamplesAfterTrg" address="0001" >
+        <description>Number of samples to take after reference time signal arrived</description>
+        <field  name="SamplesAfterTrg" start="0"   bits="10"  format="unsigned"  noflag="true"/>
+      </register>
+      
+      <register name="ProcessBlocks" address="0002" >
+        <description>How many blocks of different downsampling settings should be processed</description>
+        <field  name="ProcessBlocks" start="0"   bits="2"  format="unsigned" noflag="true" />
+      </register>
+      
+      <register name="TriggerSetting" address="0003" >
+        <description>Settings of trigger signal generation</description>
+        <field  name="TriggerOffset" start="0"   bits="10"  format="signed" noflag="true" >
+          <description>Offset from the calculated baseline that must be reached to generate a trigger signal for the CTS</description>
+        </field>
+        <field name="TriggerInvert" start="16" bits="1" format="bitmask" noflag="true">
+          <description>Selects positive (unset) or negative (set) signal inputs. If negative is selected, a trigger is generated if the input signal is below the baseline minus the set threshold</description>
+        </field>
+      </register>
+
+      <register name="ReadoutSetting" address="0004" >
+        <description>Offset from the calculated baseline that must be reached to transmit data during readout (Zero Suppression)</description>
+        <field  name="ReadoutOffset" start="0"   bits="18"  format="signed" noflag="true" >
+          <description>Offset from the calculated baseline that must be reached to generate a readout from this channel.</description>
+        </field>
+        <field name="ReadoutInvert" start="16" bits="1" format="bitmask" noflag="true">
+          <description>Selects positive (unset) or negative (set) signal inputs. If negative is selected, a readout is generated if the input signal is below the baseline minus the set threshold</description>
+        </field>        
+      </register>
+
+      <register name="Downsampling" address="0005" >
+        <description>Downsampling of ADC samples before storing in buffer. Make sure values can not exceed 16 Bit!</description>
+        <field  name="Downsampling" start="0"   bits="8"  format="unsigned" scaleoffset="1" noflag="true" />
+      </register>
+
+      <register name="BaselineAvg" address="0006" >
+        <description>Averaging time for baseline calculation. 2**N samples are taken. Baseline is calculated from buffer output data, triggered events are suppressed.</description>
+        <field  name="BaselineAvg" start="0"   bits="4"  format="unsigned" noflag="true" />
+      </register>
+      <register name="TriggerEnable0" address="0007" >
+        <description>Trigger enable for channels 31 - 0</description>
+        <field  name="TriggerEnable0" start="0"   bits="32"  format="bitmask" noflag="true" />
+      </register>
+      <register name="TriggerEnable1" address="0008" >
+        <description>Trigger enable for channels 47 - 32</description>
+        <field  name="TriggerEnable1" start="0"   bits="16"  format="bitmask" noflag="true" />
+      </register>
+      <register name="WordChecker" address="0009" >
+        <description>Check incoming words for validity. Two accepted words can be specified.</description>
+        <field  name="Word1Check" start="0"   bits="10"   format="hex" noflag="true" />
+        <field  name="Word2Check" start="16"   bits="10"  format="hex" noflag="true" />
+        <field  name="WordCheckEnable" start="31"   bits="1"  format="boolean" />
+      </register>
+      <register name="ChannelDisable0" address="000a" >
+        <description>Channel disable for channels 31 - 0</description>
+        <field  name="ChannelDisable0" start="0"   bits="32"  format="bitmask" noflag="true" />
+      </register>
+      <register name="ChannelDisable1" address="000b" >
+        <description>Channel disable for channels 47 - 32</description>
+        <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
+      </register>            
+      <register name="ProcessingMode" address="001c" >
+        <description>Kind of data processing - e.g. block read-out or pulse shape processing</description>
+        <field  name="ProcessingMode" start="0"   bits="2"  format="enum" noflag="true" >
+          <enumItem value="0">Block mode</enumItem>
+          <enumItem value="1">Pulse Shape Processing</enumItem>
+        </field>
+      </register>         
+</group>  
+
+<group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
+      <register name="ValuesToSum" address="0000" repeat="4" >
+        <description>Block mode: Number of values to sum for each output data word. Pulse shape analysis: Number of factors to use</description>
+        <field  name="ValuesToSum" start="0"   bits="8"  format="unsigned" noflag="true" />
+      </register>
+      <register name="NumberOfWords" address="0004" repeat="4">
+        <description>Number of output data words to produce</description>
+        <field  name="NumberOfWords" start="0"   bits="8"  format="unsigned" noflag="true" />
+      </register>  
+      <register name="Scaling" address="0008" repeat="4">
+        <description>Scaling factor. Sums are divided by 2**N before written to the data stream.</description>
+        <field  name="Scaling" start="0"   bits="4"  format="unsigned" noflag="true" />
+      </register>  
+</group>
+
+<group name="ProcessorStatus" address="0900"  size="255"  purpose="status" mode="r" continuous="false">
+    <group name="FillLevels1g" address="0000"  size="12"  purpose="status" mode="r" continuous="true"> 
+      <register name="FillLevels1" address="0000" repeat="12" continuous="true">
+        <description>Buffer fill level</description>
+        <field  name="FillLevel0" start="0"   bits="11"  format="unsigned" noflag="true" >
+          <description>Fill level of buffer of first ADC channel</description>
+        </field>
+        <field  name="FillLevel1" start="16"  bits="11"  format="unsigned" noflag="true" >
+          <description>Fill level of buffer of second ADC channel</description>
+        </field>
+      </register>
+    </group>  
+    <group name="FillLevels2g" address="0010"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="FillLevels2" address="0000" repeat="12">
+        <description>Buffer fill level</description>
+        <field  name="FillLevel2" start="0"   bits="11"  format="unsigned" noflag="true" >
+          <description>Fill level of buffer of third ADC channel</description>
+        </field>
+        <field  name="FillLevel3" start="16"  bits="11"  format="unsigned" noflag="true" >
+          <description>Fill level of buffer of fourth ADC channel</description>
+        </field>
+      </register>
+    </group>  
+    <group name="BufferHandlerg" address="0020"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="BufferHandler" address="0000" repeat="12" continuous="true">
+        <description>Buffer fill level</description>      
+        <field name="StopWriting" start="0" bits="1" format="boolean" invertflag="true">
+          <description>Writing to buffers is stopped</description>
+        </field>
+        <field name="StopWritingRdo" start="1" bits="1" format="boolean"  invertflag="true">
+          <description>Writing to buffers is stopped because of readout</description>
+        </field>
+        <field name="StopIn" start="2" bits="1" format="boolean"  errorflag="true">
+          <description>Writing to buffers is stopped by external signal</description>
+        </field>
+        <field name="RamRemove" start="3" bits="1" format="bitmask" noflag="true" >
+          <description>Removing a word from RAM</description>
+        </field>
+        <field name="RamClear" start="4" bits="4" format="bitmask" noflag="true" >
+          <description>Clearing RAM flag</description>
+        </field>
+        <field name="RamRead" start="8" bits="4" format="bitmask" noflag="true" >
+          <description>Reading a word from RAM</description>
+        </field>
+        <field name="AdcValid" start="12" bits="1" format="bitmask" noflag="true" >
+          <description>Valid data flag from ADC input</description>
+        </field>
+        <field name="RamWrite" start="13" bits="1" format="bitmask" noflag="true" >
+          <description>Write strobe to RAM</description>
+        </field>        
+        <field name="TriggerGen" start="16" bits="4" format="bitmask" noflag="true" >
+          <description>Trigger generation flag</description>
+        </field>        
+        <field name="ReadoutFlag" start="20" bits="4" format="bitmask" noflag="true" >
+          <description>Readout flag</description>
+        </field> 
+      </register> 
+    </group>  
+    <group name="WritePointerg" address="0030"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="WritePointer" address="0000" repeat="12" continuous="true">
+        <description>Write pointer of buffers</description>
+        <field  name="WritePointer" start="0"   bits="11"  format="unsigned" noflag="true" >
+        </field>
+      </register>      
+    </group>  
+    <group name="ReadPointers1g" address="0040"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="ReadPointers1" address="0000" repeat="12" continuous="true">
+        <description>Buffer read pointer</description>
+        <field  name="ReadPointer0" start="0"   bits="11"  format="unsigned" noflag="true" >
+          <description>Read pointer of buffer of first ADC channel</description>
+        </field>
+        <field  name="ReadPointer1" start="16"  bits="11"  format="unsigned" noflag="true" >
+          <description>Read pointer of buffer of second ADC channel</description>
+        </field>
+      </register>
+    </group>  
+    <group name="ReadPointers2g" address="0050"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="ReadPointers2" address="0000" repeat="12" continuous="true">
+        <description>Buffer read pointer</description>
+        <field  name="ReadPointer2" start="0"   bits="11"  format="unsigned" noflag="true" >
+          <description>Read pointer of buffer of third ADC channel</description>
+        </field>
+        <field  name="ReadPointer3" start="16"  bits="11"  format="unsigned" noflag="true" >
+          <description>Read pointer of buffer of fourth ADC channel</description>
+        </field>
+      </register>       
+    </group>    
+    <group name="ReadoutHandlerg" address="0060"  size="12"  purpose="status" mode="r" continuous="true">  
+      <register name="ReadoutHandler" address="0000" repeat="12" continuous="true">
+        <description>Status of the Readout handler</description>
+        <field  name="ReadoutState" start="0"   bits="8"  format="enum" noflag="true" >
+          <description>Status of the Readout handler FSM</description>
+          <enumItem value="0">Idle</enumItem>
+          <enumItem value="1">ReleaseDirect</enumItem>
+          <enumItem value="2">WaitForEnd</enumItem>
+          <enumItem value="3">CheckStatusTrigger</enumItem>
+          <enumItem value="4">Start</enumItem>
+          <enumItem value="5">Readout</enumItem>
+          <enumItem value="6">NextBlock</enumItem>
+          <enumItem value="7">SendStatus</enumItem>
+        </field>
+      </register>       
+    </group>    
+</group>
+
+
+<group name="InputHandler"
+           address="0030"  size="12"  purpose="status" mode="r" continuous="true">
+      <register name="WordCount" address="0000" repeat="12" >
+        <description>Counter of words from ADC</description>
+        <field  name="WordCount" start="4"   bits="28"  format="unsigned" noflag="true" rate="true" />
+      </register>
+</group>  
+
+<group name="LastValues" address="0800"  size="48"  purpose="status" mode="r" continuous="true">
+      <register name="LastValue" address="0000" repeat="48" >
+        <description>Last value read from ADC</description>
+        <field  name="LastValue" start="0"   bits="10"  format="unsigned" noflag="true" />
+      </register>
+</group>      
+<group name="Baselines" address="0840"  size="48"  purpose="status" mode="r" continuous="true">
+      <register name="Baseline" address="0000" repeat="48" >
+        <description>The current calculated baseline of the ADC value</description>
+        <field  name="Baseline" start="0"   bits="18"  format="unsigned" noflag="true" />
+      </register>
+</group>
+<group name="InvalidWordsg" address="08C0"  size="48"  purpose="status" mode="r" continuous="true">
+      <register name="InvalidWords" address="0000" repeat="48" >
+        <description>Number of words not matching the given pattern </description>
+        <field  name="InvalidWords" start="0"   bits="32"  format="unsigned" errorflag="true" rate="true" />
+      </register>
+</group> 
+
+<group name="PulseShapeAnalysis"
+           address="0200"  size="256"  purpose="config" mode="w" continuous="true">
+      <register name="PulseShapeFactors" address="0000" repeat="256" >
+        <description>Factors used in pulse shape analysis</description>
+        <field  name="PulseShapeFactors" start="0"  bits="16"  format="signed" noflag="true" />
+      </register>
+</group>  
+
+</TrbNetEntity>

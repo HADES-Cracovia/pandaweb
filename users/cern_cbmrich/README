@@ -1,0 +1,126 @@
+###################################################################################### 
+# bring up the whole chain (in the order given!)
+# On richctl:
+# 
+# as root: 
+#   #NO#   TRB3_SERVER=trb056 ~hadaq/trbsoft/trbnettools/binlocal/trbnetd -i 56
+#   TRB3_SERVER=trb056 ~hadaq/trbsoft/trbnettools/trbnetd/server/trbnetd -i 56
+# as hadaq:
+#   cd ~/trbsoft/daqtools/web; ./cts_gui
+#   cd ~/trbsoft/daqtools/dmon; ./start ../users/cern_cbmrich/dmon_config.pl
+# 
+#   
+#   
+# On richdaq:
+#   cd ~/trbsoft/daqtools/users/cern_cbmrich
+#   ./startup.sh
+#  
+# Have a lot of fun!
+###################################################################################### 
+
+
+# Scanning offsets
+  users/cern_cbmrich/offset_scan.pls
+
+ -> edit line 33:
+       for my $offset(0, 50, 100, 150, 200, 400, 750, 1000, 1500, 2000)
+    do change offsets to be scanned
+    
+ -> edit line 26
+      my $swpDir = "/mnt/data/offset_sweep/ringa/";
+    to change to dir where the files have to be stored.
+    if the dir does not exists, the script will create it (if it has sufficient permissions)
+
+ -> change $recordTime and $minHodoHits and to define limits for each iteration
+
+ 
+# change limits in heatmap
+  dmon/scripts/dmon_heatmap.pl
+  
+  edit line
+    $plot2->{cbmax}   = "100<*<1000000";
+    
+  to set lower and upper bound of max hits
+ 
+  start dmon:
+    cd ~/trbsoft/daqtools/dmon; ./start ../users/cern_cbmrich/dmon_config.pl
+
+ 
+ 
+#to start deamon (as root on richdaq)
+TRB3_SERVER=trb056 ~/trbsoft/trbnettools/binlocal/trbnetd -i 56
+
+#set environment
+export DAQOPSERVER=localhost:56
+
+# write the environment settings in the shell rc file
+export TRB3_SERVER=trb056
+export DAQOPSERVER=localhost:56
+
+
+# to see the list of the endpoints
+trbcmd i 0xffff
+0xf3c0  0x000000046f1cde28  0x05 # central FPGA
+0xf305  0x4d0000046f1c6328  0x00 # pripheral FPGA
+0xf305  0x820000046f1c6928  0x01
+0xf305  0x1f0000046f1cba28  0x02
+0xf305  0xbb0000046f1b5e28  0x03
+
+# user script is in trbsoft/daqtools/users/gsi_dirc/
+cd ~/trbsoft/daqtools/users/gsi_dirc/
+
+# the network addresses of the trb3 can be changed in
+# daqtools/base/addresses_trb3.db
+
+# to configure the trb3 run
+./startup.sh
+
+# to start the cts
+cd ~/trbsoft/daqtools/web
+
+# make sure the environment settings are correct (DAQOPSERVER and TRB3_SERVER)
+./cts_gui --noopenxterm
+
+# to monitor the cts open a webserver and go to the address "localhost:1234"
+# and check the DAQOPSERVER label at the bottom of the page. This should be
+# the same as the trb3 number.
+
+# to start data taking
+daq_evtbuild -m 1 -d file -o /tmp
+daq_netmem -m 1 -i UDP:127.0.0.1:50000
+
+
+### Padiwa
+
+##Thresholds can be set via webserver and scripts
+
+#script for single endpoint
+./thresholds_automatic.pl -h
+
+usage: thresholds_automatic.pl --endpoint=<endpoint_address>
+#--chain=<SPI-chain> [--offset=<number in decimal or hex>]
+       [--help] [--mode=<"padiwa"|"cbmrich">] [--32channel]
+
+example:
+
+thresholds_automatic.pl --endpoint=0x303 --chain=0 --offset=0x10 --32channel
+or in short
+thresholds_automatic.pl -e 0x303 -o 0x10 -c 0
+
+currently only mode "padiwa" is implemented.
+
+polarity: tells what the status of bit 32 is, when the thresholds are set to 0
+32channel: when set the tool assums a TDC with 32 channels, leading and
+trailing channels use two channels
+
+
+# script for many endpoints
+./run_thresh_on_system.pl -h
+
+usage:
+run_threshold_on_system.pl |options]
+
+example:
+run_threshold_on_system.pl --endpoints=0x301-0x308,0x310..0x315,0x380
+--chains=0..3 --offset=4 --polarity=0
+will run for endpoints 0x301-0x308 and 0x310-0x315 and 0x380 for all chains (0..3)

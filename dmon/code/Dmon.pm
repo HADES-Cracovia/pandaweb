@@ -4,7 +4,7 @@ use Data::Dumper;
 use warnings;
 use strict;
 use HADES::TrbNet;
-
+use Time::HiRes qq|usleep|;
 
 print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
 
@@ -34,7 +34,8 @@ my $OldValues; my $firstrun = 1;
 sub MakeRate {
   my ($pos,$width,$usets,$t) = @_;
   my $res;
-  
+  return unless defined $t;  
+
   foreach my $b (keys $t) {
     for my $i (0..((scalar @{$t->{$b}{value}})-1)) {
       my $value    = $t->{$b}{value}[$i]||0;
@@ -292,6 +293,65 @@ sub SciNotation {
     }
 }
 
+
+############################################
+# Sends a command to a Padiwa
+sub PadiwaSendCmd {
+  my ($cmd,$board,$chain) = @_;
+  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+  my $errcnt = 0;
+  while(1){
+    trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+
+    if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
+    if (trb_strerror() ne "No Error") {
+      usleep 1E5;
+      if($errcnt >= 12) {
+        return "SPI still blocked\n";
+        }
+      elsif($errcnt++ >= 10) {
+        trb_register_read($board,0xd412);
+        }
+      }
+    else {
+      last;
+      }
+    } 
+  return trb_register_read($board,0xd412);
+  }
+
+sub PadiwaSendCmdMultiple {
+  my ($cmd,$board,$chain,$delay) = @_;
+  my $length = 0;
+  my $str = "";
+  for (my $i = 0; $i < 16; $i++) {
+    $length++ if defined $cmd->[$i];
+    $cmd->[$i] = $cmd->[$i] || 0;
+    $str .= sprintf("%08x\t",$cmd->[$i]);
+    }
+  push(@{$cmd},1<<$chain);
+  push(@{$cmd},0x1080 + $length);
+#   print STDERR "$str\n";
+  my $errcnt = 0;
+  while(1){
+    trb_register_write_mem($board,0xd400,0,$cmd,scalar @{$cmd});
+
+    if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
+    if (trb_strerror() ne "No Error") {
+      usleep($delay||1E5);
+      if($errcnt >= 12) {
+        return "SPI still blocked\n";
+        }
+      elsif($errcnt++ >= 10) {
+        trb_register_read($board,0xd412);
+        }
+      }
+    else {
+      last;
+      }
+    } 
+  return trb_register_read($board,0xd412);
+  }
 
 1;
 __END__

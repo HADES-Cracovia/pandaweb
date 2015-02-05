@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use XML::LibXML;
-use Data::TreeDumper;
+# use Data::TreeDumper;
 use Getopt::Long;
 use Pod::Usage;
 use File::chdir;
@@ -100,7 +100,7 @@ sub Main {
     my $cachefile = "cache/$name.entity";
     lock_store($db, $cachefile);
     print STDERR "Wrote $cachefile\n" if $verbose>0;
-    print STDERR "\n",DumpTree($db,$name),"\n" if $verbose>2;
+#     print STDERR "\n",DumpTree($db,$name),"\n" if $verbose>2;
   }
 
 

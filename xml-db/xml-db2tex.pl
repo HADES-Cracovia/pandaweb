@@ -30,6 +30,8 @@ GetOptions(
            'style=s'     => \$opt->{style},
            'standalone'  => \$opt->{standalone},
            'wide|w'      => \$opt->{wideformat},
+           'collapse'    => \$opt->{collapse},
+           'norepeat'    => \$opt->{norepeat},
            'dumpItem|d'    => \$opt->{dumpItem}
           );
 
@@ -102,6 +104,12 @@ Options:
                      alternating gray and white boxes
                      (default)
   
+  --collapse       Don't show extra field line, if a register contains
+                   only single field without description
+  
+  --norepeat       Summarize repeated registers instead of printing
+                   every slice
+  
   --standalone     generate standalone compilable latex file
   --pdf            compile directly to pdf (compiles twice)
   
@@ -160,20 +168,38 @@ sub produceTable {
   my $xmldb = xmlDbMethods->new( entityFile => $self->{entityFile} );
   my $list = $xmldb->unfoldTree($self->{group});
   my $data = [];
+  my $skip = 0;
   for my $name (@$list) { # processing the list
+    if ($skip) {
+      $skip=0;
+      next;
+    }
     my $node = $xmldb->{entity}->{$name};
     my $type = $node->{type};
     my $description = $node->{description};
     my $repeat = $node->{repeat} || 1;
     my $stepsize = $node->{stepsize}||1;
     my $bits = " ";
+    
     if ($type ne 'register'){
       my $start = $node->{start};
       my $stop = $node->{start}+$node->{bits}-1;
       if ($start == $stop){
-	$bits = $start;
+        $bits = $start;
       } else {
-	$bits = "$start--$stop";
+        $bits = "$start--$stop";
+      }
+    } elsif ($self->{opt}->{collapse} && (scalar @{$node->{'children'}}) == 1) {
+      my $child = $xmldb->{entity}{$node->{'children'}[0]};
+      if ($child->{'description'} eq $node->{'description'}) {
+        my $start = $child->{start};
+        my $stop = $child->{start}+$child->{bits}-1;
+        if ($start == $stop){
+          $bits = $start;
+        } else {
+          $bits = "$start--$stop";
+        }
+        $skip = 1;
       }
     }
     # escape special latex characters
@@ -186,15 +212,22 @@ sub produceTable {
     }
     for (my $i=0;$i<$repeat;$i++){
       my $name_ = $name;
-      if ($repeat > 1) {
-        $name_ = $name.".$i";
-      }  
       my $addr_ = $node->{address}+$i*$stepsize;
       my $hexaddr = sprintf("%04x",$addr_ );
+            
+      if ($repeat > 1) {
+        if ($self->{opt}->{norepeat}){
+          $name_ = $name.".0-".($repeat-1);
+          $hexaddr = sprintf("%04x...%04x", $addr_, $addr_ + $stepsize*($repeat-1));
+        } else {
+          $name_ = $name.".$i";
+        } 
+      }  
       my $rw = $node->{mode};
       
       if ($type eq 'register' || $type eq 'registerfield' || $type eq 'memory'){
         #write register names bold
+#         $name_ = '\textbf{'.$name_.'}'.'\\ \hfill('.$rw.')';
         $name_ = '\textbf{'.$name_.'}'.'\hfill('.$rw.')';
       }
       if ($type eq 'field'){
@@ -209,6 +242,9 @@ sub produceTable {
         addr_uint => $addr_,
         description => $description
       });
+      
+      last if $self->{opt}->{norepeat};
+      
     }
   }
 

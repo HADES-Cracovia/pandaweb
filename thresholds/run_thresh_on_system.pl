@@ -20,6 +20,7 @@ my $opt_polarity = 0;
 my $opt_32channel = 0;
 my $opt_finetune = false;
 my $opt_verb;
+my $tool = "./thresholds_automatic.pl";
 
 GetOptions ('h|help'        => \$opt_help,
             'e|endpoints=s' => \@opt_endpoints,
@@ -28,6 +29,7 @@ GetOptions ('h|help'        => \$opt_help,
             'p|polarity=i'  => \$opt_polarity,
             '32|32channel'  => \$opt_32channel,
             'f|finetune'    => \$opt_finetune,
+            't|tool=s'      => \$tool,
             'v|verb'        => \$opt_verb);
 
 
@@ -67,7 +69,7 @@ my %pids;
 foreach my $endpoint (@$endpoints) {
   foreach my $chain (@$chains) {
     my $endpoint = sprintf("0x%04x", $endpoint);
-    $command = "./thresholds_automatic.pl -e $endpoint -o $opt_offset -c $chain -p $opt_polarity $opt_32channel $opt_finetune";
+    $command = "$tool -e $endpoint -o $opt_offset -c $chain -p $opt_polarity $opt_32channel $opt_finetune";
     print "command: $command\n";
     my $pid = fork();
     if($pid==0) { #child
@@ -103,8 +105,8 @@ sub get_ranges {
 
     my @array;
     foreach my $str (@$ra_data) {
-        $str=~s/-/\.\./;
-        $str=~s/\.\.\./\.\./;
+        $str=~s/-/\.\./g;
+        $str=~s/\.\.\./\.\./g;
         my @val = split(/\,/, $str);
         #print Dumper \@val;
         foreach my $c_val (@val) {

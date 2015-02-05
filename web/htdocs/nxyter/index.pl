@@ -24,10 +24,11 @@ $page->{link}  = "../";
 
 my @setup;
 
+
 $setup[0]->{name}    = "Status";
-$setup[0]->{cmd}     = "Nxyter-0xfe49-NXStatus&Nxyter-0xfe49-ADCMonitor";
+$setup[0]->{cmd}     = "Nxyter-0xfe49-NXStatus&Nxyter-0xfe49-ADCStatus";
 $setup[0]->{period}  = -1;
-$setup[0]->{generic} = 1;
+$setup[0]->{address} = 1;
 
 $setup[1]->{name}    = "DataReceiver";
 $setup[1]->{cmd}     = "Nxyter-0xfe49-DataValidate&Nxyter-0xfe49-DataReceiver";

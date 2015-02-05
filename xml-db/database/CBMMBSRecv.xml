@@ -1,0 +1,46 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="CBMMBSRecv"
+              address="b800"
+>
+  <description>CBM-MBS Receiver Block with own Regio-Handler (unlike in the default CTS-ETM configuration)</description>
+  
+  <group name="ControlAndStatus" address="0000" purpose="status" mode="rw" continuous="false">
+    <register name="MainControlAndStatus" address="0000" mode="rw" purpose="config">
+      <description>Main information of module</description>
+      <field name="EnableReadout" start="0" bits="1" format="boolean" defaultValue="1">
+        <description>Active high, instructs the module to write data into data-stream</description>
+      </field>
+      <field name="InvertInputPolarity" start="1" bits="1" format="boolean" defaultValue="0"  invertflag="1">
+        <description>Active high, inverts polarity of input signal</description>
+      </field>
+      <field name="InclRDOTimestamp" start="2" bits="1" format="boolean" mode="r" purpose="status"  noflag="1">
+        <description>Active high, indicates that module was synthesised to include a timestamp in the readout stream</description>
+      </field>
+      <field name="ErrorReg" start="7" bits="1" format="boolean" mode="r" purpose="status" errorflag="1">
+        <description>Active high, indicates error in last data word received (same as error-bit in readout stream)</description>
+      </field>
+      <field name="LastMBSNumber" start="8" bits="24" format="hex" mode="r" purpose="status">
+        <description>Last data word received</description>
+      </field>
+    </register>
+    
+    <register name="RecvCounter" address="0001" mode="r" purpose="statistics">
+      <description>Counts number of data words received via MBS link</description>
+      <field name="RecvCounter" start="0" bits="32" format="unsigned" rate="1" unit="words" />
+    </register> 
+
+    <register name="ActCounter" address="0002" mode="r" purpose="statistics">
+      <description>Counts activity of MBS input, i.e. number of cycles the input changed, sampled at TrbNet clock</description>
+      <field name="ActCounter" start="0" bits="32" format="unsigned" rate="1" unit="changes" />
+    </register> 
+
+    <register name="HighCounter" address="0003" mode="r" purpose="statistics">
+      <description>Counts number of TrbNet clock cycles the MBS line was high (&lt; 90% indicates wrong polarity)</description>
+      <field name="HighCounter" start="0" bits="32" format="unsigned" rate="1" scale="0.01" unit="us" />
+    </register> 
+    
+  </group>
+  
+</TrbNetEntity>

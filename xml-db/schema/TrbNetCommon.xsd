@@ -231,6 +231,7 @@
     <xs:attribute ref="address" />
     <xs:attribute ref="mode" />
     <xs:attribute ref="purpose" />
+    <xs:attribute ref="continuous" />    
     <xs:attribute ref="rate" />
   </xs:complexType>
 

@@ -1,0 +1,1 @@
+ChannelMapping.pm_PADIWA6364switched

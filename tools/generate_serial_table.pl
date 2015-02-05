@@ -30,7 +30,7 @@ foreach my $cur_line (@r) {
     my $c="trbcmd s $s[1] $s[2] 0x$o"; 
     #print $c . "\n"; 
     print qx($c); 
-    $e{hex($s[2])} = "   0" . $sernr . hex($s[2]) . "        $s[1]\n"; 
+    $e{hex($s[2])} = "   " . $sernr . hex($s[2]) . "        $s[1]\n"; 
 
 }
 

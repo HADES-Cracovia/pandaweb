@@ -105,6 +105,10 @@ var CTS = new Class({
 
       this.initEventBuilderRR();
       
+      if (!this.defs.properties.cts_cnt_total_dead_time) {
+        $('cnt_total_dead_time_row').destroy();
+      }
+
       this.initAutoCommit();
       this.initSliceTitle();
    },
@@ -836,6 +840,7 @@ function countToTime(val) {return (1.0*val / cts.defs.properties.cts_clock_frq *
 function countToFreq(val) {return formatFreq (1 / (val / cts.defs.properties.cts_clock_frq)); }
 function timeToCount(val) {return (parseNum(val) / 1.0e9 * cts.defs.properties.cts_clock_frq).round();}
 function rateToFrac(val) {return appendScalingPrefix(val) + 'cnt/s'}
+function rateToRatio(val) {return (val / 1e6).toFixed(1) + '%';}
 
 function formatFreq(val, sigDigits) {
    return appendScalingPrefix(val, sigDigits) + "Hz";

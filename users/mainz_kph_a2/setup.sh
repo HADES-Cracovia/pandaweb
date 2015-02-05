@@ -60,28 +60,50 @@ trbcmd w 0x8000 0x8108 0x0578
 
 
 #####  TDC  #######
-trbcmd w 0x0200 0xc800 0x00000001 ## logic analyser control register
-trbcmd w 0x0200 0xc801 0x000f0005 ## trigger window enable & trigger window width
-trbcmd w 0x0200 0xc802 0x00000000 ## channel 01-31 enable
-trbcmd w 0x0200 0xc803 0x00000000 ## channel 32-63 enable
-trbcmd w 0x0200 0xc804 0x00000080 ## no read out limit
+#trbcmd w 0x0200 0xc800 0x00000001 ## logic analyser control register
+#trbcmd w 0x0200 0xc801 0x000f0005 ## trigger window enable & trigger window width
+#trbcmd w 0x0200 0xc802 0x00000000 ## channel 01-31 enable
+#trbcmd w 0x0200 0xc803 0x00000000 ## channel 32-63 enable
+#trbcmd w 0x0200 0xc804 0x00000080 ## no read out limit
 
 
 #trbcmd w 0x0200 0xc2 0x0000ffff ## channel 01-31 enable
 
-trbcmd w 0x8000 0xc800 0x00000001      # logic analyser control register
-trbcmd w 0x8000 0xc801 0x000f0005      # trigger window enable & trigger window width (off if MSB not set)
-trbcmd w 0x8000 0xc802 0x00000002      # channel 32- 1 enable (0 is reference time and always on)
-trbcmd w 0x8000 0xc803 0x00000000      # channel 64-33 enable
-trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
+#trbcmd w 0x8000 0xc800 0x00000001      # logic analyser control register
+#trbcmd w 0x8000 0xc801 0x000f0005      # trigger window enable & trigger window width (off if MSB not set)
+#trbcmd w 0x8000 0xc802 0x00000002      # channel 32- 1 enable (0 is reference time and always on)
+#trbcmd w 0x8000 0xc803 0x00000000      # channel 64-33 enable
+#trbcmd w 0x8000 0xc804 0x00000080 ## no read out limit
 
+##### ADC ######
+FPGA="0x0200"
+trbcmd w $FPGA 0xa010 0xff        #Buffer depth
+trbcmd w $FPGA 0xa011 8           #Samples after trigger
+trbcmd w $FPGA 0xa012 1           #Process blocks
+trbcmd w $FPGA 0xa013 40          #Trigger offset
+trbcmd w $FPGA 0xa014 40          #Readout offset
+trbcmd w $FPGA 0xa015 0           #Downsampling
+trbcmd w $FPGA 0xa016 8           #Baseline
+trbcmd w $FPGA 0xa017 0           #Trigger Enable ch31-00
+trbcmd w $FPGA 0xa018 0           #Trigger Enable ch47-32
+trbcmd w $FPGA 0xa01a 0xfffffffe  #Channel disable ch31-00, all channels except ch0
+trbcmd w $FPGA 0xa01b 0xffff      #Channel disable ch47-32
+
+trbcmd w $FPGA 0xa020 1           #Sum values
+trbcmd w $FPGA 0xa021 1           #Sum values
+trbcmd w $FPGA 0xa022 1           #Sum values
+trbcmd w $FPGA 0xa023 1           #Sum values
+trbcmd w $FPGA 0xa024 0xff        #word count
+trbcmd w $FPGA 0xa025 0           #word count
+trbcmd w $FPGA 0xa026 0           #word count
+trbcmd w $FPGA 0xa027 0           #word count
+
+trbcmd w $FPGA 0xa000 0x100       #Reset Baseline
 
 
 #####  CTS  #######
-trbcmd w 0x8000 0xa140 0xfffff  #set CTS pulser to 100Hz
-#trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
-trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
-
-
+trbcmd w 0x8000 0xa150 0x05f5e100  #set CTS pulser to 1Hz
+trbcmd setbit 0x8000 0xa101 0x2 #enable pulser channel 0
+#trbcmd setbit 0x8000 0xa101 0x1 # enable external trigger module
 
 echo "Successfully setup TRB network"

@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+use lib "/home/hadaq/trbsoft/daqtools/dmon/code";
+use Dmon;
 
 use Getopt::Long;
 use Log::Log4perl qw(get_logger);
@@ -31,7 +33,7 @@ my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
 my $sleep_time = 0.2;
-my $accepted_dark_rate = 30;
+my $accepted_dark_rate = 10;
 my $number_of_iterations = 40; # at least 15 are recommended
 
 my $endpoint = 0x0303;
@@ -124,7 +126,7 @@ if (defined $opt_skip && $opt_skip < 15) {
 if ($opt_finetune == true) {
     my $ra_thresh = read_thresholds("padiwa", $chain);
     @current_thresh = @$ra_thresh;
-    #print Dumper \@current_thresh;
+    print Dumper \@current_thresh;
 
     $interval_step = 4;
 
@@ -234,7 +236,7 @@ write_thresholds($mode, $chain, \@best_thresh);
 my $uid;
 foreach my $i (reverse (0..3)) {
   #print "send command: $endpoint , i: $i\n";
-  $rh_res = send_command($endpoint, 0x10000000 | $i * 0x10000);
+  $rh_res = Dmon::PadiwaSendCmd(0x10000000 | $i * 0x10000, $endpoint, $chain);
   $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
 }
@@ -242,6 +244,7 @@ foreach my $i (reverse (0..3)) {
 my $str;
 #$logger_data->info("thresholds have been set to the following values:");
 #$logger_data->info(sprintf "endpoint: %04x, chain: %02d, uid: $uid", $endpoint, $chain);
+$logger_data->info("\t".time);
 foreach my $i (0..15) {
   $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid );
 }
@@ -262,7 +265,7 @@ sub read_thresholds {
       die "could not lock shared element";
   }
 
-  my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+#   my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   foreach my $current_channel (0..15) {
 
@@ -281,7 +284,7 @@ sub read_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) ;
-    my $rh_res = send_command($endpoint, $command);
+    my $rh_res = Dmon::PadiwaSendCmd($command,$endpoint, $chain);
     push (@thresh , $rh_res->{$endpoint});
   }
 
@@ -305,8 +308,7 @@ sub write_thresholds {
       die "could not lock shared element";
   }
 
-
-  my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+  ### old and wrong way #my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   foreach my $current_channel (0..15) {
 
@@ -324,7 +326,7 @@ sub write_thresholds {
     }
 
     $command = $fixed_bits | ($current_channel << 16) | ($ra_thresh->[$current_channel] << $shift_bits);
-    send_command($endpoint, $command);
+    Dmon::PadiwaSendCmd($command,$endpoint, $chain);
 
 
   }
@@ -335,8 +337,22 @@ sub write_thresholds {
 
 }
 
-
 sub send_command {
+    (my $endpoint, my $chain, my $command) = @_;
+
+    my $ra_atomic = [$command,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
+    my $rh_res = trb_register_write_mem($endpoint, 0xd400, 0, $ra_atomic, scalar @{$ra_atomic});
+    send_command_error($endpoint) if (!defined $rh_res);
+
+    $rh_res = trb_register_read($endpoint,0xd412);
+  #print Dumper $rh_res;
+    send_command_error($endpoint) if (!defined $rh_res);
+    return $rh_res;
+
+}
+
+
+sub send_command_old {
   (my $endpoint, my $command) = @_;
 
   my $rh_res = trb_register_write($endpoint,0xd400, $command);

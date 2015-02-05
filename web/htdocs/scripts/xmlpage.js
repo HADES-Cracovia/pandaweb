@@ -18,18 +18,19 @@
       }
     }
     
-  function refresh(time = 0) {
+  function refresh(time) {
+    time = time || 0;
 //     alert(time);
     if(time == -1) {  //call immediately and only once
-      getdataprint(GETCOMMAND+'?'+command,'content',false,0);
+      getdataprint(GETCOMMAND+'?'+command,'content',true,0);
       }
     else if (time > 0) { //call with timeout
       clearTimeout(Timeoutvar);
-      Timeoutvar = setTimeout("getdataprint(GETCOMMAND+'?'+command,'content',false,"+period+",refresh)",period);
+      Timeoutvar = setTimeout("getdataprint(GETCOMMAND+'?'+command,'content',true,"+period+",refresh)",period);
       }
     else {  //call immediately, then with timeout
       clearTimeout(Timeoutvar);
-      getdataprint(GETCOMMAND+'?'+command,'content',false,period,refresh);
+      getdataprint(GETCOMMAND+'?'+command,'content',true,period,refresh);
       }
     }
   
