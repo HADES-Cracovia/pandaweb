@@ -136,13 +136,13 @@ function update(data) {
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
         if(differences) {
-          val = (c[j][i] & 0xFFFFFF)- ((oldvalues[j][i]||0) & 0xFFFFFF);
+          val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
           if (val < 0) {
-            val += 0x1000000;
+            val += 0x80000000;
             }
           }
         else {
-          val = c[j][i] & 0xFFFFFF;
+          val = c[j][i] & 0x7FFFFFFF;
           }
         if(showstatus)
           o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
