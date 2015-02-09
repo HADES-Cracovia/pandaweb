@@ -55,7 +55,7 @@
 
       <register name="ReadoutSetting" address="0004" >
         <description>Offset from the calculated baseline that must be reached to transmit data during readout (Zero Suppression)</description>
-        <field  name="ReadoutOffset" start="0"   bits="18"  format="signed" noflag="true" >
+        <field  name="ReadoutOffset" start="0"   bits="10"  format="signed" noflag="true" >
           <description>Offset from the calculated baseline that must be reached to generate a readout from this channel.</description>
         </field>
         <field name="ReadoutInvert" start="16" bits="1" format="bitmask" noflag="true">
@@ -94,13 +94,19 @@
         <description>Channel disable for channels 47 - 32</description>
         <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
       </register>            
-      <register name="ProcessingMode" address="001c" >
-        <description>Kind of data processing - e.g. block read-out or pulse shape processing</description>
+      <register name="ProcessingMode" address="000c" >
+        <description>Kind of data processing - e.g. block read-out, pulse shape processing, CFD</description>
         <field  name="ProcessingMode" start="0"   bits="2"  format="enum" noflag="true" >
           <enumItem value="0">Block mode</enumItem>
           <enumItem value="1">Pulse Shape Processing</enumItem>
+          <enumItem value="2">Constant Fraction Discriminator</enumItem>
         </field>
-      </register>         
+      </register>
+      <register name="CFD" address="000d" >
+        <description>Constant Fraction Discriminator config</description>
+        <field  name="CFDWindow" start="0"   bits="8"  format="unsigned" noflag="true" />
+        <field  name="CFDDelay" start="8"   bits="4"  format="unsigned" noflag="true" />
+      </register>
 </group>  
 
 <group name="ProcessorConfig" address="0020"  size="12"  purpose="config" mode="rw" continuous="true">
