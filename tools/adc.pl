@@ -53,6 +53,31 @@ my $board;
 ($board) = $ARGV[0] =~ /^0?x?(\w+)/;
 $board = hex($board);
 
+# check some basic info about the endpoint
+# stolen from htdocs/network/map.pl
+
+#my $temperat = trb_register_read($board,0);
+#my $ctime    = trb_register_read($board,0x40);
+my $inclLow  = trb_register_read($board,0x41);
+my $hardware = trb_register_read($board,0x42);
+my $inclHigh = trb_register_read($board,0x43);
+$inclLow  = $inclLow->{$board};
+$hardware = $hardware->{$board};
+$inclHigh = $inclHigh->{$board};
+
+my $table = $inclHigh>>24&0xFF;
+
+if($table != 4) {
+    die "Feature register 0x43 does not indicate ADC firmware, ie. table $table is not 4";
+}
+
+my $ADC_samplingRateMS = $inclLow & 0xff; # in MegaSamples
+my $ADC_numChannels    = $inclLow>>16 & 0xff;
+
+if($verbose) {
+    printf("Found ADC design at 0x%04x with %02d channels and %02d MS sampling rate\n",
+	   $board, $ADC_numChannels, $ADC_samplingRateMS);
+}
 
 sub sendcmd {
   my $cmd = shift;
@@ -109,7 +134,7 @@ sub adc_init {
 
   print ">>> ADC initialized\n";
 
-  my $tries = 3;
+  my $tries = 5;
   while(1) {
     print ">>> Optimizing ADC phases...\n";
     &set_optimal_phases;
@@ -363,7 +388,7 @@ sub adc_testall {
 
     for my $adc (0..11) {
       my $word_rate = $word_rates[$adc];
-      my $MS = 4e7; # assume 40MS ADC...
+      my $MS = $ADC_samplingRateMS*1e6;
       my $good = $word_rate > 0.98*$MS;
       for my $i (0..3) {
         my $ch = $adc*4+$i;
