@@ -128,8 +128,9 @@ var CTS = new Class({
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
+      var myUrl = '/cts/cts.pl?write,' + encodeURIComponent( arrValues.join(',') );
       (new Request.JSON({
-         url: '/cts/cts.pl?write,' + arrValues.join(','),
+         url: myUrl,
          onSuccess: function(json, text) {
             if (!json) {
                var m = text.match(/<pre>(.*)<\/pre>/i);
@@ -806,10 +807,10 @@ function timestamp2Date(ts) {
    
 
 function requestFailure(obj){
-   console.debug(obj);
+   if (console) console.debug(obj);
+  
    var text = String((typeof(obj) == 'string') ? obj : obj.responseText);
    var m = text.match(/<pre>([\s\S]*)<\/pre>/im);
-   
    
    if (obj.responseText && m) {
       text = m[1];
