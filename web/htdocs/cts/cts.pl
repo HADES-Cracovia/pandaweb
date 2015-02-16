@@ -170,5 +170,8 @@ if ($query eq "init") {
    printHeader 'ok', 'text/plain', $attachment;
 
    print(commandDump($cts, $mode));
+} else {
+  printHeader 'error';
+  print "Unknown command: $query\n";
 }
 1;
