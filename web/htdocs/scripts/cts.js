@@ -806,7 +806,8 @@ function timestamp2Date(ts) {
    
 
 function requestFailure(obj){
-   var text = (obj.responseText) ? obj.responseText : obj;
+   console.debug(obj);
+   var text = String((typeof(obj) == 'string') ? obj : obj.responseText);
    var m = text.match(/<pre>([\s\S]*)<\/pre>/im);
    
    
