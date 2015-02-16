@@ -104,6 +104,12 @@ my $cts = connectToCTS( );
 
 my $query = $ENV{'QUERY_STRING'};
 
+# escape sequences
+while($query =~ /%([0-9a-fA-F]{2,2})/) {
+  my $chr = chr(hex($1));
+  $query=~ s/%$1/$chr/g;
+}
+
 if ($query eq "init") {
    printHeader;
    print JSON_BIND->new->allow_blessed->convert_blessed->encode({
