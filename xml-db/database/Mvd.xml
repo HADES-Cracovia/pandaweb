@@ -389,5 +389,18 @@
     </register> 
   </group>
   
+  <group name="RocControl"   
+         address="0040"  size="3"  purpose="config"  mode="rw"  continuous="false">
+    <register name="BufferDeleteTime" address="0001" >
+      <description>Maximum age of a frame stored in the frame buffer</description>
+      <field name="BufferDeleteTime" start="0" bits="32" format="unsigned" noflag="true" unit="ns" scale="10" />
+    </register> 
+    <register name="ExternalInfo" address="0002" >
+      <description>Additional header word with information, to be configured by slow control</description>
+      <field name="ExternalInfo" start="0" bits="32" format="hex" noflag="true" />
+    </register> 
+    
+  </group>  
+  
   </group>
 </TrbNetEntity>
