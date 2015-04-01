@@ -25,17 +25,17 @@ $page->{link}  = "../";
 my @setup;
 $setup[0]->{name}    = "RocStatus";
 $setup[0]->{cmd}     = "Mvd-0xfe4d-RocStatus";
-$setup[0]->{period}  = 5000;
+$setup[0]->{period}  = 1000;
 $setup[0]->{address} = 1;
 
 $setup[1]->{name}    = "RocStatistics";
 $setup[1]->{cmd}     = "Mvd-0xfe4d-RocStatistics";
-$setup[1]->{period}  = 5000;
+$setup[1]->{period}  = 1000;
 $setup[1]->{address} = 1;
 
-$setup[2]->{name}    = "RocStatus";
-$setup[2]->{cmd}     = "Mvd-0xfe4d-RocStatus";
-$setup[2]->{period}  = -1;
+$setup[2]->{name}    = "ClusterFinder";
+$setup[2]->{cmd}     = "Mvd-0xfe4d-ClusterFinder";
+$setup[2]->{period}  = 1000;
 $setup[2]->{generic} = 1;
 
 xmlpage::initPage(\@setup,$page);
