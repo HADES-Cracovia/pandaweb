@@ -204,13 +204,13 @@
         <description>Number of data words stored in the frame info buffer</description>
       </field>        
       <field name="LengthBufferEmpty" start="24" bits="1" format="boolean"  > 
-        <description>The frame info buffer is full</description>
+        <description>The frame info buffer is empty</description>
       </field>  
       <field name="LengthBufferFull" start="25" bits="1" format="boolean"  errorflag="true" > 
         <description>The frame info buffer is full</description>
       </field>
       <field name="DataBufferEmpty" start="26" bits="1" format="boolean"  > 
-        <description>The frame data buffer is full</description>
+        <description>The frame data buffer is empty</description>
       </field>
       <field name="DataBufferFull" start="27" bits="1" format="boolean"  errorflag="true" > 
         <description>The frame data buffer is full</description>
@@ -218,7 +218,7 @@
       <field name="OutEnable" start="28" bits="1" format="boolean" > 
         <description>Frame Buffer Output active (not discarding)</description>
       </field>
-      <field name="ReadFrame" start="29" bits="1" format="boolean" > 
+      <field name="FrameRead" start="29" bits="1" format="boolean" > 
         <description>Frame Read Ongoing</description>
       </field>    
     </register>
@@ -338,7 +338,7 @@
   
   
   <group name="RocStatistics"
-         address="0010"  size="16"  purpose="status"  mode="r"  continuous="true" rate="1">
+         address="0010"  size="32"  purpose="status"  mode="r"  continuous="true" rate="1">
     <register name="HeadersDetected" address="0000" >
       <description>Number of detected headers</description>
       <field name="HeadersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
@@ -349,44 +349,110 @@
     </register>  
     <register name="TrailersLate" address="0002" >
       <description>Number of time-outs waiting for a trailer</description>
-      <field name="TrailersLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+      <field name="TrailersLate" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />
     </register>  
-    <register name="DataWordsLate" address="0003" >
-      <description>Number of time-outs waiting for the next data word</description>
-      <field name="DataWordsLate" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
-    </register>  
-    <register name="TooMuchData" address="0004" >
-      <description>Too many data words in one frame. Trailer was expected!</description>
-      <field name="TooMuchData" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
-    </register>      
-    <register name="ResetsDetected" address="0005" >
+    <register name="HeadersTimeout" address="0003" >
+      <description>Number of timeouts waiting for the next header</description>
+      <field name="HeadersTimeout" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />
+    </register>     
+    <register name="ResetsDetected" address="0004" >
       <description>Number of resets of the sensor detected</description>
       <field name="ResetsDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>
+    <register name="FrameDelete" address="0005" >
+      <description>The frame buffer deleted a frame because it was too old</description>
+      <field name="FrameDelete" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />
     </register>      
-    <register name="HeadersTimeout" address="0006" >
-      <description>Number of timeouts waiting for the next header</description>
-      <field name="HeadersTimeout" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
+    <register name="InfoWrite" address="0007" >
+      <description>Data Handler finished a frame and wrote frame information</description>
+      <field name="InfoWrite" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register>     
-    <register name="DlengthsWrong" address="0007" >
-      <description>Number of wrong data lengths</description>
-      <field name="DlengthsWrong" start="0" bits="24" format="unsigned" invertflag="true" rate="true" />
-    </register>     
-    <register name="FramesCompleted" address="0008" >
-      <description>Number of completed frames</description>
-      <field name="FramesCompleted" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    <register name="ReadFrame" address="0008" >
+      <description>Readout handler requested a new frame</description>
+      <field name="ReadFrame" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register>        
-    <register name="TrgReleases" address="0009" >
-      <description>Number of released frame triggers</description>
-      <field name="TrgReleases" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    <register name="TrgTmgReceived" address="0009" >
+      <description>Number of timing triggers received</description>
+      <field name="TrgTmgReceived" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register> 
-    <register name="TrgReceived" address="000a" >
-      <description>Number of frame triggers received</description>
-      <field name="TrgReceived" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    <register name="TrgNoTmgReceived" address="000a" >
+      <description>Number of no-timing triggers received</description>
+      <field name="TrgNoTmgReceived" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register> 
     <register name="DataWords" address="000b" >
       <description>Number of data words written to frame buffer</description>
       <field name="DataWords" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register> 
+    <register name="BufferFull" address="000c" >
+      <description>The frame buffer got full (either data or frame number exceeded)</description>
+      <field name="BufferFull" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>
+  
+    <register name="StatErrDataHandler" address="0010">        
+      <description>Data Handler error</description> 
+      <field name="StatErrDataHandler" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrHeader" address="0011">        
+      <description>Received package is not a Header in IDLE state</description> 
+      <field name="StatErrHeader" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrFrOrder" address="0012">        
+      <description>Frame number is not in the ascending order</description> 
+      <field name="StatErrFrOrder" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrDlenMatch" address="0013">        
+      <description>Datalengths are not same on both channels</description> 
+      <field name="StatErrDlenMatch" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />    
+    </register>      
+    <register name="StatErrFrLong" address="0014">        
+      <description>Datalength is larger than 570</description> 
+      <field name="StatErrFrLong" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrLenState" address="0015">        
+      <description>Data counter is 0, but the 'state' counter is not 0</description> 
+      <field name="StatErrLenState" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrLenShort" address="0016">        
+      <description>Data counter is not 0 on Trailer package</description> 
+      <field name="StatErrLenShort" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrLenLong" address="0017">        
+      <description>Data counter turned 0 during normal package readout</description>      
+      <field name="StatErrLenLong" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrNumState" address="0018">        
+      <description>Number of states is not between 1 and 9</description>      
+      <field name="StatErrNumState" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>      
+    <register name="StatErrRowHigh" address="0019">        
+      <description>Matrix row address is larger than 575</description>      
+      <field name="StatErrRowHigh" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrOverflow" address="001a">        
+      <description>Overflow bit is set, but less than 9 states are present</description>      
+      <field name="StatErrOverflow" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrColHigh" address="001b">        
+      <description>Matrix column address is larger than 1151</description>      
+      <field name="StatErrColHigh" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrRowOrder" address="001c">        
+      <description>Row address inconsistent (row is lower than the one before)</description>      
+      <field name="StatErrRowOrder" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrColOrder" address="001d">        
+      <description>Column address inconsistent (column is lower than the one before)</description>      
+      <field name="StatErrColOrder" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrRowEarly" address="001e">        
+      <description>State counter is not 1 in the COLROW state</description>      
+      <field name="StatErrRowEarly" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>    
+    <register name="StatErrTrailer" address="001f">        
+      <description>Received package is not a Trailer in CntTrailer state</description>      
+      <field name="StatErrTrailer" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
+    </register>     
+    
   </group>
   
   <group name="RocControl"   
