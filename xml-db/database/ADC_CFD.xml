@@ -18,7 +18,7 @@
   </group>
 
   <group name="BufferConfig"
-         address="0010"  size="16"  purpose="config" mode="rw" continuous="true">
+         address="0010"  size="16"  purpose="config" mode="rw" continuous="false">
     <description>Configuration of buffer handling</description>
     <register name="DebugSamples" address="0000" >
       <description>Number of samples to output in DebugMode>0</description>
