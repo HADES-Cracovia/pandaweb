@@ -95,6 +95,7 @@ The main documentation of the network can be found in these documents and locati
 <li><a href="tools/billboard.pl">Billboard</a>
 <li><a href="tools/cbmmbs.pl">CBM-MBS Receiver</a>
 <li><a href="addons/adc.pl">48ch sampling ADC</a>
+<li><a href="addons/adc_cfd.pl">48ch sampling ADC CFD</a>
 <li><a href="network/generic.pl">Everything else</a>
 </ul>
 </div>
