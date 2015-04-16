@@ -483,8 +483,14 @@
 
     <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
-      <field name="CycleRef" start="0" bits="1" format="bitmask" >
-        <description>If HI, periodically read out all ADC channels and send the data</description>
+      <field name="ReadPwr" start="0" bits="1" format="bitmask" >
+        <description>If HI, periodically read out all Power+Misc ADC channels</description>
+      </field>
+      <field name="ReadVref" start="1" bits="1" format="bitmask" >
+        <description>If HI, periodically read out all VDISCREF ADC channels</description>
+      </field>
+      <field name="ReadStatus" start="2" bits="1" format="bitmask" >
+        <description>If HI, periodically read out the overcurrent status</description>
       </field>
 <!--      <field name="CyclePower" start="1" bits="1" format="bitmask" >
         <description>periodically measure read all sensor power supply voltages/currents</description>
