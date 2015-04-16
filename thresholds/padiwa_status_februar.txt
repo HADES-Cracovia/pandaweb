@@ -1,0 +1,98 @@
+checked: C181, Ri, R15, C36
+
+stronger corrosion: some dirt at the plug, unknown origin
+
+002	*** 47pF   	no new c36
+013	std    	   	no new c36 pwm shielding
+014	std    	   	no new c36
+016	*** 47pF        new c36!
+015	std    	   	no new c36
+022	std		no new c36, Ri hampered with
+040	std		no new c36
+056	*** 2.8V	no new c36
+057	*** 2.8V	no new c36
+100	std
+101	std
+103	std
+104	std
+105	std
+109	std
+110	std
+111	*** 47pF
+112	std
+113	*** 15pF
+114	std
+115	std
+116	std
+118	*** 15pF
+119	*** 15pF
+120	*** 15pF
+123	std		stronger corrosion
+124	std
+125	std
+126	std
+127	*** 2.8V
+129	std
+130	std		stronger corrosion
+131	std
+132	std
+133	*** 2.8V	stronger corrosion 
+137	std
+143	std
+145	*** 47pF
+148	*** 47pF        channel 5 tumbstone capacitor?
+149	*** 15pF
+150	std
+152	std		Ri hampered with
+153	std	
+157	std
+160	std
+163	*** 47pF
+164	*** 47pF
+165	*** 47pF
+167	std		stronger corrosion
+170	std
+171	std
+172	std
+176 	std
+178	std
+182	std
+181	std
+183	*** 15pF
+188	std
+189	*** 15pF
+190	*** 15pF
+192	std	
+193	std		Ri hampered with
+195	*** 2.8V
+196	*** 2.8V
+197	*** 2.8V	stronger corrosion
+198	*** 2.8V ohne 1pF
+===
+62
+
+
+
+Haribo box
+059	std	some capacitors  missing
+106	std	ch 15,16
+108	std	dead
+117	std	no communication
+128	std	defect?
+134	std	7 broken channels
+135	std	maybe bad
+136	std	broken channels
+139	std	broken
+141	std	input 11,12,17,18 def
+144	std	defekt
+146	std	channel 7
+154	std	ch9,10
+155	std	ch9 broken
+156	std	channel 10
+162	std	def
+177	std	def
+no power
+no power
+no power
+===
+20
