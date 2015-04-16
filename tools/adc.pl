@@ -139,7 +139,7 @@ sub adc_init {
     print ">>> Optimizing ADC phases...\n";
     &set_optimal_phases;
     print ">>> Check ADCs again...\n";
-    my @good = &adc_testall;
+    my @good = map {$_->[0]} &adc_testall; # no phases given, so single element arrays expected
     #print Dumper(\@good);
     # check if all ADCs are good
     if (@good == grep { $_ } @good) {
@@ -332,7 +332,7 @@ sub read_rates {
   my $mask = 0;
   $mask |= (1<<$_) for ($start..$start+$bits-1);
 
-  my $us = 100000;
+  my $us = 50000;
   # read it
   my $r1 = trb_register_read_mem($board,$addr,0,$size);
   usleep($us);
@@ -361,7 +361,7 @@ sub read_rates {
 
 if ($ARGV[1] eq "adc_testall") {
   $verbose=0;
-  my @good = &adc_testall;
+  my @good = map {$_->[0]} &adc_testall; # no phases given, so single element arrays expected
   for my $adc (0..11) {
     printf("ADC %02d: %s\n",$adc,
            $good[$adc] ? "Working" : "NOT WORKING!!!");
@@ -369,11 +369,42 @@ if ($ARGV[1] eq "adc_testall") {
 }
 
 sub adc_testall {
-  my @phases =  @{(shift || [-1])}; # by default dont change phases
+  my $phases =  shift || [-1];  # by default dont change phases
+
+  my @tests = (
+               [0b0100, 0x815502aa],
+               [0b0001, 0x82000200],
+               [0b0100, 0x815502aa]
+              );
+  my @good_ranges;
+
+  for my $test (@tests) {
+    my @good_ranges_single = adc_testall_single($phases, $test);
+    #print Dumper(\@good_ranges_single);
+    if (@good_ranges==0) {      # first test
+      @good_ranges = @good_ranges_single;
+    } else {
+      # AND operation of matrix from previous test(s)
+      for my $i (0..@good_ranges-1) {
+        for my $j (0..@{$good_ranges[$i]}-1) {
+          $good_ranges[$i]->[$j] &= $good_ranges_single[$i]->[$j];
+        }
+      }
+    }
+  }
+
+
+
+  return @good_ranges;
+}
+
+sub adc_testall_single {
+  my @phases =  @{(shift)};
+  my $test = shift;
 
   # checkerboard, sends 0x2aa and 0x155 as ADC words
-  adc_testio(0b0100);
-  trb_register_write($board, 0xa019, 0x815502aa);
+  adc_testio($test->[0]);
+  trb_register_write($board, 0xa019, $test->[1]);
   # midscale short
   #adc_testio(0b0001);
   #trb_register_write($board, 0xa019, 0x82000200);
@@ -399,10 +430,9 @@ sub adc_testall {
         $good &= $invalid_rate==0 ? 1 : 0;
       }
       #printf("%02d %.0f %d\n", $adc, $word_rate, $good);
-      if($phase<0) {
-        $good_ranges[$adc] = $good;
-      }
-      else {
+      if ($phase<0) {
+        $good_ranges[$adc]->[0] = $good;
+      } else {
         $good_ranges[$adc]->[$phase] = $good;
         $good_ranges[$adc]->[$phase+@phases] = $good; # another copy to account for cyclic phase
       }
