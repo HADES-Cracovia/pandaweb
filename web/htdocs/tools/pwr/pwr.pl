@@ -76,7 +76,7 @@ $port->lookclear;
 
 while ( my $command = shift(@new_command) ) {
     $command = uri_unescape($command);
-    $port->write("$command\r\n");
+    $port->write("$command\r");
     print "i sent the command: $command";
     #print "\n\nokay.\n";
     usleep 1E5;

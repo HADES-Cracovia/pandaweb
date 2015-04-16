@@ -159,6 +159,7 @@
         </field>
         <field name="CurrentDigitalTS"
               start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
         </field>
       </register>
       <register name="CurrentAnalog" address="0001">
@@ -330,6 +331,10 @@
     <group name="SensorControlStatusGroup" size="1" repeat="2" address="0020" >
       <register  name="CbStatus" address="0000" purpose="status" mode="r" >
       <description>Status of CB switches and Overcurrent indicators (read only)</description>
+        <field name="CbStatusTS"
+              start="16" bits="16" mode="r" purpose="status" format="unsigned" unit="us" scale="16">
+          <description>Reception timestamp</description>
+        </field>
         <field name="DisA_"
                 start="4" bits="1"  format="bitmask" >
           <description>Discharge analog sensor power</description>
@@ -371,7 +376,7 @@
   
 
   <group name="CbSpiRam"
-         address="0120" size="224" purpose="status" mode="r" continuous="true">
+         address="0122" size="222" purpose="status" mode="r" continuous="true">
     <register name="SpiRamEntry" address="0000" purpose="config" mode="rw" repeat="224">
       <description>Data word with timestamp in the SPI ram, received from the CB Microcontroller. Please note that the values shown correspond to register addresses 32 to 255.</description>
       <field name="data"
@@ -478,8 +483,14 @@
 
     <register  name="ADC_conf" address="000B" purpose="config" mode="rw" >
       <description></description>
-      <field name="CycleRef" start="0" bits="1" format="bitmask" >
-        <description>If HI, periodically read out all ADC channels and send the data</description>
+      <field name="ReadPwr" start="0" bits="1" format="bitmask" >
+        <description>If HI, periodically read out all Power+Misc ADC channels</description>
+      </field>
+      <field name="ReadVref" start="1" bits="1" format="bitmask" >
+        <description>If HI, periodically read out all VDISCREF ADC channels</description>
+      </field>
+      <field name="ReadStatus" start="2" bits="1" format="bitmask" >
+        <description>If HI, periodically read out the overcurrent status</description>
       </field>
 <!--      <field name="CyclePower" start="1" bits="1" format="bitmask" >
         <description>periodically measure read all sensor power supply voltages/currents</description>

@@ -26,7 +26,7 @@ while(defined(my $i = <LESEN>)) {
 if($type eq "PSP") {
 print <<EOF;
 <p>
-<iframe name="inlineframe" src="pwr.htm?device=$ser_dev&id=$dev_id&speed=$speed" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
+<iframe name="inlineframe" src="pwr.htm?device=$ser_dev&id=$dev_id&speed=$speed&type=$type" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
 </p>
 EOF
 }

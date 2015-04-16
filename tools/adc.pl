@@ -143,7 +143,7 @@ sub adc_init {
     #print Dumper(\@good);
     # check if all ADCs are good
     if(@good == grep { $_ } @good) {
-      last;
+      return 1;
     }
     elsif($tries>0) {
       print ">>> Some ADCs are not working, retrying...$tries\n";
@@ -151,7 +151,7 @@ sub adc_init {
     }
     else {
       print "WARNING: Could not get all ADCs to work despite retrying...\n";
-      last;
+      return 0;
     }
   }
 }
@@ -235,7 +235,10 @@ sub lmk_init {
   sendcmd(0x00010105, $chain{lmk_1});
   # ClkOut6/7 are unconnected
 
-  print ">>> Both clock chips LMK01010 initialized.\n"
+  print ">>> Both clock chips LMK01010 initialized.\n";
+
+  # LMK init can't be checked
+  return 1;
 }
 
 if ($ARGV[1] eq "lmk_init") {
@@ -316,9 +319,11 @@ if ($ARGV[1] eq "adc_phase" && defined $ARGV[2]) {
 if ($ARGV[1] eq "init") {
   $verbose=0;
   # init stuff
-  &lmk_init;
-  &adc_init;
-  print ">>> Your board should be working now...\n";
+  my $ret = &lmk_init();
+  $ret = $ret && &adc_init();
+  if($ret) {
+  	print ">>> Your board should be working now...\n";
+  }
 }
 
 sub read_rates {

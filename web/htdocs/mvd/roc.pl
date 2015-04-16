@@ -36,12 +36,12 @@ $setup[1]->{address} = 1;
 $setup[2]->{name}    = "ClusterFinder";
 $setup[2]->{cmd}     = "Mvd-0xfe4d-ClusterFinder";
 $setup[2]->{period}  = 1000;
-$setup[2]->{generic} = 1;
+$setup[2]->{address} = 1;
 
 $setup[3]->{name}    = "RocControl";
 $setup[3]->{cmd}     = "Mvd-0xfe4d-RocControl";
 $setup[3]->{period}  = 10000;
-$setup[3]->{generic} = 1;
+$setup[3]->{address} = 1;
 
 xmlpage::initPage(\@setup,$page);
  
