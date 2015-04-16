@@ -352,11 +352,11 @@
          address="0080"  size="32"  purpose="status"  mode="r"  continuous="true" rate="1">
     <register name="HeadersDetected" address="0000" >
       <description>Number of detected headers</description>
-      <field name="HeadersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+      <field name="HeadersDetected" start="0" bits="24" format="unsigned" errorflag="true" invertflag="true" rate="true" />
     </register>
     <register name="TrailersDetected" address="0001" >
       <description>Number of detected trailers</description>
-      <field name="TrailersDetected" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+      <field name="TrailersDetected" start="0" bits="24" format="unsigned" errorflag="true" invertflag="true" rate="true" />
     </register>  
     <register name="TrailersLate" address="0002" >
       <description>Number of time-outs waiting for a trailer</description>
