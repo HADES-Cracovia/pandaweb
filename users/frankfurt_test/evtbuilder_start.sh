@@ -51,26 +51,26 @@ extraopts="--online"
 cd $tmpdir
 
 
-if [ $num = 1 ]; then
-  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file; read; bash" &
-fi
-if [ $num = 2 ]; then
-  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 2 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file \
-${extraopts}; read; bash" &
-fi
+#if [ "$num" -eq "1" ] ; then
+  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "daq_evtbuild -m 1 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file; read; bash" &
+#fi
+#if [ "$num" -eq "2" ]; then
+#  exec uxterm -fg black -bg khaki -geometry 120x20+0+45 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_evtbuild -m 2 -o ${dest} -x ${pref} -I 1 --ebnum 1 -q 32 -S test -d file \
+#${extraopts}; read; bash" &
+#fi
 
 pid=$!
 echo $pid > $tmpdir/.daq_evtbuild.pid
 
 sleep 1
 
-if [ $num = 1 ]; then
-  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_netmem -m 1 -i UDP:0.0.0.0:50000 -q 32 -d 1 -S test ;  " &
-fi
+#if [ "$num" -eq "1" ]; then
+  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "daq_netmem -m 1 -i UDP:0.0.0.0:50000 -q 32 -d 1 -S test ;  " &
+#fi
 
-if [ $num = 2 ]; then
-  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_netmem -m 2 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50003 -q 32 -d 1 -S test ;  " &
-fi
+#if [ "$num" -eq "2" ]; then
+#  exec uxterm -fg black -bg tan -geometry 120x20+0+345 -e "/d/jspc22/trb/git/daqdata/hadaq/daq_netmem -m 2 -i UDP:0.0.0.0:50000 -i UDP:0.0.0.0:50003 -q 32 -d 1 -S test ;  " &
+#fi
 pid=$!
 echo $pid > $tmpdir/.daq_netmem.pid
 
