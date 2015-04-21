@@ -372,9 +372,9 @@ sub adc_testall {
   my $phases =  shift || [-1];  # by default dont change phases
 
   my @tests = (
-               [0b0100, 0x815502aa],
-               [0b0001, 0x82000200],
-               [0b0100, 0x815502aa]
+               [0b0100, 0x815502aa], # checkerboard, sends 0x2aa and 0x155 as ADC words
+               [0b0001, 0x82000200], # midscale short
+               [0b0100, 0x815502aa]  # checkerboard again
               );
   my @good_ranges;
 
@@ -402,12 +402,9 @@ sub adc_testall_single {
   my @phases =  @{(shift)};
   my $test = shift;
 
-  # checkerboard, sends 0x2aa and 0x155 as ADC words
+  # set the testio mode
   adc_testio($test->[0]);
   trb_register_write($board, 0xa019, $test->[1]);
-  # midscale short
-  #adc_testio(0b0001);
-  #trb_register_write($board, 0xa019, 0x82000200);
 
   my @good_ranges;
   for my $phase (@phases) {
