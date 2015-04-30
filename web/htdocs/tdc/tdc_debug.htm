@@ -4,229 +4,224 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
 <script src="../scripts/scripts.js" type="text/javascript"></script>
-<title>TDC Registers</title>
+<title>TDC Debug Registers</title>
 </head>
 <body>
 
 
-<h2><a href="../">Hit Counters &amp; TDC Registers</a></h2>
+<h2><a href="../">TDC Debug Registers</a></h2>
 <form acion="">
-<table class="form"><tr class="head"><th colspan=2>Configuration
-<tr><td>Board<td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="ffff">
-<tr><td># of Channels<td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
-<tr><td>Update Interval (ms)<td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="1000">
-<tr><td>Split Table<td><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="2">
-<tr><td>Differences<td><input onChange="setValues()" type="checkbox" id="form_diff" name="diff" value="1">
-<tr><td>Input Status<td><input onChange="setValues()" type="checkbox" id="form_status" name="status" value="1">
-<tr><td><td><input type="button" onClick="setValues()" value="OK">
+<table class="form"><tr class="head"><th colspan=4>Configuration
+<tr title="4-digit hex board address for data query"><td>Board
+    <td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe48">
+<tr title="list of 4-digit hex addresses of boards to show"><td>Filter
+    <td><input onChange="setValues()" type="text" id="form_filter" name="filter"  value="" >
+<tr title="Number of TDC channels to show"><td># of Channels
+    <td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="65">
+<tr title="Update interval in milliseconds, separate for first and second table"><td>Update Interval (ms)
+    <td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000">
+        <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
+
+<tr><td title="For huge set-ups, enable this to split data queries in several smaller chunks">Split Table
+    <td title="For huge set-ups, enable this to split data queries in several smaller chunks"><input onChange="setValues()" type="checkbox" id="form_split" name="split" value="4">
+
+<tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
+
 </table>
 </form>
 
-<div style="float:left"><table id="content" class="content"><tr><th>Channel<th>Value</table></div>
-
-<div style="float:left"><table id="content" class="content"><tr><th>ChannelEnc<th>ValueEnc</table></div>
-
-<div style="float:left"><table id="content" class="content"><tr><th>ChannelFifo<th>ValueFifo</table></div>
-
-<div style="float:left"><table id="content" class="content"><tr><th>ChannelLost<th>ValueLost</table></div>
+<div style="float:left"><table class="content" id="content"><tr><th>Channel<th>Value</table></div>
+<div style="float:left"><table class="content" id="contentstat"><tr><th>Register<th>Values</table></div>
 
 
 <script language="javascript">
 var updaterate = document.getElementById("form_rate").value;
+var updaterate2= document.getElementById("form_rate2").value;
+var filter     = document.getElementById("form_filter").value;
 var board      = document.getElementById("form_board").value;
 var channels   = document.getElementById("form_channels").value;
-var split      = document.getElementById("form_split").checked?"-2":"";
-var differences= document.getElementById("form_diff").checked;
-var showstatus = document.getElementById("form_status").checked;
-var oldvalues = {};
-var oldvaluesEnc = {};
-var oldvaluesFifo = {};
-var oldvaluesLost = {};
+var split      = document.getElementById("form_split").checked?"-4":"";
 
-var reglist = "80-83-84-85-86-87-88-89-8a-8b-8c-8d-8f-90-c0-c2-c3";
-var regs = reglist.split('-');
-var regnames = new Array("debug<br>channels<br>ref input","window bef.<br>window aft.",
-                         "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
-                         "spurious trg","wrong rdo","spikes","idle time","wait time",
-                         "releases","rdo time","basic ctrl","act chan 1","act chan 2");
+var regstatus = "c100-2";
 
-var updateTask;
-var updateEncTask;
-var updateFifoTask;
-var updateLostTask;
+var regstatusnames = new Array("rd fsm<br>wr fsm<br>trg handler fsm","");
 
+var updateChDebugTask;
+var updateDebugRegsTask;
+var enableGroup = new Array();
+for(i=0;i<1000;i++) enableGroup[i] = new Array();
 
-function update(data) {
-  if(!document.getElementsByName("content")[0].innerHTML) return;
-  var b = data.split("&");
-  var c = {};
-  o = "<tr class=\"head\"><th>HitCounter<th>Channel";
+function settimers(time1,time2) {
 
-  for(j=0;j<b.length-1;j++) {
-    c[j] = b[j].split(" ");
-    if(!oldvalues[j]) oldvalues[j] = c[j];
-    o += "<th>"+c[j][0];
-    } 
-  
-  for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
-    for(j=0;j<b.length-1;j++) {
-      if(differences) {
-        val = (c[j][i] & 0xFFFFFF)- ((oldvalues[j][i]||0) & 0xFFFFFF);
-        if (val < 0) {
-          val += 0x1000000;
-          }
-        }
-      else {
-        val = c[j][i] & 0xFFFFFF;
-        }
-      if(showstatus)
-        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
-      else
-        o += "<td>"+(val);
-      }
+  if(time1 != -1) {
+    if(!time1) time1 = updaterate;
+    clearTimeout(updateChDebugTask);
+    updateChDebugTask = setTimeout("getdata('../commands/get.pl?"+board+"-c200-"+channels+split+"',updateChDebug)",time1);
     }
-  oldvalues = c;
-  document.getElementsByName("content")[0].innerHTML  = o;
+    
+  if(time2 != -1) {
+    if(!time2) time2 = updaterate2;
+    clearTimeout(updateDebugRegsTask);
+    updateDebugRegsTask = setTimeout("getdata('../commands/get.pl?"+board+"-"+regstatus+"',updateDebugregs)",time2);
+    }
   }
 
 
 function setValues() {
   updaterate = document.getElementById("form_rate").value;
+  updaterate2= document.getElementById("form_rate2").value;
   board      = document.getElementById("form_board").value;
-  split      = document.getElementById("form_split").checked?"-2":"";
-  differences= document.getElementById("form_diff").checked;
-  showstatus = document.getElementById("form_status").checked;
+  filter     = document.getElementById("form_filter").value;
+  split      = document.getElementById("form_split").checked?"-4":"";
   channels   = document.getElementById("form_channels").value;
-  clearInterval(updateTask);
-  updateTask = setInterval("getdata('../commands/get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
-  clearInterval(updateEncTask);
-  updateEncTask = setInterval("getdata('../commands/get.pl?"+board+"-c200-"+channels+split+"',updateEnc)",updaterate);
-  clearInterval(updateFifoTask);
-  updateFifoTask = setInterval("getdata('../commands/get.pl?"+board+"-c300-"+channels+split+"',updateFifo)",updaterate);
-  clearInterval(updateLostTask);
-  updateLostTask = setInterval("getdata('../commands/get.pl?"+board+"-c400-"+channels+split+"',updateLost)",updaterate);  
-
+  settimers(200,50);
+  
   }
 
-
-  
-function updateEnc(data) {
-  if(!document.getElementsByName("content")[1].innerHTML) return;
+function updateChDebug(data) {
+  if(!document.getElementById("content").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr class=\"head\"><th>EncoderStart<th>Channel";
+  var isShown = new Array();
+  o = "<tr class=\"head\"><th>Reg<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
-    if(!oldvaluesEnc[j]) oldvaluesEnc[j] = c[j];
-    o += "<th>"+c[j][0];
+    if(filter == "" || filter.indexOf(c[j][0]) != -1)
+      isShown[j] = 1;
+    else
+      isShown[j] = 0;
+    if(isShown[j])
+      o += "<th>"+c[j][0];
     } 
-  
+    o += "<th>"+"Description";
+
   for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc200).toString(16)+"<th>"+(i-1);
+    o += "<tr><th>"+(i-1+0xc200).toString(16)+"<th>"+"rd fsm"+"<br>"+"wr fsm";
     for(j=0;j<b.length-1;j++) {
-      if(differences) {
-        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesEnc[j][i]||0) & 0xFFFFFF);
-        if (val < 0) {
-          val += 0x1000000;
-          }
+      if(isShown[j]) {
+        val = c[j][i];
+	rd_fsm = ((val&0xf000000)>>24);
+        wr_fsm = ((val&0xf0000000)>>28);
+        o += "<td>";
+        o += rd_fsm+"<br>"+wr_fsm;
+        o += "<td>";
+	switch(rd_fsm) {
+	  case 0: o += "OTHER";          break;
+	  case 1: o += "IDLE";           break;
+	  case 2: o += "FLUSH_A";        break;
+	  case 3: o += "FLUSH_B";        break;
+	  case 4: o += "FLUSH_C";        break;
+	  case 5: o += "FLUSH_D";        break;
+	  case 6: o += "READOUT_EPOCH";  break;
+	  case 7: o += "READOUT_DATA_A"; break;
+	  case 8: o += "READOUT_DATA_B"; break;
+	  case 9: o += "READOUT_DATA_B"; break;
         }
-      else {
-        val = c[j][i] & 0xFFFFFF;
+        o += "<br>";
+	switch(wr_fsm) {
+	  case 0: o += "OTHER";           break;
+	  case 1: o += "IDLE";            break;
+	  case 2: o += "WRITE_DATA_WORD"; break;
+	  case 3: o += "EXCEPTION";       break;
+	  case 4: o += "WAIT_FOR_HIT";    break;
+	  case 5: o += "WRITE_STOP_WORD"; break;
         }
-      if(showstatus)
-        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
-      else
-        o += "<td>"+(val);
+
+        }
       }
     }
-  oldvaluesEnc = c;
-  document.getElementsByName("content")[1].innerHTML  = o;
+  document.getElementById("content").innerHTML  = o;
+  settimers(0,-1);
+  delete isShown;
   }
-
-
-
-
-function updateFifo(data) {
-  if(!document.getElementsByName("content")[2].innerHTML) return;
+  
+function updateDebugregs(data) {
+  if(!document.getElementById("contentstat").innerHTML) return;
   var b = data.split("&");
   var c = {};
-  o = "<tr class=\"head\"><th>FifoWrite<th>Channel";
+  var isShown = new Array();
+  o = "<tr class=\"head\"><th>Reg<th>Content";
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
-    if(!oldvaluesFifo[j]) oldvaluesFifo[j] = c[j];
-    o += "<th>"+c[j][0];
-    } 
-  
-  for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc300).toString(16)+"<th>"+(i-1);
-    for(j=0;j<b.length-1;j++) {
-      if(differences) {
-        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesFifo[j][i]||0) & 0xFFFFFF);
-        if (val < 0) {
-          val += 0x1000000;
-          }
-        }
-      else {
-        val = c[j][i] & 0xFFFFFF;
-        }
-      if(showstatus)
-        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
-      else
-        o += "<td>"+(val);
-      }
+    if(filter == "" || filter.indexOf(c[j][0]) != -1)
+      isShown[j] = 1;
+    else
+      isShown[j] = 0;
+    if(isShown[j])
+      o += "<th>"+c[j][0];
     }
-  oldvaluesFifo = c;
-  document.getElementsByName("content")[2].innerHTML  = o;
-  }
-
-
-
-
-function updateLost(data) {
-  if(!document.getElementsByName("content")[3].innerHTML) return;
-  var b = data.split("&");
-  var c = {};
-  o = "<tr class=\"head\"><th>LostHits<th>Channel";
-
-  for(j=0;j<b.length-1;j++) {
-    c[j] = b[j].split(" ");
-    if(!oldvaluesLost[j]) oldvaluesLost[j] = c[j];
-    o += "<th>"+c[j][0];
-    } 
-  
-  for(i = 1; i <= channels; i++) {
-    o += "<tr class=\""+(i%2?"odd":"even")+"\"><th>"+(i-1+0xc400).toString(16)+"<th>"+(i-1);
-    for(j=0;j<b.length-1;j++) {
-      if(differences) {
-        val = (c[j][i] & 0xFFFFFF)- ((oldvaluesLost[j][i]||0) & 0xFFFFFF);
-        if (val < 0) {
-          val += 0x1000000;
-          }
-        }
-      else {
-        val = c[j][i] & 0xFFFFFF;
-        }
-      if(showstatus)
-        o += "<td class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">"+(val);
-      else
-        o += "<td>"+(val);
-      }
-    }
-  oldvaluesLost = c;
-  document.getElementsByName("content")[3].innerHTML  = o;
-  }
-
+    o += "<th>"+"Description";
  
+  for(i = 0; i < 1; i++) {
+    if(regstatusnames[i]=="") continue;
+    o += "<tr><th>"+(0xc101+i).toString(16)+"<td>"+regstatusnames[0];
 
     
-updateTask = setInterval("getdata('../commands/get.pl?"+board+"-c000-"+channels+split+"',update)",updaterate);
-updateEncTask = setInterval("getdata('../commands/get.pl?"+board+"-c200-"+channels+split+"',updateEnc)",updaterate);
-updateFifoTask = setInterval("getdata('../commands/get.pl?"+board+"-c300-"+channels+split+"',updateFifo)",updaterate);
-updateLostTask = setInterval("getdata('../commands/get.pl?"+board+"-c400-"+channels+split+"',updateLost)",updaterate);
+    for(j=0;j<b.length-1;j++) {
+        if(isShown[j]) {
+        val = c[j][i+1]; <!-- c100 -->
+        ver = ((val&0x0ffe0000)>>17); <!-- tdc version -->
+        o += "<td>";
+        if(ver < 0x0212) {
+          val = c[j][i+1]; <!-- read the state machines for version < 2.1.2 -->
+          rd_fsm_rdout = (val&0xF);
+          wr_fsm_rdout = ((val&0xF0)>>4)
+          o += rd_fsm_rdout.toString(16)+"<br>"+wr_fsm_rdout.toString(16)+"<br>"+"NA"+"<br>";
+          }
+        else{
+          val = c[j][i+2]; <!-- read the state machines for version > 2.1.2 -->
+          rd_fsm_rdout = (val&0xF);
+          wr_fsm_rdout = ((val&0xF0)>>4);
+          trg_handler_fsm = ((val&0xF00)>>8);
+          o += rd_fsm_rdout.toString(16)+"<br>"+wr_fsm_rdout.toString(16)+"<br>"+trg_handler_fsm.toString(16)+"<br>";
+          }
+        o += "<td>";
+	switch(rd_fsm_rdout) {
+	  case 0: o += "OTHER";                    break;
+	  case 1: o += "IDLE";                     break;
+	  case 2: o += "WAIT_FOR_TRG_WIND_END";    break;
+	  case 3: o += "WAIT_FOR_BUFFER_TRANSFER"; break;
+	  case 4: o += "RD_CH";                    break;
+	  case 5: o += "";                         break;
+	  case 6: o += "WAIT_FOR_LVL1_TRG_A";      break;
+	  case 7: o += "WAIT_FOR_LVL1_TRG_B";      break;
+	  case 8: o += "WAIT_FOR_LVL1_TRG_C";      break;
+	  case 9: o += "SEND_STATUS";              break;
+	  case 10: o += "SEND_TRG_RELEASE_A";      break;
+	  case 11: o += "SEND_TRG_RELEASE_B";      break;
+	  case 12: o += "SEND_TRG_RELEASE_C";      break;
+        }
+        o += "<br>";
+	switch(wr_fsm_rdout) {
+	  case 0: o += "OTHER"; break;
+	  case 1: o += "IDLE";  break;
+	  case 2: o += "WR_CH"; break;
+	  case 3: o += "WAIT";  break;
+        }
+        o += "<br>";
+	switch(trg_handler_fsm) {
+	  case 0: o += "OTHER";                  break;
+	  case 1: o += "IDLE";                   break;
+	  case 2: o += "CHECK_TRIGGER_LENGTH";   break;
+	  case 3: o += "COUNT";                  break;
+	  case 4: o += "COUNT_CALIBRATION";      break;
+	  case 5: o += "VALIDATE_TRIGGER";       break;
+	  case 6: o += "WIN_END";                break;
+	  case 7: o += "MISSING_REFERENCE_TIME"; break;
+	  case 8: o += "WAIT_NEXT_TRIGGER";      break;
+        }
+        }
+      }
+    }
+  document.getElementById("contentstat").innerHTML  = o;
+  settimers(-1,0);
+  delete isShown;
+  }
   
+
+settimers(200,50);
   
 </script>
 </body></html>

@@ -59,7 +59,7 @@ var oldvalues = {};
 var regstatus = "c100-19";
 var regctrl = "c800-5";
 
-var regstatusnames = new Array("debug_rd<br>debug_wr<br>tdc version<br>channels<br>ref input","","","",
+var regstatusnames = new Array("tdc version<br>channels<br>ref input","","","",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time","",
                          "releases","rdo time","timeout number","data finished number");
@@ -269,7 +269,8 @@ function updatestatregs(data) {
         val = c[j][i+1];
         o += "<td>";
         if(i==0) {
-          o += (val&0xF).toString(16)+"<br>"+((val&0xF0)>>4).toString(16)+"<br>"+((val&0x0e000000)>>25)+"."+((val&0x1e00000)>>21)+"."+((val&0x1e0000)>>17)+"<br>"+((val&0xff00)>>8)+"<br>";
+	  o += ((val&0x0e000000)>>25)+"."+((val&0x1e00000)>>21)+"."+((val&0x1e0000)>>17)+"<br>"+((val&0xff00)>>8)+"<br>";
+
           if((val>>16 & 1)) 
             o += "<span class=\"over\" style=\"background:#faa;display:block;width:100%;float:right\">";
           if((val>>16 & 1))
