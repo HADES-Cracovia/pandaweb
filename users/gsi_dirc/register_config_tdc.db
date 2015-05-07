@@ -9,13 +9,13 @@
 !Value table
 # Hub  # Type #  lower 32 channels   #  upper 32 channels  # 
 #################################################################
- 0x0110   0         0xffffffff           0x00000000
- 0x0111   0         0xffffffff           0x00000000
- 0x0112   0         0xffffffff           0x00000000
- 0x0113   0         0xffffffff           0x00000000
+ 0x0010   0         0xffffffff           0x00000000
+ 0x0011   0         0xffffffff           0x00000000
+ 0x0012   0         0xffffffff           0x00000000
+ 0x0013   0         0xffffffff           0x00000000
 
- 0x0210   0         0xffffffff           0x00000000
- 0x0211   0         0xffffffff           0x00000000
- 0x0212   0         0xffffffff           0x00000000
- 0x0213   0         0xffffffff           0x00000000
+ 0x0014   0         0xffffffff           0x00000000
+ 0x0015   0         0xffffffff           0x00000000
+ 0x0016   0         0xffffffff           0x00000000
+ 0x0017   0         0xffffffff           0x00000000
 

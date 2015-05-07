@@ -26,6 +26,8 @@ my $share = IPC::ShareLite->new(
 $share->store("dummy text");
 #print "store res: $r\n";
 
+my $USE_LOCK = 0;
+
 my $hitregister = 0xc001;
 
 my @valid_interval = (0x8000, 0x9000);
@@ -313,12 +315,17 @@ sub read_thresholds {
 
   $share->store($chain);
 
-  my $res = $share->lock(LOCK_EX);
-  if(!defined $res || $res != 1) {
-      die "could not lock shared element";
+  my $res;
+
+  if($USE_LOCK) {
+      $res = $share->lock(LOCK_EX);
+      if(!defined $res || $res != 1) {
+	  die "could not lock shared element";
+      }
   }
 
-#   my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+my $rh_res;
+#    $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   foreach my $current_channel (0 .. 15) {
 
@@ -343,7 +350,9 @@ sub read_thresholds {
 
   #sleep 10 if($current_channel == 15 && $chain==1);
   #sleep 1;
-  $share->unlock();
+  if($USE_LOCK) {
+      $share->unlock();
+  }
 
 
   return \@thresh;
@@ -356,11 +365,14 @@ sub write_thresholds {
 
   $share->store($chain);
 
-  my $res = $share->lock(LOCK_EX);
-  if(!defined $res || $res != 1) {
-      die "could not lock shared element";
-  }
+  my $res;
 
+  if($USE_LOCK) {
+      $res = $share->lock(LOCK_EX);
+      if(!defined $res || $res != 1) {
+	  die "could not lock shared element";
+      }
+  }
   ### old and wrong way #my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
   my @range = (0 .. 15);
@@ -393,8 +405,10 @@ sub write_thresholds {
 
   #sleep 10 if($current_channel == 15 && $chain==1);
   #sleep 1;
-  $share->unlock();
-
+  if($USE_LOCK) {
+      $share->unlock();
+  }
+      
 }
 
 sub send_command {

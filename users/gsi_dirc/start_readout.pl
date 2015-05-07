@@ -5,11 +5,6 @@ use Getopt::Long;
 
 my $help = "";
 my $dataPath = "/d/";
-my $source1 = "50000"; # don't use 50001
-my $source2 = "50002"; # it is assigned for GbE debug
-my $source3 = "50003";
-my $source4 = "50004";
-my $source5 = "50005";
 my $label = "test";
 my $time = -1;
 my $c;
@@ -37,15 +32,20 @@ $c=qq|pkill -f "daq_evtbuild -S $label"|; qx($c); # if any, kill existing daq_ev
 $c=qq|pkill -f "daq_netmem -S $label"|;   qx($c); # if any, kill existing daq_netmem
 
 
-#$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 2 -x cc -d file -o $dataPath'|;
-$c=qq|xterm -geometry 122x16-0+0 -e bash -c 'daq_evtbuild -S $label -m 23 -x cc -d file -o $dataPath'|;
+$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 6 -x cc -d file -o $dataPath'|;
+#$c=qq|xterm -geometry 122x16-0+0 -e bash -c 'daq_evtbuild -S $label -m 23 -x cc -d file -o $dataPath'|;
 #print $c;
 
 system("$c &");
 
 sleep 1;
-#$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 2 -i UDP:127.0.0.1:50016 -i UDP:127.0.0.1:50022 '";
-$c=qq"xterm -geometry 82x44-0+234 -e bash -c 'daq_netmem -S $label -m 23 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 -i UDP:127.0.0.1:50006 -i UDP:127.0.0.1:50007 -i UDP:127.0.0.1:50008 -i UDP:127.0.0.1:50009 -i UDP:127.0.0.1:50010 -i UDP:127.0.0.1:50011 -i UDP:127.0.0.1:50012 -i UDP:127.0.0.1:50013 -i UDP:127.0.0.1:50014 -i UDP:127.0.0.1:50015 -i UDP:127.0.0.1:50016 -i UDP:127.0.0.1:50017 -i UDP:127.0.0.1:50018 -i UDP:127.0.0.1:50019 -i UDP:127.0.0.1:50020 -i UDP:127.0.0.1:50021 -i UDP:127.0.0.1:50022; sleep 2'";
+$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 6 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 '";
+
+
+
+
+
+#$c=qq"xterm -geometry 82x44-0+234 -e bash -c 'daq_netmem -S $label -m 23 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 -i UDP:127.0.0.1:50006 -i UDP:127.0.0.1:50007 -i UDP:127.0.0.1:50008 -i UDP:127.0.0.1:50009 -i UDP:127.0.0.1:50010 -i UDP:127.0.0.1:50011 -i UDP:127.0.0.1:50012 -i UDP:127.0.0.1:50013 -i UDP:127.0.0.1:50014 -i UDP:127.0.0.1:50015 -i UDP:127.0.0.1:50016 -i UDP:127.0.0.1:50017 -i UDP:127.0.0.1:50018 -i UDP:127.0.0.1:50019 -i UDP:127.0.0.1:50020 -i UDP:127.0.0.1:50021 -i UDP:127.0.0.1:50022; sleep 2'";
 
 
 #$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 2 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50002'";
