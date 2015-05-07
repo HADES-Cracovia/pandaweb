@@ -26,6 +26,8 @@ my $share = IPC::ShareLite->new(
 $share->store("dummy text");
 #print "store res: $r\n";
 
+my $USE_LOCK = 0;
+
 my $hitregister = 0xc001;
 
 my @valid_interval = (0x8000, 0x9000);
@@ -34,7 +36,7 @@ my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
 my $sleep_time = 0.2;
 my $accepted_dark_rate = 10;
-my $number_of_iterations = 40; # at least 15 are recommended
+my $number_of_iterations = 30; # at least 15 are recommended
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
@@ -43,6 +45,8 @@ my $offset = 0;
 my $opt_skip = 99;
 my $polarity = 1;
 my @channels  = ();
+my $channel_to_set = undef;
+my $channel_by_channel = false;
 my $channel32 = undef;
 my $opt_finetune = false;
 
@@ -51,6 +55,8 @@ our $chain = 0;
 my $result = GetOptions (
     "h|help" => \$help,
     "c|chain=i" => \$chain,
+    "channel_to_set=i" => \$channel_to_set,
+    "channel_by_channel" => \$channel_by_channel,
     "e|endpoint=s" => \$endpoint,
     "m|mode=s" => \$mode,
     "p|polarity=i" => \$polarity,
@@ -139,6 +145,34 @@ my $number_of_steps = 0;
 my $rh_res;
 my $old_rh_res;
 
+my $outermost_channel_loop_counter = 0;
+
+#set default values
+my @zero_array = (0) x 16;
+write_thresholds($mode, $chain, \@zero_array);
+
+if($channel_by_channel == true) {
+    $outermost_channel_loop_counter = 15;
+}
+
+my @outermost_channel_loop = (0);
+
+if($channel_by_channel) {
+    @outermost_channel_loop = (0 .. $outermost_channel_loop_counter);
+}
+
+#print "channellist:\n";
+#print Dumper \@outermost_channel_loop;
+
+foreach my $current_channel_outer_loop (@outermost_channel_loop) {
+
+if($channel_by_channel) {
+   $channel_to_set = $current_channel_outer_loop;
+   write_thresholds($mode, $chain, \@zero_array);
+}
+
+$number_of_steps = 0;
+
 while ($number_of_steps < $number_of_iterations ||
        grep({$_ == 0} @best_thresh) > 0
       ) {
@@ -147,7 +181,7 @@ while ($number_of_steps < $number_of_iterations ||
 
   if ($mode eq "padiwa") {
 
-    write_thresholds($mode, $chain, \@current_thresh);
+    write_thresholds($mode, $chain, \@current_thresh, $channel_to_set);
 
     # wait settling time, experimentally determined to 0.04 seconds
     select(undef, undef, undef, 0.05);
@@ -160,8 +194,12 @@ while ($number_of_steps < $number_of_iterations ||
     #print Dumper $rh_res;
     #print Dumper $old_rh_res;
 
+    my @iterate_loop = (0..15);
+    if($channel_by_channel) {
+	@iterate_loop = ($current_channel_outer_loop);
+    }
 
-    foreach my $i (0..15) {
+    foreach my $i (@iterate_loop) {
        $interval_step = $interval_step[$i];
 
       my $cur_hitreg = $rh_res->{$endpoint}->[$i*$hitchannel_multiplicator];
@@ -221,6 +259,7 @@ while ($number_of_steps < $number_of_iterations ||
 	  "new thresh: " . sprintf("0x%x", $current_thresh[$i]) .
 	    ", step_size: " . sprintf ("0x%04x best: 0x%04x", $interval_step[$i], $best_thresh[$i]);
 
+       #print "$str\n";
       $logger->info($str);
 
     } # end of loop over 15 channel
@@ -230,12 +269,14 @@ while ($number_of_steps < $number_of_iterations ||
 } #end of loop over steps
 
 
+
 map { $_-= $offset } @best_thresh;
-write_thresholds($mode, $chain, \@best_thresh);
+write_thresholds($mode, $chain, \@best_thresh, $channel_to_set);
 
 my $uid;
-foreach my $i (reverse (0..3)) {
+foreach my $i (reverse (0 .. 3)) {
   #print "send command: $endpoint , i: $i\n";
+  # read uids
   $rh_res = Dmon::PadiwaSendCmd(0x10000000 | $i * 0x10000, $endpoint, $chain);
   $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
@@ -244,10 +285,24 @@ foreach my $i (reverse (0..3)) {
 my $str;
 #$logger_data->info("thresholds have been set to the following values:");
 #$logger_data->info(sprintf "endpoint: %04x, chain: %02d, uid: $uid", $endpoint, $chain);
-$logger_data->info("\t".time);
-foreach my $i (0..15) {
-  $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid );
+#$logger_data->info("\t".time);
+
+my @range = (0 .. 15);
+
+if($channel_by_channel) {
+    @range = ($current_channel_outer_loop .. $current_channel_outer_loop);
 }
+
+#print "range2: ";
+#print Dumper @range;
+
+foreach my $i (@range) {
+  my $str = sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i], $uid;
+  #print "$str\n";
+  $logger_data->info($str);
+}
+
+} # end of channel_by_channel loop
 
 
 exit;
@@ -260,14 +315,19 @@ sub read_thresholds {
 
   $share->store($chain);
 
-  my $res = $share->lock(LOCK_EX);
-  if(!defined $res || $res != 1) {
-      die "could not lock shared element";
+  my $res;
+
+  if($USE_LOCK) {
+      $res = $share->lock(LOCK_EX);
+      if(!defined $res || $res != 1) {
+	  die "could not lock shared element";
+      }
   }
 
-#   my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
+my $rh_res;
+#    $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
-  foreach my $current_channel (0..15) {
+  foreach my $current_channel (0 .. 15) {
 
     my $command;
     my $fixed_bits;
@@ -290,7 +350,9 @@ sub read_thresholds {
 
   #sleep 10 if($current_channel == 15 && $chain==1);
   #sleep 1;
-  $share->unlock();
+  if($USE_LOCK) {
+      $share->unlock();
+  }
 
 
   return \@thresh;
@@ -299,18 +361,28 @@ sub read_thresholds {
 
 
 sub write_thresholds {
-  (my $mode, my $chain, my $ra_thresh) = @_;
+  (my $mode, my $chain, my $ra_thresh, my $channel_to_set) = @_;
 
   $share->store($chain);
 
-  my $res = $share->lock(LOCK_EX);
-  if(!defined $res || $res != 1) {
-      die "could not lock shared element";
-  }
+  my $res;
 
+  if($USE_LOCK) {
+      $res = $share->lock(LOCK_EX);
+      if(!defined $res || $res != 1) {
+	  die "could not lock shared element";
+      }
+  }
   ### old and wrong way #my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
-  foreach my $current_channel (0..15) {
+  my @range = (0 .. 15);
+  if (defined $channel_to_set && $channel_to_set <16 ) {
+      @range = ($channel_to_set .. $channel_to_set);
+      #print "range: \n";
+  }
+
+  #print Dumper \@range;
+  foreach my $current_channel (@range) {
 
     my $command;
     my $fixed_bits;
@@ -333,8 +405,10 @@ sub write_thresholds {
 
   #sleep 10 if($current_channel == 15 && $chain==1);
   #sleep 1;
-  $share->unlock();
-
+  if($USE_LOCK) {
+      $share->unlock();
+  }
+      
 }
 
 sub send_command {
