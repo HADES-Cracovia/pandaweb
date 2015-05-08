@@ -33,6 +33,9 @@
     <td title="Show control buttons for channel enable/disable">Enable
     <td title="Show control buttons for channel enable/disable"><input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
 
+<tr><td title="Enable display of hit rates for deactive channels.">Hit Rate Status
+    <td title="Enable display of hit rates for deactive channels."><input onChange="setValues()" type="checkbox" id="form_hitrate" name="hitrate" value="1">&nbsp;
+
 <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
         <td title="Reset TDC counters"><input type="button" onClick="resetCounters()" value="RESET">
 
@@ -45,15 +48,16 @@
 
 
 <script language="javascript">
-var updaterate = document.getElementById("form_rate").value;
-var updaterate2= document.getElementById("form_rate2").value;
-var filter     = document.getElementById("form_filter").value;
-var board      = document.getElementById("form_board").value;
-var channels   = document.getElementById("form_channels").value;
-var split      = document.getElementById("form_split").checked?"-4":"";
-var differences= document.getElementById("form_diff").checked;
-var showstatus = document.getElementById("form_status").checked;
-var showenable = document.getElementById("form_enable").checked;
+var updaterate  = document.getElementById("form_rate").value;
+var updaterate2 = document.getElementById("form_rate2").value;
+var filter      = document.getElementById("form_filter").value;
+var board       = document.getElementById("form_board").value;
+var channels    = document.getElementById("form_channels").value;
+var split       = document.getElementById("form_split").checked?"-4":"";
+var differences = document.getElementById("form_diff").checked;
+var showstatus  = document.getElementById("form_status").checked;
+var showenable  = document.getElementById("form_enable").checked;
+var showhitrate = document.getElementById("form_hitrate").checked;
 var oldvalues = {};
 
 var regstatus = "c100-19";
@@ -133,14 +137,19 @@ function update(data) {
     o += "<tr><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
-        if(differences) {
-          val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
-          if (val < 0) {
-            val += 0x80000000;
-            }
-          }
+        enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
+        if(showhitrate && enabled == 0) 
+          val = 0x0;
         else {
-          val = c[j][i] & 0x7FFFFFFF;
+          if(differences) {
+            val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
+            if (val < 0) {
+              val += 0x80000000;
+              }
+            }
+          else {
+            val = c[j][i] & 0x7FFFFFFF;
+            }
           }
         if(showstatus)
           o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
@@ -161,15 +170,16 @@ function update(data) {
   }
   
 function setValues() {
-  updaterate = document.getElementById("form_rate").value;
-  updaterate2= document.getElementById("form_rate2").value;
-  board      = document.getElementById("form_board").value;
-  filter     = document.getElementById("form_filter").value;
-  split      = document.getElementById("form_split").checked?"-4":"";
-  differences= document.getElementById("form_diff").checked;
-  showstatus = document.getElementById("form_status").checked;
-  channels   = document.getElementById("form_channels").value;
-  showenable = document.getElementById("form_enable").checked;
+  updaterate  = document.getElementById("form_rate").value;
+  updaterate2 = document.getElementById("form_rate2").value;
+  board       = document.getElementById("form_board").value;
+  filter      = document.getElementById("form_filter").value;
+  split       = document.getElementById("form_split").checked?"-4":"";
+  differences = document.getElementById("form_diff").checked;
+  showstatus  = document.getElementById("form_status").checked;
+  channels    = document.getElementById("form_channels").value;
+  showenable  = document.getElementById("form_enable").checked;
+  showhitrate = document.getElementById("form_hitrate").checked;
   settimers(200,50);
   
   }
