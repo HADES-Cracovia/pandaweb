@@ -138,7 +138,7 @@ function update(data) {
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
         enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
-        if(showhitrate == 0 && enabled == 0) 
+        if(showhitrate == 0 && enabled == 0 && i != 1) 
           val = 0x0;
         else {
           if(differences) {
