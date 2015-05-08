@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use lib "../perllibs/";
+
 use warnings;
 use strict;
 use POSIX qw(strftime);
