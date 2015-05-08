@@ -8,6 +8,7 @@ use Getopt::Long;
 
 my $help;
 my $opt_invert;
+my $opt_stretch;
 my @opt_endpoints;
 my @opt_chains;
 
@@ -15,6 +16,7 @@ my $result = GetOptions (
     "h|help" => \$help,
     "i|invert=s" => \$opt_invert,
     "e|endpoints=s" => \@opt_endpoints,
+    "s|stretch=s" => \$opt_stretch,
     "c|chains=s" => \@opt_chains,
     );
 
@@ -37,67 +39,58 @@ my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
 
 #my $padiwa_invert_setting = "0xffff";
 
-print "padiwas: setting padiwa invert-setting to $opt_invert: ";
+my $str_endpoints= join " ", @opt_endpoints;
 
-foreach my $cur_endpoint (@$endpoints) {
-  my $pid = $pm->start and next;
-  $cur_endpoint = sprintf "0x%4x", $cur_endpoint;
-  print "$cur_endpoint ";
-
-  for my $chain (@$chains) {
-      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain invert $opt_invert 1>/dev/null";
-      #print $c . "\n";
-      my $r = qx($c);
-      die "could not execute command $c" if $?;
-      print $r;
-    }
-
-    $pm->finish; # Terminates the child process
-};
-
+print "current padiwa range: $str_endpoints\n";
+print "\tsetting padiwa invert-setting to $opt_invert ";
+execute_command("invert $opt_invert");
 $pm->wait_all_children;
 print "\n";
 
-print "padiwas: turn off all leds: ";
 
-foreach my $cur_endpoint (@$endpoints) {
-    my $pid = $pm->start and next;
-    $cur_endpoint = sprintf "0x%4x", $cur_endpoint;
-    print "$cur_endpoint ";
-
-    for my $chain (0..2) {
-      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain led 0x10 >/dev/null";
-      #print $c . "\n";
-      qx($c); die "could not execute command $c" if $?;
-    }
-
-    $pm->finish; # Terminates the child process
-};
-
+print "\tturn off all leds ";
+execute_command("led 0x10");
 $pm->wait_all_children;
 print "\n";
 
-print "DOBpadiwas: set temp compensation to 0x02c0: ";
 
-foreach my $cur_endpoint (@$endpoints) {
+print "\tset temp compensation to 0x02c0 ";
+execute_command("comp 0x02c0");
+$pm->wait_all_children;
+print "\n";
+
+
+if($opt_stretch) {
+    print "\tset stretching to $opt_stretch";
+    execute_command("stretch $opt_stretch");
+    $pm->wait_all_children;
+    print "\n";
+}
+
+
+exit;
+
+sub execute_command {
+
+  (my $padiwa_command) = @_;
+
+  foreach my $cur_endpoint (@$endpoints) {
     my $pid = $pm->start and next;
     $cur_endpoint = sprintf "0x%4x", $cur_endpoint;
-    print "$cur_endpoint ";
+    #print "$cur_endpoint ";
 
     for my $chain (0..2) {
-      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain comp 0x02c0 >/dev/null";
+      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain $padiwa_command >/dev/null";
       #print $c . "\n";
       qx($c); die "could not execute command $c" if $?;
     }
 
     $pm->finish; # Terminates the child process 
-};
+  };
 
-$pm->wait_all_children;
 
-print "\n";
+}
 
-exit;
 
 sub get_ranges {
     (my $ra_data) = @_;
