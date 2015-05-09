@@ -42,16 +42,20 @@ my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
 my $str_endpoints= join " ", @opt_endpoints;
 
 print "current padiwa range: $str_endpoints\n";
+
 print "\tsetting padiwa invert-setting to $opt_invert ";
 execute_command("invert $opt_invert");
 $pm->wait_all_children;
 print "\n";
 
+#print "result of invert\n";
+#execute_command("invert", "verbose");
+#exit
 
-print "\tturn off all leds ";
-execute_command("led 0x10");
-$pm->wait_all_children;
-print "\n";
+# print "\tturn off all leds ";
+# execute_command("led 0x10");
+# $pm->wait_all_children;
+# print "\n";
 
 
 print "\tset temp compensation to 0x02c0 ";
@@ -72,7 +76,7 @@ exit;
 
 sub execute_command {
 
-  (my $padiwa_command) = @_;
+  (my $padiwa_command, my $verbosity) = @_;
 
   foreach my $cur_endpoint (@$endpoints) {
     my $pid = $pm->start and next;
@@ -80,9 +84,11 @@ sub execute_command {
     #print "$cur_endpoint ";
 
     for my $chain (0..2) {
-      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain $padiwa_command >/dev/null";
+      my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain $padiwa_command";
+      if (!$verbosity) { $c.= " >/dev/null" };
       #print $c . "\n";
-      qx($c); die "could not execute command $c" if $?;
+      my $res = qx($c); die "could not execute command $c" if $?;
+      if($verbosity) { print "$res"; }
     }
 
     $pm->finish; # Terminates the child process 
