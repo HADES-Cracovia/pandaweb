@@ -5,12 +5,12 @@ use strict;
 use Parallel::ForkManager;
 use Net::Ping;
 
-my @trbs = (56, 72, 99, 78, 74, 104, 97, 83, 89, 111, 13, 77, 57);
+my @trbs = (56, 72, 99, 73, 74, 104, 97, 83, 89, 111, 13, 77, 57);
 
 my $map = {
  0 => { trb =>  72, sys => "MCP 00"},
  1 => { trb =>  99, sys => "MCP 01"},
- 2 => { trb =>  78, sys => "MCP 02"},
+ 2 => { trb =>  73, sys => "MCP 02"},
  3 => { trb =>  74, sys => "MCP 03"},
  4 => { trb => 104, sys => "MCP 04"},
  5 => { trb =>  97, sys => "TOF 1"},

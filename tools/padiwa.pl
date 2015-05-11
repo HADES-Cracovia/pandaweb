@@ -5,6 +5,8 @@ use Time::HiRes qw( usleep );
 use Data::Dumper;
 use HADES::TrbNet;
 use Date::Format;
+use Dmon;
+
 
 if(!defined $ENV{'DAQOPSERVER'}) {
   die "DAQOPSERVER not set in environment";
@@ -73,12 +75,13 @@ sub sendcmd16 {
   
 sub sendcmd {
   my ($cmd) = @_;
-  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
-  trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
+  return Dmon::PadiwaSendCmd($cmd,$board,$chain);
+#  my $c = [$cmd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,1];
+#  trb_register_write_mem($board,0xd400,0,$c,scalar @{$c});
 #   trb_register_write($board,0xd410,1<<$chain) or die "trb_register_write: ", trb_strerror();   
 #   trb_register_write($board,0xd411,1);
-  usleep(1000);
-  return trb_register_read($board,0xd412);
+#  usleep(1000);
+#  return trb_register_read($board,0xd412);
   }
   
   

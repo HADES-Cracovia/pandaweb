@@ -6,7 +6,7 @@ use strict;
 use HADES::TrbNet;
 use Time::HiRes qq|usleep|;
 
-print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
+#print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
 
 
 
@@ -305,7 +305,7 @@ sub PadiwaSendCmd {
 
     if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
     if (trb_strerror() ne "No Error") {
-      usleep 1E5;
+      usleep 3E4;
       if($errcnt >= 12) {
         return "SPI still blocked\n";
         }

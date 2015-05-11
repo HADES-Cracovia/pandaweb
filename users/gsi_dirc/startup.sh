@@ -49,20 +49,32 @@ trbcmd w 0xfe4c 0xc800 0x00002000 ## Triggered mode
 #trbcmd w 0xfe4c 0xc800 0x00000001 ## logic analyser control register
 #trbcmd w 0xfe4c 0xc800 0x00001001 ## 2014-10-02 disable the "triggered mode"
 
-trbcmd w 0xfe4c 0xc801 0x80620062 ##  triggerwindow +/-490ns ;5ns granularity
+trbcmd w 0xfe4c 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 #trbcmd w 0xfe4c 0xc801 0x801e001e ##  triggerwindow +/-150ns ;5ns granularity
 
 # Default TDC-channel enable for all channels
 trbcmd w 0xfe4c 0xc802 0xffffffff ## channel 01-32 enable
 trbcmd w 0xfe4c 0xc803 0x0000ffff ## channel 33-64 enable
-#trbcmd w 0xfe4c 0xc804 0x0000007c ## data transfer limit
+trbcmd w 0xfe4c 0xc804 0x0000007c ## data transfer limit
 
 
 # special Matthias TDCs
 trbcmd w 0xfe48 0xc800 0x00002000 ## Triggered mode
-trbcmd w 0xfe48 0xc801 0x80620062 ##  triggerwindow +/-490ns ;5ns granularity
+trbcmd w 0xfe48 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 trbcmd w 0xfe48 0xc802 0xffffffff ## channel 01-32 enable
 trbcmd w 0xfe48 0xc803 0xffffffff ## channel 33-64 enable
+trbcmd w 0xfe48 0xc804 0x0000007c ## data transfer limit
+
+
+# AUX TDCs
+trbcmd w 0xfe4a 0xc800 0x00002000 ## Triggered mode
+trbcmd w 0xfe4a 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
+trbcmd w 0xfe4a 0xc802 0x00000000 ## channel 33-64 enable
+trbcmd w 0x202c 0xc802 0xffffffff ## channel 01-32 enable
+trbcmd w 0x202d 0xc802 0xffffffff ## channel 01-32 enable
+trbcmd w 0xfe4a 0xc803 0x00000000 ## channel 33-64 enable
+trbcmd w 0xfe4a 0xc804 0x0000007c ## data transfer limit
+
 
 
 ~/trbsoft/daqtools/tools/loadregisterdb.pl register_config_tdc.db
@@ -100,6 +112,7 @@ trbcmd i 0xffff | wc -l
 
 # Barrel DIRC
 prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0x0000
+padiwa_led_off.pl
 
 # Beam
 prepare_padiwas_invert_leds.pl --endpoints=0x2014-0x201f --chains=0..2 --invert=0xffff
@@ -124,7 +137,14 @@ cd ~/trbsoft/daqtools/thresholds/
 
 ## 2015 ./load_thresh_mcptof.sh  1500 1500 1500 1500 
 
-./write_thresholds.pl padiwa_threshold_results_mcp_tof.log -o 0x2000 >> /dev/null # =14.5mV after amp
+#MCP-TOF, SciTils
+./write_thresholds.pl mcptof_mcpout_zero.log -o 2000 >> /dev/null # =14 mV after amp
+./write_thresholds.pl mcptof_pixels_zero.log -o 2000 >> /dev/null # =14 mV after amp
+./write_thresholds.pl mcptof_scitil_zero.log -o 2000 >> /dev/null # =20 mV after amp
+./write_thresholds.pl mcptof_hodo_zero.log -o 1000 >> /dev/null # =7 mV after amp
+
+## Barrel DIRC
+./write_thresholds.pl ~/trbsoft/daqtools/users/gsi_dirc/thresh/201505101447.thr -o 600 >> /dev/null # 1.5mV at plug
 
 cd -
 
@@ -137,5 +157,9 @@ trbcmd w 0x7999 0xa150 0x10000
 # pulser enable
 #trbcmd setbit 0x7999 0xa101 0x2
 
-# enable multiplexer 2
-trbcmd setbit 0x7999 0xa101 0x40
+# enable multiplexer 0
+trbcmd setbit 0x7999 0xa101 0x10
+
+trbcmd w 0x7999 0xa150 0x270f  #1kHz pulser
+trbcmd w 0x7999 0xa151 0x05f5e100  #1Hz pulser
+trbcmd loadbit 0x7999 0xa158 0x00000f00 0x00000d00  #Pulser 1 is calibration

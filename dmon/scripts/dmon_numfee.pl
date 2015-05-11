@@ -21,6 +21,18 @@ while(1) {
   my $status   = Dmon::GetQAState('above',$num,($config{NumberOfFpga},$config{NumberOfFpga}-1,$config{NumberOfFpga}-2));
   
   
+  foreach my $b (@{$config{'PadiwaTrbAddresses'}}) {
+    if(! defined $r->{$b}) {$longtext .= sprintf(", 0x%04x",$b);}
+    }
+  foreach my $b (@{$config{'HubTrbAddresses'}}) {
+    if(! defined $r->{$b}) {$longtext .= sprintf(", 0x%04x",$b);}
+    }
+  foreach my $b (@{$config{'OtherTrbAddresses'}}) {
+    if(! defined $r->{$b}) {$longtext .= sprintf(", 0x%04x",$b);}
+    }
+  
+  
+  
   Dmon::WriteQALog($flog,"numfee",20,$status,$title,$value,$longtext);
 
   sleep(10);

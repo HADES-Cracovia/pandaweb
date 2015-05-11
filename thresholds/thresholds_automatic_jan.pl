@@ -227,7 +227,7 @@ foreach my $i (reverse (0..3)) {
 
 my $str;
 
-$logger_data->info("\t".time);
+# $logger_data->info("\t".time);
 foreach my $i (0..15) {
   $logger_data->info(sprintf "endpoint: 0x%04x, chain: %02d, channel: %2d threshold: 0x%04x, uid: %s", $endpoint, $chain, $i, $best_thresh[$i]||$current_thresh[$i], $uid );
 }
