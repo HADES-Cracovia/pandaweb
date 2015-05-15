@@ -93,8 +93,8 @@
       <field name="FrameTooLong" start="4" bits="1" format="boolean" errorflag="true" >
         <description>The current frame contains too many data words</description>
       </field>      
-      <field name="CurrentDataLength" start="16" bits="16" format="unsigned"  >
-        <description>Number of data words of the current frame</description>
+      <field name="DataLength" start="16" bits="16" format="unsigned"  >
+        <description>Number of data words of the last frame</description>
       </field>
     </register>
 
@@ -109,8 +109,8 @@
       <field name="DataTimeout" start="8" bits="1" format="boolean" errorflag="true" >
         <description>Strobe signal if distance between two words is too long</description>
       </field> 
-      <field name="DataLength" start="12" bits="16" format="unsigned"  >
-        <description>Number of data words of last frame</description>
+      <field name="CurrDataLength" start="12" bits="16" format="unsigned"  >
+        <description>Number of data words of current frame</description>
       </field>
     </register>
 
@@ -373,6 +373,10 @@
     <register name="FrameDelete" address="0005" >
       <description>The frame buffer deleted a frame because it was too old</description>
       <field name="FrameDelete" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />
+    </register>      
+    <register name="FrameBufAfull" address="0006" >
+      <description>The frame buffer was almost full</description>
+      <field name="FrameBufAfull" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />
     </register>      
     <register name="InfoWrite" address="0007" >
       <description>Data Handler finished a frame and wrote frame information</description>
