@@ -43,6 +43,7 @@ trbcmd w 0xff7f 0x830e 0x10
 ##################################################
 
 # standard TDCs
+trbcmd clearbit 0xfe4c 0xc800 0x2000 ## clear bit to reset the epoch and coarse counters
 trbcmd w 0xfe4c 0xc800 0x00002000 ## Triggered mode
 #trbcmd w 0xfe4c 0xc800 0x00003000 ## Triggerless   mode
 #trbcmd w 0xfe4c 0xc801 0x000f0005 ## trigger window enable & trigger window width
@@ -59,6 +60,7 @@ trbcmd w 0xfe4c 0xc804 0x0000007c ## data transfer limit
 
 
 # special Matthias TDCs
+trbcmd clearbit 0xfe48 0xc800 0x2000 ## clear bit to reset the epoch and coarse counters
 trbcmd w 0xfe48 0xc800 0x00002000 ## Triggered mode
 trbcmd w 0xfe48 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 trbcmd w 0xfe48 0xc802 0xffffffff ## channel 01-32 enable
@@ -67,6 +69,7 @@ trbcmd w 0xfe48 0xc804 0x0000007c ## data transfer limit
 
 
 # AUX TDCs
+trbcmd clearbit 0xfe4a 0xc800 0x2000 ## clear bit to reset the epoch and coarse counters
 trbcmd w 0xfe4a 0xc800 0x00002000 ## Triggered mode
 trbcmd w 0xfe4a 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 trbcmd w 0xfe4a 0xc802 0x00000000 ## channel 33-64 enable
@@ -111,8 +114,8 @@ trbcmd i 0xffff | wc -l
 #trbcmd w 0xffff 0x20 0x33
 
 # Barrel DIRC
-prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0x0000
-padiwa_led_off.pl
+prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0xffff
+#padiwa_led_off.pl
 
 # Beam
 prepare_padiwas_invert_leds.pl --endpoints=0x2014-0x201f --chains=0..2 --invert=0xffff
@@ -138,13 +141,22 @@ cd ~/trbsoft/daqtools/thresholds/
 ## 2015 ./load_thresh_mcptof.sh  1500 1500 1500 1500 
 
 #MCP-TOF, SciTils
-./write_thresholds.pl mcptof_mcpout_zero.log -o 2000 >> /dev/null # =14 mV after amp
-./write_thresholds.pl mcptof_pixels_zero.log -o 2000 >> /dev/null # =14 mV after amp
-./write_thresholds.pl mcptof_scitil_zero.log -o 2000 >> /dev/null # =20 mV after amp
-./write_thresholds.pl mcptof_hodo_zero.log -o 1000 >> /dev/null # =7 mV after amp
+./write_thresholds.pl mcptof_mcpout_zero.log -o 0 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_pixels_zero.log -o 0 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_scitil_zero.log -o 0 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_hodo_zero.log -o 0 >> /dev/null # =7 mV before amp
+./write_thresholds.pl mcptof_mcpout_zero.log -o 1500 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_pixels_zero.log -o 1500 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_scitil_zero.log -o 1500 >> /dev/null # =10 mV before amp
+./write_thresholds.pl mcptof_hodo_zero.log -o 1000 >> /dev/null # =7 mV before amp
+
+
 
 ## Barrel DIRC
-./write_thresholds.pl ~/trbsoft/daqtools/users/gsi_dirc/thresh/201505101447.thr -o 600 >> /dev/null # 1.5mV at plug
+#./write_thresholds.pl ~/trbsoft/daqtools/users/gsi_dirc/thresh/201505101447.thr -o 600 >> /dev/null # 1.5mV at plug
+#./write_thresholds.pl padiwa_threshold_results_20150511_2.log -o 400 > /dev/null # 1mV at plug
+./write_thresholds.pl padiwa_threshold_results_20150516_high_stretch_CS.log -o 400 > /dev/null # 1mV at plug
+./padiwa_led_off_MT.sh > /dev/null
 
 cd -
 

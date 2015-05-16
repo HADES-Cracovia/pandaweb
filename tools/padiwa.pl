@@ -251,7 +251,7 @@ if ($ARGV[2] eq "ledoff") {
 
   my $unix_compile_time = $ids->{$board}->{1}*2**16+$ids->{$board}->{0};
   if ($unix_compile_time >= 0x546f1960) {
-    $mask = 0x1;
+    $mask = 0x0;
   }
   else {
     $mask =0x10;

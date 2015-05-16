@@ -3,9 +3,10 @@ if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
     print "HTTP/1.0 200 OK\n";
     print "Content-type: text/html\r\n\r\n";
 }
+
 else {
     use lib '..';
-#  use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
+    use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
     print "Content-type: text/html\n\n";
 }
 

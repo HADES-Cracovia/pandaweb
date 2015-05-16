@@ -80,7 +80,9 @@ UserDirectory => '/home/hadaq/trbsoft/daqtools/users/gsi_dirc/',
 #BarrelDirc Heatmap settings
 HeatmapDirc => {
   # upper limit for high end of color scale
-  max_count_uclamp => 100000,
+##  max_count_uclamp => 1000000,
+  max_count_uclamp => 2000,
+#  max_count_uclamp => 20000,
   # lower limit for high end of color scale
   max_count_lclamp => 10,
   
@@ -109,6 +111,7 @@ HeatmapFlash => {
 HeatmapDiscDirc => {
   # upper limit for high end of color scale
   max_count_uclamp => 100000,
+##  max_count_uclamp => 100,
   # lower limit for high end of color scale
   max_count_lclamp => 30,
   

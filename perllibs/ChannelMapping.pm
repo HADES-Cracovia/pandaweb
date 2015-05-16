@@ -1,1 +1,1 @@
-../users/cern_cbmrich/ChannelMapping.pm
+../users/gsi_dirc/ChannelMapping.pm

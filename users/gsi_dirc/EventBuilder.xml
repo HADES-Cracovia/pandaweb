@@ -34,7 +34,7 @@ store data in lmd files.
 
     <Module name="Combiner" class="hadaq::CombinerModule">    
         <!-- these parameters will force to create inputs/oputputs of module -->
-       <NumInputs value="23"/>
+       <NumInputs value="13"/>
        <NumOutputs value="2"/>
 
        <InputPort name="Input0"  url="hadaq://host:50000" thread="UdpThread1"/>
@@ -49,7 +49,8 @@ store data in lmd files.
        <InputPort name="Input9"  url="hadaq://host:50009" thread="UdpThread2"/>
        <InputPort name="Input10" url="hadaq://host:50010" thread="UdpThread3"/>
        <InputPort name="Input11" url="hadaq://host:50011" thread="UdpThread4"/>
-       <InputPort name="Input12" url="hadaq://host:50012" thread="UdpThread1"/>
+       <InputPort name="Input12" url="hadaq://host:49999" thread="UdpThread1"/>
+
        <InputPort name="Input13" url="hadaq://host:50013" thread="UdpThread2"/>
        <InputPort name="Input14" url="hadaq://host:50014" thread="UdpThread3"/>
        <InputPort name="Input15" url="hadaq://host:50015" thread="UdpThread4"/>
@@ -68,7 +69,7 @@ store data in lmd files.
           <FlushTimeout value="2.0"/>   
        </InputPort>
        
-       <OutputPort name="Output1" url="hld:///d/dabc.hld?maxsize=1500"/>
+       <OutputPort name="Output1" url="hld:///d/may2015/dabc.hld?maxsize=1500"/>
 
        <DoShmControl value="false"/>  
        <FlushTimeout value="2.0"/>   
@@ -93,7 +94,7 @@ store data in lmd files.
 
        <InputPort name="Input0" url="Combiner/Output0" queue="10"/>
 
-       <OutputPort name="Output0" url="mbs://Stream"/>
+       <OutputPort name="Output0" url="mbs://Stream:6789"/>
        <OutputPort name="Output1" url="lmd://test.lmd?maxsize=30&log=2"/>
 
        <!-- this is 32-bit MBS subevent id, which than can be seen in the analysis. Here procid=0x1f is configured -->
