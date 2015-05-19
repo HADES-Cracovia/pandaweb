@@ -284,6 +284,8 @@ sub SciNotation {
     return  sprintf("%ik", $v / 1000.) if (abs($v) < 1E6) ;
     return  sprintf("%.1fM", $v / 1000000.) if (abs($v) < 20E6) ;
     return  sprintf("%iM", $v / 1000000.) if (abs($v) < 1E9) ;
+    return  sprintf("%.1fG", $v / 1000000000.) if (abs($v) < 20E9) ;
+    return  sprintf("%iG", $v / 1000000000.) if (abs($v) < 1E12) ;
     return  sprintf("%i",$v);
     }
   else {
