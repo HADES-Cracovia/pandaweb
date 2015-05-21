@@ -30,7 +30,7 @@ my $USE_LOCK = 0;
 
 my $hitregister = 0xc001;
 
-my @valid_interval = (0x8000, 0x9000);
+my @valid_interval = (0x5000, 0xc000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 

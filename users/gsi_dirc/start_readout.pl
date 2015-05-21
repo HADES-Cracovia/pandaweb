@@ -4,15 +4,17 @@ use strict;
 use Getopt::Long;
 
 my $help = "";
-my $dataPath = "/d/";
+my $dataPath = "/d/may2015/";
 my $label = "test";
 my $time = -1;
+my $name = "cc";
 my $c;
 
 my $result = GetOptions (
     "h|help"    => \$help,
     "t|time=i"  => \$time,
     "l|label=s" => \$label,
+    "n|filename=s" => \$name,
     "p|path=s"  => \$dataPath
     );
 
@@ -32,14 +34,14 @@ $c=qq|pkill -f "daq_evtbuild -S $label"|; qx($c); # if any, kill existing daq_ev
 $c=qq|pkill -f "daq_netmem -S $label"|;   qx($c); # if any, kill existing daq_netmem
 
 
-$c=qq|xterm -geometry 122x14-0+0 -e bash -c 'daq_evtbuild -S $label -m 6 -x cc -d file -o $dataPath'|;
-#$c=qq|xterm -geometry 122x16-0+0 -e bash -c 'daq_evtbuild -S $label -m 23 -x cc -d file -o $dataPath'|;
+$c=qq|xterm -geometry 122x15-0+0 -e bash -c 'daq_evtbuild -S $label -m 13 -x $name --filesize 512 -d file -o $dataPath'|;
+#$c=qq|xterm -geometry 122x16-0+0 -e bash -c 'daq_evtbuild -S $label -m 23 -x $name -d file -o $dataPath'|;
 #print $c;
 
 system("$c &");
 
 sleep 1;
-$c=qq"xterm -geometry 82x17-0+210 -e bash -c 'daq_netmem -S $label -m 6 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 '";
+$c=qq"xterm -geometry 82x45-0+210 -e bash -c 'daq_netmem -S $label -m 13 -i UDP:127.0.0.1:49999 -i UDP:127.0.0.1:50000 -i UDP:127.0.0.1:50001 -i UDP:127.0.0.1:50002 -i UDP:127.0.0.1:50003 -i UDP:127.0.0.1:50004 -i UDP:127.0.0.1:50005 -i UDP:127.0.0.1:50006 -i UDP:127.0.0.1:50007 -i UDP:127.0.0.1:50008 -i UDP:127.0.0.1:50009 -i UDP:127.0.0.1:50010 -i UDP:127.0.0.1:50011'";
 
 
 
