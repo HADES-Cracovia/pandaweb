@@ -151,7 +151,7 @@ function update(data) {
             val = c[j][i] & 0x7FFFFFFF;
             }
           }
-        if(showstatus)
+        if(showstatus && enabled)
           o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
         else
           o += "<td>";
