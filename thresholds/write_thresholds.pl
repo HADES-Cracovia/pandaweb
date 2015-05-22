@@ -8,6 +8,7 @@ use Getopt::Long;
 use HADES::TrbNet;
 use POSIX qw(strftime);
 
+# use Time::HiRes qw(usleep nanosleep);
 my $offset = 0;
 my $help;
 
@@ -74,7 +75,8 @@ foreach my $cl (@f) {
     next if($thresh > 0xffff);
 
     $thresh -= $offset;
-
+	 #MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+	 # usleep(100000);
     write_threshold("padiwa", $ep, $chain, $channel, $thresh);
     $count++;
 

@@ -41,7 +41,7 @@ my $padding_top     = 40;
 # my $pixel_size      = 10;
 # my $pmt_spacing_x   = 40;
 # my $pmt_spacing_y   = 35;
-my $strip_length    = 180;
+my $strip_length    = 135;
 
 my $px_per_mm       = 10;
 
@@ -85,7 +85,7 @@ while (1) {
     if ($instantaneous_normalization) {
       $max_count = 0;
       
-      for my $col (0..2) {
+      for my $col (0..3) {
         for my $ypos (sort keys %{$chanDb->{$col}}) {
           my $fpga = $chanDb->{$col}->{$ypos}->{fpga};
           my $channel = $chanDb->{$col}->{$ypos}->{chan};
@@ -112,7 +112,7 @@ while (1) {
     
     $offset_y = $padding_top;
     
-    for my $col (0..2) {
+    for my $col (0..3) {
       my $strip_width;
       if ($col == 0){
         $strip_width = 0.5;

@@ -113,8 +113,12 @@ trbcmd i 0xffff | wc -l
 # Reset trigger logic - only a workaround for a bug
 #trbcmd w 0xffff 0x20 0x33
 
+#20150522 Jan comment
+~/trbsoft/daqtools/padiwa.pl 0xfe4c 0 time > /dev/null;~/trbsoft/daqtools/padiwa.pl 0xfe4c 1 time > /dev/null; ~/trbsoft/daqtools/padiwa.pl 0xfe4c 2 time > /dev/null
+
 # Barrel DIRC
-prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0xffff
+# enable stretch prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0xffff
+prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff 
 #padiwa_led_off.pl
 
 # Beam
@@ -155,7 +159,10 @@ cd ~/trbsoft/daqtools/thresholds/
 ## Barrel DIRC
 #./write_thresholds.pl ~/trbsoft/daqtools/users/gsi_dirc/thresh/201505101447.thr -o 600 >> /dev/null # 1.5mV at plug
 #./write_thresholds.pl padiwa_threshold_results_20150511_2.log -o 400 > /dev/null # 1mV at plug
-./write_thresholds.pl padiwa_threshold_results_20150516_high_stretch_CS.log -o 400 > /dev/null # 1mV at plug
+# for stretch ./write_thresholds.pl padiwa_threshold_results_20150516_high_stretch_CS.log -o 400 > /dev/null # 1mV at plug
+#20150521
+./write_thresholds.pl padiwa_threshold_results_20150516_high_nostretch_CS.log -o 200 > /dev/null 
+#./write_thresholds.pl padiwa_threshold_results_20150521_high_nostretch_CS.log -o 200 > /dev/null 
 ./padiwa_led_off_MT.sh > /dev/null
 
 cd -

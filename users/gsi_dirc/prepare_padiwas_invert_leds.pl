@@ -52,8 +52,8 @@ print "\n";
 #execute_command("invert", "verbose");
 #exit
 
-# print "\tturn off all leds ";
-# execute_command("led 0x10");
+# print "\tturn off all leds depending on the firmware version";
+# execute_command("ledoff");
 # $pm->wait_all_children;
 # print "\n";
 
