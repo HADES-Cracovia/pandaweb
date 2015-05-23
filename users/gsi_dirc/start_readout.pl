@@ -24,6 +24,8 @@ if($help) {
     print "Usage: start_readout.pl <time>\n\n";
     print "-h --help\tPrints the usage manual\n";
     print "-t --time\tDefine length of time in seconds for data taking (Default = -1)\n";
+    print "-d --dabc\trun dabc instead of old (has no name) eventbuilder\n";
+    print "-n --filename\tuse the following prefix, limited to two character for old EB\n";
     print "\t\tFor unlimited data taking define <time> as -1.\n";
     print "-l --label\tDefine label for the daq_evtbuild and daq_netmem processes (Default = test)\n";
     print "-p --path\tDefine path for saving data (Default = ~/trbsoft/data\)\n";

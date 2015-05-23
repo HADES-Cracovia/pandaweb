@@ -172,7 +172,7 @@ echo "ready to go"
 
 #echo "- setting trigger rate register in TDC";
 # trigger rate 1500Hz
-trbcmd w 0x7999 0xa150 0x10000
+trbcmd w 0x7999 0xa150 0x0001869f
 # pulser enable
 #trbcmd setbit 0x7999 0xa101 0x2
 
