@@ -109,6 +109,12 @@ store data in lmd files.
 
      <Module name="Term" class="hadaq::TerminalModule" period="0.3" clear="true"/>
 
+     <!-- shmem control config -->
+     <Observer name="shm">
+       <DoShmControl value="true"/>
+       <NodeId value="1"/>
+     </Observer>
+
   </Context>
 
   <!--Context name="*">

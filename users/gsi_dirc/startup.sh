@@ -17,10 +17,8 @@ fi
 export DAQOPSERVER=localhost:56
 #export DAQOPSERVER=localhost
 
-trbcmd reset
+trbreset_loop.pl
 
-echo -n "- number of trb endpoints in the system: "
-trbcmd i 0xffff | wc -l
 
 ##################################################
 ## Set addresses
@@ -44,7 +42,7 @@ trbcmd w 0xff7f 0x830e 0x10
 
 # standard TDCs
 trbcmd clearbit 0xfe4c 0xc800 0x2000 ## clear bit to reset the epoch and coarse counters
-trbcmd w 0xfe4c 0xc800 0x00002000 ## Triggered mode
+trbcmd w 0xfe4c 0xc800 0x00002000 ## TDC-Control-Register, RTniceM
 #trbcmd w 0xfe4c 0xc800 0x00003000 ## Triggerless   mode
 #trbcmd w 0xfe4c 0xc801 0x000f0005 ## trigger window enable & trigger window width
 #trbcmd w 0xfe4c 0xc800 0x00000001 ## logic analyser control register
@@ -66,6 +64,28 @@ trbcmd w 0xfe48 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 trbcmd w 0xfe48 0xc802 0xffffffff ## channel 01-32 enable
 trbcmd w 0xfe48 0xc803 0xffffffff ## channel 33-64 enable
 trbcmd w 0xfe48 0xc804 0x0000007c ## data transfer limit
+
+# special settings for barrel 
+#trbcmd w 0x2000 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2001 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2002 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2003 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2004 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2005 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2006 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2007 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2008 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2009 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200a 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200b 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200c 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200d 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200e 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x200f 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2010 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2011 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2012 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
+#trbcmd w 0x2013 0xc801 0x8018004b ##  triggerwindow -375ns ... 120ns ;5ns granularity
 
 
 # AUX TDCs
@@ -164,6 +184,9 @@ cd ~/trbsoft/daqtools/thresholds/
 ./write_thresholds.pl padiwa_threshold_results_20150516_high_nostretch_CS.log -o 200 > /dev/null 
 #./write_thresholds.pl padiwa_threshold_results_20150521_high_nostretch_CS.log -o 200 > /dev/null 
 ./padiwa_led_off_MT.sh > /dev/null
+#20150524 kill noisy pixel by setting 0xffff threshold
+./write_thresholds.pl padiwa_killPix.log > /dev/null 
+
 
 cd -
 
