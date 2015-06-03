@@ -79,6 +79,12 @@ if ($verbose) {
          $board, $ADC_numChannels, $ADC_samplingRateMS);
 }
 
+if($ADC_numChannels==36) {
+  # ADC0, ADC4, ADC9 are removed then
+  print "Found reduced number of channels (not 48), disable ADCs 0,4,9\n";
+  @adcs = (1..3,5..8,10,11);
+}
+
 sub sendcmd {
   my $cmd = shift;
   my $chain = shift;
@@ -362,7 +368,7 @@ sub read_rates {
 if ($ARGV[1] eq "adc_testall") {
   $verbose=0;
   my @good = map {$_->[0]} &adc_testall; # no phases given, so single element arrays expected
-  for my $adc (0..11) {
+  for my $adc (@adcs) {
     printf("ADC %02d: %s\n",$adc,
            $good[$adc] ? "Working" : "NOT WORKING!!!");
   }
@@ -385,7 +391,7 @@ sub adc_testall {
       @good_ranges = @good_ranges_single;
     } else {
       # AND operation of matrix from previous test(s)
-      for my $i (0..@good_ranges-1) {
+      for my $i (@adcs) {
         for my $j (0..@{$good_ranges[$i]}-1) {
           $good_ranges[$i]->[$j] &= $good_ranges_single[$i]->[$j];
         }
@@ -417,7 +423,7 @@ sub adc_testall_single {
     # use only upper 31 bits to account for overflow
     my @invalid_rates = read_rates(0xa8c0, 48, 1, 31);
 
-    for my $adc (0..11) {
+    for my $adc (@adcs) {
       my $word_rate = $word_rates[$adc];
       my $MS = $ADC_samplingRateMS*1e6;
       my $good = $word_rate > 0.98*$MS;
@@ -454,7 +460,7 @@ sub set_optimal_phases {
   # consecutive range of good state
   # then set the phases for each ADC individually
   my @old_adcs = @adcs;
-  for my $adc (0..11) {
+  for my $adc (@adcs) {
     my @good = @{$good_ranges[$adc]};
     #printf("%02d %s\n", $adc, join(' ',@good));
     # search for largest consecutive ones in @good
