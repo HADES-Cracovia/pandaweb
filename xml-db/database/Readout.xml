@@ -7,7 +7,7 @@
   <description>Register of the trigger and read-out handler in full_endpoint (on front-ends only)</description>
 
   <group name="Status" address="0000" mode="r" continuous="false">
-    <register name="DataBufferStatus" address="0100" repeat="12" purpose="status">
+    <register name="DataBufferStatus" address="0100" repeat="16" purpose="status">
       <description>Status of the event data buffers</description>
       <field name="DataFifoLevel" start="0" bits="16" format="unsigned" >
         <description>Fill level of the data Fifo in 32 Bit words</description>
@@ -108,7 +108,7 @@
 
     <register name="Lvl1ReleaseStatus" address="0200"  purpose="status">
       <description>Status of the individual data handlers. Bit is set if the handler did not get a release from the data handler. Content is only valid while the handler is not idle.</description>
-      <field name="Lvl1ReleaseStatus" start="0" bits="6" format="bitmask" >
+      <field name="Lvl1ReleaseStatus" start="0" bits="16" format="bitmask" >
       </field>
     </register>
     
