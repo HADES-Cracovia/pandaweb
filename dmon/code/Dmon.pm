@@ -36,7 +36,7 @@ sub MakeRate {
   my $res;
   return unless defined $t;  
 
-  foreach my $b (keys $t) {
+  foreach my $b (keys %$t) {
     for my $i (0..((scalar @{$t->{$b}{value}})-1)) {
       my $value    = $t->{$b}{value}[$i]||0;
          $value    = ($value>>$pos) & (2**$width-1);
