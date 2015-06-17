@@ -59,6 +59,7 @@ $board = hex($board);
 #my $temperat = trb_register_read($board,0);
 #my $ctime    = trb_register_read($board,0x40);
 my $inclLow  = trb_register_read($board,0x41);
+die sprintf("Could not read lower implemented feature register 0x41 from 0x%04x. Have you initiliazed the TRB3 properly?",$board) unless defined $inclLow;
 my $hardware = trb_register_read($board,0x42);
 my $inclHigh = trb_register_read($board,0x43);
 $inclLow  = $inclLow->{$board};
