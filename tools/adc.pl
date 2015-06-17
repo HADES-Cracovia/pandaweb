@@ -146,6 +146,7 @@ sub adc_init {
     &set_optimal_phases;
     print ">>> Check ADCs again...\n";
     my @good = map {$_->[0]} &adc_testall; # no phases given, so single element arrays expected
+    @good = grep { defined $_ } @good; # not all adcs might have been tested
     #print Dumper(\@good);
     # check if all ADCs are good
     if (@good == grep { $_ } @good) {
@@ -496,6 +497,7 @@ sub set_optimal_phases {
     @adcs = ($adc);             # used by adc_phase
     adc_phase($opt_phase);
     #printf("Set ADC %02d to optimal phase of %03d degrees\n", $adc, $opt_phase*60);
+    @adcs = @old_adcs;
   }
 
   @adcs = @old_adcs;
