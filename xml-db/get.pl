@@ -3,10 +3,9 @@ use HADES::TrbNet;
 use Storable qw(lock_store lock_retrieve);
 use feature "switch";
 use Time::HiRes qw( time usleep );
-use CGI::Carp qw(fatalsToBrowser);
 
 no if $] >= 5.017011, warnings => 'experimental::smartmatch';
-
+use if (defined $ENV{'QUERY_STRING'}), CGI::Carp => qw(fatalsToBrowser);
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
 use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
