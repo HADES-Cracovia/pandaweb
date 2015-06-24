@@ -86,13 +86,19 @@
       </field>
     </register>
 
-    <register name="TriggerTime" address="0002" purpose="status">
-      <description>Value of the last valid timing trigger time</description>
-      <field name="ValidTimingTriggerTime" start="0" bits="32" format="unsigned" unit="ns" scale="5">
-        <description>Arrival time of the valid timing trigger at the reference channel with
+    <register name="TriggerTime" address="0002">
+      <description>Arrival time of the last valid timing trigger at the reference channel with
         granularity of 5 ns</description>
-      </field>
+      <field name="TriggerTime" start="0" bits="32" format="unsigned" unit="ns" scale="5" rate="1" />
     </register>
+
+    <!-- <register name="TriggerTime" address="0002" purpose="status"> -->
+    <!--   <description>Value of the last valid timing trigger time</description> -->
+    <!--   <field name="ValidTimingTriggerTime" start="0" bits="32" format="unsigned" unit="ns" scale="5"> -->
+    <!--     <description>Arrival time of the valid timing trigger at the reference channel with -->
+    <!--     granularity of 5 ns</description> -->
+    <!--   </field> -->
+    <!-- </register> -->
 
     <register name="TriggerWindowStatus" address="0003" purpose="status">
       <description>Status of the TriggerWindow feature</description>
