@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Data::Dumper;
-#use Dmon;
+use Dmon;
 use Getopt::Long;
 use HADES::TrbNet;
 use POSIX qw(strftime);
@@ -104,14 +104,15 @@ sub write_threshold {
 
   my $command= $fixed_bits | ($current_channel << 16) | ($thresh << $shift_bits);
 
-  #Dmon::PadiwaSendCmd($endpoint, $chain, $command);
-  send_command($endpoint, $chain, $command);
+  Dmon::PadiwaSendCmd($command, $endpoint, $chain);
+  #send_command($endpoint, $chain, $command);
 }
 
 
 sub send_command {
   (my $endpoint, my $chain, my $command) = @_;
 
+  
   my $ra_atomic = [$command,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1<<$chain,0x10001];
   my $rh_res = trb_register_write_mem($endpoint, 0xd400, 0, $ra_atomic, scalar @{$ra_atomic});
   send_command_error($endpoint) if (!defined $rh_res);
