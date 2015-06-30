@@ -18,7 +18,6 @@ use xmlpage;
 use Data::Dumper;
 use Date::Format qw(time2str);
 use v5.10;
-use Term::ANSIColor;
 
 ###############################################################################  
 ##  Network Map
