@@ -6,7 +6,7 @@ use strict;
 use HADES::TrbNet;
 use Time::HiRes qq|usleep|;
 
-print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
+#print STDERR "Script started at ".strftime("%d.%m.%y %H:%M:%S", localtime()).".\n";
 
 
 
@@ -36,7 +36,7 @@ sub MakeRate {
   my $res;
   return unless defined $t;  
 
-  foreach my $b (keys $t) {
+  foreach my $b (keys %$t) {
     for my $i (0..((scalar @{$t->{$b}{value}})-1)) {
       my $value    = $t->{$b}{value}[$i]||0;
          $value    = ($value>>$pos) & (2**$width-1);
@@ -284,6 +284,8 @@ sub SciNotation {
     return  sprintf("%ik", $v / 1000.) if (abs($v) < 1E6) ;
     return  sprintf("%.1fM", $v / 1000000.) if (abs($v) < 20E6) ;
     return  sprintf("%iM", $v / 1000000.) if (abs($v) < 1E9) ;
+    return  sprintf("%.1fG", $v / 1000000000.) if (abs($v) < 20E9) ;
+    return  sprintf("%iG", $v / 1000000000.) if (abs($v) < 1E12) ;
     return  sprintf("%i",$v);
     }
   else {
@@ -305,7 +307,7 @@ sub PadiwaSendCmd {
 
     if (trb_strerror() =~ "no endpoint has been reached") {return -1;}
     if (trb_strerror() ne "No Error") {
-      usleep 1E5;
+      usleep 3E4;
       if($errcnt >= 12) {
         return "SPI still blocked\n";
         }

@@ -1,174 +1,93 @@
 void first()
 {
-   // analysis will work as triggerred -
-   // after each event all data should be processed and flushed
-   base::ProcMgr::instance()->SetTriggeredAnalysis();
 
+   base::ProcMgr::instance()->SetRawAnalysis(true);
+
+   // this limits used for liner calibrations when nothing else is available
    hadaq::TdcMessage::SetFineLimits(31, 421);
+
+   // default channel numbers and edges mask
+   hadaq::TrbProcessor::SetDefaults(33, 0x2);
 
    hadaq::HldProcessor* hld = new hadaq::HldProcessor();
 
-   // Following levels of histograms filling are supported
-   //  0 - none
-   //  1 - only basic statistic from TRB
-   //  2 - generic statistic over TDC channels
-   //  3 - basic per-channel histograms with IDs
-   //  4 - per-channel histograms with references
-   // trb3->SetHistFilling(4);
+   // About time calibration - there are two possibilities
+   // 1) automatic calibration after N hits in every enabled channel.
+   //     Just use SetAutoCalibrations method for this
+   // 2) generate calibration on base of provided data and than use it later statically for analysis
+   //     Than one makes special run with SetWriteCalibrations() enabled.
+   //     Later one reuse such calibrations enabling only LoadCalibrations() call
 
-   // Load calibrations for ALL TDCs
-   /// trb3->LoadCalibrations("/data.local1/padiwa/new_");
+   hadaq::TrbProcessor* trb3_1 = new hadaq::TrbProcessor(0x8000, hld);
+   trb3_1->SetHistFilling(4);
+   trb3_1->SetCrossProcess(true);
+   trb3_1->CreateTDC(0x2000, 0x2001, 0x2002, 0x20003);
+   // enable automatic calibration, specify required number of hits in each channel
+   //trb3_1->SetAutoCalibrations(80000);
+   // calculate and write static calibration at the end of the run
+   //trb3_1->SetWriteCalibrations("run1");
+   trb3_1->LoadCalibrations("run1");
 
-   // calculate and write calibrations at the end of the run
-   //trb3->SetWriteCalibrations("/data.local1/padiwa/new_");
+   hadaq::TrbProcessor* trb3_2 = new hadaq::TrbProcessor(0x800b, hld);
+   trb3_2->SetHistFilling(4);
+   trb3_2->SetCrossProcess(true);
+   trb3_2->CreateTDC(0x202c, 0x202d, 0x202e, 0x202f);
+   //trb3_2->SetAutoCalibrations(80000);
+   //trb3_2->SetWriteCalibrations("run1");
+   trb3_2->LoadCalibrations("run1");
 
-   // enable automatic calibrations of the channels
-   //trb3->SetAutoCalibrations(100000);
+   // this is array with available TDCs ids
+   int tdcmap[8] = { 0x2000, 0x2001, 0x2002, 0x2003, 0x202c, 0x202d, 0x202e, 0x202f };
 
+   // TDC subevent header id
 
-   hadaq::TrbProcessor* trb3 = new hadaq::TrbProcessor(0x8000, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0010, 0x0011, 0x0012, 0x0013);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
+   for (int cnt=0;cnt<8;cnt++) {
 
-   trb3 = new hadaq::TrbProcessor(0x8001, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0110, 0x0111, 0x0112, 0x0113);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
+      hadaq::TdcProcessor* tdc = hld->FindTDC(tdcmap[cnt]);
+      if (tdc==0) continue;
 
-   trb3 = new hadaq::TrbProcessor(0x8002, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0210, 0x0211, 0x0212, 0x0213);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
+      // specify reference channel
+      //tdc->SetRefChannel(0, 0, 0x202c, 20000,  9597E6., 9603E6., true);
+      tdc->SetRefChannel(0, 0, 0x2001, 20000,  -100., 100., true);
+      //tdc->SetRefChannel(3, 1, 0xffff, 20000,  -10., 10., true);
+      //      continue;
 
-   trb3 = new hadaq::TrbProcessor(0x8003, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0310, 0x0311, 0x0312, 0x0313);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
+      //tdc->SetRefChannel(4, 2, 0xffff, 20000,  -10., 10., true);
+//      tdc->SetRefChannel(6, 4, 0xc010, 20000,  -20., 20., true);
+//      tdc->SetRefChannel(7, 5, 0xc010, 20000,  -20., 20., true);
+//      tdc->SetRefChannel(8, 0, 0xc010, 20000,  -90., 80., true);
+//      tdc->SetRefChannel(9, 0, 0xc010, 20000,  -200., 200., true);
 
-   trb3 = new hadaq::TrbProcessor(0x8004, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0410, 0x0411, 0x0412, 0x0413);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8005, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0510, 0x0511, 0x0512, 0x0513);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8006, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0610, 0x0611, 0x0612, 0x0613);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8007, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0710, 0x0711, 0x0712, 0x0713);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8008, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0810, 0x0811, 0x0812, 0x0813);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8009, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x0910, 0x0911, 0x0912, 0x0913);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8010, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1010, 0x1011, 0x1012, 0x1013);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8011, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1110, 0x1111, 0x1112, 0x1113);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8012, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1210, 0x1211, 0x1212, 0x1213);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8013, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1310, 0x1311, 0x1312, 0x1313);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8014, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1410, 0x1411, 0x1412, 0x1413);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8015, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1510, 0x1511, 0x1512, 0x1513);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8016, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1610, 0x1611, 0x1612, 0x1613);
-   // trb3->SetWriteCalibrations("calibr_");
-   //trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8017, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1710, 0x1711, 0x1712, 0x1713);
-   // trb3->SetWriteCalibrations("calibr_");
-   //trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8018, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1810, 0x1811, 0x1812, 0x1813);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8019, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x1910, 0x1911, 0x1912, 0x1913);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8020, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x2010, 0x2011, 0x2012, 0x2013);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   trb3 = new hadaq::TrbProcessor(0x8021, hld);
-   trb3->SetHistFilling(2);
-   trb3->CreateTDC(0x2110, 0x2111, 0x2112, 0x2113);
-   // trb3->SetWriteCalibrations("calibr_");
-   // trb3->LoadCalibrations("calibr_");
-
-   // indicate if raw data should be printed
-   hld->SetPrintRawData(false);
+//      continue;
 
 
-   // method set window for all TRBs/TDCs
-   // hld->SetTriggerWindow(-4e-7, -0.2e-7);
+      if (cnt==1) {
+         // specify reference channel from other TDC
+	//tdc->SetRefChannel(0, 0, 0xc000, 20000,  -30., 30., true);
+	tdc->SetRefChannel(0, 0, 0x2000, 20000,  -20., 20., true);
+         //tdc->SetRefChannel(6, 6, 0xc000, 20000,  -20., 20., true);
+	tdc->SetRefChannel(7, 7, 0x2000, 20000,  -20., 20., true);
+      }
 
-   // uncomment these line to enable store of all TDC data in the tree
-   // hld->SetStoreEnabled(true);
+      if (tdc==4) continue;
 
-   // create store - typically done in second.C, should be called only once
-   // base::ProcMgr::instance()->CreateStore("file.root");
+      // specify reference channel
+      tdc->SetRefChannel(0, 0, 0x202d, 20000,  -100., 100., true);
+      tdc->SetRefChannel(1, 0, 0xffff, 20000,  -800., 800., true);
+      tdc->SetRefChannel(2, 0, 0xffff, 20000,  -200., 200., true);
+      tdc->SetRefChannel(3, 0, 0xffff, 20000,  -200., 200., true);
+      tdc->SetRefChannel(4, 0, 0xffff, 20000,  -200., 200., true);
+
+
+      // for old FPGA code one should have epoch for each hit, no longer necessary
+      // tdc->SetEveryEpoch(true);
+
+      // When enabled, time of last hit will be used for reference calculations
+      // tdc->SetUseLastHit(true);
+
+   }
 
 }
+
+
+

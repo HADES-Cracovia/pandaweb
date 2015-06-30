@@ -42,7 +42,7 @@
 
     <register name="BaselineAvg" address="0006" >
       <description>Averaging time for baseline calculation. 2**N samples are taken. Baseline is calculated from buffer output data, triggered events are suppressed.</description>
-      <field  name="BaselineAvg" start="0"   bits="4"  format="unsigned" noflag="true" />
+      <field  name="BaselineAvg" start="0"   bits="5"  format="unsigned" noflag="true" />
     </register>
 
     <register name="TriggerEnable0" address="0007" >
