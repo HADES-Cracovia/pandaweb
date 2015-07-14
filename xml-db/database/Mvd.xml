@@ -402,7 +402,11 @@
       <description>The frame buffer got full (either data or frame number exceeded)</description>
       <field name="BufferFull" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
     </register>
-  
+    <register name="MkdEdges" address="000d" >
+      <description>Number of edges on the marker signal input</description>
+      <field name="MkdEdges" start="0" bits="24" format="unsigned" noflag="true" rate="true" />
+    </register>
+    
     <register name="StatErrDataHandler" address="0010">        
       <description>Data Handler error</description> 
       <field name="StatErrDataHandler" start="0" bits="24" format="unsigned" errorflag="true" rate="true" />     
