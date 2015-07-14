@@ -55,15 +55,15 @@
 
   <group name="PulserConfig" purpose="config" address="0080" size="96" mode="rw" continuous="true">
     <description>Settings for each pulser channel</description>  
-    <register name="PulserPeriod" address="0000" mode="r" repeat="30" >
-      <description>The period of the pulser, given in multiples of the 240 MHz clock cycle</description>
+    <register name="PulserPeriod" address="0000" mode="rw" repeat="30" >
+      <description>The period of the pulser, given in multiples of the 240 MHz clock cycle. Values below 15 ns are not allowed.</description>
       <field  name="PulserPeriod" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
     </register>    
-    <register name="PulseWidth" address="0020" mode="r" repeat="30" >
+    <register name="PulseWidth" address="0020" mode="rw" repeat="30" >
       <description>The width of the pulse, given in multiples of the 960 MHz clock cycle</description>
       <field  name="PulseWidth" start="0" bits="24" format="unsigned" noflag="true" scale="1.0417" unit="ns" />
     </register> 
-    <register name="PulserOffset" address="0040" mode="r" repeat="30" >
+    <register name="PulserOffset" address="0040" mode="rw" repeat="30" >
       <description>The offset of the pulser channel, given in multiples of the 240 MHz clock cycle</description>
       <field  name="PulserOffset" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
     </register> 
