@@ -68,6 +68,10 @@ sub readSettings {
     (my $ep, my $chain, my $channel, my $thresh, my $uid) = 
       $cl =~ /endpoint:\s+(\w+), chain:\s+(\d+), channel:\s+(\d+) threshold:\s+(\w+), uid: (\w+)/;
     next unless defined $ep;
+    if( length($thresh) >=8) {
+	#print $thresh;
+	$thresh = 0xffffff;
+    }
     $thresholds{hex($ep) .":". (int($channel)+ 16* int($chain)+1 )} = hex $thresh;
   }
 

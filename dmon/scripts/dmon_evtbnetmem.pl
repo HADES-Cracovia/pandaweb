@@ -12,6 +12,10 @@ use lib "../perllibs/";
 use List::Util qw[min max];
 use Dmon;
 use Data::Dumper;
+use LWP::Simple;
+
+# please change to 1 if you use the "old"-eventbuilder, 0 for dabc
+my $old_eb = 0;
 
 my %config = Dmon::StartUp();
 
@@ -27,14 +31,27 @@ my $shm_string = $config{EvtbNetmem}->{shm_string};
 my $eb_shm = "/dev/shm/daq_evtbuild$shm_string.shm";
 my $nm_shm = "/dev/shm/daq_netmem$shm_string.shm";
 
+my $url = "http://localhost:8090/EventBuilder/Terminal/Output/value/get.json";
+
+my $content;
+my $number_of_events;
+my $number_of_bytes;
+my $eb_data;
+my $nm_data;
 
 while (1) {
 
+if(!$old_eb) {
+    $content = get $url;
+    next if(!defined $content);
+    ($number_of_events) = $content =~ /Events:(.*?)Rate/;
+    ($number_of_bytes)  = $content =~ /Data:(.*?)Rate/;
+}
+else {
+    $eb_data = slurp_shm($eb_shm);
+    $nm_data = slurp_shm($nm_shm);
+}  
 
-
-  my $eb_data = slurp_shm($eb_shm);
-  my $nm_data = slurp_shm($nm_shm);
-  
 #   print "evtbuid keys: \n".join(" ",sort keys %$eb_data)."\n\n"; 
 #   print "netmem  keys: \n".join(" ",sort keys %$nm_data)."\n\n"; 
 #  #evtbuid keys: 
@@ -52,22 +69,48 @@ while (1) {
 #   print "nm data:\n";
 #   print Dumper $nm_data;
  
-  eval{ 
+eval{ 
     my $status = Dmon::OK;
-       $status = Dmon::ERROR unless defined $eb_data->{evtsComplete};
+    if($old_eb) {
+	$status = Dmon::ERROR unless defined $eb_data->{evtsComplete};
+    }
+    else {
+	$status = Dmon::ERROR unless defined $number_of_events;
+    }
     my $title  = "EvtsComplete";
-    my $value = Dmon::SciNotation($eb_data->{evtsComplete});
+
+    my $value;
+    if($old_eb) {
+	$value = Dmon::SciNotation($eb_data->{evtsComplete});
+    }
+    else {
+	$value = $number_of_events;
+    }
+
     my $longtext = "See plot";
     Dmon::WriteQALog($config{flog},"evtbnetmem",5,$status,$title,$value,$longtext,'');
-  };
-  eval{ 
+};
+eval{ 
     my $status = Dmon::OK;
-       $status = Dmon::ERROR unless defined $eb_data->{bytesWritten};
+
+    if($old_eb) {
+	$status = Dmon::ERROR unless defined $eb_data->{bytesWritten};
+    }
+    else {
+	$status = Dmon::ERROR unless defined $number_of_bytes;
+    }
+
     my $title  = "BytesWritten";
-    my $value = Dmon::SciNotation($eb_data->{bytesWritten});
+    my $value;
+    if($old_eb) {
+	$value = Dmon::SciNotation($number_of_bytes);
+    }
+    else {
+	$value = $number_of_bytes;
+    }
     my $longtext = "See plot";
     Dmon::WriteQALog($config{flog},"eb2",5,$status,$title,$value,$longtext,'');
-  };
+};
 #   eval{ 
 #     my $status = Dmon::OK;
 #     my $title  = "NetmemStatus";
@@ -75,27 +118,27 @@ while (1) {
 #     my $longtext = "See plot";
 #     Dmon::WriteQALog($config{flog},"eb3",5,$status,$title,$value,$longtext,'');
 #   };
-  sleep(1);
+sleep(1);
 }
 
 sub slurp_shm {
-  
-  my $infile = shift;
-  open (INFILE, "<", $infile) or return;
-  binmode (INFILE);
-  
-  my $data = {};
-  while (1) {
-    my $string;
-    my $rawval;
-    read (INFILE, $string, 32) or last;
-    ($string) = $string =~ m/^([\w]+)/;
-    last unless ($string);
-    read (INFILE, $rawval   ,  8) or last;
-    my $number = unpack("L",pack("a8",$rawval));
+    
+    my $infile = shift;
+    open (INFILE, "<", $infile) or return;
+    binmode (INFILE);
+    
+    my $data = {};
+    while (1) {
+	my $string;
+	my $rawval;
+	read (INFILE, $string, 32) or last;
+	($string) = $string =~ m/^([\w]+)/;
+	last unless ($string);
+	read (INFILE, $rawval   ,  8) or last;
+	my $number = unpack("L",pack("a8",$rawval));
 #     printf("%20s : %16d (0x%016X) \n",$string,$number,$number);
-    $data->{$string}=$number;
-  }
-  close(INFILE);
-  return $data;
+	$data->{$string}=$number;
+    }
+    close(INFILE);
+    return $data;
 }

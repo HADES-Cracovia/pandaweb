@@ -10,35 +10,38 @@
 # Hub  # Type #  lower 32 channels   #  upper 32 channels  # 
 #################################################################
 
+# Broken (lost config) Padiwa
+  0x2008   0         0xffff0000           0x0000ffff
+
 # FLASH
-  0x2021   0         0x00000000           0x00000000
-  0x2022   0         0x00000000           0x00000000
+# 0x2021   0         0x00000000           0x00000000
+# 0x2022   0         0x00000000           0x00000000
 
 # TOF1
   0x2014   0         0x0000ffff           0x00000000
   0x2015   0         0xffffffff           0x00000000
   0x2016   0         0xffffffff           0x00000000
-  0x2017   0         0x0000ffff           0x00000000
+# 0x2017   0         0x0000ffff           0x00000000
 
 # TOF2
 
   0x2018   0         0x0000ffff           0x00000000
   0x2019   0         0xffffffff           0x00000000
   0x201a   0         0xffffffff           0x00000000
-  0x201b   0         0x00000000           0x00000000
+# 0x201b   0         0x00000000           0x00000000
 
 # #Hodo
 
-  0x201c   0         0xffffffff           0x00000000
-  0x201d   0         0x00000000           0x00000000
+  0x201c   0         0x0000005f           0x00000000
+  0x201d   0         0xffffffff           0x00000000
   0x201e   0         0x00000000           0x00000000
   0x201f   0         0x00000000           0x00000000
 
 # EDD
-  0x202b   0         0x00000000           0x00000000
+# 0x202b   0         0x00000000           0x00000000
 
 #DISC-DIRC
-  0x2026   0         0xfffffff           0x0000ffff
+# 0x2026   0         0xffffffff           0x0000ffff
 
 # AUX
   0x202c   0         0xffffffff           0x00000000

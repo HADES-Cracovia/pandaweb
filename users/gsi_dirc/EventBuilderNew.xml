@@ -60,23 +60,30 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <NumBuffers value="1000"/>
     </MemoryPool>
 
+    <Thread name="UdpThread1" class="dabc::SocketThread" affinity="+0"/>
+
     <Module name="Combiner" class="hadaq::CombinerModule">    
         <!-- these parameters will force to create inputs/oputputs of module -->
-       <NumInputs value="13"/>
+       <NumInputs value="10"/>
        <NumOutputs value="2"/>
 
        <InputPort name="Input0"  url="hadaq://host:49999" thread="UdpThread1"/>
-       <InputPort name="Input1"  url="hadaq://host:50000" thread="UdpThread2"/>
-       <InputPort name="Input2"  url="hadaq://host:50001" thread="UdpThread3"/>
-       <InputPort name="Input3"  url="hadaq://host:50002" thread="UdpThread4"/>
+       <InputPort name="Input1"  url="hadaq://host:50000" thread="UdpThread1"/>
+       <InputPort name="Input2"  url="hadaq://host:50001" thread="UdpThread1"/>
+       <InputPort name="Input3"  url="hadaq://host:50002" thread="UdpThread1"/>
        <InputPort name="Input4"  url="hadaq://host:50003" thread="UdpThread1"/>
-       <InputPort name="Input5"  url="hadaq://host:50004" thread="UdpThread2"/>
-       <InputPort name="Input6"  url="hadaq://host:50005" thread="UdpThread3"/>
-       <InputPort name="Input7"  url="hadaq://host:50006" thread="UdpThread4"/>
+       <InputPort name="Input5"  url="hadaq://host:50004" thread="UdpThread1"/>
+       <InputPort name="Input6"  url="hadaq://host:50005" thread="UdpThread1"/>
+       <InputPort name="Input7"  url="hadaq://host:50006" thread="UdpThread1"/>
        <InputPort name="Input8"  url="hadaq://host:50007" thread="UdpThread1"/>
-       <InputPort name="Input9"  url="hadaq://host:50008" thread="UdpThread2"/>
-       <InputPort name="Input10" url="hadaq://host:50009" thread="UdpThread3"/>
-       <InputPort name="Input11" url="hadaq://host:50010" thread="UdpThread4"/>
+       <InputPort name="Input9"  url="hadaq://host:50008" thread="UdpThread1"/>
+
+
+       <InputPort name="Input7"  url="hadaq://host:50008" thread="UdpThread1"/>
+
+       <InputPort name="Input9"  url="hadaq://host:50008" thread="UdpThread1"/>
+       <InputPort name="Input10" url="hadaq://host:50009" thread="UdpThread1"/>
+       <InputPort name="Input11" url="hadaq://host:50010" thread="UdpThread1"/>
        <InputPort name="Input12" url="hadaq://host:50011" thread="UdpThread1"/>
 
        <InputPort name="Input13" url="hadaq://host:50013" thread="UdpThread2"/>
@@ -90,12 +97,12 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <InputPort name="Input21" url="hadaq://host:50021" thread="UdpThread2"/>
        <InputPort name="Input22" url="hadaq://host:50022" thread="UdpThread3"/>
 
-       <InputPort name="Input*" queue="30" urlopt="udpbuf=200000&mtu=64512&flush=2&observer=false&debug"/>
+       <InputPort name="Input*" queue="100" urlopt="udpbuf=200000&mtu=64512&flush=0.1&observer=false&maxloop=10"/>
 
        <!--  this is stream server for online monitoring, normally always on -->
        <OutputPort name="Output0" url="mbs://Stream:6789?iter=hadaq_iter&subid=0x1f"/>
 
-       <OutputPort name="Output1" url="hld:///d/may2015/dabc.hld?maxsize=1500"/>
+       <OutputPort name="Output1" url="hld:///d/june2015/dabc.hld?maxsize=1500"/>
 
 
        <!--  this is example of HLD file storage - local -->

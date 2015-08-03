@@ -41,7 +41,7 @@ while($a = <FLOG>) {
   if($readlines++ > 10000) {
     $readlines = 0;
     close(FLOG);
-    system "cat " . Dmon::DMONDIR . "/qalog >> " . $config{UserDirectory} . "/qalog_persist";
+    system "cat " . Dmon::DMONDIR . "/qalog >> " . $config{qalog_persistDirectory} . "/qalog_persist";
     open(FL,">".Dmon::DMONDIR."/qalog");
     close(FL);
     open(FLOG, "tail -F ".Dmon::DMONDIR."/qalog|");

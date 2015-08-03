@@ -5,6 +5,7 @@ use warnings;
 
 use Parallel::ForkManager;
 use Getopt::Long;
+use Data::Dumper;
 
 my $help;
 my $opt_invert;
@@ -34,7 +35,7 @@ my $endpoints = get_ranges(\@opt_endpoints);
 my $chains    = get_ranges(\@opt_chains);
 
 
-my $MAX_PROCESSES = 100;
+my $MAX_PROCESSES = 40;
 my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
 
 #my $padiwa_invert_setting = "0xffff";
@@ -43,10 +44,12 @@ my $str_endpoints= join " ", @opt_endpoints;
 
 print "current padiwa range: $str_endpoints\n";
 
-print "\tsetting padiwa invert-setting to $opt_invert ";
+print "\tsetting padiwa invert-setting to $opt_invert: ";
+
 execute_command("invert $opt_invert");
 $pm->wait_all_children;
 print "\n";
+
 
 #print "result of invert\n";
 #execute_command("invert", "verbose");
@@ -71,13 +74,18 @@ if($opt_stretch) {
     print "\n";
 }
 
-
+#sleep 2;
 exit;
 
 sub execute_command {
 
   (my $padiwa_command, my $verbosity) = @_;
 
+  #print Dumper $endpoints;
+  if(!@$endpoints) {
+      print "\nattention: no enpoints selected. Not doing anything!\n";
+      die;
+  }
   foreach my $cur_endpoint (@$endpoints) {
     my $pid = $pm->start and next;
     $cur_endpoint = sprintf "0x%4x", $cur_endpoint;
@@ -87,6 +95,8 @@ sub execute_command {
       my $c="/home/hadaq/trbsoft/daqtools/padiwa.pl $cur_endpoint $chain $padiwa_command";
       if (!$verbosity) { $c.= " >/dev/null" };
       #print $c . "\n";
+      #$c="/home/hadaq/trbsoft/daqtools/padiwa.pl  $cur_endpoint $chain temp";
+      #print "$c\n";
       my $res = qx($c); die "could not execute command $c" if $?;
       if($verbosity) { print "$res"; }
     }

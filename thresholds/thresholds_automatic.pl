@@ -34,9 +34,9 @@ my @valid_interval = (0x5000, 0xc000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
-my $sleep_time = 0.2;
+my $sleep_time = 0.3;
 my $accepted_dark_rate = 10;
-my $number_of_iterations = 30; # at least 15 are recommended
+my $number_of_iterations = 40; # at least 15 are recommended
 
 my $endpoint = 0x0303;
 my $mode = "padiwa";
@@ -468,6 +468,7 @@ currently only mode "padiwa" is implemented.
 
 polarity: tells what the status of bit 32 is, when the thresholds are set to 0
 32channel: when set the tool assums a TDC with 32 channels, leading and trailing channels use two channels
+finetune: tries to optimize the thresholds beginning with the current ones
 
 EOF
 

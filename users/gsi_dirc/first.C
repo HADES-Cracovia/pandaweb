@@ -48,7 +48,9 @@ void first()
 
       // specify reference channel
       //tdc->SetRefChannel(0, 0, 0x202c, 20000,  9597E6., 9603E6., true);
-      tdc->SetRefChannel(0, 0, 0x2001, 20000,  -100., 100., true);
+      if(cnt==0) {
+	tdc->SetRefChannel(0, 0, 0x2001, 20000,  -100., 100., true);
+      }
       //tdc->SetRefChannel(3, 1, 0xffff, 20000,  -10., 10., true);
       //      continue;
 
@@ -69,15 +71,17 @@ void first()
 	tdc->SetRefChannel(7, 7, 0x2000, 20000,  -20., 20., true);
       }
 
-      if (tdc==4) continue;
+      if (cnt>1) continue;
 
       // specify reference channel
+
+      /*
       tdc->SetRefChannel(0, 0, 0x202d, 20000,  -100., 100., true);
       tdc->SetRefChannel(1, 0, 0xffff, 20000,  -800., 800., true);
       tdc->SetRefChannel(2, 0, 0xffff, 20000,  -200., 200., true);
       tdc->SetRefChannel(3, 0, 0xffff, 20000,  -200., 200., true);
       tdc->SetRefChannel(4, 0, 0xffff, 20000,  -200., 200., true);
-
+      */
 
       // for old FPGA code one should have epoch for each hit, no longer necessary
       // tdc->SetEveryEpoch(true);
