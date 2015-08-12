@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 ### Change THIS!
-my $required_endpoints = 50;
+my $required_endpoints = 30;
 
 
 my $max_counter = 10;

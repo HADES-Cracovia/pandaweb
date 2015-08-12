@@ -27,14 +27,14 @@ my $map = {
 	   2  =>  { trb =>  73, sys => "MCP 02" },
 	   3  =>  { trb =>  74, sys => "MCP 03" },
 	   4  =>  { trb => 104, sys => "MCP 04" },
-	   5  =>  { trb =>  97, sys => "TOF 1"  },
-	   6  =>  { trb =>  59, sys => "TOF 2"  },
-	   7  =>  { trb =>  89, sys => "HODO"   },
-	   8  =>  { trb =>  57, sys => "AUX"    },
+#	   5  =>  { trb =>  97, sys => "TOF 1"  },
+#	   6  =>  { trb =>  59, sys => "TOF 2"  },
+#	   7  =>  { trb =>  89, sys => "HODO"   },
+	   5  =>  { trb =>  57, sys => "AUX"    },
 	   -1 =>  { trb =>  56, sys => "CTS"    },
 	  };
 
-my $MAX_PROCESSES=50;
+my $MAX_PROCESSES=30;
 my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
 my $maximal_reboot_counter = 4;
 my $number_of_reboots_done = 0;

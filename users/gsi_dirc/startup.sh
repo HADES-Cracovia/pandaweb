@@ -59,14 +59,14 @@ trbcmd w 0xfe4c 0xc803 0x0000ffff ## channel 33-64 enable
 trbcmd w 0xfe4c 0xc804 0x0000007c ## data transfer limit
 
 # TOFs time windows
-trbcmd w 0x2014 0xc801 0x8000008c
-trbcmd w 0x2015 0xc801 0x8000008c
-trbcmd w 0x2016 0xc801 0x8000008c
-trbcmd w 0x2018 0xc801 0x8000008c
-trbcmd w 0x2019 0xc801 0x8000008c
-trbcmd w 0x201a 0xc801 0x8000008c
-trbcmd w 0x201c 0xc801 0x8000008c
-trbcmd w 0x201d 0xc801 0x8000008c
+#trbcmd w 0x2014 0xc801 0x8000008c
+#trbcmd w 0x2015 0xc801 0x8000008c
+#trbcmd w 0x2016 0xc801 0x8000008c
+#trbcmd w 0x2018 0xc801 0x8000008c
+#trbcmd w 0x2019 0xc801 0x8000008c
+#trbcmd w 0x201a 0xc801 0x8000008c
+#trbcmd w 0x201c 0xc801 0x8000008c
+#trbcmd w 0x201d 0xc801 0x8000008c
 
 
 # special Matthias TDCs
@@ -130,10 +130,10 @@ prepare_padiwas_invert_leds.pl --endpoints=0x2014-0x201f --chains=0..2 --invert=
 # turn off two unused TDCs in HODO
 
 # turn off two unused TDCs in TOF1
-switchport.pl 0x8005 3 off
+#switchport.pl 0x8005 3 off
 
 # turn off two unused TDCs in TOF1
-switchport.pl 0x8006 3 off
+#switchport.pl 0x8006 3 off
 
 
 # timeouts
@@ -163,23 +163,25 @@ echo "write barrel dirc thresholds"
 
 #./write_thresholds.pl padiwa_threshold_results_sequential_2015_06_25_offset_40_a.log -o 160
 #./write_thresholds.pl padiwa_threshold_results_sequential_2015_06_27_offset_40_a.log -o 160
-./write_thresholds.pl padiwa_threshold_results_sequential_2015_07_04_offset_40_a.log -o 160
+#./write_thresholds.pl padiwa_threshold_results_sequential_2015_07_04_offset_40_a.log -o 160
+./write_thresholds.pl padiwa_threshold_results_sequential_2015_08_11_offset_40_a.log -o 160
 
-sleep 2
 
-echo "write mcp and scitil thresholds"
+#sleep 2
+
+#echo "write mcp and scitil thresholds"
 #MCP-TOF, SciTils
-./write_thresholds.pl mcptof_mcpout_zero.log -o 0 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_pixels_zero.log -o 0 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_scitil_noatt_zero.log -o 0 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_hodo_zero.log -o 0 >> /dev/null # =7 mV before amp
-./write_thresholds.pl mcptof_chanmerge_mcpnoamp_zero.log -o 0 >> /dev/null # =7 mV before amp
-sleep 2
-./write_thresholds.pl mcptof_mcpout_zero.log -o 400 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_pixels_zero.log -o 1500 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_scitil_noatt_zero.log -o 400 >> /dev/null # =10 mV before amp
-./write_thresholds.pl mcptof_hodo_zero.log -o 1000 >> /dev/null # =7 mV before amp
-./write_thresholds.pl mcptof_chanmerge_mcpnoamp_zero.log -o 400 >> /dev/null # =7 mV before amp
+#./write_thresholds.pl mcptof_mcpout_zero.log -o 0 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_pixels_zero.log -o 0 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_scitil_noatt_zero.log -o 0 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_hodo_zero.log -o 0 >> /dev/null # =7 mV before amp
+#./write_thresholds.pl mcptof_chanmerge_mcpnoamp_zero.log -o 0 >> /dev/null # =7 mV before amp
+#sleep 2
+#./write_thresholds.pl mcptof_mcpout_zero.log -o 400 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_pixels_zero.log -o 1500 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_scitil_noatt_zero.log -o 400 >> /dev/null # =10 mV before amp
+#./write_thresholds.pl mcptof_hodo_zero.log -o 1000 >> /dev/null # =7 mV before amp
+#./write_thresholds.pl mcptof_chanmerge_mcpnoamp_zero.log -o 400 >> /dev/null # =7 mV before amp
 
 
 #echo "led off"
