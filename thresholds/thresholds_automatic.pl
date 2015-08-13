@@ -236,10 +236,10 @@ while ($number_of_steps < $number_of_iterations ||
        my $direction = $default_direction;
        if ($static_value == ($polarity ? 0 : 1)) {
          $interval_step = int($interval_step/1.2);
-         $direction = -1*direction;;
+         $direction = -1 * $direction;
        } elsif ($hit_diff > $accepted_dark_rate ) {
          $interval_step = int($interval_step/1.2);
-         $direction = -1*direction;;
+         $direction = -1 * $direction;
        } else {
          $interval_step = int($interval_step/1.2);
        }
