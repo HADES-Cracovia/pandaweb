@@ -270,7 +270,7 @@ while ($number_of_steps < $number_of_iterations ||
 
 
 
-map { $_-= $offset } @best_thresh;
+map { $_-= ($offset * $default_direction) } @best_thresh;
 write_thresholds($mode, $chain, \@best_thresh, $channel_to_set);
 
 my $uid;
