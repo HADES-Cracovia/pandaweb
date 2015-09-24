@@ -71,6 +71,7 @@ var new_commands = new Array();
 var ser_dev = getParameterByName("device");
 var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
+var speed = getParameterByName("speed");
 
 function set_v() {
 	var value = parseFloat(document.getElementById("form_v").value);
@@ -120,7 +121,7 @@ function communication() {
   cmds = new_commands.join('&');
   if (cmds != "" || document.getElementById("showreadings").checked) {
     clearInterval(updateTask);
-    getdata('pwr.pl?'+ser_dev+'&'+type+'&'+cmds,update);
+    getdata('pwr.pl?'+ser_dev+'&'+type+"&"+speed+'&'+cmds,update);    
     }
 	new_commands = new Array();
 }

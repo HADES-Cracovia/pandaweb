@@ -1,0 +1,73 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="Pulser"
+              address="a000"
+              >
+  <description>Pulse generator</description>
+
+  <group name="GlobalConfig" purpose="config" address="0000" size="128" mode="rw" continuous="false">
+    <description>Configuration for all channels</description>
+      <register name="ChannelEnable" address="0000"  mode="rw" >
+         <description>Enables individual outputs</description>
+         <field  name="EnKelFirst16" start="0" bits="16" format="bitmask" noflag="true">
+         </field>
+         <field  name="EnKelOdd" start="16" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="EnKelEven" start="17" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="En34pinOdd" start="18" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="En34pinEven" start="19" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="EnAna0" start="20" bits="5" format="bitmask" noflag="true">
+         </field>
+         <field  name="EnAna1" start="25" bits="5" format="bitmask" noflag="true">
+         </field>
+      </register>
+      <register name="ChannelInvert" address="0001"  mode="rw" >
+         <description>Invert individual outputs - negative pulse, logical 1 when idle</description>
+         <field  name="InvKelFirst16" start="0" bits="16" format="bitmask" noflag="true">
+         </field>
+         <field  name="InvKelOdd" start="16" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="InvKelEven" start="17" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="Inv34pinOdd" start="18" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="Inv34pinEven" start="19" bits="1" format="bitmask" noflag="true">
+         </field>
+         <field  name="InvAna0" start="20" bits="5" format="bitmask" noflag="true">
+         </field>
+         <field  name="InvAna1" start="25" bits="5" format="bitmask" noflag="true">
+         </field>
+      </register>
+      <register name="AnalogConfig" address="0040" mode="rw" repeat="2">
+         <description>Setting for the analog pulser.</description>
+         <field  name="Cap39pF" start="0" bits="1" format="bitmask" noflag="true"></field>      
+         <field  name="Cap56pF" start="1" bits="1" format="bitmask" noflag="true"></field>      
+         <field  name="Cap68pF" start="2" bits="1" format="bitmask" noflag="true"></field>      
+         <field  name="Cap82pF" start="3" bits="1" format="bitmask" noflag="true"></field>    
+<!--          <field  name="Outp1" start="8" bits="1" format="bitmask" noflag="true"></field>       -->
+<!--          <field  name="Outp2" start="9" bits="1" format="bitmask" noflag="true"></field>       -->
+       </register>
+  </group>
+
+  <group name="PulserConfig" purpose="config" address="0080" size="96" mode="rw" continuous="true">
+    <description>Settings for each pulser channel</description>  
+    <register name="PulserPeriod" address="0000" mode="rw" repeat="30" >
+      <description>The period of the pulser, given in multiples of the 240 MHz clock cycle. Values below 15 ns are not allowed.</description>
+      <field  name="PulserPeriod" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
+    </register>    
+    <register name="PulseWidth" address="0020" mode="rw" repeat="30" >
+      <description>The width of the pulse, given in multiples of the 960 MHz clock cycle</description>
+      <field  name="PulseWidth" start="0" bits="24" format="unsigned" noflag="true" scale="1.0417" unit="ns" />
+    </register> 
+    <register name="PulserOffset" address="0040" mode="rw" repeat="30" >
+      <description>The offset of the pulser channel, given in multiples of the 240 MHz clock cycle</description>
+      <field  name="PulserOffset" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
+    </register> 
+  </group>
+
+</TrbNetEntity>
+

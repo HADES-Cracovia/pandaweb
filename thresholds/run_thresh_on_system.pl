@@ -19,8 +19,10 @@ my $opt_offset = 0;
 my $opt_polarity = 0;
 my $opt_32channel = 0;
 my $opt_finetune = false;
+my $opt_sequential = false;
 my $opt_verb;
 my $tool = "./thresholds_automatic.pl";
+#my $tool = "./thresholds_automatic_jan.pl";
 
 GetOptions ('h|help'        => \$opt_help,
             'e|endpoints=s' => \@opt_endpoints,
@@ -29,6 +31,7 @@ GetOptions ('h|help'        => \$opt_help,
             'p|polarity=i'  => \$opt_polarity,
             '32|32channel'  => \$opt_32channel,
             'f|finetune'    => \$opt_finetune,
+            's|sequential'    => \$opt_sequential,
             't|tool=s'      => \$tool,
             'v|verb'        => \$opt_verb);
 
@@ -71,6 +74,14 @@ foreach my $endpoint (@$endpoints) {
     my $endpoint = sprintf("0x%04x", $endpoint);
     $command = "$tool -e $endpoint -o $opt_offset -c $chain -p $opt_polarity $opt_32channel $opt_finetune";
     print "command: $command\n";
+
+    if($opt_sequential) {
+	my $kill_command = "./write_thresholds.pl padiwa_threshold_results_20150625_14_21_all.log -o -10000";
+	qx($kill_command);
+	qx($command);
+	next;
+    }
+
     my $pid = fork();
     if($pid==0) { #child
       my $res = qx($command);
@@ -145,6 +156,7 @@ example:
 run_threshold_on_system.pl --endpoints=0x301-0x308,0x310..0x315,0x380 --chains=0..3 --offset=4 --polarity=0
 will run for endpoints 0x301-0x308 and 0x310-0x315 and 0x380 for all chains (0..3)
 
+read the code....
 
 EOF
 

@@ -1,0 +1,118 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="ADC_CFD"
+              address="a000"
+              >
+  <description>Control and Status registers related to ADC AddOn, CFD variant</description>
+
+  <group name="Control"
+         address="0000"  size="7"  purpose="config" mode="rw" continuous="false">
+    <description>Configuration registers</description>
+    <register name="BufferControl" address="0001" >
+      <description>Stop writing to buffers</description>
+      <field  name="BaselineOn"  start="4"   bits="1"  format="boolean"  errorflag="true">
+        <description>Baseline calculation always on (not just when no signal found)</description>
+      </field>
+    </register>
+  </group>
+
+  <group name="BufferConfig"
+         address="0010"  size="16"  purpose="config" mode="rw" continuous="false">
+    <description>Configuration of buffer handling</description>
+    <register name="DebugSamples" address="0000" >
+      <description>Number of samples to output in DebugMode>0</description>
+      <field  name="DebugSamples" start="0"   bits="8"  format="unsigned"  noflag="true"/>
+    </register>
+
+    <register name="TriggerDelay" address="0001" >
+      <description>Delay of trigger for event readout</description>
+      <field  name="TriggerDelay" start="0"   bits="12"  format="unsigned"  unit="ns" scale="10"  noflag="true"/>
+    </register>
+
+    <register name="InputSetting" address="0003" >
+      <description>Settings of trigger signal generation</description>
+      <field  name="InputThreshold" start="0"   bits="10"  format="unsigned" noflag="true" >
+        <description>Offset from the calculated baseline to be reached for signal detection</description>
+      </field>
+      <field name="PolarityInvert" start="17" bits="1" format="bitmask" noflag="true">
+        <description>Selects positive (unset) or negative (set) signal inputs.</description>
+      </field>
+    </register>
+
+    <register name="BaselineAvg" address="0006" >
+      <description>Averaging time for baseline calculation. 2**N samples are taken. Baseline is calculated from buffer output data, triggered events are suppressed.</description>
+      <field  name="BaselineAvg" start="0"   bits="5"  format="unsigned" noflag="true" />
+    </register>
+
+    <register name="TriggerEnable0" address="0007" >
+      <description>Trigger enable for channels 31 - 0</description>
+      <field  name="TriggerEnable0" start="0"   bits="32"  format="bitmask" noflag="true" />
+    </register>
+    <register name="TriggerEnable1" address="0008" >
+      <description>Trigger enable for channels 47 - 32</description>
+      <field  name="TriggerEnable1" start="0"   bits="16"  format="bitmask" noflag="true" />
+    </register>
+    <register name="WordChecker" address="0009" >
+      <description>Check incoming words for validity. Two accepted words can be specified.</description>
+      <field  name="Word1Check" start="0"   bits="10"   format="hex" noflag="true" />
+      <field  name="Word2Check" start="16"   bits="10"  format="hex" noflag="true" />
+      <field  name="WordCheckEnable" start="31"   bits="1"  format="boolean" />
+    </register>
+    <register name="ChannelDisable0" address="000a" >
+      <description>Channel disable for channels 31 - 0</description>
+      <field  name="ChannelDisable0" start="0"   bits="32"  format="bitmask" noflag="true" />
+    </register>
+    <register name="ChannelDisable1" address="000b" >
+      <description>Channel disable for channels 47 - 32</description>
+      <field  name="ChannelDisable1" start="0"   bits="16"  format="bitmask" noflag="true" />
+    </register>
+    <register name="DebugMode" address="000c" >
+      <description>Debug data processing</description>
+      <field  name="DebugMode" start="0"   bits="2"  format="enum" noflag="true" >
+        <enumItem value="0">Normal CFD mode</enumItem>
+        <enumItem value="1">Debug raw input</enumItem>
+        <enumItem value="2">Debug subtracted input</enumItem>
+        <enumItem value="3">Debug CFD signal</enumItem>
+      </field>
+    </register>
+    <register name="CFD" address="000d" >
+      <description>Constant Fraction Discriminator config</description>
+      <field  name="CFDIntegrateWindow" start="0"   bits="8"  format="unsigned" noflag="true" />
+      <field  name="CFDDelay" start="8"   bits="5"  format="unsigned" noflag="true" />
+      <field  name="CFDMult" start="13"   bits="4"  format="unsigned" noflag="true" />
+      <field  name="CFDMultDly" start="17"   bits="4"  format="unsigned" noflag="true" />
+    </register>
+  </group>
+
+  <group name="InputHandler"
+         address="0030"  size="12"  purpose="status" mode="r" continuous="true">
+    <register name="WordCount" address="0000" repeat="12" >
+      <description>Counter of words from ADC</description>
+      <field  name="WordCount" start="4"   bits="28"  format="unsigned" noflag="true" rate="true" />
+    </register>
+  </group>
+
+  <group name="LastValues" address="0800"  size="48"  purpose="status" mode="r" continuous="true">
+    <register name="LastValue" address="0000" repeat="48" >
+      <description>Last value read from ADC</description>
+      <field  name="LastValue" start="0"   bits="10"  format="unsigned" noflag="true" />
+    </register>
+  </group>
+  
+  <group name="Baselines" address="0840"  size="48"  purpose="status" mode="r" continuous="true">
+    <register name="Baseline" address="0000" repeat="48" >
+      <description>The current calculated baseline of the ADC value</description>
+      <field  name="Baseline" start="0"   bits="18"  format="unsigned" noflag="true" />
+    </register>
+  </group>
+  
+  <group name="InvalidWords_group" address="08C0"  size="48"  purpose="status" mode="r" continuous="true">
+    <register name="InvalidWords" address="0000" repeat="48" >
+      <description>Number of words not matching the given pattern </description>
+      <field  name="InvalidWords" start="0"   bits="32"  format="unsigned" errorflag="true" rate="true" />
+    </register>
+  </group>
+
+
+</TrbNetEntity>

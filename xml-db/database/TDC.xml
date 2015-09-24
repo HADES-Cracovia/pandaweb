@@ -35,20 +35,24 @@
         <description>Debug word of the TDC readout FSM</description>
         <enumItem value="1">IDLE</enumItem>
         <enumItem value="2">WAIT_FOR_TRG_WIND_END</enumItem>
-        <enumItem value="3">RD_CH</enumItem>
-        <enumItem value="4">WAIT_FOR_LVL1_TRG_A</enumItem>
-        <enumItem value="5">WAIT_FOR_LVL1_TRG_B</enumItem>
-        <enumItem value="6">WAIT_FOR_LVL1_TRG_C</enumItem>
-        <enumItem value="7">SEND_STATUS</enumItem>
-        <enumItem value="8">SEND_TRG_RELEASE_A</enumItem>
-        <enumItem value="9">SEND_TRG_RELEASE_B</enumItem>
-        <enumItem value="F">OTHERS</enumItem>
+        <enumItem value="3">WAIT_FOR_BUFFER_TRANSFER</enumItem>
+        <enumItem value="4">RD_CH</enumItem>
+        <enumItem value="5">UNUSED</enumItem>
+        <enumItem value="6">WAIT_FOR_LVL1_TRG_A</enumItem>
+        <enumItem value="7">WAIT_FOR_LVL1_TRG_B</enumItem>
+        <enumItem value="8">WAIT_FOR_LVL1_TRG_C</enumItem>
+        <enumItem value="9">SEND_STATUS</enumItem>
+        <enumItem value="A">SEND_TRG_RELEASE_A</enumItem>
+        <enumItem value="B">SEND_TRG_RELEASE_B</enumItem>
+        <enumItem value="C">SEND_TRG_RELEASE_C</enumItem>
+        <enumItem value="0">OTHERS</enumItem>
       </field>
       <field name="WriteoutFSM" start="4"   bits="4" format="enum">
         <description>Debug word of the TDC writeout FSM</description>
         <enumItem value="1">IDLE</enumItem>
         <enumItem value="2">WR_CH</enumItem>
-        <enumItem value="F">OTHERS</enumItem>
+        <enumItem value="3">WAIT</enumItem>
+        <enumItem value="0">OTHERS</enumItem>
       </field>
       <field name="ChannelCount" start="8" bits="8" format="unsigned">
         <description>Number of implemented channels</description>
@@ -66,11 +70,35 @@
       </field>
     </register>
 
-<!--    <memory name="EmptyChannels" address="0001" size="2" mode="w" purpose="trigger"> -->
-<!--      <description>Empty the signals/hits of the specific channel. LSB               -->
-<!--      is channel 1.</description>                                                    -->
-<!--      <field name="EmptyChannels" start="0" bits="64" format="bitmask" />            -->
-<!--    </memory>                                                                        -->
+    <register name="DebugRegister" address="0001" purpose="status">
+      <description>Various state machine states.</description>                                                    
+      <field name="TriggerHandlerFSM" start="0"   bits="4" format="enum">
+        <description>Debug word of the Trigger Handler FSM</description>
+        <enumItem value="1">IDLE</enumItem>
+        <enumItem value="2">UNUSED</enumItem>
+        <enumItem value="3">COUNT</enumItem>
+        <enumItem value="4">COUNT_CALIBRATION</enumItem>
+        <enumItem value="5">VALIDATE_TRIGGER</enumItem>
+        <enumItem value="6">WIN_END</enumItem>
+        <enumItem value="7">MISSING_REFERENCE_TIME</enumItem>
+        <enumItem value="8">WAIT_NEXT_TRIGGER</enumItem>
+        <enumItem value="0">OTHERS</enumItem>
+      </field>
+    </register>
+
+    <register name="TriggerTime" address="0002">
+      <description>Arrival time of the last valid timing trigger at the reference channel with
+        granularity of 5 ns</description>
+      <field name="TriggerTime" start="0" bits="32" format="unsigned" unit="ns" scale="5" rate="1" />
+    </register>
+
+    <!-- <register name="TriggerTime" address="0002" purpose="status"> -->
+    <!--   <description>Value of the last valid timing trigger time</description> -->
+    <!--   <field name="ValidTimingTriggerTime" start="0" bits="32" format="unsigned" unit="ns" scale="5"> -->
+    <!--     <description>Arrival time of the valid timing trigger at the reference channel with -->
+    <!--     granularity of 5 ns</description> -->
+    <!--   </field> -->
+    <!-- </register> -->
 
     <register name="TriggerWindowStatus" address="0003" purpose="status">
       <description>Status of the TriggerWindow feature</description>
@@ -180,7 +208,7 @@
   <!-- TDC control registers                     -->
   <!--===========================================-->
   <group name="Control"
-         address="0800" purpose="config"  mode="rw"  continuous="true" size="5">
+         address="0800" purpose="config"  mode="rw"  continuous="true" size="7">
     <register name="BasicControl" address="0000">
       <description>Basic control for all channels</description>
       <field name="DebugOutput" start="0" bits="4" format="enum">
@@ -191,15 +219,20 @@
         <description>Enables the Debug Mode. Different statistics and
         debug words are sent after every trigger</description>
       </field>
+      <field name="LightMode" start="5" bits="1" format="boolean" invertflag="true">
+        <description>Enables the Light Mode. No header and reference channel information 
+        is sent if there are no recorded hits. Works only in the free streaming mode 
+        (trigger window off)</description>
+      </field>
       <field name="ResetCounters" start="8" bits="1" purpose="trigger" mode="w" format="boolean">
         <description>Resets the internal counters</description>
       </field>
-      <field name="TriggerMode" start="12" bits="1" mode="rw" format="enum">
-        <description>Select the trigger mode: With trigger mode or
-        trigger-less mode</description>
-        <enumItem value="0">TRIGGERED</enumItem>
-        <enumItem value="1">TRIGGERLESS</enumItem>
-      </field>
+<!--       <field name="TriggerMode" start="12" bits="1" mode="rw" format="enum"> -->
+<!--         <description>Select the trigger mode: With trigger mode or           -->
+<!--         trigger-less mode</description>                                      -->
+<!--         <enumItem value="0">TRIGGERED</enumItem>                             -->
+<!--         <enumItem value="1">TRIGGERLESS</enumItem>                           -->
+<!--       </field>                                                               -->
       <field name="ResetCoarseCounter" start="13" bits="1" mode="rw" format="boolean">
         <description>Used to reset the coarse counters. Setting this bit signals for the coarse counter reset but the action will take place with the arrival of the next valid trigger in order to synchronise the coarse counters in a large system.</description>
       </field>
@@ -229,12 +262,19 @@
       <field name="ChannelEnable" start="0" bits="32" format="bitmask" />
     </register>
 
-    <register name="DataTransferLimit" address="0004">
-      <description>Configuration of the data transfer limit feature</description>
-      <field name="MaxWords" start="0" bits="8" format="unsigned">
-        <description>Defines number of data words per channel to be
-        read-out. Set it to 0x80 for full readout.</description>
+    <register name="ChannelRingBufferSize" address="0004">
+      <description>Defines the size of the channel ring buffer size</description>
+      <field name="MaxWords" start="0" bits="7" format="unsigned">
+        <description>Defines the size of the channel ring buffer size. 
+        Maximum value 124.</description>
       </field>
     </register>
+
+    <register name="ChannelInvert" address="0005" repeat="2">
+      <description>Inverts the polarity of the signals/hits of the specific channel. LSB is
+      channel 1.</description>
+      <field name="ChannelInvert" start="0" bits="32" format="bitmask" />
+    </register>
+
   </group>
 </TrbNetEntity>

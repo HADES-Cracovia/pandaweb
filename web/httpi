@@ -86,7 +86,7 @@ $VERSION = "1.7 (Demonic/Linux)";
 	 "bin" => "application/octet-stream");
 
 # comment in to enable logs
-$logfile = "./access.log";
+#$logfile = "./access.log";
 $path = "./htdocs";
 $sockaddr = 'S n a4 x8';
 

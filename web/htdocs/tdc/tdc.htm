@@ -33,6 +33,9 @@
     <td title="Show control buttons for channel enable/disable">Enable
     <td title="Show control buttons for channel enable/disable"><input onChange="setValues()" type="checkbox" id="form_enable" name="enable" value="1">
 
+<tr><td title="Enable display of hit rates for deactive channels.">Hit Rate Status
+    <td title="Enable display of hit rates for deactive channels."><input onChange="setValues()" type="checkbox" id="form_hitrate" name="hitrate" value="1">&nbsp;
+
 <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
         <td title="Reset TDC counters"><input type="button" onClick="resetCounters()" value="RESET">
 
@@ -45,29 +48,28 @@
 
 
 <script language="javascript">
-var updaterate = document.getElementById("form_rate").value;
-var updaterate2= document.getElementById("form_rate2").value;
-var filter     = document.getElementById("form_filter").value;
-var board      = document.getElementById("form_board").value;
-var channels   = document.getElementById("form_channels").value;
-var split      = document.getElementById("form_split").checked?"-4":"";
-var differences= document.getElementById("form_diff").checked;
-var showstatus = document.getElementById("form_status").checked;
-var showenable = document.getElementById("form_enable").checked;
+var updaterate  = document.getElementById("form_rate").value;
+var updaterate2 = document.getElementById("form_rate2").value;
+var filter      = document.getElementById("form_filter").value;
+var board       = document.getElementById("form_board").value;
+var channels    = document.getElementById("form_channels").value;
+var split       = document.getElementById("form_split").checked?"-4":"";
+var differences = document.getElementById("form_diff").checked;
+var showstatus  = document.getElementById("form_status").checked;
+var showenable  = document.getElementById("form_enable").checked;
+var showhitrate = document.getElementById("form_hitrate").checked;
 var oldvalues = {};
 
 var regstatus = "c100-19";
 var regctrl = "c800-5";
 
-var regstatusnames = new Array("debug_rd<br>debug_wr<br>tdc version<br>channels<br>ref input","","","",
+var regstatusnames = new Array("tdc version<br>channels<br>ref input","","","",
                          "valid trg","valid tmg trg","valid notmg","invalid trg","multi trg",
                          "spurious trg","wrong rdo","spikes","idle time","wait time","",
                          "releases","rdo time","timeout number","data finished number");
-var regctrlnames = new Array("Logic Anal.<br>Debug Mode<br>Run Mode<br>Calib. Prescaler",
+var regctrlnames = new Array("Logic Anal.<br>Debug Mode<br>Calib. Prescaler",
        "window en.<br>window bef.<br>window aft.","act chan 1","act chan 2","data limit");                         
 
-var tooltiptriggerless = "\"Current run mode is triggerless. The epoch and coarse counters are never reset.\"";
-var tooltiptriggered   = "\"Current run mode is triggered. The epoch and coarse counters are reset after every trigger window.\"";
 var tooltipstatus      = "\"Green\tpositive pulse \nRed\t\tnegative pulse\"";
        
 
@@ -135,16 +137,21 @@ function update(data) {
     o += "<tr><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
-        if(differences) {
-          val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
-          if (val < 0) {
-            val += 0x80000000;
+        enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
+        if(showhitrate == 0 && enabled == 0 && i != 1) 
+          val = 0x0;
+        else {
+          if(differences) {
+            val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
+            if (val < 0) {
+              val += 0x80000000;
+              }
+            }
+          else {
+            val = c[j][i] & 0x7FFFFFFF;
             }
           }
-        else {
-          val = c[j][i] & 0x7FFFFFFF;
-          }
-        if(showstatus)
+        if(showstatus && enabled)
           o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
         else
           o += "<td>";
@@ -163,15 +170,16 @@ function update(data) {
   }
   
 function setValues() {
-  updaterate = document.getElementById("form_rate").value;
-  updaterate2= document.getElementById("form_rate2").value;
-  board      = document.getElementById("form_board").value;
-  filter     = document.getElementById("form_filter").value;
-  split      = document.getElementById("form_split").checked?"-4":"";
-  differences= document.getElementById("form_diff").checked;
-  showstatus = document.getElementById("form_status").checked;
-  channels   = document.getElementById("form_channels").value;
-  showenable = document.getElementById("form_enable").checked;
+  updaterate  = document.getElementById("form_rate").value;
+  updaterate2 = document.getElementById("form_rate2").value;
+  board       = document.getElementById("form_board").value;
+  filter      = document.getElementById("form_filter").value;
+  split       = document.getElementById("form_split").checked?"-4":"";
+  differences = document.getElementById("form_diff").checked;
+  showstatus  = document.getElementById("form_status").checked;
+  channels    = document.getElementById("form_channels").value;
+  showenable  = document.getElementById("form_enable").checked;
+  showhitrate = document.getElementById("form_hitrate").checked;
   settimers(200,50);
   
   }
@@ -271,7 +279,8 @@ function updatestatregs(data) {
         val = c[j][i+1];
         o += "<td>";
         if(i==0) {
-          o += (val&0xF).toString(16)+"<br>"+((val&0xF0)>>4).toString(16)+"<br>"+((val&0x0e000000)>>25)+"."+((val&0x1e00000)>>21)+"."+((val&0x1e0000)>>17)+"<br>"+((val&0xff00)>>8)+"<br>";
+	  o += ((val&0x0e000000)>>25)+"."+((val&0x1e00000)>>21)+"."+((val&0x1e0000)>>17)+"<br>"+((val&0xff00)>>8)+"<br>";
+
           if((val>>16 & 1)) 
             o += "<span class=\"over\" style=\"background:#faa;display:block;width:100%;float:right\">";
           if((val>>16 & 1))
@@ -320,10 +329,6 @@ function updatectrlregs(data) {
         o += "<td>";
         if(i==0) {
           o += (val&0xF)+"<br>"+((val&0x10)>>4)+"<br>";
-          if(val>>12 & 1)
-            o += "<input title="+tooltiptriggerless+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',0)\" value=\"Triggerless\">";
-          else
-            o += "<input title="+tooltiptriggered+" class=\"triggerbutton\" type=\"button\" onClick=\"setRunMode(this,'"+c[j][0]+"',1)\" value=\"Triggered\">";
           o += "<input onChange=\"setCalibPrescaler(this,'"+c[j][0]+"')\" type=\"text\" id=\"calibprescaler\" name=\"calibprescaler\" class=\"small\" maxlength=\"4\" value=\""+(val>>28 & 0xF)+"\">";
         }
         else if(i==1) {
@@ -344,13 +349,9 @@ function updatectrlregs(data) {
           if(i==3) enableGroup[j][1] = val*1.;
           }
         else if(i==4) {
-	  if((val&0xFF)==0x80)
-            o += (val&0xFF); <!-- "<input onChange=\"setDataLimit(this,'"+c[j][0]+"')\" type=\"text\" id=\"datalimit\" name=\"datalimit\" class=\"small\" maxlength=\"4\" value=\""+val+"\">"; -->
-	  else{
-            o += (val&0xFF);
-
-            o += "<font color=#ff0000> <strong><br>Sure about this?</strong> </font> ";
-            }
+	  o += "<input onChange=\"setDataLimit(this,'"+c[j][0]+"')\" type=\"text\" id=\"datalimit\" name=\"datalimit\" class=\"small\" maxlength=\"4\" value=\""+val+"\">";
+	  if((val&0xFF)>0x7c)
+            o += "<font color=#ff0000> <strong><br>The maximium buffer size may be 124</strong> </font> ";
 	  }
 	else {
           o += val;

@@ -28,6 +28,8 @@ trbcmd s 0xf700000337df5428 2 0x0202
 trbcmd s 0xe300000337def328 3 0x0203
 trbcmd s 0xe100000337dff928 5 0x8000
 
+trbcmd w 0x8000 0x00c5 0x50ff
+
 ##### Ethernet and UDP #######
 trbcmd w 0x8000 0x8300 0x8000
 trbcmd w 0x8000 0x8301 0x00020001
@@ -77,30 +79,30 @@ trbcmd w 0x8000 0x8108 0x0578
 
 ##### ADC ######
 FPGA="0x0200"
-trbcmd w $FPGA 0xa010 0xff        #Buffer depth
-trbcmd w $FPGA 0xa011 8           #Samples after trigger
-trbcmd w $FPGA 0xa012 1           #Process blocks
-trbcmd w $FPGA 0xa013 0x10028     #Trigger offset, invert
-trbcmd w $FPGA 0xa014 40          #Readout offset
-trbcmd w $FPGA 0xa015 0           #Downsampling
-trbcmd w $FPGA 0xa016 8           #Baseline
-trbcmd w $FPGA 0xa017 0           #Trigger Enable ch31-00
-trbcmd w $FPGA 0xa018 0           #Trigger Enable ch47-32
-trbcmd w $FPGA 0xa01a 0xfffffffe  #Channel disable ch31-00, all channels except ch0
-trbcmd w $FPGA 0xa01b 0xffff      #Channel disable ch47-32
-trbcmd w $FPGA 0xa01c 0           #Processing mode 0=BlockMode, 1=PSA, 2=CFD
-trbcmd w $FPGA 0xa01d 0x340       #CFD delay is 3, CFD window 64=0x40
+#trbcmd w $FPGA 0xa010 0xff        #Buffer depth
+#trbcmd w $FPGA 0xa011 8           #Samples after trigger
+#trbcmd w $FPGA 0xa012 1           #Process blocks
+#trbcmd w $FPGA 0xa013 0x10028     #Trigger offset, invert
+#trbcmd w $FPGA 0xa014 40          #Readout offset
+#trbcmd w $FPGA 0xa015 0           #Downsampling
+#trbcmd w $FPGA 0xa016 8           #Baseline
+#trbcmd w $FPGA 0xa017 0           #Trigger Enable ch31-00
+#trbcmd w $FPGA 0xa018 0           #Trigger Enable ch47-32
+#trbcmd w $FPGA 0xa01a 0xfffffffe  #Channel disable ch31-00, all channels except ch0
+#trbcmd w $FPGA 0xa01b 0xffff      #Channel disable ch47-32
+#trbcmd w $FPGA 0xa01c 0           #Processing mode 0=BlockMode, 1=PSA, 2=CFD
+#trbcmd w $FPGA 0xa01d 0x340       #CFD delay is 3, CFD window 64=0x40
 
-trbcmd w $FPGA 0xa020 1           #Sum values
-trbcmd w $FPGA 0xa021 1           #Sum values
-trbcmd w $FPGA 0xa022 1           #Sum values
-trbcmd w $FPGA 0xa023 1           #Sum values
-trbcmd w $FPGA 0xa024 0xff        #word count
-trbcmd w $FPGA 0xa025 0           #word count
-trbcmd w $FPGA 0xa026 0           #word count
-trbcmd w $FPGA 0xa027 0           #word count
+#trbcmd w $FPGA 0xa020 1           #Sum values
+#trbcmd w $FPGA 0xa021 1           #Sum values
+#trbcmd w $FPGA 0xa022 1           #Sum values
+#trbcmd w $FPGA 0xa023 1           #Sum values
+#trbcmd w $FPGA 0xa024 0xff        #word count
+#trbcmd w $FPGA 0xa025 0           #word count
+#trbcmd w $FPGA 0xa026 0           #word count
+#trbcmd w $FPGA 0xa027 0           #word count
 
-trbcmd w $FPGA 0xa000 0x100       #Reset Baseline
+#trbcmd w $FPGA 0xa000 0x100       #Reset Baseline
 
 
 #####  CTS  #######

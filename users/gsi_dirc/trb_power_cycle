@@ -1,0 +1,14 @@
+VXI11=~/vxi/vxi11_cmd
+
+echo "current power state: $($VXI11 trbpower OUTPUT:STATE\?)"
+$VXI11 trbpower "OUTPUT:STATE OFF"
+echo "current power state: $($VXI11 trbpower OUTPUT:STATE\?)"
+sleep 10;
+$VXI11 trbpower "OUTPUT:STATE ON"
+echo "current power state: $($VXI11 trbpower OUTPUT:STATE\?)"
+
+echo "programmed voltage: $($VXI11 trbpower :VOLTAGE\?)"
+echo "programmed current: $($VXI11 trbpower :CURRENT\?)"
+echo "measured voltage:   $($VXI11 trbpower MEASURE:VOLTAGE\?)"
+echo "measured current:   $($VXI11 trbpower MEASURE:CURRENT\?)"
+

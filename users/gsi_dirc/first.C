@@ -3,178 +3,95 @@ void first()
 
    base::ProcMgr::instance()->SetRawAnalysis(true);
 
+   // this limits used for liner calibrations when nothing else is available
    hadaq::TdcMessage::SetFineLimits(31, 421);
 
-   hadaq::TrbProcessor* trb3 = new hadaq::TrbProcessor(0);
+   // default channel numbers and edges mask
+   hadaq::TrbProcessor::SetDefaults(33, 0x2);
 
-   // CTS subevent header id, all 16 bit
-   // trb3->SetHadaqCTSId(0x8000);
+   hadaq::HldProcessor* hld = new hadaq::HldProcessor();
 
-   // HUB subevent header id, here high 8 bit from 16 should be specified
-   // lower 8 bit are used as hub number
-   trb3->SetHadaqHUBId(0x9000);
+   // About time calibration - there are two possibilities
+   // 1) automatic calibration after N hits in every enabled channel.
+   //     Just use SetAutoCalibrations method for this
+   // 2) generate calibration on base of provided data and than use it later statically for analysis
+   //     Than one makes special run with SetWriteCalibrations() enabled.
+   //     Later one reuse such calibrations enabling only LoadCalibrations() call
 
-   trb3->SetPrintRawData(false);
+   hadaq::TrbProcessor* trb3_1 = new hadaq::TrbProcessor(0x8000, hld);
+   trb3_1->SetHistFilling(4);
+   trb3_1->SetCrossProcess(true);
+   trb3_1->CreateTDC(0x2000, 0x2001, 0x2002, 0x20003);
+   // enable automatic calibration, specify required number of hits in each channel
+   //trb3_1->SetAutoCalibrations(80000);
+   // calculate and write static calibration at the end of the run
+   //trb3_1->SetWriteCalibrations("run1");
+   trb3_1->LoadCalibrations("run1");
 
-   // set number of errors to be printed, default 1000
-   trb3->SetPrintErrors(100);
-
-
-   // enable cross processing only when one want to specify reference channel from other TDCs
-   // in this case processing 'crosses' border of TDC and need to access data from other TDC
-   // trb3->SetCrossProcess(true);
+   hadaq::TrbProcessor* trb3_2 = new hadaq::TrbProcessor(0x800b, hld);
+   trb3_2->SetHistFilling(4);
+   trb3_2->SetCrossProcess(true);
+   trb3_2->CreateTDC(0x202c, 0x202d, 0x202e, 0x202f);
+   //trb3_2->SetAutoCalibrations(80000);
+   //trb3_2->SetWriteCalibrations("run1");
+   trb3_2->LoadCalibrations("run1");
 
    // this is array with available TDCs ids
-   // It is required that high 8 bits are the same.
-   // These bits are used to separate TDC data from other data kinds
-
-   int tdcmap[4] = { 0x0310, 0x0311, 0x0312, 0x0313 };
+   int tdcmap[8] = { 0x2000, 0x2001, 0x2002, 0x2003, 0x202c, 0x202d, 0x202e, 0x202f };
 
    // TDC subevent header id
-   trb3->SetHadaqTDCId(tdcmap[0] & 0xFF00);
 
-   for (int cnt=0;cnt<4;cnt++) {
+   for (int cnt=0;cnt<8;cnt++) {
 
-      int tdcid = tdcmap[cnt] & 0x00FF;
+      hadaq::TdcProcessor* tdc = hld->FindTDC(tdcmap[cnt]);
+      if (tdc==0) continue;
 
-      // verify prefix
-      if ((tdcmap[0] & 0xFF00) != (tdcmap[cnt] & 0xFF00)) {
-         fprintf(stderr, "!!!! Wrong prefix in TDC%d, do not match with TDC0  %X != %X\n", cnt, (tdcmap[cnt] & 0xFF00), (tdcmap[0] & 0xFF00));
-         exit(5);
+      // specify reference channel
+      //tdc->SetRefChannel(0, 0, 0x202c, 20000,  9597E6., 9603E6., true);
+      if(cnt==0) {
+	tdc->SetRefChannel(0, 0, 0x2001, 20000,  -100., 100., true);
+      }
+      //tdc->SetRefChannel(3, 1, 0xffff, 20000,  -10., 10., true);
+      //      continue;
+
+      //tdc->SetRefChannel(4, 2, 0xffff, 20000,  -10., 10., true);
+//      tdc->SetRefChannel(6, 4, 0xc010, 20000,  -20., 20., true);
+//      tdc->SetRefChannel(7, 5, 0xc010, 20000,  -20., 20., true);
+//      tdc->SetRefChannel(8, 0, 0xc010, 20000,  -90., 80., true);
+//      tdc->SetRefChannel(9, 0, 0xc010, 20000,  -200., 200., true);
+
+//      continue;
+
+
+      if (cnt==1) {
+         // specify reference channel from other TDC
+	//tdc->SetRefChannel(0, 0, 0xc000, 20000,  -30., 30., true);
+	tdc->SetRefChannel(0, 0, 0x2000, 20000,  -20., 20., true);
+         //tdc->SetRefChannel(6, 6, 0xc000, 20000,  -20., 20., true);
+	tdc->SetRefChannel(7, 7, 0x2000, 20000,  -20., 20., true);
       }
 
-      // create processor for hits from TDC
-      // par1 - pointer on trb3 board
-      // par2 - TDC number (lower 8 bit from subevent header
-      // par3 - number of channels in TDC
-      // par4 - edges mask 0x1 - rising, 0x2 - trailing, 0x3 - both edges
-      hadaq::TdcProcessor* tdc = new hadaq::TdcProcessor(trb3, tdcid, 65, 0x1);
+      if (cnt>1) continue;
 
-      if (cnt==0) {
-         int channels[] = {33, 34, 35, 36, 0};
-         tdc->CreateHistograms( channels );
+      // specify reference channel
 
-	 tdc->SetRefChannel(34, 0, 0xffff, 10000,  -500., 500., true);
-	 //tdc->SetRefChannel(35, 34, 0xffff, 10000,  -500., 500., true);
-
-         //tdc->SetRefChannel(36, 35, 0xffff, 10000,  -500., 500., true);
-
-	 tdc->SetRefChannel(35, 33, 0xffff, 10000,  -10., 400., true);
-	 tdc->SetRefChannel(36, 35, 0xffff, 10000,  -10., 400., true);
-         // IMPORTANT: for both channels references should be already specified
-         tdc->SetDoubleRefChannel(36, 35, 1000, -10., 500., 1000, -10., 200.);
-      }
-
-      if (cnt==3) {
-      	int channels[] = {1, 2, 3, 4, 0};
-	tdc->CreateHistograms( channels );
-	tdc->SetRefChannel(1, 3, 0xffff, 10000,  -50., 50., true);
-	tdc->SetRefChannel(2, 4, 0xffff, 10000,  -50., 50., true);
-
-      }
-
-
-      // specify reference channel for any other channel -
-      // will appear as additional histogram with time difference between channels
-      // for (int n=2;n<65;n=n+2)
-      //   tdc->SetRefChannel(n, n-1);
-
-      // one also able specify reference from other TDCs
-      // but one should enable CrossProcessing for trb3
-      // Here we set as reference channel 0 on tdc 1
-      // tdc->SetRefChannel(0, 0, 1);
+      /*
+      tdc->SetRefChannel(0, 0, 0x202d, 20000,  -100., 100., true);
+      tdc->SetRefChannel(1, 0, 0xffff, 20000,  -800., 800., true);
+      tdc->SetRefChannel(2, 0, 0xffff, 20000,  -200., 200., true);
+      tdc->SetRefChannel(3, 0, 0xffff, 20000,  -200., 200., true);
+      tdc->SetRefChannel(4, 0, 0xffff, 20000,  -200., 200., true);
+      */
 
       // for old FPGA code one should have epoch for each hit, no longer necessary
       // tdc->SetEveryEpoch(true);
 
-
-      // next parameters are about time calibration - there are two possibilities
-      // 1) automatic calibration after N hits in every enabled channel
-      // 2) generate calibration on base of provided data and than use it later statically for analysis
-
-      // disable calibration for channel #0
-      //tdc->DisableCalibrationFor(0);
-
-      // load static calibration at the beginning of the run
-      // tdc->LoadCalibration(Form("tdc2_%04x.cal", tdcmap[cnt]));
-
-      // calculate and write static calibration at the end of the run
-      // tdc->SetWriteCalibration(Form("tdc3_%04x.cal", tdcmap[cnt]));
-
-      // enable automatic calibration, specify required number of hits in each channel
-      tdc->SetAutoCalibration(100000);
-
-      // this will be required only when second analysis step will be introduced
-      // and one wants to select only hits around some trigger signal for that analysis
-
-      // method set window for all TDCs at the same time
-      //trb->SetTriggerWindow(-4e-7, -3e-7);
-
-#ifdef __GO4ANAMACRO__
-      int numx = 1;
-      int numy = 1;
-      while ((numx * numy) < tdc->NumChannels()) {
-         if (numx==numy) numx++; else numy++;
-      }
-
-      TGo4Picture** pic = new TGo4Picture*[tdc->GetNumHist()];
-      int* piccnt = new int[tdc->GetNumHist()];
-      for (int k=0;k<tdc->GetNumHist();k++) {
-         pic[k] = new TGo4Picture(Form("TDC%d_%s",tdcid, tdc->GetHistName(k)), Form("All %s", tdc->GetHistName(k)));
-         pic[k]->SetDivision(numy,numx);
-         piccnt[k] = 0;
-      }
-      for (int n=0;n<tdc->NumChannels();n++) {
-         int x = n % numx;
-         int y = n / numx;
-         for (int k=0;k<tdc->GetNumHist();k++) {
-            TObject* obj = (TObject*) tdc->GetHist(n, k);
-            if (obj) piccnt[k]++;
-            pic[k]->Pic(y,x)->AddObject(obj);
-         }
-      }
-      for (int k=0;k<tdc->GetNumHist();k++) {
-         if (piccnt[k] > 0) go4->AddPicture(pic[k]);
-                      else delete pic[k];
-      }
-      delete[] pic;
-      delete[] piccnt;
-
-#endif
+      // When enabled, time of last hit will be used for reference calculations
+      // tdc->SetUseLastHit(true);
 
    }
-
-
-   // This is a method to regularly invoke macro, where arbitrary action can be performed
-   // One could specify period in seconds or function will be called for every event processed
-
-   // new THookProc("my_hook();", 2.5);
 
 }
 
 
 
-// this is example of hook function
-// here one gets access to all tdc processors and obtains Mean and RMS
-// value on the first channel for each TDC and prints on the display
-
-void my_hook()
-{
-   hadaq::TrbProcessor* trb3 = base::ProcMgr::instance()->FindProc("TRB0");
-   if (trb3==0) return;
-
-   printf("Do extra work NUM %u\n", trb3->NumSubProc());
-
-   for (unsigned ntdc=0;ntdc<trb3->NumSubProc();ntdc++) {
-
-      hadaq::TdcProcessor* tdc = trb3->GetSubProc(ntdc);
-      if (tdc==0) continue;
-
-      TH1* hist = (TH1*) tdc->GetChannelRefHist(1);
-
-      printf("  TDC%u mean:%5.2f rms:%5.2f\n", tdc->GetBoardId(), hist->GetMean(), hist->GetRMS());
-
-      tdc->ClearChannelRefHist(1);
-   }
-
-}

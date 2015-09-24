@@ -48,16 +48,15 @@ Setups up running enviroment for the CTS gui and start webserver.
 
 --log          Log trigger rates into file specified. If "Number," is prefixed,
                the stated number of monitoring cycles is skipped between each write.
---quiet        Don't print monitored values to stdout
+--quiet        Do not print monitored values to stdout
 --port         Port number of the webserver
 --noopenxterm  By default, the CTS monitoring results are displayed in an
                additional XTerm window. Use this open to prevent an output.
 --endpoint     CTS TrbNet Endpoint. Default: endpoint defined in CtsConfig.pm
 EOFHELP
 
-   exit(0);
+exit(0);
 }
-
 
 
 # Gather and check parameters
@@ -114,8 +113,9 @@ EOFHELP
    }
 
 # Setup shared memory
-#   print "Trying to kill processes 'cts' and 'dhttpi'\n";
-#   system 'pkill "^(cts|dhttpi)$"';
+   print "Trying to kill processes 'cts' and 'dhttpi'\n";
+   system 'pkill dhttpi';
+   system 'pkill "^(cts|dhttpi)$"';
 
    print "\n\nTry to map monitoring files to shared memory (if it failes, no harm
    is done. Only the HDD has to work a little bit more)\n";

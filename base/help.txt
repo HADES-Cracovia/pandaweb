@@ -9,8 +9,9 @@ Pin 1; Ethernet cable: SFP8; Powercable
 
 
 2. Watch the /var/log/messages for dhcp request (on the dhcp server hadeb05)
-and copy the mac address to the /etc/dhcp_conf file for the correct trb3. 
+and copy the mac address to the /etc/dhcp.conf file for the correct trb3. 
 > tail -f /var/log/messages
+Also enter the assigned ip address to the /etc/hosts
 
 
 3. Restart the dhcp server and the trb3 and watch the log file for ip
