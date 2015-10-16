@@ -78,6 +78,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    when (0x91) {$btype= "TRB3 periph";}
 	    when (0x92) {$btype= "CBM-Rich";}
 	    when (0x93) {$btype= "CBM-Tof";}
+      when (0x95) {$btype= "TRB3sc";}
 	    when (0x83) {$btype= "TRB2 RPC";}
 	    when (0x81) {$btype= "TRB2 TOF";}
 	    when (0x62) {$btype= "Hub AddOn";}
@@ -180,6 +181,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    $feat .= ", trigger generation"            if ($inclLow->{$addr}&0x8000);
         }
 	if($table == 1 || $table == 2 || $table ==3 || $table == 4) {
+      if ($inclHigh->{$addr} & 0x100) { $feat .= "\nLCD Output";}
 	    if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
 	    if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
 	    if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
@@ -201,11 +203,11 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    }
 	    for($inclHigh->{$addr}>>20&0xF) {  
 		when(0) {$feat .="\nClock: on-board 200 MHz";}
-		when(1) {$feat .="\nClock: on-board 125 MHz";}
+		when(1) {$feat .="\nClock: on-board 120 MHz";}
 		when(2) {$feat .="\nClock: received 200 MHz";}
-		when(3) {$feat .="\nClock: received 125 MHz";}
+		when(3) {$feat .="\nClock: received 120 MHz";}
 		when(4) {$feat .="\nClock: external 200 MHz";}
-		when(5) {$feat .="\nClock: external 125 MHz";}
+		when(5) {$feat .="\nClock: external 120 MHz";}
 	    }    
 	}
 	
