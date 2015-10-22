@@ -1,7 +1,11 @@
 #!/usr/bin/perl -w
-print "Content-type: text/html\r\n\r\n";
-
 use Cwd;
+
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTP-?i/i) {
+  &htsponse(200, "OK");
+  }
+print "Content-type: text/html\n\n";
+
 
 my $pwd = &Cwd::cwd();
 

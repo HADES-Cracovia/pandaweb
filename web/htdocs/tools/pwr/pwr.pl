@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTP-?i/i) {
   &htsponse(200, "OK");
   }
 print "Content-type: text/html\n\n";
@@ -106,7 +106,7 @@ sub receive_answer {
 
   # do polling for 5 seconds, break polling as soon as answer was received
   my $i;
-  for ($i = 0; ($i<500) ;$i++) {
+  for ($i = 0; ($i<100) ;$i++) {
     my $a = $port->lookfor;
 		#print $a."\n"; # debug output
 		if ($a =~ m/V(\d\d\.\d\d)A(\d\.\d\d\d)W(\d\d\d\.\d)U(\d\d)I(\d\.\d\d)P(\d\d\d)F(\d\d\d\d\d\d)/) {
@@ -150,7 +150,7 @@ sub receive_answer {
 			last;
 	
 		} else {
-      usleep 1E4; # 10 ms delay
+      usleep 5E4; # 50 ms delay
 		}
 	}
 }
@@ -169,13 +169,13 @@ sub receive_answer_HMP {
     usleep(20000) if $ser_type eq "PST";
     if($command =~ m/\?/) {
 #       print "waiting...\n";
-      READBACK: for (my $i = 0; ($i<500) ;$i++) {
+      READBACK: for (my $i = 0; ($i<100) ;$i++) {
         $a = $port->lookfor(3);
         if (defined $a and $a ne "" and $a =~ m/\d/) {
           print $a."&";
           last READBACK;
           }
-        usleep(1000);
+        usleep(5000);
 	usleep(20000) if $ser_type eq "PST";
         }
       }
