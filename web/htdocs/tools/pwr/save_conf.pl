@@ -1,5 +1,10 @@
 #!/usr/bin/perl -w
-print "Content-type: text/html\r\n\r\n";
+
+if ($ENV{'SERVER_SOFTWARE'} =~ /HTTP-?i/i) {
+  &htsponse(200, "OK");
+  }
+print "Content-type: text/html\n\n";
+
 
 my $envstring = $ENV{'QUERY_STRING'};
 $envstring =~ s/%20/ /g;

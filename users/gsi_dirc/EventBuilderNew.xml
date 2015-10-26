@@ -64,7 +64,7 @@ When starting analysis from the go4 gui, one should specify stream server with p
 
     <Module name="Combiner" class="hadaq::CombinerModule">    
         <!-- these parameters will force to create inputs/oputputs of module -->
-       <NumInputs value="10"/>
+       <NumInputs value="7"/>
        <NumOutputs value="2"/>
 
        <InputPort name="Input0"  url="hadaq://host:49999" thread="UdpThread1"/>
@@ -73,7 +73,7 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <InputPort name="Input3"  url="hadaq://host:50002" thread="UdpThread1"/>
        <InputPort name="Input4"  url="hadaq://host:50003" thread="UdpThread1"/>
        <InputPort name="Input5"  url="hadaq://host:50004" thread="UdpThread1"/>
-       <InputPort name="Input6"  url="hadaq://host:50005" thread="UdpThread1"/>
+       <InputPort name="Input6"  url="hadaq://host:50008" thread="UdpThread1"/>
        <InputPort name="Input7"  url="hadaq://host:50006" thread="UdpThread1"/>
        <InputPort name="Input8"  url="hadaq://host:50007" thread="UdpThread1"/>
        <InputPort name="Input9"  url="hadaq://host:50008" thread="UdpThread1"/>
@@ -102,7 +102,7 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <!--  this is stream server for online monitoring, normally always on -->
        <OutputPort name="Output0" url="mbs://Stream:6789?iter=hadaq_iter&subid=0x1f"/>
 
-       <OutputPort name="Output1" url="hld:///d/june2015/dabc.hld?maxsize=1500"/>
+       <OutputPort name="Output1" url="hld://pathandfile?maxsize=1500"/>
 
 
        <!--  this is example of HLD file storage - local -->

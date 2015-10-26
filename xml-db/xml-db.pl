@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use XML::LibXML;
-# use Data::TreeDumper;
+use Data::TreeDumper;
 use Getopt::Long;
 use Pod::Usage;
 use File::chdir;

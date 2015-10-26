@@ -44,6 +44,7 @@ my $help = "";
 my $offset = 0;
 my $opt_skip = 99;
 my $polarity = 1;
+my $default_direction = 1;
 my @channels  = ();
 my $channel_to_set = undef;
 my $channel_by_channel = false;
@@ -60,6 +61,7 @@ my $result = GetOptions (
     "e|endpoint=s" => \$endpoint,
     "m|mode=s" => \$mode,
     "p|polarity=i" => \$polarity,
+    "d|direction=i" => \$default_direction,
     "o|offset=s" => \$offset,
     "32|32channel" => \$channel32,
     "s|skip=i" => \$opt_skip,
@@ -231,18 +233,16 @@ while ($number_of_steps < $number_of_iterations ||
 	$best_thresh[$i] = $current_thresh[$i];
       }
 
-      my $direction = 1;
-      if ( 
-	  #$crossed_thresh[$i]==1 && 
-	  $static_value == ($polarity ? 0 : 1)) {
-	$interval_step = int($interval_step/1.2);
-	$direction = -1;
-      } elsif ($hit_diff > $accepted_dark_rate ) {
-	$interval_step = int($interval_step/1.2);
-	$direction = -1;
-      } else {
-	$interval_step = int($interval_step/1.2);
-      }
+       my $direction = $default_direction;
+       if ($static_value == ($polarity ? 0 : 1)) {
+         $interval_step = int($interval_step/1.2);
+         $direction = -1 * $direction;
+       } elsif ($hit_diff > $accepted_dark_rate ) {
+         $interval_step = int($interval_step/1.2);
+         $direction = -1 * $direction;
+       } else {
+         $interval_step = int($interval_step/1.2);
+       }
 
       $interval_step = 2 if($interval_step < 2);
       $interval_step = 3 if($interval_step == 1 && $direction ==- 1);
@@ -270,7 +270,7 @@ while ($number_of_steps < $number_of_iterations ||
 
 
 
-map { $_-= $offset } @best_thresh;
+map { $_-= ($offset * $default_direction) } @best_thresh;
 write_thresholds($mode, $chain, \@best_thresh, $channel_to_set);
 
 my $uid;
@@ -466,7 +466,12 @@ thresholds_automatic.pl -e 0x303 -o 0x10 -c 0
 
 currently only mode "padiwa" is implemented.
 
-polarity: tells what the status of bit 32 is, when the thresholds are set to 0
+polarity: tells what the status of bit 32 is in the TDC, when the thresholds are set to 0
+          this is needed just for the convention, that an inactive channel shows up in the TDC registers
+          as green fields and therefore the padiwas need an invert of the outputs for negative signals
+direction: what do you want to detect: 
+            negative pulses: direction = 1 (default)
+            positive pulses: direction = 0
 32channel: when set the tool assums a TDC with 32 channels, leading and trailing channels use two channels
 finetune: tries to optimize the thresholds beginning with the current ones
 

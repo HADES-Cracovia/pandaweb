@@ -11,10 +11,12 @@ use POSIX qw(strftime);
 # use Time::HiRes qw(usleep nanosleep);
 my $offset = 0;
 my $help;
+my $mode="padiwa";
 
 my $result = GetOptions (
     "h|help" => \$help,
     "o|offset=s" => \$offset,
+    "m|mode=s" => \$mode,
     );
 
 if($help) {

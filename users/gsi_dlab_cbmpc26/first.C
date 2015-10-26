@@ -60,7 +60,7 @@ void first()
          //tdc->SetRefChannel(36, 35, 0xffff, 10000,  -500., 500., true);
 
 	 tdc->SetRefChannel(35, 33, 0xffff, 10000,  -10., 400., true);
-	 tdc->SetRefChannel(36, 35, 0xffff, 10000,  -10., 400., true);
+	 tdc->SetRefChannel(36, 33, 0xffff, 10000,  -10., 400., true);
          // IMPORTANT: for both channels references should be already specified
          tdc->SetDoubleRefChannel(36, 35, 1000, -10., 500., 1000, -10., 200.);
       }
@@ -70,7 +70,8 @@ void first()
 	tdc->CreateHistograms( channels );
 	tdc->SetRefChannel(1, 3, 0xffff, 10000,  -50., 50., true);
 	tdc->SetRefChannel(2, 4, 0xffff, 10000,  -50., 50., true);
-
+	
+	tdc->SetDoubleRefChannel(1, 2, 1000, -100., 100., 1000, -100., 100.);
       }
 
 

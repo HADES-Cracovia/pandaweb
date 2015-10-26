@@ -79,6 +79,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	if ($value==0x91) {$btype= "TRB3 periph";}
 	if ($value==0x92) {$btype= "CBM-Rich";}
 	if ($value==0x93) {$btype= "CBM-Tof";}
+	if ($value==0x95) {$btype= "TRB§sc";}
 	if ($value==0x83) {$btype= "TRB2 RPC";}
 	if ($value==0x81) {$btype= "TRB2 TOF";}
 	if ($value==0x62) {$btype= "Hub AddOn";}
@@ -180,6 +181,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    $feat .= ", trigger generation"            if ($inclLow->{$addr}&0x8000);
         }
 	if($table == 1 || $table == 2 || $table ==3 || $table == 4) {
+      if ($inclHigh->{$addr} & 0x100) { $feat .= "\nLCD Output";}
 	    if ($inclHigh->{$addr} & 0x200) { $feat .= "\nReference Time: through Clock Manager";}
 	    if ($inclHigh->{$addr} & 0x400) { $feat .= "\nSPI";}
 	    if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
@@ -200,11 +202,11 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    }
 	    my $value = $inclHigh->{$addr}>>20&0xF; 
 		if ($value==0) {$feat .="\nClock: on-board 200 MHz";}
-		if ($value==1) {$feat .="\nClock: on-board 125 MHz";}
+		if ($value==1) {$feat .="\nClock: on-board 120 MHz";}
 		if ($value==2) {$feat .="\nClock: received 200 MHz";}
-		if ($value==3) {$feat .="\nClock: received 125 MHz";}
+		if ($value==3) {$feat .="\nClock: received 120 MHz";}
 		if ($value==4) {$feat .="\nClock: external 200 MHz";}
-		if ($value==5) {$feat .="\nClock: external 125 MHz";}
+		if ($value==5) {$feat .="\nClock: external 120 MHz";}
 	}
 	
 	# SFP Optical Transceiver Rx Power Readbacks
