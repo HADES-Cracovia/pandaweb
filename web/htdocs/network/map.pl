@@ -73,33 +73,33 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	next unless defined $tree->{$parent}->[$p];
 	my $addr = $tree->{$parent}->[$p]->{addr};
 	my $btype = "";
-	for($hardware->{$addr}>>24&0xff) {
-	    when (0x90) {$btype= "TRB3 central";}
-	    when (0x91) {$btype= "TRB3 periph";}
-	    when (0x92) {$btype= "CBM-Rich";}
-	    when (0x93) {$btype= "CBM-Tof";}
-	    when (0x83) {$btype= "TRB2 RPC";}
-	    when (0x81) {$btype= "TRB2 TOF";}
-	    when (0x62) {$btype= "Hub AddOn";}
-	    when (0x52) {$btype= "CTS";}
-	    when (0x42) {$btype= "Shower AddOn";}
-	    when (0x33) {$btype= "RICH ADCM"; }
-	    when (0x23) {$btype= "MDC OEP"; }
-	    when (0x12) {$btype= "MDC Hub"; }
-        }
+	my $value = $hardware->{$addr}>>24&0xff;
+	
+	if ($value==0x90) {$btype= "TRB3 central";}
+	if ($value==0x91) {$btype= "TRB3 periph";}
+	if ($value==0x92) {$btype= "CBM-Rich";}
+	if ($value==0x93) {$btype= "CBM-Tof";}
+	if ($value==0x83) {$btype= "TRB2 RPC";}
+	if ($value==0x81) {$btype= "TRB2 TOF";}
+	if ($value==0x62) {$btype= "Hub AddOn";}
+	if ($value==0x52) {$btype= "CTS";}
+	if ($value==0x42) {$btype= "Shower AddOn";}
+	if ($value==0x33) {$btype= "RICH ADCM"; }
+	if ($value==0x23) {$btype= "MDC OEP"; }
+	if ($value==0x12) {$btype= "MDC Hub"; }
+        
 	my $addontype = "";  
 	if(($hardware->{$addr}>>24&0xff) == 0x91) {
-	    for($hardware->{$addr}>>12 & 0xF) {
-		when (0) {$addontype= " & ADA v1";}
-		when (1) {$addontype= " & ADA v2";}
-		when (2) {$addontype= " & Multitest";}
-		when (3) {$addontype= " & SFP";}
-		when (4) {$addontype= " & Padiwa";}
-		when (5) {$addontype= " & GPIN";}
-		when (6) {$addontype= " & Nxyter";}
-		when (7) {$addontype= " & 32PinAddOn";}
-		when (9) {$addontype= " & ADC AddOn";}
-	    }
+	    $value= $hardware->{$addr}>>12 & 0xF; 
+	    if ($value==0) {$addontype= " & ADA v1";}
+	    if ($value==1) {$addontype= " & ADA v2";}
+	    if ($value==2) {$addontype= " & Multitest";}
+	    if ($value==3) {$addontype= " & SFP";}
+	    if ($value==4) {$addontype= " & Padiwa";}
+	    if ($value==5) {$addontype= " & GPIN";}
+	    if ($value==6) {$addontype= " & Nxyter";}
+	    if ($value==7) {$addontype= " & 32PinAddOn";}
+	    if ($value==9) {$addontype= " & ADC AddOn";}
         }      
 	my $feat = "";
 	my $table = $inclHigh->{$addr}>>24&0xFF;
@@ -192,21 +192,19 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	    }
 	    
 	    if(($inclHigh->{$addr}>>16&0xF) == 1 || ($inclHigh->{$addr}>>16&0xF) == 2) {
-		for($inclHigh->{$addr}>>16&0xF) {  
-		    when(1) {$feat .="\nTrigger Module: simple or";}
-		    when(2) {$feat .="\nTrigger Module: edge detect";}
-		}
+		my $value = $inclHigh->{$addr}>>16&0xF;  
+		if($value==1) {$feat .="\nTrigger Module: simple or";}
+		if($value==2) {$feat .="\nTrigger Module: edge detect";}
 		my $d = trb_register_read($addr,0xcf27);
 		$feat .= sprintf(", %i inputs, %i outputs",($d->{$addr}&0x3F),($d->{$addr}>>8&0xF));
 	    }
-	    for($inclHigh->{$addr}>>20&0xF) {  
-		when(0) {$feat .="\nClock: on-board 200 MHz";}
-		when(1) {$feat .="\nClock: on-board 125 MHz";}
-		when(2) {$feat .="\nClock: received 200 MHz";}
-		when(3) {$feat .="\nClock: received 125 MHz";}
-		when(4) {$feat .="\nClock: external 200 MHz";}
-		when(5) {$feat .="\nClock: external 125 MHz";}
-	    }    
+	    my $value = $inclHigh->{$addr}>>20&0xF; 
+		if ($value==0) {$feat .="\nClock: on-board 200 MHz";}
+		if ($value==1) {$feat .="\nClock: on-board 125 MHz";}
+		if ($value==2) {$feat .="\nClock: received 200 MHz";}
+		if ($value==3) {$feat .="\nClock: received 125 MHz";}
+		if ($value==4) {$feat .="\nClock: external 200 MHz";}
+		if ($value==5) {$feat .="\nClock: external 125 MHz";}
 	}
 	
 	# SFP Optical Transceiver Rx Power Readbacks
@@ -355,26 +353,27 @@ sub GetTDCInfo {
     $feat .= " ".($d->{$addr}>>8&0xFF)." channels";
     $feat .= " read by ".$module." module(s)";
     $feat .= ", version ".(($d->{$addr}&0x0e000000)>>25).".".(($d->{$addr}&0x1e00000)>>21).".".(($d->{$addr}&0x1e0000)>>17);
+    my $value;
     if($inp) {
-	for($info&0xFF) {
-	    when (0) {$feat .=", input select by mux";}
-	    when (1) {$feat .=", input 1-to-1";}
-	    when (2) {$feat .=", on every second input";}
-	    when (3) {$feat .=", on every fourth input";}
-	}
+	$value = $info&0xFF;
+	if ($value==0) {$feat .=", input select by mux";}
+	if ($value==1) {$feat .=", input 1-to-1";}
+	if ($value==2) {$feat .=", on every second input";}
+	if ($value==3) {$feat .=", on every fourth input";}
+	
+	$value = $info>>8&0xF;
+	if ($value==0) {$feat .=", single edge";}
+	if ($value==1) {$feat .=", dual edge in same channel";}
+	if ($value==2) {$feat .=", dual edge in alternating channels";}
+	if ($value==3) {$feat .=", dual edge same channel + stretcher";}
+	
+	$value = $info>>12&0x7;
+	if ($value==0) {$feat .=", RingBuffer size: 12 words";}
+	if ($value==1) {$feat .=", RingBuffer size: 44 words";}
+	if ($value==2) {$feat .=", RingBuffer size: 76 words";}
+	if ($value==3) {$feat .=", RingBuffer size: 108 words";}
     }
-    for($info>>8&0xF) {
-	when (0) {$feat .=", single edge";}
-	when (1) {$feat .=", dual edge in same channel";}
-	when (2) {$feat .=", dual edge in alternating channels";}
-	when (3) {$feat .=", dual edge same channel + stretcher";}
-    }
-    for($info>>12&0x7) {
-	when (0) {$feat .=", RingBuffer size: 12 words";}
-	when (1) {$feat .=", RingBuffer size: 44 words";}
-	when (2) {$feat .=", RingBuffer size: 76 words";}
-	when (3) {$feat .=", RingBuffer size: 108 words";}
-    }
+	
     return $feat;
 }
 
