@@ -389,7 +389,7 @@ span.tooltip  {
 th:hover .tooltip, td:hover .tooltip {
   margin: 0;
   opacity:1;
-  transition: opacity .4s;
+  transition: opacity .1s;
   }
   
 table.queryresult th div, table.queryresult td div {

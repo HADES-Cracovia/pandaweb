@@ -133,7 +133,8 @@
       }      
     setperiod(-1);
     settarget(-1);
-    setaddress(-1);
+    if(document.getElementById("address"))
+      setaddress(-1);
   
     if(period != -1) {
       Timeoutvar = setTimeout("refresh(0)",400);
