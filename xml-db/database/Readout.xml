@@ -104,7 +104,12 @@
         <description>The trigger release is only sent after writing of data is completed.</description>
       </field>
     </register>    
-    
+    <register name="DisableBuffers" address="0114"  purpose="config">
+      <description>Disable individual readout buffers</description>
+      <field name="DisableBuffers" start="0" bits="16" format="bitmask" mode="rw" >
+        <description>Each internal data buffer can be disabled individually by settings its corresponding bit in this mask.</description>
+      </field>
+    </register>    
 
     <register name="Lvl1ReleaseStatus" address="0200"  purpose="status">
       <description>Status of the individual data handlers. Bit is set if the handler did not get a release from the data handler. Content is only valid while the handler is not idle.</description>
