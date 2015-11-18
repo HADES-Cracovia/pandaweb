@@ -1,0 +1,11 @@
+#List of all serial numbers for TRB3sc. 3-digit serial, append a '1'
+
+#  Serial    #  Unique ID
+########################################
+
+   0011        0x610000050dec4328
+   0021        0x820000050dec0a28
+   0031        0x0 
+   0041        0x7a0000050df02428
+   0051        0xff0000050de7e528 
+   
