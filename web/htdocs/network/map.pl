@@ -79,7 +79,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 	if ($value==0x91) {$btype= "TRB3 periph";}
 	if ($value==0x92) {$btype= "CBM-Rich";}
 	if ($value==0x93) {$btype= "CBM-Tof";}
-	if ($value==0x95) {$btype= "TRB§sc";}
+	if ($value==0x95) {$btype= "TRB3sc";}
 	if ($value==0x83) {$btype= "TRB2 RPC";}
 	if ($value==0x81) {$btype= "TRB2 TOF";}
 	if ($value==0x62) {$btype= "Hub AddOn";}
