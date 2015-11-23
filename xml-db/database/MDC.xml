@@ -44,5 +44,230 @@ const char voltages[8][8]={"5V in  ","5V     ","3.5V in","3.3V   ","1.6V in","1.
       <field name="m3V" start="0" bits="12" format="signed" unit="mV" scale="-1"/>
     </register>      
 </group>  
-  
+
+
+<group name="Status" purpose="status" address="1000"  mode="r" continuous="true" size="9" >  
+  <description>Many status registers for each of the entities controlling MBO and Readout</description>
+    <register name="ControlStatus" address="0000">
+      <description>Token Ring Controller Status</description>
+      <field name="TokenBack" start="0" bits="1" format="boolean" >
+        <description>Token is back from TDC chain</description>
+      </field>
+      <field name="TokenMissing" start="1" bits="1" format="boolean" errorflag="true">
+        <description>Token is lost in TDC chain</description>
+      </field>
+      <field name="CmsActive" start="2" bits="1" format="boolean" >
+        <description>Common Stop Signal is active</description>
+      </field>
+    </register>  
+    <register name="TriggerHandler" address="0001">
+      <description>Status of trigger handler state machine</description>
+      <field name="TriggerHandler" start="0" bits="4" format="enum" >
+        <enumItem value="0">Idle</enumItem>
+        <enumItem value="1">Begin Run</enumItem>
+        <enumItem value="2">Timing Trigger</enumItem>
+        <enumItem value="3">Calibration Trigger</enumItem>
+        <enumItem value="4">Do Readout</enumItem>
+        <enumItem value="5">Wait for data</enumItem>
+        <enumItem value="6">Release LVL1</enumItem>
+        <enumItem value="7">Do Reinit</enumItem>
+        <enumItem value="8">Do Reinit 2</enumItem>
+      </field>
+    </register>
+    <register name="DataHandler" address="0002">
+      <description>Status of data handler state machine</description>
+      <field name="DataHandlerState" start="0" bits="4" format="enum" >
+        <enumItem value="0">Idle</enumItem>
+        <enumItem value="1">Send data</enumItem>
+        <enumItem value="2">Send long data</enumItem>
+        <enumItem value="3">Send dummy</enumItem>
+        <enumItem value="4">Finish</enumItem>
+        <enumItem value="5">Write Debug</enumItem>
+        <enumItem value="6">Status Address</enumItem>
+        <enumItem value="7">Status Wait</enumItem>
+        <enumItem value="8">Status Calc</enumItem>
+        <enumItem value="9">Status Write</enumItem>
+        <enumItem value="10">Status Finished</enumItem>
+      </field>
+      <field name="StartRdo" start="4" bits="1" format="boolean"/>
+      <field name="FinishedRdo" start="5" bits="1" format="boolean"/>
+      <field name="DataWrite" start="6" bits="1" format="boolean"/>
+      <field name="SendDebug" start="7" bits="1" format="boolean"/>
+      <field name="SendDummy" start="8" bits="1" format="boolean"/>
+      <field name="FormatSelect" start="9" bits="1" format="boolean"/>
+      <field name="DataValid" start="10" bits="1" format="boolean"/>
+      <field name="TooManyWords" start="11" bits="1" format="boolean"/>
+      <field name="WordCount" start="12" bits="10" format="unsigned"/>
+    </register> 
+    <register name="TdcReadoutStatus" address="0003">
+      <description>Status of TDC readout handler state machine</description>
+      <field name="TdcState" start="0" bits="4" format="enum" >
+        <enumItem value="0">Idle</enumItem>
+        <enumItem value="1">Save L</enumItem>
+        <enumItem value="2">Send Token</enumItem>
+        <enumItem value="3">Wait 1</enumItem>
+        <enumItem value="4">Wait 2</enumItem>
+        <enumItem value="5">Save L next</enumItem>
+        <enumItem value="6">Wait AOD</enumItem>
+        <enumItem value="7">Wait 3</enumItem>
+        <enumItem value="8">Wait 4</enumItem>
+        <enumItem value="9">Save H next</enumItem>
+      </field>
+      <field name="DataValidTdc" start="4" bits="1" format="boolean"/>
+      <field name="TokenBackTdc" start="5" bits="1" format="boolean"/>
+      <field name="DSTin" start="6" bits="1" format="boolean"/>
+      <field name="AODin" start="7" bits="1" format="boolean"/>
+      <field name="Reservein" start="8" bits="1" format="boolean"/>
+      <field name="TriggerNumber" start="9" bits="4" format="hex"/>
+    </register>
+    <register name="ControlLineStatus" address="0004">
+      <description>Status of Control Line handler state machine</description>
+      <field name="LineState" start="0" bits="4" format="hex" />
+      <field name="FinishedBeginRun" start="4" bits="1" format="boolean"/>
+      <field name="FinishedLoadCalib" start="5" bits="1" format="boolean"/>
+      <field name="TokenBackLine" start="6" bits="1" format="boolean"/>
+      <field name="NoTokenBack" start="7" bits="1" format="boolean"/>
+      <field name="MBOinit" start="8" bits="1" format="boolean" errorflag="true" invertflag="true"/>
+      <field name="LineSelect" start="9" bits="1" format="boolean"/>
+      <field name="GDELine" start="10" bits="1" format="boolean"/>
+      <field name="StartDebug" start="11" bits="1" format="boolean"/>
+    </register>
+    <register name="TriggerBegrunState" address="0005">
+      <description>Status of the begin-run trigger handler state machine</description>
+      <field name="ModeStep" start="0" bits="4" format="hex" />
+      <field name="ConfigStep" start="4" bits="4" format="hex" />
+      <field name="ModeCalib" start="8" bits="1" format="boolean"/>
+      <field name="ConfigCalib" start="9" bits="1" format="boolean"/>
+      <field name="ModeBegrun" start="10" bits="1" format="boolean"/>
+      <field name="ConfigBegrun" start="11" bits="1" format="boolean"/>
+      <field name="LoadedCalib" start="12" bits="1" format="boolean"/>
+      <field name="LoadedStartup" start="13" bits="1" format="boolean"/>
+      <field name="BegrunState" start="16" bits="4" format="hex"/>
+    </register>  
+    <register name="ModeLineStatus" address="0006">
+      <description>Status of Mode Line handler state machine</description>
+      <field name="ModeState" start="0" bits="8" format="hex" />
+      <field name="MboStartupDone" start="8" bits="1" format="boolean"/>
+      <field name="MboCalib" start="9" bits="1" format="boolean"/>
+      <field name="GDE" start="16" bits="1" format="boolean"/>
+      <field name="MOD" start="17" bits="1" format="boolean"/>
+      <field name="RES" start="18" bits="1" format="boolean"/>
+      <field name="TOK" start="19" bits="1" format="boolean"/>
+      <field name="WRM" start="20" bits="1" format="boolean"/>
+      <field name="RDM" start="21" bits="1" format="boolean"/>
+    </register>    
+    <register name="LoadTdcStatus" address="0007">
+      <description>Status of TDC setup loader state machine</description>
+      <field name="LoadState" start="0" bits="8" format="hex" />
+      <field name="LoadPointer" start="8" bits="10" format="hex"/>
+      <field name="TdcLoaded" start="18" bits="1" format="boolean"/>
+      <field name="CalibSecond" start="19" bits="1" format="boolean"/>
+      <field name="CalibProcessing" start="20" bits="1" format="boolean"/>
+    </register>        
+    <register name="SendTokenStatus" address="0008">
+      <description>Status of send token state machine</description>
+      <field name="TokenState" start="0" bits="4" format="hex" />
+    </register>      
+</group>  
+
+<group name="Counters" purpose="status" address="1100"  mode="r" continuous="true" size="22" >  
+  <description>Counters for data words and errors</description>
+    <register name="BasicInfo" address="0000">
+      <description>Board Information</description>
+      <field name="InternalTrigger" start="0" bits="16" format="hex">
+        <description>Internal trigger number</description>
+      </field>
+      <field name="ShortMbo" start="16" bits="1" format="boolean"/>
+      <field name="LoadMbo" start="17" bits="1" format="boolean"/>
+      <field name="CmsHigh" start="18" bits="1" format="boolean"/>
+    </register>
+    <register name="MissingTokens" address="0001">
+      <description>Number of missing tokens</description>
+      <field name="MissingTokens" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="PhysTriggers" address="0002">
+      <description>Number of physics triggers</description>
+      <field name="PhysTriggers" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="CalibTriggers" address="0003">
+      <description>Number of calibration triggers</description>
+      <field name="CalibTriggers" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="DiscardHit1" address="0004">
+      <description>Number of discarded Hit 1 words from TDC</description>
+      <field name="DiscardHit1" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="DiscardHit0" address="0005">
+      <description>Number of discarded Hit 0 words from TDC</description>
+      <field name="DiscardHit0" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="DiscardWords" address="0006">
+      <description>Number of discarded words</description>
+      <field name="DiscardWords" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="TruncatedEvents" address="0007">
+      <description>Number of truncated events due to limit of words per event</description>
+      <field name="TruncatedEvents" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="SingleHit1" address="0008">
+      <description>Number of single, double or triple hit 1 words</description>
+      <field name="SingleHit1" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="SingleHit0" address="0009">
+      <description>Number of single, double or triple hit 0 words</description>
+      <field name="SingleHit0" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="Retransmit" address="000a">
+      <description>Number of retransmit requests</description>
+      <field name="RequestSent" start="0" bits="12" format="unsigned" />
+      <field name="RequestReceived" start="12" bits="12" format="unsigned" />
+    </register> 
+    <register name="Words" address="000b">
+      <description>Number of words given to data handler</description>
+      <field name="Words" start="0" bits="24" format="unsigned" />
+    </register> 
+    <register name="TriggersInvalid" address="000c">
+      <description>Number of invalid triggers received</description>
+      <field name="TriggersInvalid" start="0" bits="16" format="unsigned" />
+    </register> 
+    <register name="TriggersMultiple" address="000d">
+      <description>Number of multiple triggers received</description>
+      <field name="TriggersMultiple" start="0" bits="16" format="unsigned" />
+    </register> 
+    <register name="TriggersSpikes" address="000e">
+      <description>Number of spikes on CMS received</description>
+      <field name="TriggersSpikes" start="0" bits="16" format="unsigned" />
+    </register> 
+    <register name="TriggersSpurious" address="000f">
+      <description>Number of spurious triggers received</description>
+      <field name="TriggersSpurious" start="0" bits="16" format="unsigned" />
+    </register> 
+    <register name="TimeIdle" address="0010">
+      <description>Time the OEP was idle</description>
+      <field name="TimeIdle" start="0" bits="24" format="unsigned" unit="us"/>
+    </register>    
+    <register name="TimeInit" address="0011">
+      <description>Time the OEP was busy initializing the MBO</description>
+      <field name="TimeInit" start="0" bits="24" format="unsigned" unit="us"/>
+    </register>        
+    <register name="TimeCalib" address="0012">
+      <description>Time the OEP was busy doing calibration</description>
+      <field name="TimeCalib" start="0" bits="24" format="unsigned" unit="us"/>
+    </register>        
+    <register name="TimeReadout" address="0013">
+      <description>Time the OEP needed to read data from TDCs</description>
+      <field name="TimeReadout" start="0" bits="24" format="unsigned" unit="us"/>
+    </register>        
+    <register name="TimeWait" address="0014">
+      <description>Time the OEP was waiting</description>
+      <field name="TimeWait" start="0" bits="24" format="unsigned" unit="us"/>
+    </register>  
+    <register name="RealSpikes" address="0015">
+      <description>Number of spikes on CMS, detected asynchronously</description>
+      <field name="RealSpikes" start="0" bits="24" format="unsigned" />
+    </register>  
+  </group> 
+    
 </TrbNetEntity>
+
+
