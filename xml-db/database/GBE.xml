@@ -6,12 +6,182 @@
               >
   <description>Registers for the Gigabit Ethernet Interface</description>
 
-  <!-- this is just a very minimal version -->
-   
-  
-  <register name="TriggerAssertedCounter" address="0000" purpose="statistics">
-    <description>Number of clock cycles with trigger asserted</description>
-    <field name="TriggerAssertedCounter" start="0" bits="32" format="unsigned" />
-  </register>
 
+  <group name="IpTable" address="0100"  size="255"  purpose="config" mode="rw" continuous="true">
+    <group name="Eventbuilders" address="0000"  size="16"  repeat="16" continuous="true">    
+      <register name="DestinationMacHigh" address="0001" >
+        <description>Higher 16 Bit of Destination MAC addresses</description>
+        <field name="DestinationMacHigh" start="0" bits="16" format="hex"  noflag="true"/>
+      </register>
+      <register name="DestinationMacLow" address="0000" >
+        <description>Lower 32 Bit of Destination MAC addresses</description>
+        <field name="DestinationMacLow" start="0" bits="32" format="hex"  noflag="true"/>
+      </register>
+      <register name="DestinationIP" address="0002" >
+        <description>Destination IP addresses</description>
+        <field name="DestIP0" start="24" bits="8" format="unsigned"  noflag="true"/>
+        <field name="DestIP1" start="16" bits="8" format="unsigned"  noflag="true"/>
+        <field name="DestIP2" start="8" bits="8" format="unsigned"  noflag="true"/>
+        <field name="DestIP3" start="0" bits="8" format="unsigned"  noflag="true"/>
+      </register>
+      <register name="DestinationPort" address="0003" >
+        <description>Destination port</description>
+        <field name="DestinationPort" start="0" bits="16" format="unsigned"  noflag="true"/>
+      </register>      
+      <register name="SourceMacHigh" address="0005" >
+        <description>Higher 16 Bit of Source MAC addresses</description>
+        <field name="SourceMacHigh" start="0" bits="16" format="hex"  noflag="true"/>
+      </register>
+      <register name="SourceMacLow" address="0004" >
+        <description>Lower 32 Bit of Source MAC addresses</description>
+        <field name="SourceMacLow" start="0" bits="32" format="hex"  noflag="true"/>
+      </register>
+      <register name="SourceIP" address="0006" >
+        <description>Source IP addresses</description>
+        <field name="SourceIP0" start="24" bits="8" format="unsigned"  noflag="true"/>
+        <field name="SourceIP1" start="16" bits="8" format="unsigned"  noflag="true"/>
+        <field name="SourceIP2" start="8" bits="8" format="unsigned"  noflag="true"/>
+        <field name="SourceIP3" start="0" bits="8" format="unsigned"  noflag="true"/>
+      </register>
+      <register name="SourcePort" address="0007" >
+        <description>Source port</description>
+        <field name="SourcePort" start="0" bits="16" format="unsigned"  noflag="true"/>
+      </register>      
+    </group>  
+  </group>  
+
+  <group name="SubEvt" address="0300"  size="12"  purpose="config" mode="rw" continuous="true">
+    <register name="SubEvtId" address="0000" >
+      <description>SubEvent ID</description>
+      <field name="SubEvtId" start="0" bits="16" format="hex"  noflag="true"/>
+    </register>
+    <register name="SubEvtDecoding" address="0001" >
+      <description>SubEvent Decoding</description>
+      <field name="SubEvtDecoding" start="0" bits="32" format="hex"  noflag="true"/>
+    </register>
+    <register name="QueueDecoding" address="0002" >
+      <description>Queue Decoding</description>
+      <field name="QueueDecoding" start="0" bits="32" format="hex"  noflag="true"/>
+    </register>
+    <register name="FrameSize" address="0004" >
+      <description>Maximum Ethernet frame size in byte</description>
+      <field name="FrameSize" start="0" bits="16" format="unsigned"  noflag="true" unit="Byte"/>
+    </register>
+    <register name="ReadoutCounter" address="0008" >
+      <description>Update the readout counter, i.e. the internal frame number generation</description>
+      <field name="ReadoutCounter" start="0" bits="32" format="hex" noflag="true" />
+    </register>  
+    <register name="EnableData" address="0005" >
+      <description>Enable event data transport via GbE</description>
+      <field name="EnableData" start="0" bits="1" format="bitmask" />
+    </register>    
+    <register name="MultiEvent" address="0007" >
+      <description>Enable multi-event mode</description>
+      <field name="MultiEvent" start="0" bits="1" format="bitmask" />
+    </register>    
+    <register name="EnableRX" address="0009" >
+      <description>Enable receiver path</description>
+      <field name="EnableRX" start="0" bits="1" format="bitmask" />
+    </register>  
+    <register name="SctrlHeader" address="000a" >
+      <description>Include additional header in slow control packets</description>
+      <field name="SctrlHeader" start="0" bits="1" format="bitmask" />
+    </register>  
+    <register name="IncludeTriggerType" address="000b" >
+      <description>Add trigger type to decoding field</description>
+      <field name="IncludeTriggerType" start="0" bits="1" format="bitmask" />
+    </register>  
+  </group>
+  
+  <group name="GbEStatus" address="0300"  size="255"  purpose="status" mode="r" continuous="false">
+    <register name="ReceivedBytes" address="00e0" >
+      <description>Received Bytes</description>
+      <field name="ReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>
+    <register name="ReceivedFrames" address="00e1" >
+      <description>Received Frames </description>
+      <field name="ReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>
+    <register name="DroppedRXPackets" address="00e5" >
+      <description>Dropped Packets on RX</description>
+      <field name="DroppedRXPackets" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>       
+    
+    <register name="TransmittedBytes" address="00e2" >
+      <description>Transmitted Bytes</description>
+      <field name="TransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>
+    <register name="TransmittedFrames" address="00e3" >
+      <description>TransmittedFrames </description>
+      <field name="TransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    <register name="TransmittedPackets" address="00e4" >
+      <description>Transmitted UDP Packets</description>
+      <field name="TransmittedPackets" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    
+    <register name="SctrlReceivedFrames" address="00a0" >
+      <description>Received Frames for slow control</description>
+      <field name="SctrlReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    <register name="SctrlReceivedBytes" address="00a1" >
+      <description>Received Bytes for slow control</description>
+      <field name="SctrlReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>
+    <register name="SctrlTransmittedFrames" address="00a2" >
+      <description>Transmitted Frames for slow control</description>
+      <field name="SctrlTransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    <register name="SctrlTransmittedBytes" address="00a3" >
+      <description>Transmitted Bytes for slow control</description>
+      <field name="SctrlTransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>    
+    <register name="SctrlStatus" address="00a4" >
+      <description>Status of the slow control interface</description>
+      <field name="SctrlRxFull" start="0" bits="1" format="boolean" invertflag="true"/>
+      <field name="SctrlRxEmpty" start="1" bits="1" format="boolean" noflag="true"/>
+      <field name="SctrlTxFull" start="2" bits="1" format="boolean" invertflag="true"/>
+      <field name="SctrlTxEmpty" start="3" bits="1" format="boolean" noflag="true"/>
+      <field name="SctrlState" start="4" bits="4" format="hex" noflag="true"/>
+    </register>        
+
+    <register name="DataReceivedFrames" address="00b0" >
+      <description>Received Frames for data channel</description>
+      <field name="DataReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    <register name="DataReceivedBytes" address="00b1" >
+      <description>Received Bytes for data channel</description>
+      <field name="DataReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>
+    <register name="DataTransmittedFrames" address="00b2" >
+      <description>Transmitted Frames for data channel</description>
+      <field name="DataTransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+    </register>    
+    <register name="DataTransmittedBytes" address="00b3" >
+      <description>Transmitted Bytes for data channel</description>
+      <field name="DataTransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+    </register>    
+    <register name="DataStatus1" address="00b4" >
+      <description>Status of the data interface</description>
+      <field name="IpuRecvState" start="0" bits="4" format="hex" noflag="true"/>
+      <field name="IpuLoadState" start="4" bits="4" format="hex" noflag="true"/>
+      <field name="SplitEmpty" start="8" bits="1" format="boolean" noflag="true"/>
+      <field name="SplitAlmostEmpty" start="9" bits="1" format="boolean" noflag="true"/>
+      <field name="SplitFull" start="10" bits="1" format="boolean" invertflag="true"/>
+      <field name="SplitAlmostFull" start="11" bits="1" format="boolean" invertflag="true"/>
+    </register> 
+    <register name="DataStatus2" address="00b5" >
+      <description>Status of the data interface</description>
+      <field name="PacketConstState" start="0" bits="4" format="hex" noflag="true"/>
+      <field name="ConstLoadState" start="4" bits="4" format="hex" noflag="true"/>
+      <field name="ConstHeaderState" start="8" bits="4" format="hex" noflag="true"/>
+      
+      <field name="DataFull" start="12" bits="1" format="boolean" invertflag="true"/>
+      <field name="DataEmpty" start="13" bits="1" format="boolean" noflag="true"/>
+      <field name="HeadersFull" start="14" bits="1" format="boolean" invertflag="true"/>
+      <field name="HeadersEmpty" start="15" bits="1" format="boolean" noflag="true"/>
+    </register> 
+
+    
+  </group>
 </TrbNetEntity>
