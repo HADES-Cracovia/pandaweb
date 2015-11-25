@@ -96,45 +96,45 @@
   <group name="GbEStatus" address="0300"  size="255"  purpose="status" mode="r" continuous="false">
     <register name="ReceivedBytes" address="00e0" >
       <description>Received Bytes</description>
-      <field name="ReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="ReceivedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>
     <register name="ReceivedFrames" address="00e1" >
       <description>Received Frames </description>
-      <field name="ReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="ReceivedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>
     <register name="DroppedRXPackets" address="00e5" >
       <description>Dropped Packets on RX</description>
-      <field name="DroppedRXPackets" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="DroppedRXPackets" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>       
     
     <register name="TransmittedBytes" address="00e2" >
       <description>Transmitted Bytes</description>
-      <field name="TransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="TransmittedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>
     <register name="TransmittedFrames" address="00e3" >
       <description>TransmittedFrames </description>
-      <field name="TransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="TransmittedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     <register name="TransmittedPackets" address="00e4" >
       <description>Transmitted UDP Packets</description>
-      <field name="TransmittedPackets" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="TransmittedPackets" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     
     <register name="SctrlReceivedFrames" address="00a0" >
       <description>Received Frames for slow control</description>
-      <field name="SctrlReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="SctrlReceivedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     <register name="SctrlReceivedBytes" address="00a1" >
       <description>Received Bytes for slow control</description>
-      <field name="SctrlReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="SctrlReceivedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>
     <register name="SctrlTransmittedFrames" address="00a2" >
       <description>Transmitted Frames for slow control</description>
-      <field name="SctrlTransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="SctrlTransmittedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     <register name="SctrlTransmittedBytes" address="00a3" >
       <description>Transmitted Bytes for slow control</description>
-      <field name="SctrlTransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="SctrlTransmittedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>    
     <register name="SctrlStatus" address="00a4" >
       <description>Status of the slow control interface</description>
@@ -147,19 +147,19 @@
 
     <register name="DataReceivedFrames" address="00b0" >
       <description>Received Frames for data channel</description>
-      <field name="DataReceivedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="DataReceivedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     <register name="DataReceivedBytes" address="00b1" >
       <description>Received Bytes for data channel</description>
-      <field name="DataReceivedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="DataReceivedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>
     <register name="DataTransmittedFrames" address="00b2" >
       <description>Transmitted Frames for data channel</description>
-      <field name="DataTransmittedFrames" start="0" bits="32" format="unsigned" noflag="true"/>
+      <field name="DataTransmittedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     <register name="DataTransmittedBytes" address="00b3" >
       <description>Transmitted Bytes for data channel</description>
-      <field name="DataTransmittedBytes" start="0" bits="32" format="unsigned" unit="kB" scale="0.0009765" noflag="true"/>
+      <field name="DataTransmittedBytes" start="0" bits="32" format="unsigned" rate="true" unit="kB" scale="0.0009765" noflag="true"/>
     </register>    
     <register name="DataStatus1" address="00b4" >
       <description>Status of the data interface</description>
