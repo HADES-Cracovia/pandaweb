@@ -164,7 +164,8 @@
     var d = new Date();
     d.setTime(d.getTime()+(30*24*60*60*1000));
     var expires = "expires="+d.toGMTString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
+    var path = window.location.pathname;
+    document.cookie = cname + "=" + cvalue + "; " + expires + ";path= " + path;
     } 
     
     
