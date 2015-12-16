@@ -8,7 +8,7 @@
 
   <group name="GlobalConfig" purpose="config" address="0000" size="128" mode="rw" continuous="false">
     <description>Configuration for all channels</description>
-      <register name="ChannelEnable" address="0000"  mode="rw" >
+      <register name="ChannelEnable1" address="0000"  mode="rw" >
          <description>Enables individual outputs</description>
          <field  name="EnKelFirst16" start="0" bits="16" format="bitmask" noflag="true">
          </field>
@@ -25,7 +25,12 @@
          <field  name="EnAna1" start="25" bits="5" format="bitmask" noflag="true">
          </field>
       </register>
-      <register name="ChannelInvert" address="0001"  mode="rw" >
+      <register name="ChannelEnable2" address="0001"  mode="rw" >
+         <description>Enables additional pulser channels</description>
+         <field  name="EnAdditional" start="0" bits="16" format="bitmask" noflag="true">
+         </field>
+      </register>
+      <register name="ChannelInvert" address="0010"  mode="rw" >
          <description>Invert individual outputs - negative pulse, logical 1 when idle</description>
          <field  name="InvKelFirst16" start="0" bits="16" format="bitmask" noflag="true">
          </field>
@@ -52,21 +57,32 @@
 <!--          <field  name="Outp2" start="9" bits="1" format="bitmask" noflag="true"></field>       -->
        </register>
   </group>
-
-  <group name="PulserConfig" purpose="config" address="0080" size="96" mode="rw" continuous="true">
-    <description>Settings for each pulser channel</description>  
-    <register name="PulserPeriod" address="0000" mode="rw" repeat="30" >
-      <description>The period of the pulser, given in multiples of the 240 MHz clock cycle. Values below 15 ns are not allowed.</description>
-      <field  name="PulserPeriod" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
-    </register>    
-    <register name="PulseWidth" address="0020" mode="rw" repeat="30" >
-      <description>The width of the pulse, given in multiples of the 960 MHz clock cycle</description>
-      <field  name="PulseWidth" start="0" bits="24" format="unsigned" noflag="true" scale="1.0417" unit="ns" />
-    </register> 
-    <register name="PulserOffset" address="0040" mode="rw" repeat="30" >
-      <description>The offset of the pulser channel, given in multiples of the 240 MHz clock cycle</description>
-      <field  name="PulserOffset" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
-    </register> 
+  <group name="PulserConfig" purpose="config" address="0000" size="1024" mode="rw" continuous="false">
+    <group name="PulserConfigPeriod" purpose="config" address="0100" size="48" mode="rw" continuous="true">
+      <description>Settings for each pulser channel</description>  
+      <register name="PulserPeriod" address="0000" mode="rw" repeat="48" >
+        <description>The period of the pulser, given in multiples of the 240 MHz clock cycle. Values below 15 ns are not allowed.</description>
+        <field  name="PulserPeriod" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
+      </register>    
+    </group>  
+    <group name="PulserConfigWidth" purpose="config" address="0200" size="48" mode="rw" continuous="true">
+      <register name="PulseWidth" address="0000" mode="rw" repeat="48" >
+        <description>The width of the pulse, given in multiples of the 960 MHz clock cycle</description>
+        <field  name="PulseWidth" start="0" bits="24" format="unsigned" noflag="true" scale="1.0417" unit="ns" />
+      </register> 
+    </group>
+    <group name="PulserConfigOffset" purpose="config" address="0300" size="48" mode="rw" continuous="true">
+      <register name="PulserOffset" address="0000" mode="rw" repeat="48" >
+        <description>The offset of the pulser channel, given in multiples of the 240 MHz clock cycle</description>
+        <field  name="PulserOffset" start="0" bits="24" format="unsigned" noflag="true" scale="4.1667" unit="ns" />
+      </register> 
+    </group>
+    <group name="PulserConfigAdditional" purpose="config" address="0400" size="20" mode="rw" continuous="true">
+      <register name="PulserAddChannels" address="0000" mode="rw" repeat="20" >
+        <description>Add additional pulser channels to one of the first 20 outputs. One register per additional channel, one bit per output channel</description>
+        <field  name="PulserAddChannels" start="0" bits="16" format="bitmask" noflag="true" />
+      </register> 
+    </group>
   </group>
 
 </TrbNetEntity>
