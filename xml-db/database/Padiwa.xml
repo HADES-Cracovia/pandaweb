@@ -82,6 +82,10 @@
       thresholds when temperature is changing. See Padiwa manual.</description>
       <field name="TemperatureCompensation" start="0" bits="16" format="hex" />
     </register>
+    <register name="DelaySelect" address="000b">
+      <description>Select one of the internal taps of the delay line. Approx. 4.5ns per tap.</description>
+      <field name="DelaySelect" start="0" bits="4" format="hex" />
+    </register>    
   </group>
 
 </SpiEntity>
