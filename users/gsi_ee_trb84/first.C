@@ -14,7 +14,7 @@ void first()
    hadaq::TdcMessage::SetFineLimits(31, 491);
 
    // default channel numbers and edges mask
-   hadaq::TrbProcessor::SetDefaults(17, 1);
+   hadaq::TrbProcessor::SetDefaults(33, 1);
 
    // [min..max] range for TDC ids
    hadaq::TrbProcessor::SetTDCRange(0x610, 0x613);
@@ -96,12 +96,21 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
 
       // try to build abs time difference between 0 channels
       if (tdc->GetID() != firsttdc)
-         tdc->SetRefChannel(0, 0, (0x70000 | firsttdc), 6000,  -30., 30.);
+         tdc->SetRefChannel(0, 0, (0x70000 | firsttdc), 6000,  -20., 20.);
 
-      tdc->SetRefChannel(2,1, 0xffff, 2000, -50, 50); // TOT
-      tdc->SetRefChannel(6,5, 0xffff, 2000, -50, 50);  // TOT
+      /*
+      tdc->SetRefChannel(1,6, 0xffff, 6000, -20, 20); // trigger
+      tdc->SetRefChannel(2,1, 0xffff, 6000, -20, 20); // TOT
+      tdc->SetRefChannel(6,1, 0xffff, 6000, -20, 20);  // TOT
 
-      tdc->SetRefChannel(5,1, 0xffff, 2000, -50, 50);
+      tdc->SetRefChannel(5,1, 0xffff, 6000, -20, 20); // LED DIFF
+
+      */
+
+      tdc->SetRefChannel(28,27, 0xffff, 6000, -20, 20); // TOT
+      tdc->SetRefChannel(32,28, 0xffff, 6000, -20, 20);  // TOT
+
+      tdc->SetRefChannel(31,27, 0xffff, 6000, -20, 20); // LED DIFF
 
       // tdc->SetRefChannel(1, 0, 0xffff, 6000,  -160., -100.);
 
