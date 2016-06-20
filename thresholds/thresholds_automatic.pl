@@ -86,7 +86,7 @@ if ($offset) {
   #print "called with offset: $offset\n";
 }
 
-if ($default_direction =! 1 && $default_direction =! -1) {
+if ($default_direction != 1 && $default_direction != -1) {
     die "direction can only be 1 or -1";
 }
 
