@@ -86,6 +86,10 @@ if ($offset) {
   #print "called with offset: $offset\n";
 }
 
+if ($default_direction =! 1 && $default_direction =! -1) {
+    die "direction can only be 1 or -1";
+}
+
 die "wrong number format for chain parameter: \"$chain\"" unless $chain =~ /^\d+$/;
 
 if($endpoint !~ /^0x/) {
@@ -94,8 +98,6 @@ if($endpoint !~ /^0x/) {
     exit;
 }
 $endpoint = hex($endpoint);
-
-
 
 
 # go to the right position
@@ -137,8 +139,8 @@ if ($opt_finetune == true) {
     print Dumper \@current_thresh;
 
     $interval_step = 4;
-
 }
+
 
 my $hit_diff = 0;
 
@@ -345,7 +347,7 @@ my $rh_res;
 
     $command = $fixed_bits | ($current_channel << 16) ;
     my $rh_res = Dmon::PadiwaSendCmd($command,$endpoint, $chain);
-    push (@thresh , $rh_res->{$endpoint});
+    push (@thresh , 0xffff & $rh_res->{$endpoint});
   }
 
   #sleep 10 if($current_channel == 15 && $chain==1);
@@ -471,7 +473,7 @@ polarity: tells what the status of bit 32 is in the TDC, when the thresholds are
           as green fields and therefore the padiwas need an invert of the outputs for negative signals
 direction: what do you want to detect: 
             negative pulses: direction = 1 (default)
-            positive pulses: direction = 0
+            positive pulses: direction = -1
 32channel: when set the tool assums a TDC with 32 channels, leading and trailing channels use two channels
 finetune: tries to optimize the thresholds beginning with the current ones
 
