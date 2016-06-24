@@ -26,7 +26,7 @@
 </group>
   
 <group name="BufferConfig"
-           address="0010"  size="16"  purpose="config" mode="rw" continuous="true">
+           address="0010"  size="16"  purpose="config" mode="rw" continuous="false">
       <description>Configuration of buffer handling</description>
       <register name="BufferDepth" address="0000" >
         <description>Number of samples to be stored in the buffer</description>
@@ -45,11 +45,11 @@
       
       <register name="TriggerSetting" address="0003" >
         <description>Settings of trigger signal generation</description>
-        <field  name="TriggerOffset" start="0"   bits="10"  format="signed" noflag="true" >
+        <field  name="TriggerOffset" start="0"   bits="16"  format="signed" noflag="true" >
           <description>Offset from the calculated baseline that must be reached to generate a trigger signal for the CTS</description>
         </field>
         <field name="TriggerInvert" start="16" bits="1" format="bitmask" noflag="true">
-          <description>Selects positive (unset) or negative (set) signal inputs. If negative is selected, a trigger is generated if the input signal is below the baseline minus the set threshold</description>
+          <description>Selects positive (unset) or negative (set) signal inputs. If negative is selected, a trigger is generated if the input signal is below the baseline plus the set (negative) threshold</description>
         </field>
       </register>
 
@@ -106,6 +106,17 @@
         <description>Constant Fraction Discriminator config</description>
         <field  name="CFDWindow" start="0"   bits="8"  format="unsigned" noflag="true" />
         <field  name="CFDDelay" start="8"   bits="4"  format="unsigned" noflag="true" />
+      </register>
+      <register name="BaselineFix" address="000e">
+        <description>Sets a defined reset value of the baseline. If not active, baseline is resetted to 0 or MAX depending on polarity selection of trigger generation.
+          To fix the baseline at this value, BaselineReset</description>
+        <field  name="BaselineFixed" start="31"   bits="1"  format="bitmask" noflag="true" >
+          <description>Do not do baseline calculations, always fix to the reset value.</description>
+        </field>
+        <field  name="BaselineEn" start="30"   bits="1"  format="bitmask" noflag="true" >
+          <description>Enable user supplied reset value for baseline, do not calculate automatically</description>
+        </field>
+        <field  name="BaselineValue" start="0"   bits="29"  format="unsigned" noflag="true" />
       </register>
 </group>  
 
