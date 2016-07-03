@@ -21,6 +21,9 @@ my $result = GetOptions (
 my $map = {
  0 => { trb =>  84, addr => "0xc001", sys => "CTS"},
  1 => { trb =>  61, addr => "0x8000", sys => "TOF"},
+ 2 => { trb => 113, addr => "0x8001", sys => "TOF"}, 
+ 3 => { trb => 158, addr => "0x8002", sys => "TOF"},
+
 };
 my $MAX_PROCESSES=50;
 my $pm = Parallel::ForkManager->new($MAX_PROCESSES);

@@ -1,0 +1,7 @@
+# addresses_dirich.db 
+# maps trbnet-addresses to serial number + FPGA number
+
+# Address #  S/N  #  FPGA
+
+0x1200 	    0001     1
+

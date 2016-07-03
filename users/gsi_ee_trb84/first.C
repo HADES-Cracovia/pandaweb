@@ -4,8 +4,8 @@
 
 void first()
 {
-   base::ProcMgr::instance()->SetRawAnalysis(true);
-   // base::ProcMgr::instance()->SetTriggeredAnalysis(true);
+  //base::ProcMgr::instance()->SetRawAnalysis(true);
+    base::ProcMgr::instance()->SetTriggeredAnalysis(true);
 
    // all new instances get this value
    base::ProcMgr::instance()->SetHistFilling(4);
@@ -14,13 +14,14 @@ void first()
    hadaq::TdcMessage::SetFineLimits(31, 491);
 
    // default channel numbers and edges mask
-   hadaq::TrbProcessor::SetDefaults(33, 1);
+   hadaq::TrbProcessor::SetDefaults(33, 2);
 
    // [min..max] range for TDC ids
-   hadaq::TrbProcessor::SetTDCRange(0x610, 0x613);
+   //hadaq::TrbProcessor::SetTDCRange(0x610, 0x613);
+   hadaq::TrbProcessor::SetTDCRange(0x1130, 0x1603);
 
    // [min..max] range for HUB ids
-   hadaq::TrbProcessor::SetHUBRange(0x8200, 0x82FF);
+   hadaq::TrbProcessor::SetHUBRange(0x8000, 0x82FF);
 
    // when first argument true - TRB/TDC will be created on-the-fly
    // second parameter is function name, called after elements are created
@@ -60,7 +61,7 @@ void first()
    // 1 - std::vector<hadaq::TdcMessageExt> - includes original TDC message
    // 2 - std::vector<hadaq::MessageFloat>  - compact form, without channel 0, stamp as float (relative to ch0)
    // 3 - std::vector<hadaq::MessageDouble> - compact form, with channel 0, absolute time stamp as double
-   base::ProcMgr::instance()->SetStoreKind(3);
+   base::ProcMgr::instance()->SetStoreKind(2);
 
 
    // when configured as output in DABC, one specifies:
@@ -107,10 +108,63 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
 
       */
 
+      //tdc->SetRefChannel(14,16, 0xffff, 6000, -20, 20); // TOT
+      //tdc->SetRefChannel(16,14, 0xffff, 6000, -20, 20); // TOT
+
+      //tdc->SetRefChannel(16,0, 0xffff, 6000, -20, 20); // TOT
+      //tdc->SetRefChannel(14,0, 0xffff, 6000, -20, 20); // TOT
+		  //tdc->SetRefChannel(16,14, 0xffff, 6000, -20, 20); // TOT
+      
+      /*
+      tdc->SetRefChannel(27,32, 0xffff, 6000, -20, 20); // TOT
       tdc->SetRefChannel(28,27, 0xffff, 6000, -20, 20); // TOT
       tdc->SetRefChannel(32,28, 0xffff, 6000, -20, 20);  // TOT
+      */
+      //      tdc->SetRefChannel(11,1, 0xffff, 6000, -20, 20); // LED DIFF
+      //tdc->SetRefChannel(2,1, 0xffff, 6000, -20, 20); // LED DIFF
+      //tdc->SetRefChannel(12,2, 0xffff, 6000, -20, 20); // LED DIFF
+      tdc->SetUseLastHit(false);
+      
+      if (tdc->GetID() == 0x1130) {
+	//	tdc->SetRefChannel(31,1, 0x1130, 6000, -20, 20); // LED DIFF
+	//tdc->SetRefChannel(32,2, 0x1130, 6000, -20, 20); // LED DIFF
+	//tdc->SetRefChannel(1,2, 0x1130, 6000, -20, 20); // LED DIFF
+	//tdc->SetRefChannel(2,31, 0x1130, 6000, -20, 20); // LED DIFF
+      }
 
-      tdc->SetRefChannel(31,27, 0xffff, 6000, -20, 20); // LED DIFF
+      /*
+      if (tdc->GetID() == 0x1580) {
+	tdc->SetRefChannel(31,1, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(32,2, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel( 1,2, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(2,31, 0x1580, 20000, -20, 20); // LED DIFF
+      }
+      */
+
+      /*
+      if (tdc->GetID() == 0x1580) {
+	tdc->SetRefChannel(21,17, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(22,18, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(17,18, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(18,21, 0x1580, 20000, -20, 20); // LED DIFF
+      }
+      */
+      
+      if (tdc->GetID() == 0x1580) {
+	//	tdc->SetRefChannel(9,11, 0x1580, 20000, -20, 20); // LED DIFF
+	//      tdc->SetRefChannel(11,9, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(17,21, 0x1580, 20000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(18,17, 0x1580, 20000, -20, 20); // LED DIFF
+      }
+
+
+      if (tdc->GetID() == 0x1133) {
+	//tdc->SetRefChannel(1,0, 0x1133, 6000, -200, -100); // LED DIFF
+	tdc->SetRefChannel(1,31, 0x1130, 6000, -20, 20); // LED DIFF
+	tdc->SetRefChannel(11,1, 0x1133, 6000, -20, 20); // LED DIFF
+      }
+	//tdc->SetRefChannel(31,27, 0xffff, 6000, -20, 20); // LED DIFF
+      
 
       // tdc->SetRefChannel(1, 0, 0xffff, 6000,  -160., -100.);
 

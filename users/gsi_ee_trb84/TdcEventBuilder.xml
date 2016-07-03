@@ -95,14 +95,16 @@ When starting analysis from the go4 gui, one should specify stream server with p
 
     <Module name="Combiner" class="hadaq::CombinerModule">    
         <!-- these parameters will force to create inputs/outputs of module -->
-       <NumInputs value="2"/>
-       <NumOutputs value="1"/>
+       <NumInputs value="4"/>
+       <NumOutputs value="2"/>
 
-       <InputPort name="Input0" url="hadaq://host:50084" urlopt1=""/>
-       <InputPort name="Input1" url="hadaq://host:50061" urlopt1=""/>
-       <InputPort name="Input2" url="hadaq://host:50096" urlopt1=""/>
-       <InputPort name="Input3" url="hadaq://host:10104" urlopt1="trb=0x8030&tdc=[0x3030,0x3031,0x3032,0x3033]&dummy"/>
-       <InputPort name="Input4" url="hadaq://host:10105" urlopt1="trb=0x8040&tdc=[0x3040,0x3041,0x3042,0x3043]&dummy"/>
+       <InputPort name="Input0" url="hadaq://host:50061" urlopt1=""/>
+       <InputPort name="Input1" url="hadaq://host:50113" urlopt1=""/>
+       <InputPort name="Input2" url="hadaq://host:50084" urlopt1=""/>
+       <InputPort name="Input3" url="hadaq://host:50158" urlopt1=""/>
+
+       <InputPort name="Input4" url="hadaq://host:10104" urlopt1="trb=0x8030&tdc=[0x3030,0x3031,0x3032,0x3033]&dummy"/>
+       <InputPort name="Input5" url="hadaq://host:10105" urlopt1="trb=0x8040&tdc=[0x3040,0x3041,0x3042,0x3043]&dummy"/>
 
        <!-- <InputPort name="Input0" url="hadaq://host:50021" urlopt1="trb=0x8000&hub=0x8100&tdc=[0xC000,0xC001,0xC003]&dummy"/> -->
        <!-- <InputPort name="Input1" url="hadaq://host:50094" urlopt1="trb=0x8003&tdc=[0xC00C,0xC00D,0xC00E,0xC00F]&dummy"/> -->
@@ -110,7 +112,7 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <!-- <InputPort name="Input3" url="hadaq://host:10104" urlopt1="trb=0x8030&tdc=[0x3030,0x3031,0x3032,0x3033]&dummy"/> -->
        <!-- <InputPort name="Input4" url="hadaq://host:10105" urlopt1="trb=0x8040&tdc=[0x3040,0x3041,0x3042,0x3043]&dummy"/> -->
 
-       <InputPort name="Input*" queue="30" urlopt="udpbuf=200000&mtu=64512&flush=2.0&observer=false&debug"/>
+       <InputPort name="Input*" queue="30" urlopt="udpbuf=2000000&mtu=64512&flush=2.0&observer=false&debug&resort"/>
 
        <ExtraDebug value="false"/>
 
@@ -118,7 +120,7 @@ When starting analysis from the go4 gui, one should specify stream server with p
        <OutputPort name="Output0" url="mbs://Stream:6789?iter=hadaq_iter&subid=0x1f"/>
 
        <!--  this is example of HLD file storage - local and RFIO -->
-       <OutputPort name="Output1" url="hld:///d/dabc.hld?maxsize=2000"/>
+       <OutputPort name="Output1" url="hld:///d/pulser.hld?maxsize=2000"/>
        <!--OutputPort name="Output1" url="hld:///linev/path/dabc.hld?maxsize=1900&rfio"/-->
 
        <DoShmControl value="false"/>  

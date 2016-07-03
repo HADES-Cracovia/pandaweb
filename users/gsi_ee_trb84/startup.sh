@@ -10,7 +10,7 @@ export PATH=$PATH:$USER_DIR
 
 export TRB3_SERVER=trb084:26000
 export TRBNETDPID=$(pgrep -f "trbnetd -i 84")
-export DAQOPSERVER=kp1pc105:84
+export DAQOPSERVER=hadeb05:84
 
 echo "- trbnetd pid: $TRBNETDPID"
 
@@ -70,13 +70,24 @@ loadregisterdb.pl db/register_configtdc.db
 
 echo "pulser"
 # pulser #0 to 10 kHz
-trbcmd w 0xc001 0xa156 0x0000270f   
+trbcmd w 0xc001 0xa150 0x0000270f   
+#trbcmd w 0xc001 0xa150 0x0022270f   
 
 echo "trigger type"
 # set trigger type to 0x1
-trbcmd setbit 0xc001 0xa15e 0x10
+trbcmd setbit 0xc001 0xa155 0x10
 
 echo "pulser enable"
 # pulser enable
-trbcmd setbit 0xc001 0xa101 0x2
+#trbcmd setbit 0xc001 0xa101 0x1
 
+trbcmd clearbit 0x1130 0xc801 0x80000000 # disable window
+#trbcmd w 0x1130 0xc802 0xffff0000 # enable upper 16 channels for padiwa
+trbcmd w 0x1580 0xc802 0xffffffff # enable upper 16 channels for padiwa
+
+
+trbcmd w 0x1133 0xc804 0x7c # max number of words
+trbcmd clearbit 0x1133 0xc801 0x80000000 # disable window
+trbcmd w 0x1133 0xc802 0x00000c03 # enable pulser
+
+trbcmd setbit 0xc001 0xa101 0x8 # enable external trigger in of CTS
