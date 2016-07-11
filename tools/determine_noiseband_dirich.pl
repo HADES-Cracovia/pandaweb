@@ -9,8 +9,9 @@ my $dirich = 0x1200;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
-my $last_channel = 31;
+my $last_channel = 3;
 
+my $default_threshold = 0x0000;
 
 #my $absolute_max_threshold = 0x8000;
 my $absolute_min_threshold = 0x2000;
@@ -27,7 +28,7 @@ if(!defined $res) {
 
 
 for my $channel (0 .. 31) {
-    trb_register_write($dirich, $throffset + $channel , 0x0000);
+    trb_register_write($dirich, $throffset + $channel , $default_threshold);
     #$rh_res = trb_register_read($dirich, $throffset + $channel);
 }
 
@@ -40,7 +41,7 @@ for my $channel (0 .. $last_channel) {
 
     my $hit_zero_diff_flag = 0;
 
-    my $lower_threshold = 0x7000;
+    my $lower_threshold = 0x6e00;
     my $upper_threshold = 0xd000;
     my $reasonable_upper_threshold = 0x8000;
     my $thresh_increment = 0x40;
@@ -98,7 +99,7 @@ for my $channel (0 .. $last_channel) {
 	$boundaries->{$channel}->{'upper'} = $upper_threshold;
     }
     
-    trb_register_write($dirich, $throffset + $channel , 0x0000);
+    trb_register_write($dirich, $throffset + $channel , $default_threshold);
 }
 
 
