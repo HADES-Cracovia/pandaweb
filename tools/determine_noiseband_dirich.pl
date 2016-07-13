@@ -9,9 +9,9 @@ my $dirich = 0x1200;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
-my $last_channel = 3;
+my $last_channel = 31;
 
-my $default_threshold = 0x0000;
+my $default_threshold = 0x4000;
 
 #my $absolute_max_threshold = 0x8000;
 my $absolute_min_threshold = 0x2000;
@@ -32,12 +32,12 @@ for my $channel (0 .. 31) {
     #$rh_res = trb_register_read($dirich, $throffset + $channel);
 }
 
-#usleep (1E4);
+usleep (1E5);
 
 my $boundaries = {};
 
 for my $channel (0 .. $last_channel) {
-#for my $channel (28 .. 31) {
+#for my $channel (24 .. 27) {
 
     my $hit_zero_diff_flag = 0;
 
@@ -51,12 +51,12 @@ for my $channel (0 .. $last_channel) {
       undef $rh_res;
       my @hits = ();
       foreach (1..2) {
+	  usleep(50E3);
 	  $rh_res = trb_register_read($dirich, $monitor + $channel);
 	  #$res = trb_strerror();
 	  #print "error output: $res\n";
 	  #print Dumper $rh_res;
 	  push @hits ,$rh_res->{$dirich};
-	  usleep(50E3);
       }
       
       my $diff = $hits[1] - $hits[0];
@@ -66,6 +66,7 @@ for my $channel (0 .. $last_channel) {
 	  print "channel: $channel, backup threshold a bit (by 0x800)..., thresh: "; printf "0x%x\n",$thresh;
 	  if($thresh <= $absolute_min_threshold) {
 	      print "reached abs min threshold\n";
+	      $boundaries->{$channel}->{'lower'} = $thresh;
 	      last THRESH_LOOP;
 	  }
 	  else {
@@ -111,4 +112,12 @@ foreach my $cur_channel (sort {$a <=> $b} keys %$boundaries) {
     printf "channel: %2d: noiseband [mV]: %02.0f\n", $cur_channel , $width;
 }
 
+print "\nsummary:\n";
+foreach my $cur_channel (sort {$a <=> $b} keys %$boundaries) {
+    my $diff = $boundaries->{$cur_channel}->{upper} - $boundaries->{$cur_channel}->{lower};
+    my $width = $diff * 38E-6 * 1000;
+    printf "%2d ", $width;
+}
+print "\n";
+	
 
