@@ -5,11 +5,15 @@ use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Data::Dumper;
 
-my $dirich = 0x1200;
+my $dirich = 0xf3d1;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
+<<<<<<< Updated upstream
 my $last_channel = 31;
+=======
+my $last_channel = 28;
+>>>>>>> Stashed changes
 
 my $default_threshold = 0x4000;
 
@@ -41,13 +45,16 @@ for my $channel (0 .. $last_channel) {
 
     my $hit_zero_diff_flag = 0;
 
-    my $lower_threshold = 0x6e00;
-    my $upper_threshold = 0xd000;
+    my $lower_threshold = 0x6800;
+    my $upper_threshold = 0xa000;
     my $reasonable_upper_threshold = 0x8000;
     my $thresh_increment = 0x40;
+#  trb_register_write($dirich, $throffset + $channel , $lower_threshold);
+#  usleep(1e6);
     
   THRESH_LOOP:    for (my $thresh = $lower_threshold ; $thresh <= $upper_threshold; $thresh += $thresh_increment) {
       trb_register_write($dirich, $throffset + $channel , $thresh);
+#      usleep(100E3);
       undef $rh_res;
       my @hits = ();
       foreach (1..2) {
