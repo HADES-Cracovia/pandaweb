@@ -62,6 +62,7 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
     my $trbnum= $map->{$ct}->{trb};
     my $num = sprintf "%3.3d", $trbnum;
     my $host= "trb" . $num;
+    #my $host= "trb" . $num ."b";
     my $system = $map->{$ct}->{sys};
     #print "192.168.0.$ct   $host.gsi.de $host\n";
     #my $r = $p->ping($host,1);

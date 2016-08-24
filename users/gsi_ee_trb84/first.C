@@ -21,7 +21,7 @@ void first()
    hadaq::TrbProcessor::SetTDCRange(0x1130, 0x1603);
 
    // [min..max] range for HUB ids
-   hadaq::TrbProcessor::SetHUBRange(0x8000, 0x82FF);
+   hadaq::TrbProcessor::SetHUBRange(0x8000, 0x8fff);
 
    // when first argument true - TRB/TDC will be created on-the-fly
    // second parameter is function name, called after elements are created

@@ -10,7 +10,8 @@ export PATH=$PATH:$USER_DIR
 
 export TRB3_SERVER=trb084:26000
 export TRBNETDPID=$(pgrep -f "trbnetd -i 84")
-export DAQOPSERVER=hadeb05:84
+#export DAQOPSERVER=hadeb05:84
+export DAQOPSERVER=hades39:84
 
 echo "- trbnetd pid: $TRBNETDPID"
 
@@ -30,6 +31,14 @@ sleep 1;
 ## Set addresses
 ##################################################
 merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_trb3.db $USER_DIR/db/addresses_trb3.db
+merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_dirich.db $USER_DIR/db/addresses_dirich.db
+
+
+#echo "disable port 6 on hub 0x8841"
+#trbcmd clearbit 0x8841 0xc0 0x40
+#trbcmd clearbit 0x8841 0xc1 0x40
+#trbcmd clearbit 0x8841 0xc3 0x40
+
 
 echo "GbE settings"
 loadregisterdb.pl db/register_configgbe.db
@@ -37,6 +46,7 @@ loadregisterdb.pl db/register_configgbe_ip.db
 
 echo "TDC settings"
 loadregisterdb.pl db/register_configtdc.db
+echo "TDC settings end"
 
 # setup central FPGA - enable peripherial signals
 #switchport.pl 0x8840 5 off
@@ -68,6 +78,9 @@ loadregisterdb.pl db/register_configtdc.db
 #trbcmd setbit 0xc001 0xa14d 0x2     #select F5_COMM input
 #trbcmd setbit 0xc840 0xa101 0x200   #enable input at CTS
 
+# set correct timeout: off for channel 0, 1, 2sec for 2
+#trbcmd w 0xfffe 0xc5 0x50ff
+
 echo "pulser"
 # pulser #0 to 10 kHz
 trbcmd w 0xc001 0xa150 0x0000270f   
@@ -86,8 +99,14 @@ trbcmd clearbit 0x1130 0xc801 0x80000000 # disable window
 trbcmd w 0x1580 0xc802 0xffffffff # enable upper 16 channels for padiwa
 
 
+cd ~/trbsoft/daqtools/xml-db
+./put.pl Readout 0xfe51 SetMaxEventSize 500
+cd -
+
+trbcmd w 0xfe51 0xdf80 0xffffffff # enable monitor counters
+
 trbcmd w 0x1133 0xc804 0x7c # max number of words
 trbcmd clearbit 0x1133 0xc801 0x80000000 # disable window
 trbcmd w 0x1133 0xc802 0x00000c03 # enable pulser
 
-trbcmd setbit 0xc001 0xa101 0x8 # enable external trigger in of CTS
+#trbcmd setbit 0xc001 0xa101 0x8 # enable external trigger in of CTS

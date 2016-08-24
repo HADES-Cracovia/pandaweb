@@ -34,8 +34,8 @@ class SecondProc : public base::EventProc {
          hUser = MakeH2("ToT_vs_LED","ToT versus LED difference", 500, -4, 0, 500, -2, -1, "ToT/ns;LED diff/ns");
 	 */
 	 
-         hDif1 = MakeH1("LE1","1 vs. 11", 30000, -90, 90, "ns");
-         hDif2 = MakeH1("LE2","2 vs. 12", 30000, -90, 90, "ns");
+         hDif1 = MakeH1("LE1","1 vs. 2", 30000, -90, 90, "ns");
+         hDif2 = MakeH1("TE2","1 vs. 2", 30000, -90, 90, "ns");
 	 
 
 	 /*
@@ -102,8 +102,8 @@ class SecondProc : public base::EventProc {
 	 */
 
 	 
-	 FillH1(hDif1, (fHits[1][0] - fHits[16][0]));
-         //FillH1(hDif2, (fHits[2][0] - fHits[12][0]));
+	 FillH1(hDif1, (fHits[1][0] - fHits[2][0]) );
+         FillH1(hDif2, (fHits[1][1] - fHits[2][1]) );
 	 
 	 
 
@@ -115,5 +115,6 @@ class SecondProc : public base::EventProc {
 void second()
 {
   //new SecondProc("A", "TDC_1133");
-  new SecondProc("A", "TDC_1580");
+  //new SecondProc("A", "TDC_1580");
+  new SecondProc("A", "TDC_1202");
 }

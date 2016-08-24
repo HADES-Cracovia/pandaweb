@@ -5,7 +5,7 @@ use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Data::Dumper;
 
-my $dirich = 0x1200;
+my $dirich = 0x1204;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
@@ -106,10 +106,12 @@ for my $channel (0 .. $last_channel) {
 
 print "\nresult:\n";
 #print Dumper $boundaries;
+print "channel | noiseband [mV]\n";
+print "------------------------\n";
 foreach my $cur_channel (sort {$a <=> $b} keys %$boundaries) {
     my $diff = $boundaries->{$cur_channel}->{upper} - $boundaries->{$cur_channel}->{lower};
     my $width = $diff * 38E-6 * 1000;
-    printf "channel: %2d: noiseband [mV]: %02.0f\n", $cur_channel , $width;
+    printf "%2d      | %02.0f\n", $cur_channel , $width;
 }
 
 print "\nsummary:\n";
