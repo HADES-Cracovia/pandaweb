@@ -492,7 +492,7 @@ sub set_optimal_phases {
       print ">>>>>>>>>>>> Warning: No optimal phase found for ADC $adc, guessing 0\n";
       $opt_phase=0;
     }
-    #print "Opt phase: $opt_phase Max length $max_length\n";
+    print "Opt phase: $opt_phase Max length $max_length\n";
 
     # now set them for each ADC
     @adcs = ($adc);             # used by adc_phase

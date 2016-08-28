@@ -4,7 +4,6 @@ use Storable qw(lock_store lock_retrieve);
 use feature "switch";
 use Time::HiRes qw( time usleep );
 
-no if $] >= 5.017011, warnings => 'experimental::smartmatch';
 use if (defined $ENV{'QUERY_STRING'}), CGI::Carp => qw(fatalsToBrowser);
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
@@ -12,6 +11,7 @@ use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
 use if (!defined $ENV{'QUERY_STRING'}), Data::Dumper;
 use if (!defined $ENV{'QUERY_STRING'}), Data::TreeDumper;
 use if (!defined $ENV{'QUERY_STRING'}), Getopt::Long;
+no warnings 'experimental::smartmatch';
 
 # use Data::TreeDumper;
 use Data::Dumper;

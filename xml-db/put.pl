@@ -4,8 +4,8 @@ use HADES::TrbNet;
 use Storable qw(lock_retrieve);
 use Time::HiRes qw( usleep );
 use feature "switch";
-use CGI::Carp qw(fatalsToBrowser);
 
+use if (defined $ENV{'QUERY_STRING'}), CGI::Carp => qw(fatalsToBrowser);
 use if (!defined $ENV{'QUERY_STRING'}), warnings;
 use if (!defined $ENV{'QUERY_STRING'}), Pod::Usage;
 use if (!defined $ENV{'QUERY_STRING'}), Text::TabularDisplay;
@@ -175,30 +175,28 @@ sub writedata {
   }
 
 sub register_read {
-  my ($netaddr, $regaddr) = @_;
-  for ($db->{'§EntityType'}) {
-    when ("TrbNetEntity")  {
-      $o =  trb_register_read($netaddr, $regaddr);
+    my ($netaddr, $regaddr) = @_;
+    if ($db->{'§EntityType'}  eq "TrbNetEntity")  {
+	$o =  trb_register_read($netaddr, $regaddr);
     }
-    when ("SpiEntity") {
-      $o = spi_register_read($netaddr, $regaddr);
+    elsif ($db->{'§EntityType'} eq "SpiEntity") {
+	$o = spi_register_read($netaddr, $regaddr);
     }
-    default {die "EntityType not recognized";}
-  }
-  return $o;
+    else {die "EntityType not recognized";}
+    
+    return $o;
 }
 
 sub register_write {
-  my ($netaddr, $regaddr, $value) = @_;
-  for ($db->{'§EntityType'}) {
-    when ("TrbNetEntity")  {
-      $o =  trb_register_write($netaddr, $regaddr, $value);
+    my ($netaddr, $regaddr, $value) = @_;
+    if ($db->{'§EntityType'} eq "TrbNetEntity")  {
+	$o =  trb_register_write($netaddr, $regaddr, $value);
     }
-    when ("SpiEntity") {
-      $o = spi_register_write($netaddr, $regaddr, $value);
+    elsif ($db->{'§EntityType'} eq "SpiEntity") {
+	$o = spi_register_write($netaddr, $regaddr, $value);
     }
-    default {die "EntityType not recognized";}
-  }
+    else  {die "EntityType not recognized";}
+    
   return $o;
 }
 

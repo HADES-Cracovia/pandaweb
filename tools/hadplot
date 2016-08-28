@@ -154,7 +154,7 @@ if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
 
 #Open Gnuplot
 our $fh;
-my $fn = "gnuplot -noraise -geometry $geom -bg 'ghost white'";
+my $fn = "tee /dev/stderr | gnuplot -noraise -geometry $geom -bg 'ghost white'";
 $fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
 $fh->autoflush(1);
 
@@ -273,7 +273,7 @@ sub plot_reset {
     if ($plotendedbefore != 0) {
       $plotendedbefore = 0;
       print $fh makeTimeString();      
-      print $fh "replot\n";
+      print $fh "replot \n";
       }
     }
   else {
@@ -726,7 +726,7 @@ sub genreg {
     plot_write("set autoscale xfix ");    
     }
 
-  plot_write("plot",1);
+  plot_write("plot ",1);
   for(my $i = 0; $i<scalar(@{$address});$i++) {
     plot_write("'-' ",NONEWLINE);
     if($xticks) {

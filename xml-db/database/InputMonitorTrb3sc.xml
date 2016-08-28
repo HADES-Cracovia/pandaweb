@@ -129,7 +129,15 @@
          <description>Number of outputs of the trigger logic</description>
       </field>
     </register>
-    
+    <register name="Multiplicity" address="0032" mode="r" >
+      <description>Multiplicity based on enabled inputs to output 1. Output used is 2! Coincidence interval is fixed to 4 clock cycles</description>
+      <field  name="MultLimit" start="16" bits="8" format="unsigned" noflag="true" mode="rw">
+         <description>Number of inputs firing at the same time required to cause a trigger</description>
+      </field>
+      <field  name="MultActual" start="0" bits="8" format="unsigned" noflag="true">
+         <description>Current number of active inputs.</description>
+      </field>
+    </register>    
         
    </group>  
   
