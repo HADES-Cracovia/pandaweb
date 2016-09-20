@@ -95,6 +95,25 @@ var CTS = new Class({
       this.initAutoUpdate();
       this.dataUpdate();
       
+/* Flash groups */
+      $$('*[flashgroup]').addEvents({
+          'mouseenter': function(e) {
+            var t = $(e.target);
+
+            while(!t.get('flashgroup')) {
+                if (t.get('id') == 'content-area') return;
+                t = t.getParent();
+            }
+
+            $$('*[flashgroup="' + t.get('flashgroup') + '"]').addClass('flash');
+          }, 
+          
+          'mouseleave': function(e) {
+            $$('.flash').removeClass('flash');
+          }
+      });
+    
+      
       $('rate-plot').set('src', this.monitorPrefix + 'plot.png');
       this.addEvent('dataUpdate', function() {
          $('rate-plot').set('src', $('rate-plot').get('src').split('?')[0] + "?" + new Date().getTime());
@@ -1039,24 +1058,7 @@ window.addEvent('load', function() {
    window.addEvent('resize', caption.reposition);
 });
    
-/* Flash groups */
-window.addEvent('load', function() {
-   $$('*[flashgroup]').addEvents({
-      'mouseenter': function(e) {
-         var t = $(e.target);
-         while(!t.get('flashgroup')) {
-            if (t.get('id') == 'content-area') return;
-            t = t.getParent();
-         }
-         
-         $$('*[flashgroup="' + t.get('flashgroup') + '"]').addClass('flash');
-      }, 
-      
-      'mouseleave': function(e) {
-         $$('.flash').removeClass('flash');
-      }
-   });
-});
+
 
 function id(x) {return x;}
 
