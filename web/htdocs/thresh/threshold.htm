@@ -173,7 +173,7 @@ Mousetrap.bind('R', function() {document.getElementById("form_ref").focus();});
 Mousetrap.bind('a', function() { board = (parseInt(board,16)+1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
 Mousetrap.bind('A', function() { board = (parseInt(board,16)-1).toString(16); document.getElementById("form_board").value = board; setValues(); });  
   
-Mousetrap.bind('c', function() { ++chan; chan %= 16; document.getElementById("form_channel").value = chan; setValues(); });  
+Mousetrap.bind('c', function() { ++chan; chan %= 32; document.getElementById("form_channel").value = chan; setValues(); });  
 Mousetrap.bind('d', function() { ++chain; chain %= 16; document.getElementById("form_chain").value = chain; setValues(); });  
 Mousetrap.bind(['C','v'], function() { --chan;  chan%=32;  if (chan<0)  chan=31;  document.getElementById("form_channel").value = chan; setValues(); });  
 Mousetrap.bind(['D','f'], function() { --chain; chain%=16; if (chain<0) chain=15; document.getElementById("form_chain").value = chain; setValues(); });  
