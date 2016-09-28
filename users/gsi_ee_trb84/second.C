@@ -104,8 +104,6 @@ class SecondProc : public base::EventProc {
 	 
 	 FillH1(hDif1, (fHits[1][0] - fHits[2][0]) );
          FillH1(hDif2, (fHits[1][1] - fHits[2][1]) );
-	 
-	 
 
          return true;
       }
@@ -116,5 +114,5 @@ void second()
 {
   //new SecondProc("A", "TDC_1133");
   //new SecondProc("A", "TDC_1580");
-  new SecondProc("A", "TDC_1202");
+  new SecondProc("A", "TDC_1207");
 }

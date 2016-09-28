@@ -32,6 +32,7 @@ sleep 1;
 ##################################################
 merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_trb3.db $USER_DIR/db/addresses_trb3.db
 merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_dirich.db $USER_DIR/db/addresses_dirich.db
+merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_dirich_concentrator.db $USER_DIR/db/addresses_dirich_concentrator.db
 
 
 #echo "disable port 6 on hub 0x8841"
@@ -49,7 +50,7 @@ loadregisterdb.pl db/register_configtdc.db
 echo "TDC settings end"
 
 # setup central FPGA - enable peripherial signals
-#switchport.pl 0x8840 5 off
+#switchport.pl 0x8841 6 off
 
 
 
@@ -79,7 +80,10 @@ echo "TDC settings end"
 #trbcmd setbit 0xc840 0xa101 0x200   #enable input at CTS
 
 # set correct timeout: off for channel 0, 1, 2sec for 2
-#trbcmd w 0xfffe 0xc5 0x50ff
+trbcmd w 0xfffe 0xc5 0x50ff
+
+#Dirich-Concentrator: enable reference time from RJ45
+trbcmd loadbit 0x8300 0xd580 0x6 0x6
 
 echo "pulser"
 # pulser #0 to 10 kHz
@@ -94,14 +98,14 @@ echo "pulser enable"
 # pulser enable
 #trbcmd setbit 0xc001 0xa101 0x1
 
-trbcmd clearbit 0x1130 0xc801 0x80000000 # disable window
+#trbcmd clearbit 0x1130 0xc801 0x80000000 # disable window
 #trbcmd w 0x1130 0xc802 0xffff0000 # enable upper 16 channels for padiwa
-trbcmd w 0x1580 0xc802 0xffffffff # enable upper 16 channels for padiwa
+#trbcmd w 0x1580 0xc802 0xffffffff # enable upper 16 channels for padiwa
 
 
 cd ~/trbsoft/daqtools/xml-db
 ./put.pl Readout 0xfe51 SetMaxEventSize 500
-cd -
+cd $USER_DIR
 
 trbcmd w 0xfe51 0xdf80 0xffffffff # enable monitor counters
 

@@ -1,24 +1,25 @@
 // this is example for
 
-#include <stdlib.h>
 
 void first()
 {
-  //base::ProcMgr::instance()->SetRawAnalysis(true);
-    base::ProcMgr::instance()->SetTriggeredAnalysis(true);
+   //base::ProcMgr::instance()->SetRawAnalysis(true);
+   base::ProcMgr::instance()->SetTriggeredAnalysis(true);
 
    // all new instances get this value
    base::ProcMgr::instance()->SetHistFilling(4);
+
+   // configure bubbles
+   hadaq::TdcProcessor::SetBubbleMode(3, 18);
 
    // this limits used for liner calibrations when nothing else is available
    hadaq::TdcMessage::SetFineLimits(31, 491);
 
    // default channel numbers and edges mask
-   hadaq::TrbProcessor::SetDefaults(33, 2);
+   hadaq::TrbProcessor::SetDefaults(5, 1);
 
    // [min..max] range for TDC ids
-   //hadaq::TrbProcessor::SetTDCRange(0x610, 0x613);
-   hadaq::TrbProcessor::SetTDCRange(0x1130, 0x1603);
+   hadaq::TrbProcessor::SetTDCRange(0x1200, 0x12FF);
 
    // [min..max] range for HUB ids
    hadaq::TrbProcessor::SetHUBRange(0x8000, 0x8fff);
@@ -30,14 +31,17 @@ void first()
    const char* calname = getenv("CALNAME");
    if ((calname==0) || (*calname==0)) calname = "test_";
    const char* calmode = getenv("CALMODE");
-   int cnt = (calmode && *calmode) ? atoi(calmode) : 100000;
+   int cnt = (calmode && *calmode) ? atoi(calmode) : 10000;
+   cnt=100000;
    const char* caltrig = getenv("CALTRIG");
    unsigned trig = (caltrig && *caltrig) ? atoi(caltrig) : 0x1;
    const char* uset = getenv("USETEMP");
    unsigned use_temp = 0; // 0x80000000;
    if ((uset!=0) && (*uset!=0) && (strcmp(uset,"1")==0)) use_temp = 0x80000000;
 
-   printf("HLD configure calibration calfile:%s  cnt:%d trig:%X temp:%X\n", calname, cnt, trig, use_temp);
+   printf("TDC CALIBRATION MODE %d\n", cnt);
+
+   //printf("HLD configure calibration calfile:%s  cnt:%d trig:%X temp:%X\n", calname, cnt, trig, use_temp);
 
    // first parameter if filename  prefix for calibration files
    //     and calibration mode (empty string - no file I/O)
@@ -55,7 +59,7 @@ void first()
    // new hadaq::HldFilter(0x1);
 
    // create ROOT file store
-   // base::ProcMgr::instance()->CreateStore("td.root");
+   base::ProcMgr::instance()->CreateStore("td.root");
 
    // 0 - disable store
    // 1 - std::vector<hadaq::TdcMessageExt> - includes original TDC message
@@ -82,101 +86,24 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
       hadaq::TrbProcessor* trb = hld->GetTRB(k);
       if (trb==0) continue;
       printf("Configure %s!\n", trb->GetName());
-      trb->SetPrintErrors(10);
+      trb->SetPrintErrors(100);
    }
-
-   unsigned firsttdc = 0;
 
    for (unsigned k=0;k<hld->NumberOfTDC();k++) {
       hadaq::TdcProcessor* tdc = hld->GetTDC(k);
       if (tdc==0) continue;
 
-      if (firsttdc == 0) firsttdc = tdc->GetID();
-
       printf("Configure %s!\n", tdc->GetName());
 
-      // try to build abs time difference between 0 channels
-      if (tdc->GetID() != firsttdc)
-         tdc->SetRefChannel(0, 0, (0x70000 | firsttdc), 6000,  -20., 20.);
-
-      /*
-      tdc->SetRefChannel(1,6, 0xffff, 6000, -20, 20); // trigger
-      tdc->SetRefChannel(2,1, 0xffff, 6000, -20, 20); // TOT
-      tdc->SetRefChannel(6,1, 0xffff, 6000, -20, 20);  // TOT
-
-      tdc->SetRefChannel(5,1, 0xffff, 6000, -20, 20); // LED DIFF
-
-      */
-
-      //tdc->SetRefChannel(14,16, 0xffff, 6000, -20, 20); // TOT
-      //tdc->SetRefChannel(16,14, 0xffff, 6000, -20, 20); // TOT
-
-      //tdc->SetRefChannel(16,0, 0xffff, 6000, -20, 20); // TOT
-      //tdc->SetRefChannel(14,0, 0xffff, 6000, -20, 20); // TOT
-		  //tdc->SetRefChannel(16,14, 0xffff, 6000, -20, 20); // TOT
-      
-      /*
-      tdc->SetRefChannel(27,32, 0xffff, 6000, -20, 20); // TOT
-      tdc->SetRefChannel(28,27, 0xffff, 6000, -20, 20); // TOT
-      tdc->SetRefChannel(32,28, 0xffff, 6000, -20, 20);  // TOT
-      */
-      //      tdc->SetRefChannel(11,1, 0xffff, 6000, -20, 20); // LED DIFF
-      //tdc->SetRefChannel(2,1, 0xffff, 6000, -20, 20); // LED DIFF
-      //tdc->SetRefChannel(12,2, 0xffff, 6000, -20, 20); // LED DIFF
-      tdc->SetUseLastHit(false);
-      
-      if (tdc->GetID() == 0x1130) {
-	//	tdc->SetRefChannel(31,1, 0x1130, 6000, -20, 20); // LED DIFF
-	//tdc->SetRefChannel(32,2, 0x1130, 6000, -20, 20); // LED DIFF
-	//tdc->SetRefChannel(1,2, 0x1130, 6000, -20, 20); // LED DIFF
-	//tdc->SetRefChannel(2,31, 0x1130, 6000, -20, 20); // LED DIFF
-      }
-
-      /*
-      if (tdc->GetID() == 0x1580) {
-	tdc->SetRefChannel(31,1, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(32,2, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel( 1,2, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(2,31, 0x1580, 20000, -20, 20); // LED DIFF
-      }
-      */
-
-      /*
-      if (tdc->GetID() == 0x1580) {
-	tdc->SetRefChannel(21,17, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(22,18, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(17,18, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(18,21, 0x1580, 20000, -20, 20); // LED DIFF
-      }
-      */
-      
-      if (tdc->GetID() == 0x1580) {
-	//	tdc->SetRefChannel(9,11, 0x1580, 20000, -20, 20); // LED DIFF
-	//      tdc->SetRefChannel(11,9, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(17,21, 0x1580, 20000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(18,17, 0x1580, 20000, -20, 20); // LED DIFF
-      }
-
-
-      if (tdc->GetID() == 0x1133) {
-	//tdc->SetRefChannel(1,0, 0x1133, 6000, -200, -100); // LED DIFF
-	tdc->SetRefChannel(1,31, 0x1130, 6000, -20, 20); // LED DIFF
-	tdc->SetRefChannel(11,1, 0x1133, 6000, -20, 20); // LED DIFF
-      }
-	//tdc->SetRefChannel(31,27, 0xffff, 6000, -20, 20); // LED DIFF
-      
-
-      // tdc->SetRefChannel(1, 0, 0xffff, 6000,  -160., -100.);
-
-      // if (tdc->GetID() != firsttdc)
-      //   tdc->SetDoubleRefChannel(1, (firsttdc << 16) | 1,  6000,  -30., 30., 0, 0, 0);
-
       // tdc->SetUseLastHit(true);
-      //for (unsigned nch=1;nch<tdc->NumChannels();nch++) {
-    //     double shift = 0;
-    //     if (nch % 2 == 0) shift = 100.;
-    //     tdc->SetRefChannel(nch, 0, 0xffff, 6000,  shift, shift + 60);
-     // }
+
+      // tdc->SetStoreEnabled();
+      for (unsigned nch=2;nch<tdc->NumChannels();nch++)
+        tdc->SetRefChannel(nch, nch-2, 0xffff, 20000,  -10., 10.);
+
+      tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -10., 10.);
+
+      
    }
 }
 
