@@ -22,15 +22,15 @@ my $result = GetOptions (
 #my @trbs = (56, 72, 99, 73, 74, 104, 97, 59, 89, 57);
 
 my $map = {
-	   0  =>  { trb =>  72, sys => "MCP 00" },
-	   1  =>  { trb =>  99, sys => "MCP 01" },
-	   2  =>  { trb =>  73, sys => "MCP 02" },
-	   3  =>  { trb =>  74, sys => "MCP 03" },
-	   4  =>  { trb => 104, sys => "MCP 04" },
+	   0  =>  { trb =>  72, sys => "TRB 00" },
+#	   1  =>  { trb =>  99, sys => "MCP 01" },
+	   1  =>  { trb =>  73, sys => "TRB 01" },
+#	   2  =>  { trb =>  74, sys => "MCP 03" },
+	   2  =>  { trb => 104, sys => "TRB 02" },
 #	   5  =>  { trb =>  97, sys => "TOF 1"  },
 #	   6  =>  { trb =>  59, sys => "TOF 2"  },
 #	   7  =>  { trb =>  89, sys => "HODO"   },
-	   5  =>  { trb =>  57, sys => "AUX"    },
+	   3  =>  { trb =>  57, sys => "AUX"    },
 	   -1 =>  { trb =>  56, sys => "CTS"    },
 	  };
 
@@ -80,7 +80,7 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
     my $c= "ping -W1 -c2 $host";
 
     my $sysnum = sprintf "0x80%.2x", $ct;
-    $sysnum = "0x7999" if $ct == -1;
+    $sysnum = "0xc000" if $ct == -1;
 
     my $pid = $pm->start("$sysnum") and next;
 
@@ -122,8 +122,8 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
       $rh_unsuccessful = { "0xffff"=>"all"} ;
     }
 
-    if ($rh_unsuccessful->{"0x7999"} || (scalar keys %$rh_unsuccessful) > 5) {
-      print "many TRBs (or 0x7999) are not alive, so let us make a reload of all FPGAs.\n";
+    if ($rh_unsuccessful->{"0xc000"} || (scalar keys %$rh_unsuccessful) > 5) {
+      print "many TRBs (or 0xc000) are not alive, so let us make a reload of all FPGAs.\n";
       $rh_unsuccessful = { "0xffff"=>"all"} ;
     }
 

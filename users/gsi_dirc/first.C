@@ -4,10 +4,10 @@ void first()
    base::ProcMgr::instance()->SetRawAnalysis(true);
 
    // this limits used for liner calibrations when nothing else is available
-   hadaq::TdcMessage::SetFineLimits(31, 421);
+   hadaq::TdcMessage::SetFineLimits(31, 469);
 
    // default channel numbers and edges mask
-   hadaq::TrbProcessor::SetDefaults(33, 0x2);
+   hadaq::TrbProcessor::SetDefaults(49, 0x2);
 
    hadaq::HldProcessor* hld = new hadaq::HldProcessor();
 
@@ -21,36 +21,43 @@ void first()
    hadaq::TrbProcessor* trb3_1 = new hadaq::TrbProcessor(0x8000, hld);
    trb3_1->SetHistFilling(4);
    trb3_1->SetCrossProcess(true);
-   trb3_1->CreateTDC(0x2000, 0x2001, 0x2002, 0x20003);
+   trb3_1->CreateTDC(0x2000, 0x2001, 0x2002, 0x2003);
    // enable automatic calibration, specify required number of hits in each channel
-   //trb3_1->SetAutoCalibrations(80000);
+   trb3_1->SetAutoCalibrations(100000);
    // calculate and write static calibration at the end of the run
    //trb3_1->SetWriteCalibrations("run1");
-   trb3_1->LoadCalibrations("run1");
+   //trb3_1->LoadCalibrations("run1");
 
-   hadaq::TrbProcessor* trb3_2 = new hadaq::TrbProcessor(0x800b, hld);
+   hadaq::TrbProcessor* trb3_2 = new hadaq::TrbProcessor(0x8001, hld);
    trb3_2->SetHistFilling(4);
    trb3_2->SetCrossProcess(true);
-   trb3_2->CreateTDC(0x202c, 0x202d, 0x202e, 0x202f);
-   //trb3_2->SetAutoCalibrations(80000);
-   //trb3_2->SetWriteCalibrations("run1");
-   trb3_2->LoadCalibrations("run1");
+   trb3_2->CreateTDC(0x2004, 0x2005, 0x2006, 0x2007);
+   trb3_2->SetAutoCalibrations(100000);
+   // trb3_2->SetWriteCalibrations("run1");
+   //trb3_2->LoadCalibrations("run1");
 
    // this is array with available TDCs ids
-   int tdcmap[8] = { 0x2000, 0x2001, 0x2002, 0x2003, 0x202c, 0x202d, 0x202e, 0x202f };
+   int tdcmap[2] = { 0x2003, 0x2007 };
 
    // TDC subevent header id
 
-   for (int cnt=0;cnt<8;cnt++) {
+   for (int cnt=0;cnt<2;cnt++) {
 
       hadaq::TdcProcessor* tdc = hld->FindTDC(tdcmap[cnt]);
       if (tdc==0) continue;
 
       // specify reference channel
       //tdc->SetRefChannel(0, 0, 0x202c, 20000,  9597E6., 9603E6., true);
-      if(cnt==0) {
-	tdc->SetRefChannel(0, 0, 0x2001, 20000,  -100., 100., true);
-      }
+      // if(cnt==0) {
+      tdc->SetRefChannel(44, 0, 0xffff, 4000,  -500., 500., true);
+      tdc->SetRefChannel(46, 44, 0xffff, 20000,  -50., 50., true);
+	//tdc->SetRefChannel(46, 46, 0xffff, 4000,  -50., 50., true);
+
+
+        //      } else {
+        //         tdc->SetRefChannel(46, 0, 0xffff, 40000,  -300., 100., true);
+        //      }
+      
       //tdc->SetRefChannel(3, 1, 0xffff, 20000,  -10., 10., true);
       //      continue;
 
@@ -66,12 +73,12 @@ void first()
       if (cnt==1) {
          // specify reference channel from other TDC
 	//tdc->SetRefChannel(0, 0, 0xc000, 20000,  -30., 30., true);
-	tdc->SetRefChannel(0, 0, 0x2000, 20000,  -20., 20., true);
+	//tdc->SetRefChannel(0, 0, 0x2000, 20000,  -20., 20., true);
          //tdc->SetRefChannel(6, 6, 0xc000, 20000,  -20., 20., true);
-	tdc->SetRefChannel(7, 7, 0x2000, 20000,  -20., 20., true);
+	//tdc->SetRefChannel(7, 7, 0x2000, 20000,  -20., 20., true);
       }
 
-      if (cnt>1) continue;
+      //if (cnt>1) continue;
 
       // specify reference channel
 
