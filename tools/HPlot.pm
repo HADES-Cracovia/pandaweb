@@ -8,6 +8,7 @@ use Storable qw(lock_store lock_retrieve);
 
 my $p;
 my $storefile;
+my $plotstring = '';
 
 use constant {TYPE_HISTORY => 1, TYPE_BARGRAPH => 2, TYPE_HEATMAP => 3};
 
@@ -19,7 +20,7 @@ my @color= ('#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22
  '#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22','#8888dd','#8822bb','#444444');
 
 sub plot_write {
-  my ($file,$str,$no) = @_;
+  my ($file,$str,$no,$save) = @_;
   return unless $str;
   if($no || 0) {
     print $file $str;
@@ -29,6 +30,7 @@ sub plot_write {
     print $file $str."\n";
 #     print $str."\n";
     }
+  if($save && $save eq 'save') {$plotstring .= $str;}  
   }
 
 
@@ -138,20 +140,20 @@ sub PlotInit {
     plot_write($fh,"set xtics autofreq"); #$p->{$name}->{entries}
     plot_write($fh,"set grid");
 #     plot_write($fh,"set style fill solid 1.0");
-    plot_write($fh,"plot ",1);
+    plot_write($fh,"plot ",1,'save');
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
       if($p->{$name}->{fill}) {
-        plot_write($fh,"'-' using 1:2 with filledcurves x1 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with filledcurves x1 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,'save');
         }
       elsif($p->{$name}->{dots}) {
-        plot_write($fh,"'-' using 1:2 with points pointsize 0.6 pointtype 2 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with points pointsize 0.6 pointtype 2 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,'save');
         }
       else {
-        plot_write($fh,"'-' using 1:2 with lines  lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with lines  lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,'save');
         }
-      plot_write($fh,', ',1) unless ($j+1==$p->{$name}->{curves});
+      plot_write($fh,', ',1,'save') unless ($j+1==$p->{$name}->{curves});
       }
-    plot_write($fh," ");
+    plot_write($fh," ",0,'save');
     }
   elsif($p->{$name}->{type} == TYPE_BARGRAPH) {
     plot_write($fh,"set style fill   solid 1.00 border -1");
@@ -168,12 +170,12 @@ sub PlotInit {
       }
     plot_write($fh,"set style histogram title offset character 0, 0, 0");
     plot_write($fh,"set style data histograms");
-    plot_write($fh,"plot ",1);
+    plot_write($fh,"plot ",1,'save');
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
-      plot_write($fh,', ',1) if $j;
-      plot_write($fh,"'-' lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+      plot_write($fh,', ',1,'save') if $j;
+      plot_write($fh,"'-' lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,'save');
       }
-    plot_write($fh," ");
+    plot_write($fh," ",0,'save');
     }
   elsif($p->{$name}->{type} == TYPE_HEATMAP) {
     plot_write($fh,"set view map");
@@ -184,10 +186,10 @@ sub PlotInit {
       plot_write($fh,"set palette rgbformulae 22,13,-31");
       }
     if ($p->{$name}->{showvalues} == 0) {
-      plot_write($fh,"splot '-' matrix with image");
+      plot_write($fh,"splot '-' matrix with image",0,'save');
       }
     else {
-      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)) with labels tc rgb \"#ffffff\" font ',10'");
+      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)) with labels tc rgb \"#ffffff\" font ',10'",0,'save');
 #      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)):3 with labels tc palette  font ',10'");
       }
     }
@@ -206,7 +208,7 @@ sub PlotDraw {
   if($p->{$name}->{run}>=1) {
     plot_write($p->{$name}->{fh},"set out \"".$p->{$name}->{file}.($p->{$name}->{buffer}?"tmp":"").".png\"");
     plot_write($p->{$name}->{fh},makeTimeString());
-    plot_write($p->{$name}->{fh},"replot");
+    plot_write($p->{$name}->{fh},$plotstring);
     }
     
   if($p->{$name}->{type} == TYPE_HISTORY) {  
