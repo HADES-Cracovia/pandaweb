@@ -98,11 +98,35 @@ HPlot::PlotInit({
   bargap => 0.4,
   curvewidth => 1,
   });   
+
+HPlot::PlotInit({
+  name    => "PowerPower",
+  file    => Dmon::DMONDIR.'PowerPower',
+  curves  => 4,
+  entries => 20,
+  titles  => ['1.1V','1.2V','2.5V','3.3V'],
+  type    => HPlot::TYPE_BARGRAPH,
+  output  => HPlot::OUT_PNG,
+  xlabel  => "Board",
+  ylabel  => "Power (W)",
+  sizex   => 400,
+  sizey   => 200,
+  ymin    => '0',
+#   ymax    => '200<*',
+  countup => 1,
+  xscale  => 1,
+  nokey   => 0,
+  buffer  => 0,
+  bargap => 0.4,
+  curvewidth => 1,
+  stacked => 1,
+  });     
   
-my $str  = Dmon::MakeTitle(6,13,"DiRich Power",0);
-   $str .= qq@<img src="%ADDPNG DiRichVolt.png%" type="image/png"><br>\n@;
+my $str  = Dmon::MakeTitle(11,9,"DiRich Power",0);
+   $str .= qq@<img src="%ADDPNG DiRichVolt.png%" type="image/png">\n@;
    $str .= qq@<img src="%ADDPNG PowerVolt.png%" type="image/png"><br>\n@;
    $str .= qq@<img src="%ADDPNG PowerCurr.png%" type="image/png">\n@;
+   $str .= qq@<img src="%ADDPNG PowerPower.png%" type="image/png">\n@;
    $str .= Dmon::MakeFooter();
 Dmon::WriteFile("adcvolt",$str);  
 
@@ -181,34 +205,44 @@ while(1) {
   HPlot::PlotLimitEntries('PowerCurr',(scalar keys %{$ret->[4][0]}));
   HPlot::PlotDraw('PowerCurr');  
 
+  foreach my $m (keys %{$ret->[4][0]}) {
+    HPlot::PlotAdd('PowerPower',$ret->[4][0]{$m} * $ret->[3][3]{$m}/1e6,0);
+    HPlot::PlotAdd('PowerPower',$ret->[4][1]{$m} * $ret->[3][2]{$m}/1e6,1);
+    HPlot::PlotAdd('PowerPower',$ret->[4][2]{$m} * $ret->[3][1]{$m}/1e6,2);
+    HPlot::PlotAdd('PowerPower',$ret->[4][3]{$m} * $ret->[3][0]{$m}/1e6,3);
+    }    
+  HPlot::PlotLimitEntries('PowerPower',(scalar keys %{$ret->[4][0]}));
+  HPlot::PlotDraw('PowerPower');  
+  
+  
 
   my @min; my @max;
-  $min[0] = min(values $ret->[1][0], values $ret->[2][0]);
-  $min[1] = min(values $ret->[1][1], values $ret->[2][1]);
-  $min[2] = min(values $ret->[2][2]);
-  $min[3] = min(values $ret->[1][2]);
-  $max[0] = max(values $ret->[1][0], values $ret->[2][0]);
-  $max[1] = max(values $ret->[1][1], values $ret->[2][1]);
-  $max[2] = max(values $ret->[2][2]);
-  $max[3] = max(values $ret->[1][2]);    
+  $min[0] = min(values %{$ret->[1][0]}, values %{$ret->[2][0]});
+  $min[1] = min(values %{$ret->[1][1]}, values %{$ret->[2][1]});
+  $min[2] = min(values %{$ret->[2][2]});
+  $min[3] = min(values %{$ret->[1][2]});
+  $max[0] = max(values %{$ret->[1][0]}, values %{$ret->[2][0]});
+  $max[1] = max(values %{$ret->[1][1]}, values %{$ret->[2][1]});
+  $max[2] = max(values %{$ret->[2][2]});
+  $max[3] = max(values %{$ret->[1][2]});    
   
-  $min[10] = min(values $ret->[3][0]);
-  $min[11] = min(values $ret->[3][1]);
-  $min[12] = min(values $ret->[3][2]);
-  $min[13] = min(values $ret->[3][3]);
-  $max[10] = max(values $ret->[3][0]);
-  $max[11] = max(values $ret->[3][1]);
-  $max[12] = max(values $ret->[3][2]);
-  $max[13] = max(values $ret->[3][3]);    
+  $min[10] = min(values %{$ret->[3][0]});
+  $min[11] = min(values %{$ret->[3][1]});
+  $min[12] = min(values %{$ret->[3][2]});
+  $min[13] = min(values %{$ret->[3][3]});
+  $max[10] = max(values %{$ret->[3][0]});
+  $max[11] = max(values %{$ret->[3][1]});
+  $max[12] = max(values %{$ret->[3][2]});
+  $max[13] = max(values %{$ret->[3][3]});    
 
-  $min[20] = min(values $ret->[4][0]);
-  $min[21] = min(values $ret->[4][1]);
-  $min[22] = min(values $ret->[4][2]);
-  $min[23] = min(values $ret->[4][3]);
-  $max[20] = max(values $ret->[4][0]);
-  $max[21] = max(values $ret->[4][1]);
-  $max[22] = max(values $ret->[4][2]);
-  $max[23] = max(values $ret->[4][3]);    
+  $min[20] = min(values %{$ret->[4][0]});
+  $min[21] = min(values %{$ret->[4][1]});
+  $min[22] = min(values %{$ret->[4][2]});
+  $min[23] = min(values %{$ret->[4][3]});
+  $max[20] = max(values %{$ret->[4][0]});
+  $max[21] = max(values %{$ret->[4][1]});
+  $max[22] = max(values %{$ret->[4][2]});
+  $max[23] = max(values %{$ret->[4][3]});    
   
   
   $longtext = "Voltage Rail: FPGA / Powerboard<br>"

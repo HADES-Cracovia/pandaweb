@@ -157,10 +157,13 @@ sub PlotInit {
     plot_write($fh," ",0,$name);
     }
   elsif($p->{$name}->{type} == TYPE_BARGRAPH) {
+    my $stacked = $p->{$name}{stacked}?' rowstacked':'';
+    print $stacked;
     plot_write($fh,"set style fill   solid 1.00 border -1");
     plot_write($fh,"set grid noxtics ytics");
     plot_write($fh,"set boxwidth ".($p->{$name}->{curvewidth}||4)." absolute");
-    plot_write($fh,"set style histogram gap ".($p->{$name}->{bargap}||1));
+    plot_write($fh,"set style histogram  gap ".($p->{$name}->{bargap}||1).' '.$stacked);
+#title offset character 0, 0, 0
     
     if($p->{$name}->{xticks}) {
       plot_write("set xtics rotate by 90 offset .7,-1.7 scale .7 ");
@@ -174,12 +177,11 @@ sub PlotInit {
         }
       plot_write($fh,") offset 2.5,0 scale 0");
       }
-    plot_write($fh,"set style histogram title offset character 0, 0, 0");
     plot_write($fh,"set style data histograms");
     plot_write($fh,"plot ",1,$name);
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
       plot_write($fh,', ',1,$name) if $j;
-      plot_write($fh,"'-'",1,$name);
+      plot_write($fh,"'-' with histograms ",1,$name);
       plot_write($fh,"using 2:xticlabels(1) ",1,$name) if ($p->{$name}->{xticks});
       plot_write($fh, "lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,$name);
       }
