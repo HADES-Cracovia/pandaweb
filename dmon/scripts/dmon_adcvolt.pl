@@ -41,7 +41,7 @@ HPlot::PlotInit({
   titles  => ['3.3V','2.56V','1.16V/1.26V'],
   type    => HPlot::TYPE_BARGRAPH,
   output  => HPlot::OUT_PNG,
-  xlabel  => "Board",
+  xlabel  => "DiRich/Combiner Board #",
   ylabel  => "Voltage (mV diff to nom)",
   sizex   => 400,
   sizey   => 200,
@@ -53,8 +53,12 @@ HPlot::PlotInit({
   buffer  => 0,
   bargap => 0.4,
   curvewidth => 1,
+  additional => "
+  set obj 1 rect from   -1, -500 to  2000, 0 fc rgb '#ffbbbb' behind lc rgb '#01000000'\n
+  set obj 2 rect from   -1, 0 to  2000, 100 fc rgb '#ddffdd' behind \n
+  set obj 3 rect from   -1, 100 to  2000, 1000 fc rgb '#ffffbb' behind \n"
   });
-
+#             set object 2 rect from 1,3 to 2,4 lw 5 fs empty border lc rgb '#880088'
 HPlot::PlotInit({
   name    => "PowerVolt",
   file    => Dmon::DMONDIR.'PowerVolt',
@@ -63,7 +67,7 @@ HPlot::PlotInit({
   titles  => ['3.36V','2.56V','1.26V','1.16V'],
   type    => HPlot::TYPE_BARGRAPH,
   output  => HPlot::OUT_PNG,
-  xlabel  => "Board",
+  xlabel  => "PowerBoard #",
   ylabel  => "Voltage (mV diff to nom)",
   sizex   => 400,
   sizey   => 200,
@@ -75,6 +79,10 @@ HPlot::PlotInit({
   buffer  => 0,
   bargap => 0.4,
   curvewidth => 1,
+  additional => "
+  set obj 1 rect from   -1, -500 to  2000, 0 fc rgb '#ffbbbb' behind \n
+  set obj 2 rect from   -1, 0 to  2000, 100 fc rgb '#ddffdd' behind \n
+  set obj 3 rect from   -1, 100 to  2000, 1000 fc rgb '#ffffbb' behind\n"
   });  
 
 HPlot::PlotInit({
@@ -82,14 +90,14 @@ HPlot::PlotInit({
   file    => Dmon::DMONDIR.'PowerCurr',
   curves  => 4,
   entries => 20,
-  titles  => ['1.1V','1.2V','2.5V','3.3V'],
+  titles  => ['3.3V','2.5V','1.2V','1.1V'],
   type    => HPlot::TYPE_BARGRAPH,
   output  => HPlot::OUT_PNG,
-  xlabel  => "Board",
+  xlabel  => "PowerBoard #",
   ylabel  => "Current (mA)",
   sizex   => 400,
   sizey   => 200,
-#   ymin    => '*<-50',
+  ymin    => '0',
 #   ymax    => '200<*',
   countup => 1,
   xscale  => 1,
@@ -104,10 +112,10 @@ HPlot::PlotInit({
   file    => Dmon::DMONDIR.'PowerPower',
   curves  => 4,
   entries => 20,
-  titles  => ['1.1V','1.2V','2.5V','3.3V'],
+  titles  => ['3.3V','2.5V','1.2V','1.1V'],
   type    => HPlot::TYPE_BARGRAPH,
   output  => HPlot::OUT_PNG,
-  xlabel  => "Board",
+  xlabel  => "PowerBoard #",
   ylabel  => "Power (W)",
   sizex   => 400,
   sizey   => 200,
@@ -174,12 +182,12 @@ while(1) {
 #   print Dumper $ret;
   my $longtext = '';
 
-  foreach my $m (keys %{$ret->[1][0]}) {
+  foreach my $m (sort keys %{$ret->[1][0]}) {
     HPlot::PlotAdd('DiRichVolt',$ret->[1][0]{$m}-3300,0);
     HPlot::PlotAdd('DiRichVolt',$ret->[1][1]{$m}-2560,1);
     HPlot::PlotAdd('DiRichVolt',$ret->[1][2]{$m}-1160,2);
     }
-  foreach my $m (keys %{$ret->[2][0]}) {
+  foreach my $m (sort keys %{$ret->[2][0]}) {
     HPlot::PlotAdd('DiRichVolt',$ret->[2][0]{$m}-3300,0);
     HPlot::PlotAdd('DiRichVolt',$ret->[2][1]{$m}-2560,1);
     HPlot::PlotAdd('DiRichVolt',$ret->[2][2]{$m}-1260,2);
@@ -187,7 +195,7 @@ while(1) {
   HPlot::PlotLimitEntries('DiRichVolt',(scalar keys %{$ret->[1][0]}) + (scalar keys %{$ret->[2][0]}));
   HPlot::PlotDraw('DiRichVolt');
 
-  foreach my $m (keys %{$ret->[3][0]}) {
+  foreach my $m (sort keys %{$ret->[3][0]}) {
     HPlot::PlotAdd('PowerVolt',$ret->[3][0]{$m}-3360,0);
     HPlot::PlotAdd('PowerVolt',$ret->[3][1]{$m}-2560,1);
     HPlot::PlotAdd('PowerVolt',$ret->[3][2]{$m}-1260,2);
@@ -196,20 +204,20 @@ while(1) {
   HPlot::PlotLimitEntries('PowerVolt',(scalar keys %{$ret->[3][0]}));
   HPlot::PlotDraw('PowerVolt');
 
-  foreach my $m (keys %{$ret->[4][0]}) {
-    HPlot::PlotAdd('PowerCurr',$ret->[4][0]{$m},0);
-    HPlot::PlotAdd('PowerCurr',$ret->[4][1]{$m},1);
-    HPlot::PlotAdd('PowerCurr',$ret->[4][2]{$m},2);
-    HPlot::PlotAdd('PowerCurr',$ret->[4][3]{$m},3);
+  foreach my $m (sort keys %{$ret->[4][0]}) {
+    HPlot::PlotAdd('PowerCurr',$ret->[4][3]{$m},0);
+    HPlot::PlotAdd('PowerCurr',$ret->[4][2]{$m},1);
+    HPlot::PlotAdd('PowerCurr',$ret->[4][1]{$m},2);
+    HPlot::PlotAdd('PowerCurr',$ret->[4][0]{$m},3);
     }    
   HPlot::PlotLimitEntries('PowerCurr',(scalar keys %{$ret->[4][0]}));
   HPlot::PlotDraw('PowerCurr');  
 
-  foreach my $m (keys %{$ret->[4][0]}) {
-    HPlot::PlotAdd('PowerPower',$ret->[4][0]{$m} * $ret->[3][3]{$m}/1e6,0);
-    HPlot::PlotAdd('PowerPower',$ret->[4][1]{$m} * $ret->[3][2]{$m}/1e6,1);
-    HPlot::PlotAdd('PowerPower',$ret->[4][2]{$m} * $ret->[3][1]{$m}/1e6,2);
-    HPlot::PlotAdd('PowerPower',$ret->[4][3]{$m} * $ret->[3][0]{$m}/1e6,3);
+  foreach my $m (sort keys %{$ret->[4][0]}) {
+    HPlot::PlotAdd('PowerPower',$ret->[4][3]{$m} * $ret->[3][0]{$m}/1e6,0);
+    HPlot::PlotAdd('PowerPower',$ret->[4][2]{$m} * $ret->[3][1]{$m}/1e6,1);
+    HPlot::PlotAdd('PowerPower',$ret->[4][1]{$m} * $ret->[3][2]{$m}/1e6,2);
+    HPlot::PlotAdd('PowerPower',$ret->[4][0]{$m} * $ret->[3][3]{$m}/1e6,3);
     }    
   HPlot::PlotLimitEntries('PowerPower',(scalar keys %{$ret->[4][0]}));
   HPlot::PlotDraw('PowerPower');  

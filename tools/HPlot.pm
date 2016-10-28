@@ -24,11 +24,11 @@ sub plot_write {
   return unless $str;
   if($no || 0) {
     print $file $str;
-#     print $str;
+#      print $str;
     }
   else {
     print $file $str."\n";
-#     print $str."\n";
+#      print $str."\n";
     }
   if(defined $save) {$plotstring->{$save} .= $str;}  
   }
@@ -77,6 +77,7 @@ sub PlotInit {
   $p->{$name}->{showvalues} = $p->{$name}->{showvalues} || 0;
   $p->{$name}->{storable} = $p->{$name}->{storable} || 0;
   $p->{$name}->{xticks} = $p->{$name}->{xticks} || 0;
+  $p->{$name}{additional} = $p->{$name}{additional} || '';
 
   my $filename = $p->{$name}->{file};
   $filename =~ s%/%%;
@@ -99,7 +100,7 @@ sub PlotInit {
 
   if($p->{$name}->{output} == OUT_PNG) {
     $p->{$name}->{file} or die "No filename specified";
-    plot_write($fh,"set term png size ".$p->{$name}->{sizex}.",".$p->{$name}->{sizey}." font \"monospace,8\"");
+    plot_write($fh,"set term png size ".$p->{$name}->{sizex}.",".$p->{$name}->{sizey}." truecolor font \"monospace,8\"");
     plot_write($fh,"set out \"".$p->{$name}->{file}.($p->{$name}->{buffer}?"tmp":"").".png\"");
     }
   elsif($p->{$name}->{output} == OUT_SCREEN) {
@@ -140,6 +141,7 @@ sub PlotInit {
     plot_write($fh,"set autoscale fix");
     plot_write($fh,"set xtics autofreq"); #$p->{$name}->{entries}
     plot_write($fh,"set grid");
+    plot_write($fh,$p->{$name}{additional}) if $p->{$name}{additional};
 #     plot_write($fh,"set style fill solid 1.0");
     plot_write($fh,"plot ",1,$name);
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
@@ -178,6 +180,8 @@ sub PlotInit {
       plot_write($fh,") offset 2.5,0 scale 0");
       }
     plot_write($fh,"set style data histograms");
+    plot_write($fh,$p->{$name}{additional});
+    
     plot_write($fh,"plot ",1,$name);
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
       plot_write($fh,', ',1,$name) if $j;
