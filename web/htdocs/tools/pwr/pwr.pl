@@ -8,9 +8,11 @@ print "Content-type: text/html\n\n";
 use strict;
 use warnings;
 use Device::SerialPort;
+use IO::Socket;
 use feature 'state';
 use URI::Escape;
 use Time::HiRes qw( usleep);
+use POSIX qw/floor ceil strftime/;
 
 my $envstring = $ENV{'QUERY_STRING'};
 $envstring =~ s/%20/ /g;
@@ -23,26 +25,39 @@ $ser_dev = "/dev/ttyUSB0" unless defined $ser_dev;
 my $ser_type = shift(@new_command);
 $ser_type = "PSP" unless defined $ser_type;
 
-my $ser_speed = shift(@new_command);
+my $ser_speed = shift(@new_command);  #speed or port number
 $ser_speed = "2400" unless defined $ser_speed;
 
 
-my $port = new Device::SerialPort($ser_dev);
-unless ($port)
-{
-	print "can't open serial interface $ser_dev\n";
-	exit;
-}
 
-$port->user_msg('ON'); 
-$port->baudrate($ser_speed); 
-$port->parity("none"); 
-$port->databits(8); 
-$port->stopbits(1); 
-$port->handshake("xoff");
-$port->handshake("none") if $ser_type eq "HMP" or $ser_type eq "PST"; 
-$port->write_settings;
 
+my $port;
+my $isIP = 0;
+
+if($ser_dev =~ /^IP(.*)/) {
+  $ser_dev = $1;
+  $isIP = 1;
+  $port = IO::Socket::INET->new(PeerAddr => $ser_dev, PeerPort => $ser_speed, Proto => "tcp", Type => SOCK_STREAM) 
+              or die "ERROR: Cannot connect: $@";  
+  }
+else {  
+  $port = new Device::SerialPort($ser_dev);
+  unless ($port)
+  {
+    print "can't open serial interface $ser_dev\n";
+    exit;
+  }
+
+  $port->user_msg('ON'); 
+  $port->baudrate($ser_speed); 
+  $port->parity("none"); 
+  $port->databits(8); 
+  $port->stopbits(1); 
+  $port->handshake("xoff");
+  $port->handshake("none") if $ser_type eq "HMP" or $ser_type eq "HMC" or $ser_type eq "PST"; 
+  $port->write_settings;
+  }
+  
 # debug output
 #print "attempting to communicate with power supply connected to interface:\n$ser_dev\n\n";
 
@@ -51,8 +66,8 @@ transmit_command() if $ser_type eq "PSP"; #if new command, send it!
 receive_answer() if $ser_type eq "PSP"; # always called
 
 
-print receive_answer_HMP() if $ser_type eq "HMP" or $ser_type eq "PST"; # always called
-
+print receive_answer_HMP() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 0) or $ser_type eq "PST"; # always called
+print HMP_ethernet() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 1);
 # transmit_command(); # send relais off in case current maximum is reached!
 
 
@@ -157,6 +172,7 @@ sub receive_answer {
 
 sub receive_answer_HMP {
   my $ret ="";
+  print strftime("%H:%M:%S &", localtime());
   while ( my $command = shift(@new_command) ) {
     $port->lookclear; 
     usleep(1000);
@@ -186,6 +202,27 @@ sub receive_answer_HMP {
   return $ret;
   }
 
+  
+  
+sub HMP_ethernet {
+  my $ret ="";
+  print strftime("%H:%M:%S &", localtime());
+  while ( my $command = shift(@new_command) ) {
+    usleep(20000);
+    $command = uri_unescape($command);
+    print $port "$command\n";
+    if($command =~ /\?/) {
+      my $e = <$port>;
+      chomp $e;
+      $e =~ s/\&//;
+      print $e.'&';
+      }
+    }
+  return $ret;
+  }
+  
+  
+  
 print "\n";
   
 exit 1;
