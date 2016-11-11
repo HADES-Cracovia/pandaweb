@@ -9,12 +9,12 @@ my $dirich = 0x1204;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
-my $last_channel = 31;
+my $last_channel = 5;
 
-my $default_threshold = 0x4000;
+my $default_threshold = 0x3000;
 
 #my $absolute_max_threshold = 0x8000;
-my $absolute_min_threshold = 0x2000;
+my $absolute_min_threshold = 0x1000;
 
 my @res; my $res; my $rh_res;
 

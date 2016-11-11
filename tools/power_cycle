@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use IO::Socket::INET;
+use Time::HiRes qw( usleep );
+use Data::Dumper;
+
+my $sock;
+
+my $ra_setup = [ { host => "wiznet02:5000",
+		   idn => "HAMEG,HMP4040,021527872,HW50020001/SW2.41",
+		   channels => [ 'clock', 'TDB', 'TBD', 'dirich'],
+		   commands => {status => 'OUTPUT:STATE?', off => 'OUTPUT:SEL OFF', on => 'OUTPUT:SEL ON'}
+		 },
+		 { host => "wiznet03:5000",
+		   idn => "RIGOL TECHNOLOGIES,DP712,DP7B182500302,00.01.02",
+		   channels => [ 'trb165'],
+		   commands => {status => 'OUTPUT:STATE?', off => 'OUTPUT:STATE OFF', on => 'OUTPUT:STATE ON'},
+		   results => {off => 'OFF', on => 'ON'}
+		 },
+	       ];
+
+main();
+exit;
+
+sub main {
+
+  my $system = $ARGV[0];
+
+  print "powercycle following system: $system\n";
+
+  my $actual_setup;
+  foreach my $cur_setup (@$ra_setup) {
+    #print "channels: @{$cur_setup->{channels}}\n";
+    if ( grep (/$system/, @{$cur_setup->{channels}}) ) {
+      $actual_setup = $cur_setup;
+      last;
+    }
+  }
+
+  if(!defined $actual_setup) {
+    print "could not find setup \"$system\" is list of setups\n";
+    exit;
+  }
+
+  #print Dumper $actual_setup;
+  init($actual_setup->{host});
+
+  my $idn = write_and_read('*IDN?');
+
+  if($idn ne $actual_setup->{idn}) {
+    print "wrong device: is not $actual_setup->idn\n";
+    exit;
+  }
+
+  my $current_status = write_and_read($actual_setup->{commands}->{status});
+  print "current status: $current_status\n";
+
+  print "turn off power supply channel\n";
+  write_and_read($actual_setup->{commands}->{off});
+
+  $current_status = write_and_read($actual_setup->{commands}->{status});
+  print "current status: $current_status\n";
+  usleep 4E5;
+
+  print "turn on power supply channel\n";
+  write_and_read($actual_setup->{commands}->{on});
+
+  $current_status = write_and_read($actual_setup->{commands}->{status});
+  print "current status: $current_status\n";
+
+
+  $sock->close();
+}
+
+sub init {
+  my ($host) = @_;
+
+  #print "host: $host\n";
+  $sock = IO::Socket::INET->new(
+				PeerAddr => $host,
+				Proto => 'tcp',
+				Blocking => 0) || die "could not open socket";
+
+
+  $| = 1;
+  usleep 1E5;
+  #return $sock;
+}
+
+
+sub write_and_read {
+  my($command) = @_;
+  #print "send command: $command\n";
+  #print "try:\n";
+  #my $start = "\n\n\n";
+  #print $start;
+  print $sock "\n";
+  usleep 1E5;
+  #print $sock "*IDN?\n";
+  #my $str = '*IDN?' . "\n";
+  #print $str;
+  print $sock $command . "\n";
+  #$sock->send($str);
+  usleep 1E5;
+  my $res = <$sock>;
+  #print "result: $res";
+  while (<$sock>) {
+    print "still data, is an error!\n";
+    print $sock;
+  }
+  usleep 2E1;
+  chomp $res if ($res);
+  return $res;
+}

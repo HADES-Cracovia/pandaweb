@@ -18,23 +18,14 @@ my $result = GetOptions (
 			);
 
 
-# not used.... :-)
-#my @trbs = (56, 72, 99, 73, 74, 104, 97, 59, 89, 57);
-
 my $map = {
-	   0  =>  { trb =>  72, sys => "TRB 00" },
-#	   1  =>  { trb =>  99, sys => "MCP 01" },
-	   1  =>  { trb =>  73, sys => "TRB 01" },
-#	   2  =>  { trb =>  74, sys => "MCP 03" },
-	   2  =>  { trb => 104, sys => "TRB 02" },
-#	   5  =>  { trb =>  97, sys => "TOF 1"  },
-#	   6  =>  { trb =>  59, sys => "TOF 2"  },
-#	   7  =>  { trb =>  89, sys => "HODO"   },
-	   3  =>  { trb =>  57, sys => "AUX"    },
-	   -1 =>  { trb =>  56, sys => "CTS"    },
-	  };
+ 0 => { trb =>  84, addr => "0xc001", sys => "CTS"},
+ 1 => { trb =>  61, addr => "0x8000", sys => "TOF"},
+ 2 => { trb => 113, addr => "0x8001", sys => "TOF"}, 
+ 3 => { trb => 158, addr => "0x8002", sys => "TOF"},
 
-my $MAX_PROCESSES=30;
+};
+my $MAX_PROCESSES=50;
 my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
 my $maximal_reboot_counter = 4;
 my $number_of_reboots_done = 0;
@@ -51,9 +42,6 @@ $pm->run_on_finish(
 			 }
 		       }
 		  );
-
-
-
 
 #my $p = Net::Ping->new();
 
@@ -74,13 +62,15 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
     my $trbnum= $map->{$ct}->{trb};
     my $num = sprintf "%3.3d", $trbnum;
     my $host= "trb" . $num;
+    #my $host= "trb" . $num ."b";
     my $system = $map->{$ct}->{sys};
     #print "192.168.0.$ct   $host.gsi.de $host\n";
     #my $r = $p->ping($host,1);
     my $c= "ping -W1 -c2 $host";
 
-    my $sysnum = sprintf "0x80%.2x", $ct;
-    $sysnum = "0xc000" if $ct == -1;
+    #    my $sysnum = sprintf "0x80%.2x", $ct;
+    my $sysnum = $map->{$ct}->{addr};
+    #$sysnum = "0x7999" if $ct == -1;
 
     my $pid = $pm->start("$sysnum") and next;
 
@@ -110,7 +100,7 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
   if ($reboot && ($number_of_reboots_done < $maximal_reboot_counter) && keys %$rh_unsuccessful) {
     #print Dumper $rh_unsuccessful;
     print "have to reboot FPGAs, first make a reset and reassign the addresses.\n";
-    my $cmd = "trbcmd reset;  ~/trbsoft/daqtools/merge_serial_address.pl ~/trbsoft/daqtools/base/serials_trb3.db ~/trbsoft/daqtools/users/gsi_dirc/addresses_trb3.db";
+    my $cmd = "trbcmd reset; sleep 2;  merge_serial_address.pl ~/trbsoft/daqtools/base/serials_trb3.db ~/trbsoft/userscript/db/addresses_trb3.db";
     qx($cmd);
     sleep 3;
     # test trbnet:
@@ -122,8 +112,9 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
       $rh_unsuccessful = { "0xffff"=>"all"} ;
     }
 
-    if ($rh_unsuccessful->{"0xc000"} || (scalar keys %$rh_unsuccessful) > 5) {
-      print "many TRBs (or 0xc000) are not alive, so let us make a reload of all FPGAs.\n";
+    my $ctsnum = $map->{0}->{addr};
+    if ($rh_unsuccessful->{ $ctsnum } || (scalar keys %$rh_unsuccessful) > 5) {
+      print "many TRBs (or CTS: ". $ctsnum . ") are not alive, so let us make a reload of all FPGAs.\n";
       $rh_unsuccessful = { "0xffff"=>"all"} ;
     }
 
@@ -151,3 +142,89 @@ exit 1 if(scalar keys %$rh_unsuccessful > 0);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# #!/usr/bin/perl
+
+# use warnings;
+# use strict;
+# use Parallel::ForkManager;
+# use Net::Ping;
+# use Data::Dumper;
+
+# my @trbs = (21, 94, 96);
+
+# my $map = {
+#  1 => { trb =>  94, addr => 0x8940, sys => "TDC lnr"},
+#  2 => { trb =>  96, addr => 0x8960, sys => "TDC orig"},
+#  0 => { trb =>  21, addr => 0xc210, sys => "CTS"},
+# };
+
+
+# my $MAX_PROCESSES=50;
+# my $pm = Parallel::ForkManager->new($MAX_PROCESSES);
+
+# #my $p = Net::Ping->new();
+
+# #print Dumper keys %$map;
+# #exit;
+# foreach my $ct (keys %$map) {
+#     #my $num = sprintf "%3.3d", $ct;
+#     my $trbnum= $map->{$ct}->{trb};
+#     my $num = sprintf "%3.3d", $trbnum;
+#     my $host= "trb" . $num;
+#     my $system = $map->{$ct}->{sys};
+#     #print "192.168.0.$ct   $host.gsi.de $host\n";
+#     #my $r = $p->ping($host,1);
+#     my $c= "ping -W1 -c1 $host";
+
+#     my $pid = $pm->start and next;
+
+
+#     #my $p = Net::Ping->new("udp", 1);
+#     #my $r = $p->ping("192.168.0.56");
+#     #$p->close();
+#     #print "result: $r\n";
+
+#     my $r = qx($c);
+#     my $sysnum = sprintf ("0x%x", $map->{$ct}->{addr});
+#     $sysnum = "0x7999" if $ct == -1;
+#     #printf "$sysnum, system: %-8s, trb: $host ", $system;
+#     printf "$sysnum  $host  %-8s ", $system;
+#     if (grep /64 bytes/, $r) {
+# 	print "is alive.\n";
+#     }
+#     else {
+# 	print "is not alive.\n";
+#    }
+
+#     $pm->finish; # Terminates the child process
+# }
+
+# $pm->wait_all_children;
+# #$p->close();

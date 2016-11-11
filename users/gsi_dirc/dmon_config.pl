@@ -81,7 +81,7 @@ HeatmapDirc => {
   # upper limit for high end of color scale
 #  max_count_uclamp => 100000000,
 #  max_count_uclamp =>500,
-  max_count_uclamp => 5000,
+#  max_count_uclamp => 5000,
 #  max_count_uclamp => 10000,
   # lower limit for high end of color scale
   max_count_lclamp => 10,

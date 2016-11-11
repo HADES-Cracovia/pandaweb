@@ -43,7 +43,10 @@ while (1) {
 
 if(!$old_eb) {
     $content = get $url;
-    next if(!defined $content);
+    if(!defined $content) {
+      sleep 1;
+      next;
+    }
     ($number_of_events) = $content =~ /Events:(.*?)Rate/;
     ($number_of_bytes)  = $content =~ /Data:(.*?)Rate/;
 }

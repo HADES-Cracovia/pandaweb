@@ -8,6 +8,7 @@ use Storable qw(lock_store lock_retrieve);
 
 my $p;
 my $storefile;
+my $plotstring;
 
 use constant {TYPE_HISTORY => 1, TYPE_BARGRAPH => 2, TYPE_HEATMAP => 3};
 
@@ -19,16 +20,17 @@ my @color= ('#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22
  '#2222dd','#dd2222','#22dd22','#dd8822','#dd22dd','#22dddd','#dddd22','#8888dd','#8822bb','#444444');
 
 sub plot_write {
-  my ($file,$str,$no) = @_;
+  my ($file,$str,$no,$save) = @_;
   return unless $str;
   if($no || 0) {
     print $file $str;
-#     print $str;
+#      print $str;
     }
   else {
     print $file $str."\n";
-#     print $str."\n";
+#      print $str."\n";
     }
+  if(defined $save) {$plotstring->{$save} .= $str;}  
   }
 
 
@@ -74,6 +76,8 @@ sub PlotInit {
   $p->{$name}->{colors} = $p->{$name}->{colors} || \@color;
   $p->{$name}->{showvalues} = $p->{$name}->{showvalues} || 0;
   $p->{$name}->{storable} = $p->{$name}->{storable} || 0;
+  $p->{$name}->{xticks} = $p->{$name}->{xticks} || 0;
+  $p->{$name}{additional} = $p->{$name}{additional} || '';
 
   my $filename = $p->{$name}->{file};
   $filename =~ s%/%%;
@@ -96,7 +100,7 @@ sub PlotInit {
 
   if($p->{$name}->{output} == OUT_PNG) {
     $p->{$name}->{file} or die "No filename specified";
-    plot_write($fh,"set term png size ".$p->{$name}->{sizex}.",".$p->{$name}->{sizey}." font \"monospace,8\"");
+    plot_write($fh,"set term png size ".$p->{$name}->{sizex}.",".$p->{$name}->{sizey}." truecolor font \"monospace,8\"");
     plot_write($fh,"set out \"".$p->{$name}->{file}.($p->{$name}->{buffer}?"tmp":"").".png\"");
     }
   elsif($p->{$name}->{output} == OUT_SCREEN) {
@@ -137,27 +141,36 @@ sub PlotInit {
     plot_write($fh,"set autoscale fix");
     plot_write($fh,"set xtics autofreq"); #$p->{$name}->{entries}
     plot_write($fh,"set grid");
+    plot_write($fh,$p->{$name}{additional}) if $p->{$name}{additional};
 #     plot_write($fh,"set style fill solid 1.0");
-    plot_write($fh,"plot ",1);
+    plot_write($fh,"plot ",1,$name);
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
       if($p->{$name}->{fill}) {
-        plot_write($fh,"'-' using 1:2 with filledcurves x1 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with filledcurves x1 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,$name);
         }
       elsif($p->{$name}->{dots}) {
-        plot_write($fh,"'-' using 1:2 with points pointsize 0.6 pointtype 2 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with points pointsize 0.6 pointtype 2 lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,$name);
         }
       else {
-        plot_write($fh,"'-' using 1:2 with lines  lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+        plot_write($fh,"'-' using 1:2 with lines  lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,$name);
         }
-      plot_write($fh,', ',1) unless ($j+1==$p->{$name}->{curves});
+      plot_write($fh,', ',1,$name) unless ($j+1==$p->{$name}->{curves});
       }
-    plot_write($fh," ");
+    plot_write($fh," ",0,$name);
     }
   elsif($p->{$name}->{type} == TYPE_BARGRAPH) {
+    my $stacked = $p->{$name}{stacked}?' rowstacked':'';
+    print $stacked;
     plot_write($fh,"set style fill   solid 1.00 border -1");
     plot_write($fh,"set grid noxtics ytics");
     plot_write($fh,"set boxwidth ".($p->{$name}->{curvewidth}||4)." absolute");
-    plot_write($fh,"set style histogram gap ".($p->{$name}->{bargap}||1));
+    plot_write($fh,"set style histogram  gap ".($p->{$name}->{bargap}||1).' '.$stacked);
+#title offset character 0, 0, 0
+    
+    if($p->{$name}->{xticks}) {
+      plot_write("set xtics rotate by 90 offset .7,-1.7 scale .7 ");
+      }
+    
     if(defined $p->{$name}->{bartitle} && scalar @{$p->{$name}->{bartitle}}) {
       plot_write($fh,"set xtics (",1);
       for(my $j=0; $j<scalar @{$p->{$name}->{bartitle}};$j++) {
@@ -166,14 +179,17 @@ sub PlotInit {
         }
       plot_write($fh,") offset 2.5,0 scale 0");
       }
-    plot_write($fh,"set style histogram title offset character 0, 0, 0");
     plot_write($fh,"set style data histograms");
-    plot_write($fh,"plot ",1);
+    plot_write($fh,$p->{$name}{additional});
+    
+    plot_write($fh,"plot ",1,$name);
     for(my $j=0; $j<$p->{$name}->{curves};$j++) {
-      plot_write($fh,', ',1) if $j;
-      plot_write($fh,"'-' lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1);
+      plot_write($fh,', ',1,$name) if $j;
+      plot_write($fh,"'-' with histograms ",1,$name);
+      plot_write($fh,"using 2:xticlabels(1) ",1,$name) if ($p->{$name}->{xticks});
+      plot_write($fh, "lt rgb \"".$p->{$name}->{colors}->[$j]."\" title \"".($p->{$name}->{titles}->[$j] || "$j")."\" ",1,$name);
       }
-    plot_write($fh," ");
+    plot_write($fh," ",0,$name);
     }
   elsif($p->{$name}->{type} == TYPE_HEATMAP) {
     plot_write($fh,"set view map");
@@ -184,10 +200,10 @@ sub PlotInit {
       plot_write($fh,"set palette rgbformulae 22,13,-31");
       }
     if ($p->{$name}->{showvalues} == 0) {
-      plot_write($fh,"splot '-' matrix with image");
+      plot_write($fh,"splot '-' matrix with image",0,$name);
       }
     else {
-      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)) with labels tc rgb \"#ffffff\" font ',10'");
+      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)) with labels tc rgb \"#ffffff\" font ',10'",0,$name);
 #      plot_write($fh,"plot '-' matrix with image, '-' matrix using 1:2:(sprintf('%i', \$3)):3 with labels tc palette  font ',10'");
       }
     }
@@ -206,17 +222,18 @@ sub PlotDraw {
   if($p->{$name}->{run}>=1) {
     plot_write($p->{$name}->{fh},"set out \"".$p->{$name}->{file}.($p->{$name}->{buffer}?"tmp":"").".png\"");
     plot_write($p->{$name}->{fh},makeTimeString());
-    plot_write($p->{$name}->{fh},"replot");
+    plot_write($p->{$name}->{fh},$plotstring->{$name});
     }
     
   if($p->{$name}->{type} == TYPE_HISTORY) {  
+    my $realentries = $p->{$name}{limitentries} || $p->{$name}->{entries};
     for(my $j=0; $j<$p->{$name}->{curves}; $j++) {
-      for(my $i=0; $i< $p->{$name}->{entries}; $i++) {
+      for(my $i=$p->{$name}->{entries}-$realentries; $i< $p->{$name}->{entries}; $i++) {
         if ($p->{$name}->{countup}) {
-          plot_write($p->{$name}->{fh},($i/$p->{$name}->{xscale})." ".$p->{$name}->{value}->[$j]->[$i]);
+          plot_write($p->{$name}->{fh},(($i-($p->{$name}->{entries}-$realentries))/$p->{$name}->{xscale})." ".$p->{$name}->{value}->[$j]->[$i]);
           }
         else {
-          plot_write($p->{$name}->{fh},(($i-$p->{$name}->{entries})/($p->{$name}->{xscale}||1))." ".($p->{$name}->{value}->[$j]->[$i]||0));
+          plot_write($p->{$name}->{fh},(($i-$realentries)/($p->{$name}->{xscale}||1))." ".($p->{$name}->{value}->[$j]->[$i]||0));
           }
         }
       plot_write($p->{$name}->{fh},"e");
@@ -225,8 +242,9 @@ sub PlotDraw {
     
     
   if($p->{$name}->{type} == TYPE_BARGRAPH) { 
+    my $realentries = $p->{$name}{limitentries} || $p->{$name}->{entries};
     for(my $j=0; $j<$p->{$name}->{curves}; $j++) {
-      for(my $i=0; $i< $p->{$name}->{entries}; $i++) {
+      for(my $i=$p->{$name}->{entries}-$realentries; $i< $p->{$name}->{entries}; $i++) {
         plot_write($p->{$name}->{fh},' '.$p->{$name}->{value}->[$j]->[$i]);
         }
       plot_write($p->{$name}->{fh},"e");
@@ -281,5 +299,10 @@ sub PlotFill {
   $p->{$name}->{value}->[$curve]->[$slot] = $value||0;
   }
   
-
+sub PlotLimitEntries {
+  my($name,$entries) = @_;
+  $p->{$name}{limitentries} = $entries; 
+  }
+  
+  
 1;

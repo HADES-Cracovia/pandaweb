@@ -306,6 +306,11 @@ foreach my $i (@range) {
 
 } # end of channel_by_channel loop
 
+# set all channels to 0 after threshold determination in single channel mode
+if($channel_by_channel == true) {
+  write_thresholds($mode, $chain, \@zero_array);
+}
+
 
 exit;
 
