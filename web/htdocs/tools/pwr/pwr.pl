@@ -33,12 +33,18 @@ $ser_speed = "2400" unless defined $ser_speed;
 
 my $port;
 my $isIP = 0;
+my $isRemote = undef;
 
 if($ser_dev =~ /^IP(.*)/) {
   $ser_dev = $1;
   $isIP = 1;
   $port = IO::Socket::INET->new(PeerAddr => $ser_dev, PeerPort => $ser_speed, Proto => "tcp", Type => SOCK_STREAM) 
               or die "ERROR: Cannot connect: $@";  
+  }
+elsif($ser_dev =~ /^SER(.*)/) {
+  my $str = $1;
+  ($isRemote,$ser_dev) = split('/',$str,2);
+  $ser_dev = '/'.$ser_dev;
   }
 else {  
   $port = new Device::SerialPort($ser_dev);
@@ -62,14 +68,22 @@ else {
 #print "attempting to communicate with power supply connected to interface:\n$ser_dev\n\n";
 
 
-transmit_command() if $ser_type eq "PSP"; #if new command, send it!
-receive_answer() if $ser_type eq "PSP"; # always called
+if(defined $isRemote) {
+  my $env = $ENV{'QUERY_STRING'};
+#   $env =~ s/%20/ /g;
+  $env =~ s/&/!/g;
+  my $cmd = "bash -c \"ssh $isRemote 'QUERY_STRING=".$env." perl'\" <htdocs/tools/pwr/pwr_remote.pl";
+#   system("ssh $isRemote 'QUERY_STRING=".$env." perl -v' ");
+#   print $cmd."\n";
+  print qx($cmd);
+  }
+else {
+  transmit_command() if $ser_type eq "PSP"; #if new command, send it!
+  receive_answer() if $ser_type eq "PSP"; # always called
 
-
-print receive_answer_HMP() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 0) or $ser_type eq "PST"; # always called
-print HMP_ethernet() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 1);
-# transmit_command(); # send relais off in case current maximum is reached!
-
+  print receive_answer_HMP() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 0) or $ser_type eq "PST"; # always called
+  print HMP_ethernet() if (($ser_type eq "HMP" or $ser_type eq "HMC") && $isIP == 1);
+  }
 
 
 
