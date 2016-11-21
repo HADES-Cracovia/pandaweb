@@ -101,7 +101,7 @@ if (defined($settings_file) and not($settings_file eq "/dev/null") ) {
   close(FH);
 
   for my $line (@lines) {
-    $line =~ m/(^[xXa-fA-F0-9]+)\s+([xXa-fA-F0-9]+)/;
+    next unless $line =~ m/(^[xXa-fA-F0-9]+)\s+([xXa-fA-F0-9]+)/;
     $sc_data->{eval($1)} = eval($2); # convert hex/binary/decimal strings to numbers
   }
 
