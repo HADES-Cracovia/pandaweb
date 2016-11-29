@@ -41,3 +41,17 @@ td.state {
 font-size:70%;
 text-align:right;
 }
+
+.powerswitch .status {
+  min-width:20px;
+  width:20px;
+}
+
+tfoot>tr:first-child {
+  border-top:1px solid black;
+}
+
+.powerswitch td {
+  border-left:1px solid black;
+  text-align:center;
+}
