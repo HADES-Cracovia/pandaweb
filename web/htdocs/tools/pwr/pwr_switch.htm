@@ -54,14 +54,14 @@ function maketable() {
     out += "<tr><td>"+i+"<td>";
     if(typeof Vnames[i] !== 'undefined') out += Vnames[i];
     if (Vstatus[i] == 1) {
-      out += '<td class="status" style="background:limegreen">&nbsp;';
+      out += '<td id="status'+i+'" class="status" style="background:limegreen">&nbsp;';
       }
     else {
-      out += '<td class="status" style="background:#C00">&nbsp;';
+      out += '<td id="status'+i+'" class="status" style="background:#C00">&nbsp;';
       }
     out += '<td><input type="button" onClick="turn_on('+i+')" value="on">\
             <input type="button" onClick="turn_off('+i+')" value="off"> ';  
-    out += '<td>'+Vcurrent[i]+'<td>'+Vaverage[i]+
+    out += '<td id="curr'+i+'">'+Vcurrent[i]+'<td id="avg'+i+'">'+Vaverage[i]+
            '<td><input type="text" id="limit'+i+'" name="limit'+i+'" onChange="set_lim('+i+')" value="'+Vlimit[i]+'">'+"\n";
     }
   document.getElementById("display").innerHTML = out;  
@@ -124,7 +124,13 @@ function update(data) {
     Vaverage[i] = e.shift();
     Vlimit[i] = e.shift();
     }
-  maketable();  
+  document.getElementById("date").innerHTML = Vdate;
+  for(i=0;i<channels;i++) {
+    document.getElementById("status"+i).style.background=(Vstatus[i]=="1")?"limegreen":"#C00";
+    document.getElementById("curr"+i).innerHTML = Vcurrent[i];
+    document.getElementById("avg"+i).innerHTML = Vaverage[i];
+    document.getElementById("limit"+i).value = Vlimit[i];
+    }
   updateTask = setTimeout("communication()",updaterate);  
   }
 
