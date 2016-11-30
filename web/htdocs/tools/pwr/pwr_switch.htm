@@ -15,11 +15,12 @@
 
 <form acion="">
 <table id="settings" class="smallboxes">
-<tr><th>Channel<th colspan='2'>Status<th>Current<th>Average<th>Limit
+<tr><th colspan='2'>Channel<th colspan='2'>Status<th>Current<th>Average<th>Limit
 
 <tfoot>
-<tr class="sep"><td colspan=5><input type="checkbox" checked="1" id="showreadings">Enable read-back of values<td colspan=4 id="date">
-
+<tr class="sep">
+<td colspan=5><input type="checkbox" checked="1" id="showreadings">Enable read-back of values
+<td colspan=4 id="date">
 <tr><td colspan=9 id="info">&nbsp;
 </tfoot>
 <tbody id="display"></tbody>
@@ -36,6 +37,7 @@ var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
 var channels = getParameterByName("channels");
 var speed = getParameterByName("speed");
+var names = getParameterByName("names");
 var readSettingsRequest = 1;
 var forceUpdate = 1;
 
@@ -44,11 +46,13 @@ var Vcurrent = new Array();
 var Vaverage = new Array();
 var Vlimit   = new Array();
 var Vdate    = "x";
+var Vnames   = names.split(':');
 
 function maketable() {
   out = "";
   for(i=0;i<channels;i++) {
-     out += "<tr><td>"+i;
+    out += "<tr><td>"+i+"<td>";
+    if(typeof Vnames[i] !== 'undefined') out += Vnames[i];
     if (Vstatus[i] == 1) {
       out += '<td class="status" style="background:limegreen">&nbsp;';
       }

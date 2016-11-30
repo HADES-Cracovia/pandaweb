@@ -57,8 +57,10 @@ var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
 var channels = getParameterByName("channels");
 var speed = getParameterByName("speed");
+var names = getParameterByName("names");
 var readSettingsRequest = 1;
 var forceShowReadings = 1;
+var Vnames   = names.split(':');
 
 if (channels<2) {
   document.getElementById("chan2").style.color = "#eee";
@@ -224,7 +226,11 @@ function readSettings() {
 
 updateTask = setTimeout("update()",updaterate);
 document.getElementById("headline").innerHTML  = "Power Supply "+'<b>'+dev_id+'</b>'+" [connected to "+'<b>'+ser_dev+'</b>'+"]" ;
-  
+
+for(i=1;i<=channels;i++) {
+  if(typeof Vnames[i-1] !== 'undefined')
+    document.getElementById("chan"+i).innerHTML = i+' - '+Vnames[i-1];
+  }
   
 </script>
 </body></html>
