@@ -19,11 +19,13 @@ fi
 export DAQOPSERVER=localhost:56
 #export DAQOPSERVER=localhost
 
-trbreset_loop.pl
+./trbreset_loop.pl
 
 ##################################################
 ## Set addresses
 ##################################################
+
+echo "set addresses"
 ~/trbsoft/daqtools/merge_serial_address.pl ~/trbsoft/daqtools/base/serials_trb3.db ~/trbsoft/daqtools/users/gsi_dirc/addresses_trb3.db  > /dev/null
 
 ##################################################
@@ -32,7 +34,9 @@ trbreset_loop.pl
 trbcmd w 0xff7f 0x8308 0xffffff     # Trigger counter for startup
 trbcmd w 0xff7f 0x830e 0x10
 
+echo "registers configgbe"
 ~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe.db
+echo "registers configgbe_ip"
 ~/trbsoft/daqtools/tools/loadregisterdb.pl register_configgbe_ip.db
 
 
@@ -49,8 +53,8 @@ trbcmd w 0xfe4c 0xc800 0x00002000 ## TDC-Control-Register, RTniceM
 #trbcmd w 0xfe4c 0xc800 0x00000001 ## logic analyser control register
 #trbcmd w 0xfe4c 0xc800 0x00001001 ## 2014-10-02 disable the "triggered mode"
 
-trbcmd w 0xfe4c 0xc801 0x801e0046 ##  triggerwindow -350...+150ns ;5ns granularity
-#trbcmd w 0xfe4c 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
+#trbcmd w 0xfe4c 0xc801 0x801e0046 ##  triggerwindow -350...+150ns ;5ns granularity (Experiment cern2015)
+trbcmd w 0xfe4c 0xc801 0x80c600c6 ##  triggerwindow +/-990ns ;5ns granularity
 #trbcmd w 0xfe4c 0xc801 0x8000001e ##  triggerwindow +/-150ns ;5ns granularity
 
 # Default TDC-channel enable for all channels
@@ -119,11 +123,11 @@ trbcmd i 0xffff | wc -l
 # Barrel DIRC
 # enable stretch prepare_padiwas_invert_leds.pl --endpoints=0x2000-0x2013 --chains=0..2 --invert=0xffff --stretch=0xffff
 
-prepare_padiwas_invert_leds.pl --endpoints=0x2000..0x2013 --chains=0..2 --invert=0xffff 
+prepare_padiwas_invert_leds.pl --endpoints=0x2000..0x200b --chains=0..2 --invert=0xffff 
 padiwa_led_off.pl
 
 # Beam
-prepare_padiwas_invert_leds.pl --endpoints=0x2014-0x201f --chains=0..2 --invert=0xffff
+#prepare_padiwas_invert_leds.pl --endpoints=0x2014-0x201f --chains=0..2 --invert=0xffff
 
 
 # disable unused TDCs
@@ -164,8 +168,10 @@ echo "write barrel dirc thresholds"
 #./write_thresholds.pl padiwa_threshold_results_sequential_2015_06_25_offset_40_a.log -o 160
 #./write_thresholds.pl padiwa_threshold_results_sequential_2015_06_27_offset_40_a.log -o 160
 #./write_thresholds.pl padiwa_threshold_results_sequential_2015_07_04_offset_40_a.log -o 160
-./write_thresholds.pl padiwa_threshold_results_sequential_2015_08_11_offset_40_a.log -o 160
-
+# ./write_thresholds.pl padiwa_threshold_results_05jul16.log -o 600
+#./write_thresholds.pl padiwa_threshold_results_sequential_2016_08_30_offset_0.log -o 130
+#./write_thresholds.pl padiwa_threshold_results_sequential_2016_09_06_offset_0.log -o 130
+./write_thresholds.pl padiwa_threshold_results_blockwise_2016_10_05.log -o 1200
 
 #sleep 2
 
@@ -198,17 +204,17 @@ echo "ready to go"
 
 #echo "- setting trigger rate register in TDC";
 # trigger rate 1500Hz
-trbcmd w 0x7999 0xa150 0x0001869f
+trbcmd w 0xc000 0xa150 0x0001869f
 # pulser enable
-#trbcmd setbit 0x7999 0xa101 0x2
+#trbcmd setbit 0xc000 0xa101 0x2
 
 # enable multiplexer 0
-trbcmd setbit 0x7999 0xa101 0x30
+trbcmd setbit 0xc000 0xa101 0x30
 
-trbcmd w 0x7999 0xa150 0x270f  #1kHz pulser
-trbcmd w 0x7999 0xa151 0x05f5e100  #1Hz pulser
-trbcmd loadbit 0x7999 0xa158 0x00000f00 0x00000d00  #Pulser 1 is calibration
+trbcmd w 0xc000 0xa150 0x270f  #1kHz pulser
+trbcmd w 0xc000 0xa151 0x05f5e100  #1Hz pulser
+trbcmd loadbit 0xc000 0xa158 0x00000f00 0x00000d00  #Pulser 1 is calibration
 
 
 # disable all triggers
-#trbcmd setbit 0x7999 0xa00c 0x80000000
+#trbcmd setbit 0xc000 0xa00c 0x80000000

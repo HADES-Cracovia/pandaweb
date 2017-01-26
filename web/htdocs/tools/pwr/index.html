@@ -27,10 +27,18 @@ getdata('build_index.pl',update);
 <p id="conf_area">
 Note that you need to have libdevice-serialport-perl or perl-Device-SerialPort<br> 
 installed and that the /dev/ttyUSBn need to be accessible by normal users.<br>
-To be able to read back values from the supply, you need an interface capable<br>
-of supplying at least 7V on the DTR line of the serial port.<br>
 Feel free to alter the config file to accommodate your needs!<br>
 Please don't use the # character to comment out lines<br>
+Tested with HMC8043, HMP4040, HMP4030, PSP405, PSP2010, PST3202, PWRSW
+<br><pre>
+//PWRSPLY:/path/to/device:Speed:Name:Type:Channels
+//PWRSPLY:IP0.0.0.0:Port:Name:Type:Channels
+PWRSPLY:/dev/ttyUSB0:9600:PST3202:PST:3
+PWRSPLY:/dev/ttyUSB0:115200:HMP4030:HMP:3
+PWRSPLY:IP192.168.0.56:5050:HMP4040:HMP:4
+PWRSPLY:/dev/FTDI_FT232R_USB_UART_AH02HFZW:2400:PSP2010:PSP:1
+PWRSPLY:/dev/FTDI_FT232R_USB_UART_A900LJXB:0:Desk:PWRSW:4</pre>
+<br>
 <TEXTAREA NAME="Address" id="config_field" ROWS=10 COLS=50 >
 Platzhalter
 </TEXTAREA>

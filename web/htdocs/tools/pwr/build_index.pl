@@ -22,11 +22,14 @@ open(LESEN,$file)
 while(defined(my $i = <LESEN>)) {
 
 	if( $i =~ /^PWRSPLY:([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)/g ) {
-		my $ser_dev=$1;
-    my $speed=$2;
-		my $dev_id=$3;
-		my $type=$4;
-		my $channels=$5;
+	  my @arr = split(':',$i);
+	  shift @arr;
+		my $ser_dev  = shift @arr;
+    my $speed    = shift @arr;
+		my $dev_id   = shift @arr;
+		my $type     = shift @arr;
+		my $channels = shift @arr;
+		my $names = join(':',@arr);
 
 if($type eq "PSP") {
 print <<EOF;
@@ -36,14 +39,21 @@ print <<EOF;
 EOF
 }
 
-if($type =~ /HMP/ or $type =~ /PST/) {
+if($type =~ /HMP/ or $type =~ /HMC/ or $type =~ /PST/) {
 print <<EOF;
 <p>
-<iframe name="inlineframe" src="pwr_hmp.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels&speed=$speed" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
+<iframe name="inlineframe" src="pwr_hmp.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels&speed=$speed&names=$names" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
 </p>
 EOF
 }
 
+if($type =~ /PWRSW/) {
+print <<EOF;
+<p>
+<iframe name="inlineframe" src="pwr_switch.htm?device=$ser_dev&id=$dev_id&type=$type&channels=$channels&speed=$speed&names=$names" frameborder="0" scrolling="auto" width="800" height="340" ></iframe>
+</p>
+EOF
+}
 
 
 	}

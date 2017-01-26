@@ -30,13 +30,13 @@
     </register>    
     <register name="MonitorStatus" address="0004" mode="r" >
       <description>Status information of the monitoring block</description>
-      <field  name="MonitorFifoLevel" start="0"   bits="10" format="unsigned" >
+      <field  name="MonitorFifoLevel" start="0"   bits="13" format="unsigned" >
          <description>Number of data words in fifo for first input</description>
       </field>
-      <field  name="MonitorFifoWrite" start="11"   bits="1" format="boolean" >
+      <field  name="MonitorFifoWrite" start="15"   bits="1" format="boolean" >
          <description>Write signal for fifos</description>
       </field>
-      <field  name="MonitorWordCount" start="16"   bits="12" format="unsigned" >
+      <field  name="MonitorWordCount" start="16"   bits="16" format="unsigned" >
          <description>Word counter of Fifo control logic</description>
       </field>
     </register>    
@@ -61,6 +61,12 @@
       </field>
       <field  name="MonitorFifoSelect" start="16" mode="rw"  bits="5" format="unsigned">
          <description>Select the input signal to the Fifo, if the single-fifo version is implemented</description>
+      </field>
+      <field  name="ExtTrigSelect" start="24" mode="rw"  bits="5" format="unsigned">
+         <description>Select the input channel used as external trigger</description>
+      </field>      
+      <field  name="ExtTrigEnable" start="31" mode="rw"  bits="5" format="boolean">
+         <description>Enable external trigger - recording starts when selected channel goes high after MonitorTrigger</description>
       </field>
     </register>        
   </group>

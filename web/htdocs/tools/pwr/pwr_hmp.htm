@@ -39,8 +39,10 @@
   <td class="state"><input type="button" onClick="turn_on(2)" value="on"><td class="state"><input type="button" onClick="turn_off(2)" value="off">
   <td class="state"><input type="button" onClick="turn_on(3)" value="on"><td class="state"><input type="button" onClick="turn_off(3)" value="off">
   <td class="state"><input type="button" onClick="turn_on(4)" value="on"><td class="state"><input type="button" onClick="turn_off(4)" value="off">
-
-<tr class="sep"><td colspan=5><input type="checkbox" value="1" id="showreadings">Enable read-back of values<td colspan=4>Read Settings<input type="button" onClick="readSettings()" value="Go">
+<tr class="sep"><td id="master">Global Switch<td colspan=8><input type="button" onClick="globalOn()" value="ON">
+<input type="button" onClick="globalOff()" value="OFF">
+<tr class="sep"><td colspan=5><input type="checkbox" value="1" id="showreadings">Enable read-back of values<td colspan=4>
+Read settings<input type="button" onClick="readSettings()" value="Go">
 <tr><td colspan=9 id="info">&nbsp;
 </table>
 </form>
@@ -55,8 +57,10 @@ var dev_id = getParameterByName("id");
 var type = getParameterByName("type");
 var channels = getParameterByName("channels");
 var speed = getParameterByName("speed");
+var names = getParameterByName("names");
 var readSettingsRequest = 1;
 var forceShowReadings = 1;
+var Vnames   = names.split(':');
 
 if (channels<2) {
   document.getElementById("chan2").style.color = "#eee";
@@ -72,7 +76,7 @@ function set_v(chan) {
   if (chan > channels) return;
 	var value = parseFloat(document.getElementById("form_v"+chan).value);
 	var command;
-  if(type=="HMP") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
+  if(type=="HMP" || type=="HMC") command = "INST OUT"+chan+"&VOLT "+value.toFixed(3);
   if(type=="PST") command = ":CHAN"+chan+":VOLT "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
@@ -83,6 +87,7 @@ function set_v_lim(chan) {
 	var value = parseInt(document.getElementById("form_v_lim"+chan).value);
 	var command;
   if(type=="HMP") command = "INST OUT"+chan+"&VOLT:PROT "+value.toFixed(3);
+  if(type=="HMC") command = "INST OUT"+chan+"&VOLT:PROT ON&VOLT:PROT:LEV "+value.toFixed(3);
   if(type=="PST") command = ":CHAN"+chan+":PROT:VOLT "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
@@ -92,7 +97,7 @@ function set_c_lim(chan) {
   if (chan > channels) return;
 	var value = parseFloat(document.getElementById("form_c_lim"+chan).value);
 	var command;
-  if(type=="HMP") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
+  if(type=="HMP" || type=="HMC") command = "INST OUT"+chan+"&CURR "+value.toFixed(3);
   if(type=="PST") command = ":CHAN"+chan+":PROT:CURR "+value.toFixed(3);
 	new_commands.push(command);
   forceShowReadings = 1;
@@ -100,18 +105,31 @@ function set_c_lim(chan) {
 
 function turn_on(chan) {
   if (chan > channels) return;
-  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP ON");
+  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP:SEL ON");
+  if(type=="HMC") new_commands.push("INST OUT"+chan+"&OUTP:CHAN ON");
   if(type=="PST") new_commands.push(":OUTP:STAT ON");
   forceShowReadings = 1;
 }
 
 function turn_off(chan) {
   if (chan > channels) return;
-  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP OFF");
+  if(type=="HMP") new_commands.push("INST OUT"+chan+"&OUTP:SEL OFF");
+  if(type=="HMC") new_commands.push("INST OUT"+chan+"&OUTP:CHAN OFF");
   if(type=="PST") new_commands.push(":OUTP:STAT OFF");
   forceShowReadings = 1;
 }
 
+function globalOn() {
+  if(type=="HMP") new_commands.push("OUTP:GEN ON");
+  if(type=="HMC") new_commands.push("OUTP:MAST ON");
+  forceShowReadings = 1;
+}
+
+function globalOff() {
+  if(type=="HMP") new_commands.push("OUTP:GEN OFF");
+  if(type=="HMC") new_commands.push("OUTP:MAST OFF");
+  forceShowReadings = 1;
+}
 
 function update(data) {
   updateTask = setTimeout("communication()",updaterate);
@@ -120,9 +138,11 @@ function update(data) {
   
 function updatereads(data) {
   var e = data.split("&");
+  document.getElementById("info").innerHTML = e.shift();
+  document.getElementById("master").style.background=(e.shift()=='1')?"limegreen":"#C00";
   for(i=0;i<channels;i++) {
-    document.getElementById("vol"+(i+1)).value=e[i*3];
-    document.getElementById("cur"+(i+1)).value=e[i*3+1];
+    document.getElementById("vol"+(i+1)).value=(+e[i*3]).toFixed(3);
+    document.getElementById("cur"+(i+1)).value=(+e[i*3+1]).toFixed(3);
     document.getElementById("chan"+(i+1)).style.background=(e[i*3+2]=="1")?"limegreen":"#C00";
     }
   updateTask = setTimeout("communication()",updaterate);
@@ -130,12 +150,13 @@ function updatereads(data) {
 
 function updatesettings(data) {
   var e = data.split("&");
-  var id = e.shift();
-  document.getElementById("info").innerHTML = "Device Info: "+id;
+//   var id = e.shift();
+  document.getElementById("info").innerHTML = e.shift()+" Device Info: "+e.shift();
+  document.getElementById("master").style.background=(e.shift()=='1')?"limegreen":"#C00";
   for(i=0;i<channels;i++) {
-    document.getElementById("form_v"+(i+1)).value=e[i*3];
-    document.getElementById("form_c_lim"+(i+1)).value=e[i*3+1];
-    document.getElementById("form_v_lim"+(i+1)).value=e[i*3+2];
+    document.getElementById("form_v"+(i+1)).value=(+e[i*3]).toFixed(3);
+    document.getElementById("form_c_lim"+(i+1)).value=(+e[i*3+1]).toFixed(3);
+    document.getElementById("form_v_lim"+(i+1)).value=(+e[i*3+2]).toFixed(3);
     }
   updateTask = setTimeout("communication()",updaterate);
   }    
@@ -147,10 +168,14 @@ function communication() {
     }
   else if(readSettingsRequest == 1) {
     readSettingsRequest = 0;
-    if(type=="HMP") {
+    if(type=="HMP" || type=="HMC") {
       cmds = "&SYST:MIX&%2AIDN%3F";
-      for(i=1;i<=channels;i++)
-        cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+    if(type=="HMP") cmds += '&OUTP:GEN%3F';
+    if(type=="HMC") cmds += '&OUTP:MAST%3F';
+      for(i=1;i<=channels;i++){
+        if(type=="HMP") cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT%3F";
+        if(type=="HMC") cmds +="&INST OUT"+i+"&SOUR:VOLT%3F&SOUR:CURR%3F&VOLT:PROT:LEV%3F";
+        }
       }
     if(type=="PST") {
       cmds="&%2AIDN%3F";
@@ -162,7 +187,9 @@ function communication() {
   else if(document.getElementById("showreadings").checked || forceShowReadings) {
     forceShowReadings = 0;
     cmds = "";
-    if(type=="HMP") {    
+    if(type=="HMP") cmds += '&OUTP:GEN%3F';
+    if(type=="HMC") cmds += '&OUTP:MAST%3F';
+    if(type=="HMP" || type=="HMC") {    
       for(i=1;i<=channels;i++)
         cmds +="&INST OUT"+i+"&MEAS:VOLT%3F&MEAS:CURR%3F&OUTP:STAT%3F";
       }
@@ -199,7 +226,11 @@ function readSettings() {
 
 updateTask = setTimeout("update()",updaterate);
 document.getElementById("headline").innerHTML  = "Power Supply "+'<b>'+dev_id+'</b>'+" [connected to "+'<b>'+ser_dev+'</b>'+"]" ;
-  
+
+for(i=1;i<=channels;i++) {
+  if(typeof Vnames[i-1] !== 'undefined')
+    document.getElementById("chan"+i).innerHTML = i+' - '+Vnames[i-1];
+  }
   
 </script>
 </body></html>
