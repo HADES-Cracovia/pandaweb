@@ -152,8 +152,8 @@
     <register name="Coincidence" address="0040" mode="rw" repeat="16">
       <description>Coincidence Logic</description>
       <field  name="Enable" start="31"   bits="1" format="bitmask" />
-      <field  name="Input1" start="0"   bits="5" format="unsigned" />
-      <field  name="Input2" start="8"   bits="5" format="unsigned" />
+      <field  name="Input1" start="0"   bits="5" format="unsigned" noflag="true" />
+      <field  name="Input2" start="8"   bits="5" format="unsigned" noflag="true" />
     </register>       
     
     <register name="OutputSelect" address="0034" mode="r" >
@@ -164,7 +164,7 @@
       <field  name="MultOutput" start="8" bits="8" format="bitmask" noflag="true" mode="rw">
          <description>Outputs to add the multiplicity signal to</description>
       </field>
-      <field  name="SimpleCoinOutput" start="8" bits="8" format="bitmask" noflag="true" mode="rw">
+      <field  name="SimpleCoinOutput" start="0" bits="8" format="bitmask" noflag="true" mode="rw">
          <description>Outputs to add the simple coincidence signal to</description>
       </field>
     </register>          
