@@ -113,9 +113,9 @@ exit(0);
    }
 
 # Setup shared memory
-   print "Trying to kill processes 'cts' and 'dhttpi'\n";
-   system 'pkill dhttpi';
-   system 'pkill "^(cts|dhttpi)$"';
+#   print "Trying to kill processes 'cts' and 'dhttpi'\n";
+#   system 'pkill dhttpi';
+#   system 'pkill "^(cts|dhttpi)$"';
 
    print "\n\nTry to map monitoring files to shared memory (if it failes, no harm
    is done. Only the HDD has to work a little bit more)\n";
