@@ -28,7 +28,7 @@
         <description>Destination port</description>
         <field name="DestinationPort" start="0" bits="16" format="unsigned"  noflag="true"/>
       </register>      
-      <register name="SourceMacHigh" address="0005" >
+ <!--     <register name="SourceMacHigh" address="0005" >
         <description>Higher 16 Bit of Source MAC addresses</description>
         <field name="SourceMacHigh" start="0" bits="16" format="hex"  noflag="true"/>
       </register>
@@ -42,7 +42,7 @@
         <field name="SourceIP1" start="16" bits="8" format="unsigned"  noflag="true"/>
         <field name="SourceIP2" start="8" bits="8" format="unsigned"  noflag="true"/>
         <field name="SourceIP3" start="0" bits="8" format="unsigned"  noflag="true"/>
-      </register>
+      </register>-->
       <register name="SourcePort" address="0007" >
         <description>Source port</description>
         <field name="SourcePort" start="0" bits="16" format="unsigned"  noflag="true"/>
@@ -50,7 +50,7 @@
     </group>  
   </group>  
 
-  <group name="SubEvt" address="0300"  size="12"  purpose="config" mode="rw" continuous="true">
+  <group name="SubEvt" address="0300"  size="17"  purpose="config" mode="rw" continuous="true">
     <register name="SubEvtId" address="0000" >
       <description>SubEvent ID</description>
       <field name="SubEvtId" start="0" bits="16" format="hex"  noflag="true"/>
@@ -67,10 +67,7 @@
       <description>Maximum Ethernet frame size in byte</description>
       <field name="FrameSize" start="0" bits="16" format="unsigned"  noflag="true" unit="Byte"/>
     </register>
-    <register name="ReadoutCounter" address="0008" >
-      <description>Update the readout counter, i.e. the internal frame number generation</description>
-      <field name="ReadoutCounter" start="0" bits="32" format="hex" noflag="true" />
-    </register>  
+  
     <register name="EnableData" address="0005" >
       <description>Enable event data transport via GbE</description>
       <field name="EnableData" start="0" bits="1" format="bitmask" />
@@ -79,18 +76,34 @@
       <description>Enable multi-event mode</description>
       <field name="MultiEvent" start="0" bits="1" format="bitmask" />
     </register>    
+    <register name="ReadoutCounter" address="0008" >
+      <description>Update the readout counter, i.e. the internal frame number generation</description>
+      <field name="ReadoutCounter" start="0" bits="32" format="hex" noflag="true" />
+    </register>
     <register name="EnableRX" address="0009" >
       <description>Enable receiver path</description>
       <field name="EnableRX" start="0" bits="1" format="bitmask" />
-    </register>  
-    <register name="SctrlHeader" address="000a" >
-      <description>Include additional header in slow control packets</description>
-      <field name="SctrlHeader" start="0" bits="1" format="bitmask" />
     </register>  
     <register name="IncludeTriggerType" address="000b" >
       <description>Add trigger type to decoding field</description>
       <field name="IncludeTriggerType" start="0" bits="1" format="bitmask" />
     </register>  
+    <register name="MaxSubEvtSize" address="000c" >
+      <description>Maximum size of subevents</description>
+      <field name="MaxSubEvtSize" start="0" bits="16" format="unsigned"  unit="Byte" />
+    </register>      
+    <register name="MaxQueueThresh" address="000f" >
+      <description>Transpot Queue size before queue is sent</description>
+      <field name="MaxQueueThresh" start="0" bits="16" format="unsigned"  unit="Byte" />
+    </register>         
+    <register name="MaxQueueSize" address="0010" >
+      <description>Transpot Queue size maximum</description>
+      <field name="MaxQueueSize" start="0" bits="16" format="unsigned"  unit="Byte" />
+    </register>         
+    <register name="MaxEvtNum" address="000e" >
+      <description>Maximum number of events in one transport queue</description>
+      <field name="MaxEvtNum" start="0" bits="16" format="unsigned" />
+    </register>    
   </group>
   
   <group name="GbEStatus" address="0300"  size="255"  purpose="status" mode="r" continuous="false">
@@ -120,7 +133,7 @@
       <field name="TransmittedPackets" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
     
-    <register name="SctrlReceivedFrames" address="00a0" >
+<!--    <register name="SctrlReceivedFrames" address="00a0" >
       <description>Received Frames for slow control</description>
       <field name="SctrlReceivedFrames" start="0" bits="32" format="unsigned" rate="true" noflag="true"/>
     </register>    
@@ -180,7 +193,7 @@
       <field name="DataEmpty" start="13" bits="1" format="boolean" noflag="true"/>
       <field name="HeadersFull" start="14" bits="1" format="boolean" invertflag="true"/>
       <field name="HeadersEmpty" start="15" bits="1" format="boolean" noflag="true"/>
-    </register> 
+    </register> -->
 
     
   </group>
