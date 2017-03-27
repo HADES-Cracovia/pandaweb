@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 ### Change THIS!
-my $required_endpoints = 20;
+my $required_endpoints = 23;
 
 
 
@@ -14,7 +14,8 @@ my $number = 0;
 
 
 #js while (($number != 65) || ($counter > $max_counter)) {
-while (($number < $required_endpoints) || ($counter > $max_counter)) {
+#while (($number < $required_endpoints) || ($counter > $max_counter)) {
+while (($number < $required_endpoints) ) {
     my $c; my $res;
 
     $counter++;

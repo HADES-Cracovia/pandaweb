@@ -20,7 +20,7 @@ then
     ~/trbsoft/trbnettools/bin/trbnetd -i 84
 fi
 
-./check_ping.pl --reboot
+#./check_ping.pl --reboot
 
 
 echo "reset"
@@ -83,20 +83,17 @@ echo "TDC settings end"
 trbcmd w 0xfffe 0xc5 0x50ff
 
 #Dirich-Concentrator: enable reference time from RJ45
-trbcmd loadbit 0x8300 0xd580 0x6 0x6
+######trbcmd loadbit 0x8300 0xd580 0x6 0x6
 
 echo "pulser"
 # pulser #0 to 10 kHz
-trbcmd w 0xc001 0xa150 0x0000270f   
+trbcmd w 0xc001 0xa154 0x0000270f   
 #trbcmd w 0xc001 0xa150 0x0022270f   
 
 echo "trigger type"
 # set trigger type to 0x1
-trbcmd setbit 0xc001 0xa155 0x10
+trbcmd setbit 0xc001 0xa159 0x10
 
-echo "pulser enable"
-# pulser enable
-#trbcmd setbit 0xc001 0xa101 0x1
 
 #trbcmd clearbit 0x1130 0xc801 0x80000000 # disable window
 #trbcmd w 0x1130 0xc802 0xffff0000 # enable upper 16 channels for padiwa
@@ -114,3 +111,7 @@ trbcmd clearbit 0x1133 0xc801 0x80000000 # disable window
 trbcmd w 0x1133 0xc802 0x00000c03 # enable pulser
 
 #trbcmd setbit 0xc001 0xa101 0x8 # enable external trigger in of CTS
+
+echo "pulser enable"
+# pulser enable
+#trbcmd setbit 0xc001 0xa101 0x1
