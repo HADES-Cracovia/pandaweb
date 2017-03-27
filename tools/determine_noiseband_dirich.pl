@@ -5,11 +5,11 @@ use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Data::Dumper;
 
-my $dirich = 0x1204;
+my $dirich = 0x1207;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
-my $last_channel = 5;
+my $last_channel = 8;
 
 my $default_threshold = 0x3000;
 

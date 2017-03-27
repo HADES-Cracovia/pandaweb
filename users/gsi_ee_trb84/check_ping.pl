@@ -20,9 +20,9 @@ my $result = GetOptions (
 
 my $map = {
  0 => { trb =>  84, addr => "0xc001", sys => "CTS"},
- 1 => { trb =>  61, addr => "0x8000", sys => "TOF"},
- 2 => { trb => 113, addr => "0x8001", sys => "TOF"}, 
- 3 => { trb => 158, addr => "0x8002", sys => "TOF"},
+ 1 => { trb =>  61, addr => "0x8610", sys => "TOF"},
+ 2 => { trb => 113, addr => "0x8113", sys => "TOF"}, 
+ 3 => { trb => 158, addr => "0x8158", sys => "TOF"},
 
 };
 my $MAX_PROCESSES=50;
@@ -100,7 +100,7 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
   if ($reboot && ($number_of_reboots_done < $maximal_reboot_counter) && keys %$rh_unsuccessful) {
     #print Dumper $rh_unsuccessful;
     print "have to reboot FPGAs, first make a reset and reassign the addresses.\n";
-    my $cmd = "trbcmd reset; sleep 2;  merge_serial_address.pl ~/trbsoft/daqtools/base/serials_trb3.db ~/trbsoft/userscript/db/addresses_trb3.db";
+    my $cmd = 'trbcmd reset; sleep 2;  ~/trbsoft/daqtools/merge_serial_address.pl $DAQ_TOOLS_PATH/base/serials_trb3.db $USER_DIR/db/addresses_trb3.db';
     qx($cmd);
     sleep 3;
     # test trbnet:

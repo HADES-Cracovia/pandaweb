@@ -117,7 +117,7 @@ my $registers_to_read = 0;
 my $register_counter_on_page = 0;
 $page = chr(0) x 256; # initialize empty page;
 
-my @addresses = sort { $a <=> $b } keys $sc_data;
+my @addresses = sort { $a <=> $b } keys %{$sc_data};
 for my $addr (@addresses) {
   
   insert_at(\$page,6*$register_counter_on_page,   my_uint($addr,             2) );
