@@ -53,8 +53,8 @@ void first()
    //   (1 << 0xD) - special 0XD trigger with internal pulser, used also for TOT calibration
    //    0x3FFF - all kinds of trigger types will be used for calibration (excluding 0xE and 0xF)
    //   0x80000000 in mask enables usage of temperature correction
-   hld->ConfigureCalibration(calname, cnt, (1 << trig) | use_temp);
-   //hld->ConfigureCalibration(calname, 100000, 1);
+   //hld->ConfigureCalibration(calname, cnt, (1 << trig) | use_temp);
+   hld->ConfigureCalibration(calname, 100000, 1);
 
    // only accept trigger type 0x1 when storing file
    // new hadaq::HldFilter(0x1);
@@ -99,10 +99,18 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
       tdc->SetUseLastHit(false);
 
       //tdc->SetStoreEnabled();
-      for (unsigned nch=1; nch<tdc->NumChannels(); nch++) {
-        tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
-      }
+      //for (unsigned nch=1; nch<tdc->NumChannels(); nch++) {
+      //  tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
+      //}
 
+      tdc->SetRefChannel(2, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(3, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(4, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(5, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(6, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(7, 1, 0xffff, 10000,  -20., 20.);
+      tdc->SetRefChannel(8, 1, 0xffff, 10000,  -20., 20.);
+      //tdc->SetRefChannel(4, 2, 0xffff, 10000,  -20., 20.);
       //tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -10., 10.);
 
       //      tdc->SetRefChannel(6, 2 , 0xffff, 20000,  -10., 10.);

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 ### Change THIS!
-my $required_endpoints = 23;
+my $required_endpoints = 20;
 
 
 
