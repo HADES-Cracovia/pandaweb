@@ -90,7 +90,7 @@
 
   <group name="Trigger" purpose="config" address="0000" size="256" mode="rw" continuous="false">
     <description>Registers of the trigger generation logic</description>  
-    <group name="TriggerGeneration" purpose="config" address="0000" size="4" repeat="16" continuous="false">
+    <group name="TriggerGeneration" purpose="config" address="0000" size="4" repeat="8" continuous="false">
       <register name="TriggerEnable1" address="0000"  mode="rw" >
         <description>Enables individual inputs 0 - 31 for trigger generation. If enabled, the input adds to the common or</description>
         <field  name="TriggerEnable" start="0" bits="32" format="bitmask" noflag="true" />
@@ -114,14 +114,14 @@
       <description>Inverts individual inputs for trigger generation.</description>
       <field  name="TriggerInvert" start="0"   bits="32" format="bitmask" />
     </register>     
-    <register name="TriggerCoincidence1" address="0028" mode="rw" repeat="3" >
+    <register name="SimpleCoincidence1" address="0028" mode="rw" repeat="3" >
       <description>Enable input to be used in coincidence logic. First group of signals or'ed. At least one of the inputs to each group must fire within 40 ns to get a coincidence.</description>
-      <field  name="TriggerCoincidence1" start="0"   bits="32" format="bitmask" />
+      <field  name="SimpleCoincidence1" start="0"   bits="32" format="bitmask" />
     </register>  
-    <register name="TriggerCoincidence2" address="002c" mode="rw" repeat="3" >
+    <register name="SimpleCoincidence2" address="002c" mode="rw" repeat="3" >
       <description>Enable input to be used in coincidence logic. Second group of signals or'ed. At least one of the inputs to each group must fire within 40 ns to get a coincidence.</description>
-      <field  name="TriggerCoincidence2" start="0"   bits="32" format="bitmask" />
-    </register>      
+      <field  name="SimpleCoincidence2" start="0"   bits="32" format="bitmask" />
+    </register>
     <register name="TriggerOutput" address="0030" mode="r" >
       <description>Current status of all outputs</description>
       <field  name="TriggerOutput" start="0"   bits="32" format="bitmask" />
@@ -136,7 +136,7 @@
       </field>
     </register>
     <register name="Multiplicity" address="0032" mode="r" >
-      <description>Multiplicity based on enabled inputs to output 1. Output used is 2! Coincidence interval is fixed to 4 clock cycles</description>
+      <description>Coincidence interval is fixed to 4 clock cycles</description>
       <field  name="MultLimit" start="16" bits="8" format="unsigned" noflag="true" mode="rw">
          <description>Number of inputs firing at the same time required to cause a trigger</description>
       </field>
@@ -144,7 +144,30 @@
          <description>Current number of active inputs.</description>
       </field>
     </register>    
-        
+    <register name="MultiplicityEnable" address="0033" mode="rw" >
+      <description>Select inputs for multiplicity logic</description>
+      <field  name="MultiplicityEnable" start="0"   bits="32" format="bitmask" noflag="true"/>
+    </register> 
+    
+    <register name="Coincidence" address="0040" mode="rw" repeat="16">
+      <description>Coincidence Logic</description>
+      <field  name="Enable" start="31"   bits="1" format="bitmask" />
+      <field  name="Input1" start="0"   bits="5" format="unsigned" noflag="true" />
+      <field  name="Input2" start="8"   bits="5" format="unsigned" noflag="true" />
+    </register>       
+    
+    <register name="OutputSelect" address="0034" mode="r" >
+      <description>Select the outputs for special signals (coincidence and multiplicity)</description>
+      <field  name="CoinOutput" start="16" bits="8" format="bitmask" noflag="true" mode="rw">
+         <description>Outputs to add the coincidence signal to</description>
+      </field>
+      <field  name="MultOutput" start="8" bits="8" format="bitmask" noflag="true" mode="rw">
+         <description>Outputs to add the multiplicity signal to</description>
+      </field>
+      <field  name="SimpleCoinOutput" start="0" bits="8" format="bitmask" noflag="true" mode="rw">
+         <description>Outputs to add the simple coincidence signal to</description>
+      </field>
+    </register>          
    </group>  
   
 </TrbNetEntity>

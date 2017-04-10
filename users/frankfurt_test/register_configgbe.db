@@ -4,22 +4,27 @@
 !Register table
 #  Type  #   C0   #   C1   #   C2   #   C3   #   C4   #   C5   #   C6   #   C7   #   C8   #  C9   #
 ################################################################################################### 
-     0     0x8300   0x8301   0x8302   0x8303   0x8304   0x8305   0x8306   0x8307    0x8308  0x830b
-
-#old register set
-#    17     0xc100   0xc101   0xc102   0xc103   0xc104   0xc105   0xc106   0xc107   0xc108
+     0     0x8300   0x8305   0x8307   0x8308   0x830b   
+     1     0x8301   0x8302   0x8304   0x8309   0x830c   0x830e   0x830f   0x8310
 
 
 !Value table
-#                    SubEvtId     SubEvtDec     QueDec      PackSize     FrameSize    UseGbE       UseTrbNet   MultiQueue   Trig. Num.   MinEvtSize
-# Hub    #  Type  #     C0     #     C1     #     C2     #     C3     #     C4     #     C5     #     C6     #     C7     #    C8     #    C9     #  
-###################################################################################################################################################
-  0x8000      0       0x8000     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0x8100      0       0x8100     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0x8200      0       0x8200     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0x8820      0       0x8200     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0xf3ce      0       0x8200     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0xc000      0       0x8000     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
-  0xc148      0       0xc148     0x00020001   0x00030062     0xFDE8       0x578          1            0            0        0xffffff      0x7 
+#                    SubEvtId    UseGbE      MultiQueue   Trig. Num. InclTrgType   
+# Hub    #  Type  #     C0     #   C1     #     C2     #     C3     #     C4     #
+##################################################################################
+  0x8000      0       0x8000        1            0        0xffffff         1      
+  0x8100      0       0x8100        1            0        0xffffff         1
+  0x8200      0       0x8200        1            0        0xffffff         1
+  0x8820      0       0x8200        1            0        0xffffff         1
+  0xf3ce      0       0x82ce        1            0        0xffffff         1
+  0xc000      0       0x8000        1            0        0xffffff         1
+  0xc002      0       0xc002        1            0        0xffffff         1
+  0xc148      0       0xc148        1            0        0xffffff         1
 
+  
 
+#These values to not need to be written - for completeness only  
+#                    SubEvtDec     QueDec     FrameSize   RX enable    SubEvtSize   Evt/Queue    QueueClose  MaxQueueSize
+# Hub    #  Type  #     C0     #     C1     #     C2    #     C3     #     C4     #     C5     #     C6     #     C7     #
+##########################################################################################################################
+# 0xff7f      1      0x00020001   0x00030062     0x578         1         59800         200        32000         60000

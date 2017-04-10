@@ -486,7 +486,7 @@ EOF
                $rates->{'cts_cnt_trg_accepted.value'}{'rate'}
             ] if $rates->{'cts_cnt_trg_asserted.value'};
 
-            if ($#{ $plotData } > 4) {
+            if ($#{ $plotData } > 5) {
                open FH, ">$config->{'dump_dir'}/plot.data";
                foreach (@{$plotData}) {
                   my @row = (@{ $_ });
@@ -505,7 +505,7 @@ plot \\
 "$config->{'dump_dir'}/plot.data" using 1:3 with lp title "Edges", \\
 "$config->{'dump_dir'}/plot.data" using 1:4 with lp title "Accepted"
 
-set xrange [-5:0]
+set xrange [-10:0]
 set output "$config->{'dump_dir'}/_tmp_plotshort.png"
 plot \\
 "$config->{'dump_dir'}/plot.data" using 1:3 with lp title "Edges", \\
