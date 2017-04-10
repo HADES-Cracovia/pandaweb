@@ -10,7 +10,8 @@ use Data::Dumper;
 my $sock;
 
 my $ra_setup = [ { host => "wiznet02:5000",
-		   idn => "HAMEG,HMP4040,021527872,HW50020001/SW2.41",
+		   ##idn => "HAMEG,HMP4040,021527872,HW50020001/SW2.41",
+                   idn => "HAMEG,HMP4040,103161,HW50020001/SW2.51",
 		   channels => [ 'clock', 'TDB', 'TBD', 'dirich'],
 		   commands => {status => 'OUTPUT:STATE?', off => 'OUTPUT:SEL OFF', on => 'OUTPUT:SEL ON'}
 		 },
@@ -51,7 +52,7 @@ sub main {
   my $idn = write_and_read('*IDN?');
 
   if($idn ne $actual_setup->{idn}) {
-    print "wrong device: is not $actual_setup->idn\n";
+    print "wrong device: read idn $idn is not the one stored in the setup: $actual_setup->{idn}\n";
     exit;
   }
 

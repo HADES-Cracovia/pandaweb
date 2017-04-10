@@ -19,10 +19,10 @@ my $result = GetOptions (
 
 
 my $map = {
- 0 => { trb =>  84, addr => "0xc001", sys => "CTS"},
- 1 => { trb =>  61, addr => "0x8000", sys => "TOF"},
- 2 => { trb => 113, addr => "0x8001", sys => "TOF"}, 
- 3 => { trb => 158, addr => "0x8002", sys => "TOF"},
+ 0 => { trb => 165, addr => "0xc001", sys => "CTS"},
+# 1 => { trb =>  61, addr => "0x8000", sys => "TOF"},
+# 2 => { trb => 113, addr => "0x8001", sys => "TOF"}, 
+# 3 => { trb => 158, addr => "0x8002", sys => "TOF"},
 
 };
 my $MAX_PROCESSES=50;
@@ -61,7 +61,7 @@ while ( (($first_iteration == 1) || keys %$rh_unsuccessful) &&
     #my $num = sprintf "%3.3d", $ct;
     my $trbnum= $map->{$ct}->{trb};
     my $num = sprintf "%3.3d", $trbnum;
-    my $host= "trb" . $num;
+    my $host= "trbp" . $num;
     #my $host= "trb" . $num ."b";
     my $system = $map->{$ct}->{sys};
     #print "192.168.0.$ct   $host.gsi.de $host\n";
