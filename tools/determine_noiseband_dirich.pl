@@ -5,7 +5,7 @@ use HADES::TrbNet;
 use Time::HiRes qw(usleep);
 use Data::Dumper;
 
-my $dirich = 0x1204;
+my $dirich = 0x1208;
 my $throffset = 0xa000;
 my $monitor = 0xdfc0;
 
@@ -36,15 +36,15 @@ usleep (1E5);
 
 my $boundaries = {};
 
-for my $channel (0 .. $last_channel) {
-#for my $channel (24 .. 27) {
+#for my $channel (0 .. $last_channel) {
+for my $channel (28 .. 31) {
 
     my $hit_zero_diff_flag = 0;
 
     my $lower_threshold = 0x6e00;
     my $upper_threshold = 0xd000;
     my $reasonable_upper_threshold = 0x8000;
-    my $thresh_increment = 0x40;
+    my $thresh_increment = 0x04;
     
   THRESH_LOOP:    for (my $thresh = $lower_threshold ; $thresh <= $upper_threshold; $thresh += $thresh_increment) {
       trb_register_write($dirich, $throffset + $channel , $thresh);
