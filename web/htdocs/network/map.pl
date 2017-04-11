@@ -398,11 +398,10 @@ sub GetSerial {
   $file = "../base/serials_$file.db";
   my $c = sprintf("grep %08x $file",$id);
   my $o = qx($c);
+
   my @p = split(' ',$o);
-  
-  if($type == 0x90 || $type == 0x91 || $type == 0x95) {
-    $p[0] = substr($p[0],0,-1);
-    }
+  $p[0] = substr($p[0],0,-1);
+  $p[0] =~ s/^0+//;
   return $p[0];
   }
 
