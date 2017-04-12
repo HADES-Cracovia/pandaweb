@@ -171,10 +171,11 @@ function updateDebugregs(data) {
           o += rd_fsm_rdout.toString(16)+"<br>"+wr_fsm_rdout.toString(16)+"<br>"+"NA"+"<br>";
           }
         else{
-          val = c[j][i+2]; <!-- read the state machines for version > 2.1.2 -->
+          val = c[j][i+1]; <!-- read the state machines for version > 2.1.2 -->
           rd_fsm_rdout = (val&0xF);
           wr_fsm_rdout = ((val&0xF0)>>4);
-          trg_handler_fsm = ((val&0xF00)>>8);
+          val = c[j][i+2];
+          trg_handler_fsm = ((val&0xF));
           o += rd_fsm_rdout.toString(16)+"<br>"+wr_fsm_rdout.toString(16)+"<br>"+trg_handler_fsm.toString(16)+"<br>";
           }
         o += "<td>";
@@ -191,7 +192,8 @@ function updateDebugregs(data) {
 	  case 9: o += "SEND_STATUS";              break;
 	  case 10: o += "SEND_TRG_RELEASE_A";      break;
 	  case 11: o += "SEND_TRG_RELEASE_B";      break;
-	  case 12: o += "SEND_TRG_RELEASE_C";      break;
+          case 12: o += "SEND_TRG_RELEASE_C";      break;
+          case 12: o += "SEND_TRG_RELEASE_D";      break;
         }
         o += "<br>";
 	switch(wr_fsm_rdout) {
