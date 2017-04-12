@@ -133,7 +133,7 @@ var CTS = new Class({
    },
    
    readRegisters: function(regs, callback, formated) {
-      var opts = {'onFailure':requestFailure, 'url': '/cts/cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
+      var opts = {'onFailure':requestFailure, 'url': 'cts.pl?' + (formated ? "format" : "read") + ',' + Array.from(regs).join(",")};
       if (callback) {
          opts['onSuccess'] = callback;
          return (new Request.JSON(opts)).send();
@@ -147,7 +147,7 @@ var CTS = new Class({
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
-      var myUrl = '/cts/cts.pl?write,' + encodeURIComponent( arrValues.join(',') );
+      var myUrl = 'cts.pl?write,' + encodeURIComponent( arrValues.join(',') );
       (new Request.JSON({
          url: myUrl,
          onSuccess: function(json, text) {

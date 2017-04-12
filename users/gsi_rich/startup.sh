@@ -1,23 +1,23 @@
 #!/bin/bash
 
-DAQ_TOOLS_PATH=~/trbsoft/daqtools
-USER_DIR=~/trbsoft/daqtools/users/gsi_ee_trb84
-TRB_WEB_DIR=$DAQ_TOOLS_PATH/web
+export DAQ_TOOLS_PATH=~/trbsoft/daqtools
+export USER_DIR=~/trbsoft/daqtools/users/gsi_rich
+export TRB_WEB_DIR=$DAQ_TOOLS_PATH/web
 
 export PATH=$PATH:$DAQ_TOOLS_PATH
 export PATH=$PATH:$DAQ_TOOLS_PATH/tools
 export PATH=$PATH:$USER_DIR
 
-export TRB3_SERVER=trb084:26000
-export TRBNETDPID=$(pgrep -f "trbnetd -i 84")
+export TRB3_SERVER=trbp165:26000
+export TRBNETDPID=$(pgrep -f "trbnetd -i 165")
 #export DAQOPSERVER=hadeb05:84
-export DAQOPSERVER=hades39:84
+export DAQOPSERVER=hadesp43:165
 
 echo "- trbnetd pid: $TRBNETDPID"
 
 if [[ -z "$TRBNETDPID" ]] 
 then
-    ~/trbsoft/trbnettools/bin/trbnetd -i 84
+    ~/trbsoft/trbnettools/bin/trbnetd -i 165
 fi
 
 ./check_ping.pl --reboot
@@ -87,12 +87,12 @@ trbcmd loadbit 0x8300 0xd580 0x6 0x6
 
 echo "pulser"
 # pulser #0 to 10 kHz
-trbcmd w 0xc001 0xa150 0x0000270f   
-#trbcmd w 0xc001 0xa150 0x0022270f   
+#trbcmd w 0xc001 0xa154 0x0000270f  # cts design newer than 2016.09
+trbcmd w 0xc001 0xa150 0x0000270f   # 
 
-echo "trigger type"
+#echo "trigger type"
 # set trigger type to 0x1
-trbcmd setbit 0xc001 0xa155 0x10
+#trbcmd setbit 0xc001 0xa155 0x10
 
 echo "pulser enable"
 # pulser enable
@@ -109,8 +109,10 @@ cd $USER_DIR
 
 trbcmd w 0xfe51 0xdf80 0xffffffff # enable monitor counters
 
-trbcmd w 0x1133 0xc804 0x7c # max number of words
-trbcmd clearbit 0x1133 0xc801 0x80000000 # disable window
-trbcmd w 0x1133 0xc802 0x00000c03 # enable pulser
+#trbcmd w 0x1133 0xc804 0x7c # max number of words
+#trbcmd clearbit 0x1133 0xc801 0x80000000 # disable window
+#trbcmd w 0x1133 0xc802 0x00000c03 # enable pulser
 
 #trbcmd setbit 0xc001 0xa101 0x8 # enable external trigger in of CTS
+trbcmd setbit 0xc001 0xa101 0x1 # enable pulser
+
