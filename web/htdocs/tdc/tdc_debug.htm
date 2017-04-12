@@ -116,16 +116,16 @@ function updateChDebug(data) {
 	  case 6: o += "READOUT_EPOCH";  break;
 	  case 7: o += "READOUT_DATA_A"; break;
 	  case 8: o += "READOUT_DATA_B"; break;
-	  case 9: o += "READOUT_DATA_B"; break;
+	  case 9: o += "READOUT_DATA_C"; break;
         }
         o += "<br>";
 	switch(wr_fsm) {
-	  case 0: o += "OTHER";           break;
-	  case 1: o += "IDLE";            break;
-	  case 2: o += "WRITE_DATA_WORD"; break;
-	  case 3: o += "EXCEPTION";       break;
-	  case 4: o += "WAIT_FOR_HIT";    break;
-	  case 5: o += "WRITE_STOP_WORD"; break;
+	  case 0: o += "OTHER";            break;
+	  case 1: o += "WRITE_EPOCH_WORD"; break;
+	  case 2: o += "WRITE_DATA_WORD";  break;
+	  case 3: o += "EXCEPTION";        break;
+	  case 4: o += "WAIT_FOR_HIT";     break;
+	  case 5: o += "WRITE_STOP_WORD";  break;
         }
 
         }
