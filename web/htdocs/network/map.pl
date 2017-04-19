@@ -65,7 +65,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
     }
     
 
-    print "<table id=\"content\" class=\"content map\"><tr class=\"head map\"><th>Board<th>Hardware<th>Design<th>Compile Time<th>Temperature<th>UID<th>serial\n";
+    print "<table id=\"content\" class=\"content map\"><tr class=\"head map\"><th>Board<th>Hardware<th>Design<th>Compile Time<th>Temperature<th>UID - Endp (MAC)<th>serial\n";
     printlist(0,1);
     print "</table>";
     
@@ -307,8 +307,10 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
 #             }
 #           }
 #       }
-      
-      printf("<tr class=\"level level%i%s\"><td><div>%i</div>0x%04x<td title=\"0x%08x\">%s<td title=\"0x%08x%08x\n%s\">%s<td title=\"0x%08x\">%s<td>%.1f°C<td>%08x&nbsp;-&nbsp;%i<td>%s\n",
+      my $serial = GetSerial($uids->{$addr},$hardware->{$addr}>>24&0xff);
+      my $mac = '';
+         $mac = GetMac($uids->{$addr}) if $feat =~ /GbE/;
+      printf("<tr class=\"level level%i%s\"><td><div>%i</div>0x%04x<td title=\"0x%08x\">%s<td title=\"0x%08x%08x\n%s\">%s<td title=\"0x%08x\">%s<td>%.1f°C<td title=\"%s\">%08x&nbsp;-&nbsp;%i<td>%s\n",
              $layer,
              ($layer!=$lastlayer?' newlevel':' oldlevel'),
              $p,
@@ -322,9 +324,10 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
              $ctime->{$addr},
              time2str('%Y-%m-%d %H:%M',$ctime->{$addr}),
              ($temp->{$addr}>>20)/16,
+             $mac,
              $uids->{$addr},
              $endpid->{$addr},
-             GetSerial($uids->{$addr},$hardware->{$addr}>>24&0xff));
+             $serial);
       
       $lastlayer = $layer;
       printlist($tree->{$parent}->[$p]->{addr},$layer+1);
@@ -405,7 +408,14 @@ sub GetSerial {
   return $p[0];
   }
 
-
+sub GetMac {
+  my $id = shift @_;
+  $id = sprintf('%08x',$id);
+  my $r = 'da:7a:3'.substr($id,7,1).':'.substr($id,8,2).':'.substr($id,10,2).':'.substr($id,12,2);
+  return $r;
+  }
+  
 1;
 
-
+#da:7a:34:6f:39:7d
+#2f0000046f397d28
