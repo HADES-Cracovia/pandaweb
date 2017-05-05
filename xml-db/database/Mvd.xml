@@ -192,13 +192,12 @@
       <field name="FrameBufferStatus" start="16" bits="4" format="enum" >
         <enumItem value="1">Idle</enumItem>
         <enumItem value="2">GetInfo</enumItem>
-        <enumItem value="3">CheckTime</enumItem>
-        <enumItem value="4">BigTime</enumItem>
-        <enumItem value="5">SmallTime</enumItem>
-        <enumItem value="6">Delete</enumItem>
-        <enumItem value="7">Readout</enumItem>
-        <enumItem value="8">Wait4</enumItem>
-        <enumItem value="9">Finish</enumItem>
+        <enumItem value="3">WaitRead</enumItem>
+        <enumItem value="4">CheckTime</enumItem>
+        <enumItem value="5">Delete</enumItem>
+        <enumItem value="6">Readout</enumItem>
+        <enumItem value="7">Wait4</enumItem>
+        <enumItem value="8">Finish</enumItem>
       </field>      
       <field name="LengthLevel" start="20" bits="4" format="unsigned" noflag="true" >
         <description>Number of data words stored in the frame info buffer</description>
