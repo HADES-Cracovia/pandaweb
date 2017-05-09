@@ -11,7 +11,18 @@ use strict;
 sub moduleName {"M26 MVD ETM"}
 
 sub init {
-return;
+   my $self    = $_[0];
+   my $address = $_[1];
+   
+   my $trb  = $self->{'_cts'}{'_trb'};
+   
+   my $regs = $self->{'_registers'};
+   my $expo = $self->{'_exportRegs'};
+   my $prop = $self->{'_properties'};
+
+   my $header = $self->{'_cts'}{'_enum'}{0x63}->read();
+
+
    $regs->{'trg_m26_status'} = new TrbRegister($address + 1, $trb, {
          'value' => {'lower' =>  0, 'len' => 32, 'type' => 'hex'},
       }, {
