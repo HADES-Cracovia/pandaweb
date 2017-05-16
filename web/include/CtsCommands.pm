@@ -92,7 +92,10 @@ sub commandDump {
    $result .= "#  generated:        " . time2str('%Y-%m-%d %H:%M', time) . "\n";
    $result .= "#  CTS Compile time: " . time2str('%Y-%m-%d %H:%M', $cts->getTrb()->read(0x40)) . "\n#\n";
    $result .= "# " . $prefix . "Dev.   Reg.   Value\n";
+
+   $result .= sprintf($prefix . "setbit 0x%04x 0xa00c 0x80000000  # Disable all triggers\n", $cts->getTrb()->getEndpoint());   
    
+   my $settings;
    foreach my $reg ( @{$cts->getExportRegisters()} ) {
       my $val = $cts->getRegisters->{$reg}->format();
       my @compact = split /, /, $val->{'_compact'};
@@ -110,8 +113,8 @@ sub commandDump {
       
       push @ccompact, $tmp if ($tmp);
       unshift @ccompact, "" if ($#ccompact > 0); 
-      
-      $result .= sprintf($prefix . "w 0x%04x 0x%04x 0x%08x  # %s: %s\n", 
+      if($cts->getRegisters->{$reg}->getAddress() == 0xa00c) { $val->{'_raw'} |= 0x80000000;} #needed to keep triggers offset
+      $settings->{$cts->getRegisters->{$reg}->getAddress()} = sprintf($prefix . "w 0x%04x 0x%04x 0x%08x  # %s: %s\n", 
          $cts->getTrb()->getEndpoint(),
          $cts->getRegisters->{$reg}->getAddress(),
          $val->{'_raw'},
@@ -119,7 +122,10 @@ sub commandDump {
          join "\n" . (" " x 28) . "# ",  @ccompact
       );
    }
-   
+   foreach my $s (sort keys %$settings) {
+      $result .= $settings->{$s};
+      }
+   $result .= sprintf($prefix . "clearbit 0x%04x 0xa00c 0x80000000  # Enable all triggers\n", $cts->getTrb()->getEndpoint());   
    return $result;
 }
 
