@@ -9,7 +9,9 @@
 	  </head>
 
 	  <body>
+	  
 <h2>Basic power supply control</h2>
+<h3>There is a newer version of this tool available in labtools/powersupplies/web. The new version can handle several users monitoring values (uses caching), this one is single-user only.</h3>
 <p id="content">
 Platzhalter
 </p>
@@ -67,7 +69,7 @@ function write_field(data) {
   }
 
   
-getdata('read_conf.pl',write_field); 
+getdata('pwr.conf',write_field); 
 </script>
 
 </p>
