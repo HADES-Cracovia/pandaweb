@@ -15,9 +15,10 @@
 <tr><td><u>B</u>oard<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fccc">
 <tr><td>DAC-Chain<td><select onChange="setValues()"  id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
 <tr><td>Channel<td><select onChange="setValues()" id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15<option>16<option>17<option>18<option>19<option>20<option>21<option>22<option>23<option>24<option>25<option>26<option>27<option>28<option>29<option>30<option>31</select>
-<tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI<option value="0">on-board 0xa000</select>
+<tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI<option value="0">on-board 0xa000<option value="2">DiRICH2</select>
 <tr><td><u>U</u>pdate Interval (ms)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
 <tr><td><u>R</u>eference (mV)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
+<tr><td>DiRich2 Flash:<td><input type="button" value="Store" onClick="FlashStore()"><input type="button" value="Load" onClick="FlashLoad()">
 <tr><td>Last read <td id="timeget">
 <tr><td>Last set <td id="timeset">
 <tr><td><td><input type="button" onClick="setValues()" value="OK">
@@ -77,12 +78,16 @@ function update(bar,scale) {
   document.getElementById("bar"+bar+"value").innerHTML = value[bar-1];
   total = Math.min(value[0]+value[1],65535);
   document.getElementById("total").innerHTML = total+" - 0x"+total.toString(16)+" - "+Math.round(total/655.36*reference)/100+" mV";
-  if(type != 0) {
-    command = (type << 20) + (chan << 16) + (total);
+  if(type == 0) {
+    command = total.toString(16);
+    }
+  else if(type == 2) {
+    command = (0x8 << 20) + ((chan%16+16) << 24) + (total); 
     command = command.toString(16);
     }
   else {
-    command = total.toString(16);
+    command = (type << 20) + (chan << 16) + (total);
+    command = command.toString(16);
     }
   if(wasRead == 0) {
     dataWaiting = 1;
@@ -95,16 +100,38 @@ function update(bar,scale) {
     }
   }
 
+function FlashStore() {
+  if(type == 2) {
+    command = "20800000";
+    cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-3-1";
+    document.getElementById("timeset").style.background = "#a55";    
+    getdata(cmdstring,showret);
+    dataWaiting = 0;    
+    }
+  }
+
+function FlashLoad() {
+  if(type == 2) {
+    command = "21800000";
+    cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-3-1";
+    document.getElementById("timeset").style.background = "#a55";    
+    getdata(cmdstring,showret);
+    dataWaiting = 0;    
+    }
+  }  
   
 function doUpdate() {
   if(dataWaiting) {
-    if(type != 0)  {
-      cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
-      }
-    else {
+    if(type == 0) {
       adr = 0xa000 + chan*1;
       adr = adr.toString(16);
       cmdstring = "../commands/put.pl?"+board+"-"+adr+"-"+command;
+      }
+    else if(type == 2)  {
+      cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<(Math.floor(chan/16)))+"-1";
+      }
+    else {
+      cmdstring = "../commands/put.pl?"+board+"-d400-"+command+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
       }
     document.getElementById("timeset").style.background = "#a55";    
     getdata(cmdstring,showret);
@@ -150,6 +177,11 @@ function setValues() {
   document.activeElement.blur();
   if(type == 8) {
     cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
+    document.getElementById("timeget").style.background = "#a55";
+    getdata(cmdstring,anaret2);
+    }
+  else if(type == 2) {
+    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+((((chan%16+16) << 24)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<(Math.floor(chan/16)))+"-1";
     document.getElementById("timeget").style.background = "#a55";
     getdata(cmdstring,anaret2);
     }
