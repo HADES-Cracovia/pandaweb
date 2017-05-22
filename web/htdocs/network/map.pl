@@ -310,7 +310,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
       my $serial = GetSerial($uids->{$addr},$hardware->{$addr}>>24&0xff);
       my $mac = '';
          $mac = GetMac($uids->{$addr}) if $feat =~ /GbE/;
-      printf("<tr class=\"level level%i%s\"><td><div>%i</div>0x%04x<td title=\"0x%08x\">%s<td title=\"0x%08x%08x\n%s\">%s<td title=\"0x%08x\">%s<td>%.1f°C<td title=\"%s\">%08x&nbsp;-&nbsp;%i<td>%s\n",
+      printf("<tr class=\"level level%i%s\"><td><div>%i</div>0x%04x<td title=\"0x%08x\">%s<td title=\"0x%08x%08x\n%s\">%s<td title=\"0x%08x\">%s<td>%.1f°C<td title=\"%s\">%016x&nbsp;-&nbsp;%i<td>%s\n",
              $layer,
              ($layer!=$lastlayer?' newlevel':' oldlevel'),
              $p,
