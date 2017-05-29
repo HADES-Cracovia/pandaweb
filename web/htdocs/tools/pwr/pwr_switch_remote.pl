@@ -1,47 +1,28 @@
-#!/usr/bin/perl -w
-if ($ENV{'SERVER_SOFTWARE'} =~ /HTTP-?i/i) {
-  &htsponse(200, "OK");
-  }
-print "Content-type: text/html\n\n";
-
-
 use strict;
 use warnings;
 use Device::SerialPort;
-use IO::Socket;
+
 use feature 'state';
 use URI::Escape;
 use Time::HiRes qw( usleep);
 use POSIX qw/floor ceil strftime/;
 
 my $envstring = $ENV{'QUERY_STRING'};
+# print $envstring;
+
+(my $null,$envstring) = split('/',$envstring,2);
+$envstring = '/'.$envstring;
 $envstring =~ s/%20/ /g;
 $envstring =~ s/Q/\?/g;
 
-
-my @new_command = split('&',$envstring); 
+my @new_command = split('\+',$envstring); 
 my $ser_dev = shift(@new_command);
 $ser_dev = "/dev/ttyUSB0" unless defined $ser_dev;
 
+# print $envstring;
+# exit 1;
 
-my $port;
-# my $isIP = 0;
-my $isRemote = undef;
-# 
-# if($ser_dev =~ /^IP(.*)/) {
-#   $ser_dev = $1;
-#   $isIP = 1;
-#   $port = IO::Socket::INET->new(PeerAddr => $ser_dev, PeerPort => $ser_speed, Proto => "tcp", Type => SOCK_STREAM) 
-#               or die "ERROR: Cannot connect: $@";  
-#   }
-# els
-if($ser_dev =~ /^SER(.*)/) {
-  my $str = $1;
-  ($isRemote,$ser_dev) = split('/',$str,2);
-  $ser_dev = '/'.$ser_dev;
-  }
-else {  
-  $port = new Device::SerialPort($ser_dev);
+my  $port = new Device::SerialPort($ser_dev);
   unless ($port)
   {
     print "can't open serial interface $ser_dev\n";
@@ -55,27 +36,12 @@ else {
   $port->stopbits(1); 
   $port->handshake("none"); 
   $port->read_char_time(0);
-  $port->read_const_time(50);
+  $port->read_const_time(50);  
   $port->write_settings;
-}
-
-# debug output
-#print "attempting to communicate with power supply connected to interface:\n$ser_dev\n\n";
-
-
-if(defined $isRemote) {
-  my $env = $ENV{'QUERY_STRING'};
-  $env =~ s/&/\+/g;
-  my $cmd = "bash -c \"ssh $isRemote 'QUERY_STRING=".$env." perl'\" <htdocs/tools/pwr/pwr_switch_remote.pl";
-#   print $cmd;
-  print qx($cmd);
-  }
-else {
-  print receive_answer();
-  }
-
-
-
+  
+ print receive_answer();
+ 
+ 
 sub Cmd {
   my ($c) = @_;
   for my $i (0..2) {
@@ -112,7 +78,3 @@ sub receive_answer {
 print "\n";
   
 exit 1;
-
-
-
-
