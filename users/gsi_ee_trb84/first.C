@@ -16,7 +16,7 @@ void first()
    hadaq::TdcMessage::SetFineLimits(81, 464);
 
    // default channel numbers and edges mask
-   hadaq::TrbProcessor::SetDefaults(32, 1);
+   hadaq::TrbProcessor::SetDefaults(33, 2);
 
    // [min..max] range for TDC ids
    hadaq::TrbProcessor::SetTDCRange(0x1200, 0x15FF);
@@ -103,13 +103,11 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
       //  tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
       //}
 
-      tdc->SetRefChannel(2, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(3, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(4, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(5, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(6, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(7, 1, 0xffff, 10000,  -20., 20.);
-      tdc->SetRefChannel(8, 1, 0xffff, 10000,  -20., 20.);
+      for (unsigned j=0; j<33; j++) {
+        tdc->SetRefChannel(j, 1, 0xffff, 10000,  -40., 40.);
+      }
+
+      //tdc->SetRefChannel(0, 0, 0x1202, 10000,  -20., 20.);
       //tdc->SetRefChannel(4, 2, 0xffff, 10000,  -20., 20.);
       //tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -10., 10.);
 
