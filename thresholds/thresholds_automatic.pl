@@ -183,7 +183,7 @@ while ($number_of_steps < $number_of_iterations ||
   $number_of_steps++;
   last if($number_of_steps > 40);
 
-  if ($mode eq "padiwa") {
+  if ($mode eq "padiwa" || $mode eq "dirich2") {
 
     write_thresholds($mode, $chain, \@current_thresh, $channel_to_set);
 
@@ -394,20 +394,26 @@ sub write_thresholds {
     my $command;
     my $fixed_bits;
     my $shift_bits;
+    my $channel_shift;
 
     if($mode eq "padiwa") {
       $fixed_bits = 0x00800000;
       $shift_bits = 0;
+      $channel_shift = 16;
     }
     elsif ($mode eq "cbmrich") {
       $fixed_bits = 0x00300000;
       $shift_bits = 4;
+      $channel_shift = 16;
+    }
+    elsif ($mode eq "dirich2") {
+      $fixed_bits = 0x00800000;
+      $shift_bits = 0;
+      $channel_shift = 24;
     }
 
-    $command = $fixed_bits | ($current_channel << 16) | ($ra_thresh->[$current_channel] << $shift_bits);
+    $command = $fixed_bits | ($current_channel << $channel_shift) | ($ra_thresh->[$current_channel] << $shift_bits);
     Dmon::PadiwaSendCmd($command,$endpoint, $chain);
-
-
   }
 
   #sleep 10 if($current_channel == 15 && $chain==1);
