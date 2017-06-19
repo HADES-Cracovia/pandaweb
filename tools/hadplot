@@ -18,7 +18,7 @@ use constant NODELAY => 0;
 use constant NO => 0;
 use constant YES => 1;
 use constant NONEWLINE => 1;
-
+$| = 1;
 my $GPbuffer = "";
 my $buffercount = 0;
 
@@ -140,7 +140,7 @@ for(my $k = 0; $k < scalar @$address; $k++) {
   
 for(my $i=0;$i < scalar @{$address};$i++) {
   if(!defined($title->[$i])) {
-    $title->[$i] = "$address->[$i] $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
+    $title->[$i] = hex($address->[$i])." $register->[$i] $regoffset->[$i]..".($regoffset->[$i]+$regwidth->[$i]-1);
     }
   }
 
@@ -154,12 +154,12 @@ if($style == 5) {$curvestyle="histostacked";      $xticks=1;}
 
 #Open Gnuplot
 our $fh;
-my $fn = "tee /dev/stderr | gnuplot -noraise -geometry $geom -bg 'ghost white'";
+my $fn = "gnuplot -noraise -geometry $geom -bg 'ghost white'";
 $fh = new FileHandle ("|$fn") or  die "error: no gnuplot";
 $fh->autoflush(1);
 
 sub makeTimeString{
-  return strftime("set label 100 \"%H:%M:%S\" at screen 0.92,0.02 left tc rgb \"#000044\" font \"monospace,8\"\n", localtime())
+  return strftime("set label 100 \"%H:%M:%S\" at screen 0.85,0.02 left tc rgb \"#000044\" font \"monospace,8\"\n", localtime())
   }
 
 #################################################
@@ -235,10 +235,14 @@ sub plot_end {
   my ($single) = @_;
   for(my $i = 0;$i<scalar @PlotBufArr;$i++) {
     if($single) {
-      print $fh $PlotBufArr[$i]->{y}."\n";
+      my $str = $PlotBufArr[$i]->{y}."\n";
+      plot_write($str);
+      #print $str;
       }
     else {
-      print $fh $PlotBufArr[$i]->{x}." ".$PlotBufArr[$i]->{y}."\n";
+      my $str = $PlotBufArr[$i]->{x}." ".$PlotBufArr[$i]->{y}."\n";
+      plot_write($str);
+      #print $str;
       }
     }
 #   foreach my $line (sort keys %{$PlotBuffer}) {
@@ -254,7 +258,8 @@ sub plot_end {
   @PlotBufArr = ();
   $PlotBuffer = {};
   $PlotBufferCnt = 0;
-  print $fh "e\n";
+  plot_write("e");
+  #print "e\n";
   $plotendedbefore = 1 unless $plotendedbefore;
   }  
 
@@ -272,8 +277,8 @@ sub plot_reset {
       }
     if ($plotendedbefore != 0) {
       $plotendedbefore = 0;
-      print $fh makeTimeString();      
-      print $fh "replot \n";
+      plot_write(makeTimeString());      
+#       print $fh "replot\n";
       }
     }
   else {
@@ -281,8 +286,8 @@ sub plot_reset {
       system("mv $write2file.tmp $write2file");
       plot_write("set out \"$write2file.tmp\"\n");
       $plotendedbefore = 0;
-      print $fh makeTimeString();
-      print $fh "replot\n";
+      plot_write(makeTimeString());
+#       print $fh "replot\n";
 #       print "reset\n";
       }
     }
@@ -492,8 +497,8 @@ sub store_push {
 # Writes storage contents to stream
 #################################################
 sub store_print {
-  my $str = "";
   my ($storage) = @_;
+  my $str = "";
   if($storage->{"initing"} != 2) {
     if($storage->{"iteration"} % $storage->{"downscale"} == 0) {
       my $xcnt = - $storage->{"totalx"} /1000000.0;
@@ -508,8 +513,7 @@ sub store_print {
         #plot_write($xcnt/1000000.0." ".$yval);
         }
       plot_write($str,1);  
-#       print $str;
-      plot_end(1);
+      plot_end(1);#       print $str;
       }
     $storage->{"iteration"}++;
     }
@@ -659,14 +663,20 @@ sub bitmap {
     plot_write("set boxwidth 1 absolute");    
     plot_write("unset key");
     plot_write('set format x "%x"');
-    plot_write("plot ",1);
+    my $plotstr = "plot ";
     for(my $i = 0; $i<scalar(@{$address});$i++) {
-      plot_write("'-'  with points pt 5 ps 1 title \"$title->[$i]\" ",1); #using 2:xticlabels(1)
-      plot_write(", ",1) unless $i == scalar(@{$address})-1;
+      $plotstr .="'-'  with points pt 5 ps 1 title \"$title->[$i]\" "; #using 2:xticlabels(1)
+      $plotstr .=", " unless $i == scalar(@{$address})-1;
       }
     plot_write(""); 
-#     }
+
   while(1) {
+
+#    for(my $i = 0; $i<scalar(@{$address});$i++) {
+#      plot_write("'-'  with points pt 5 ps 1 title \"$title->[$i]\" ",1); #using 2:xticlabels(1)
+#      plot_write(", ",1) unless $i == scalar(@{$address})-1;
+#      }
+    plot_write($plotstr,0);  
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       my $c;
       if ($regamount->[$i] == 1) {
@@ -726,29 +736,35 @@ sub genreg {
     plot_write("set autoscale xfix ");    
     }
 
-  plot_write("plot ",1);
+  my $plotstr = "plot ";
+
   for(my $i = 0; $i<scalar(@{$address});$i++) {
-    plot_write("'-' ",NONEWLINE);
+    $plotstr .= "'-' ";
     if($xticks) {
-      plot_write("using 2:xticlabels(1) ",NONEWLINE);
+      $plotstr .= "using 2:xticlabels(1) ";
       }
     if(($curvestyle =~ /histo/)) {
-      plot_write("with histograms lt rgb \"$color[$i]\" title \"$title->[$i]\" ",NONEWLINE);
+      $plotstr .= "with histograms lt rgb \"$color[$i]\" title \"$title->[$i]\" ";
       }
-    elsif ($curvestyle eq "steps") {      
-      plot_write("with histeps title \"$title->[$i]\" ",NONEWLINE);
+    elsif ($curvestyle eq "steps") {
+      $plotstr .= "with histeps title \"$title->[$i]\" ";
       }
     else {
-      plot_write("with points pt 5 title \"$title->[$i]\" ",NONEWLINE);
+      $plotstr .= "with points pt 5 title \"$title->[$i]\" ";
       }
-    plot_write(" ".$curveoption->[$i],NONEWLINE);
-    plot_write(", ",NONEWLINE) unless $i == scalar(@{$address})-1;
-    }
-  plot_write(""); 
+    $plotstr .= " ".$curveoption->[$i];
+    $plotstr .= ", " unless $i == scalar(@{$address})-1;
+  }
+
+#my $cmd = q|plot '-' with points pt 5 title "+3V input"  , '-' with points pt 5 title "-3V reg."|;
+#  plot_write($cmd,0);
 
   while(1) {
+    plot_write($plotstr,0);
     for(my $i = 0; $i<scalar(@{$address});$i++) {
-      my $c;
+
+
+  my $c;
       if (!(defined $regamount->[$i]) || $regamount->[$i] == 1) {
         $c = trb_register_read(($address->[$i]),($register->[$i])) or die trb_strerror();
         foreach my $s (keys %$c) {
@@ -758,7 +774,7 @@ sub genreg {
       else {
         $c = trb_register_read_mem(($address->[$i]),($register->[$i]),$fifomode->[$i],$regamount->[$i]) or die trb_strerror();
         }
-      foreach my $s (sort keys $c) {
+      foreach my $s (sort keys %$c) {
         for(my $r = 0; $r < scalar @{$c->{$s}};$r++) {
           my $tmp = ($c->{$s}->[$r]>>$regoffset->[$i])&(2**$regwidth->[$i]-1);
           my $val = $tmp;
@@ -805,24 +821,23 @@ sub genhist {
 #   $xtitle = "Time [s]" unless $xtitle ne "";
   plot_init();
   plot_write("set autoscale fix");
-  plot_write("plot",1);
+  my $plotstr ="plot ";
   $diff = 0 unless defined($diff);
   for(my $i = 0; $i<scalar(@{$address});$i++) {
     $storearr{$i} = {};
     store_init($storearr{$i},$samples,DIFFX,$ydiff,$delay,$downscale,$xoverflow->[$i],$yoverflow->[$i]); 
-    plot_write("'-' with lines title \"$title->[$i]\" ",1);
-    plot_write(", ",1) unless $i == scalar(@{$address})-1;
-    }
-  plot_write(""); 
-  
+    $plotstr .= "'-' with lines title \"$title->[$i]\" ";
+    $plotstr .= ", " unless $i == scalar(@{$address})-1;
+    } 
   while(1) {
     my $a, my $s, my $t;
     my $val = 0 , my $time;
     plot_storage_reset($storearr{0});
+    plot_write($plotstr);
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       $val = 0;
       my $c = trb_registertime_read($address->[$i], $register->[$i]) or sleep 1 and print "Error\n" and next;
-      foreach my $o (sort keys $c) {
+      foreach my $o (sort keys %$c) {
         $val  += ((($c->{$o}->{'value'}->[0]||0)>>($regoffset->[$i]))&(2**($regwidth->[$i])-1));
         $time = ($c->{$o}->{'time'}->[0]||0)*16;
         }

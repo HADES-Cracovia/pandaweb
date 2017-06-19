@@ -37,6 +37,6 @@ while (my $a = <FILE>) {
     }
   }
 
-# print $cmd;
+print $cmd;
 system($cmd);
 # print "Done.\n\n";
