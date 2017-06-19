@@ -73,7 +73,7 @@ my $plotoption= ""; #string with additional gnuplot commands
 my $curveoption= []; #options for plot command
 my $xgrid     = 1;
 my $ygrid     = 1;
-my $ymax;
+my $ymax      = '.01<*';
 my $ymin;
 my $xmin;
 my $xmax;
@@ -107,10 +107,10 @@ GetOptions('d=f' => \$delay,
            'yticks!'      => \$yticks,
            'xgrid!'       => \$xgrid,
            'ygrid!'       => \$ygrid,
-           'ymax=i'       => \$ymax,
-           'ymin=i'       => \$ymin,
-           'xmax=i'       => \$xmax,
-           'xmin=i'       => \$xmin,           
+           'ymax=s'       => \$ymax,
+           'ymin=s'       => \$ymin,
+           'xmax=s'       => \$xmax,
+           'xmin=s'       => \$xmin,           
            'curvestyle=s' => \$curvestyle,
            'curveoption=s'=> $curveoption,
            'plotoption=s' => \$plotoption
