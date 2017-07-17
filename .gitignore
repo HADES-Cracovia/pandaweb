@@ -7,3 +7,4 @@ web/htdocs/monitor
 logs
 bitfiles
 xml-db/*pdf
+web/htdocs/tools/pwr/pwr.conf
