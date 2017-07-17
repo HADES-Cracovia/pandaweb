@@ -83,5 +83,5 @@ exit;
 
 
 sub usage {
-  print "switch_power_dirich.pl <position in backplane> <on|off|toggle>\n";
+  print "switch_power_dirich.pl <dirich_conc_address> <position in backplane> <on|off|toggle>\n";
 }

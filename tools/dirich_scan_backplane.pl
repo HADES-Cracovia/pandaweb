@@ -19,10 +19,9 @@ foreach my $cur_position (1..12) {
   #print $c . "\n";
   qx($c);
   sleep 4;
-  $c = "~/trbsoft/daqtools/merge_serial_address.pl $ENV{DAQ_TOOLS_PATH}/base/serials_dirich.db $ENV{USER_DIR}/db/addresses_dirich.db";
+  #qx($c);
 
-  qx($c);
-  $c = "trbcmd reset; sleep 1; trbcmd i 0xffff | grep ^0x12";
+  $c = "trbcmd reset; sleep 1; ~/trbsoft/daqtools/merge_serial_address.pl $ENV{DAQ_TOOLS_PATH}/base/serials_dirich.db $ENV{USER_DIR}/db/addresses_dirich.db; sleep 1; trbcmd i 0xffff | grep ^0x12";
   my $r = qx($c);
 
   print "position: $cur_position: $r\n";

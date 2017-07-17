@@ -29,7 +29,7 @@ foreach my $combs (keys %$act_ports) {
   next if $mask == 0;
   trb_register_setbit($combs,0xd580,$mask);
   usleep(10000);
-  trb_register_clearbit($combs,0xd580,$mask);  
+  trb_register_clearbit($combs,0xd580,$mask);
   }
 usleep(800000);  
 count();
