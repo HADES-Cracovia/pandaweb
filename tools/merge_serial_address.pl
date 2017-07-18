@@ -37,7 +37,7 @@ foreach my $cur_ln (<$fh2>) {
     next if (!defined $serial_nr);
     $trb{$serial_nr}->{'address'} = hex($address);
     $trb{$serial_nr}->{'endpoint_nr'} = $sernr2;
-    $trb{$serial_nr}->{'uid'} = $trb{int($sernr1)}->{'uid'} unless $trb{$serial_nr}->{'uid'};  #compat. to old db files
+    #$trb{$serial_nr}->{'uid'} = $trb{int($sernr1)}->{'uid'} unless $trb{$serial_nr}->{'uid'};  #compat. to old db files
 }
 
 
