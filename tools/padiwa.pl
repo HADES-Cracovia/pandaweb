@@ -45,6 +45,7 @@ if (!(defined $ARGV[0]) || !(defined $ARGV[1]) || !(defined $ARGV[2])) {
 \t  \t\t read the RAM content (16 Byte)
 \t flash \t\t execute flash command, options: \$command, \$page. See manual for commands.
 \t enablecfg\t enable or disable access to configuration flash, options: 1/0
+\t erasecfg\t erases the config flash 
 \t dumpcfg \t Dump content of configuration flash. Pipe output to file
 \t writecfg \t Write content of configuration flash. options: \$filename
 \t fifo \t\t Read a byte from the test fifo (if present, no options
@@ -87,7 +88,11 @@ sub sendcmd {
   #  return trb_register_read($board,0xd412);
 }
 
-
+sub flash_is_busy {
+    sendcmd(0x50800000);
+    my $b = sendcmd(0x40000000);
+    return (($b->{$board} >> 15) & 0x1);
+}
 
 if ($ARGV[2] eq "temp") {
   my $b = sendcmd(0x10040000);
@@ -355,17 +360,36 @@ if ($ARGV[2] eq "enablecfg" && defined $ARGV[3]) {
   printf("Sent command.\n");
 }
 
+if ($ARGV[2] eq "erasecfg") {
+    while (flash_is_busy()) {
+	printf(" busy - try again\n");
+	usleep(300000);
+    };
+    sendcmd(0x5080E000);
+    printf("Sent Erase command.\n");
+}
+
 if ($ARGV[2] eq "writecfg" && defined $ARGV[3]) {
   open(INF,$ARGV[3]) or die "Couldn't read file : $!\n";
+  while (flash_is_busy()) {
+      printf(" busy - try again\n");
+      usleep(300000);
+  };
   my $p = 0;
   while (my $s = <INF>) {
     my @t = split(' ',$s);
     my @a;
     for (my $i=0;$i<16;$i++) {
-      push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 16));
+	if ($p eq 0x167e && $i eq 11) {
+	    # adds the magic 09 the last page of the config flash
+	    push(@a,0x40800000 + (0x09) + ($i << 16));
+	} else {
+	    push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 16));
+	}
     }
     sendcmd16(@a);
     sendcmd(0x50804000 + $p);
+
     $p++;
     printf(STDERR "\r%d / 5760",$p) if(!($p%10));
   }
