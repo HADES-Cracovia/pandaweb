@@ -2,7 +2,7 @@
 
 use warnings;
 use HADES::TrbNet;
-use Dmon;
+#use Dmon;
 use Time::HiRes qq|usleep|;
 use Data::Dumper;
 
@@ -18,11 +18,11 @@ count();
   
 my $act_ports = trb_register_read(0xfe52,0x84); #active ports
 my $to_ports  = trb_register_read(0xfe52,0x8b); #ports with timeouts
-
+my $er_ports  = trb_register_read(0xfe52,0xa4); #ports with sctrl error
 
 foreach my $combs (keys %$act_ports) {
   #not active or timeout
-  my $mask = (((~$act_ports->{$combs}) & 0x1ffe) or ($to_ports->{$combs} & 0x1ffe));
+  my $mask = (((~$act_ports->{$combs}) & 0x1ffe) | ($to_ports->{$combs} & 0x1ffe) | ($er_ports->{$combs} & 0x1ffe));
   #shift for LDO switch
   $mask <<= 15;
   printf("%04x\t%08x\t%08x\t%08x\n",$combs,$act_ports->{$combs},$to_ports->{$combs},$mask);

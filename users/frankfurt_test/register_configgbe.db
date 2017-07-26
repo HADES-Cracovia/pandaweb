@@ -16,8 +16,8 @@
   0x8100      0       0x8100        1            0        0xffffff         1
   0x8200      0       0x8200        1            0        0xffffff         1
   0x8820      0       0x8200        1            0        0xffffff         1
-  0xf3ce      0       0x82ce        1            0        0xffffff         1
-  0xc000      0       0x8000        1            0        0xffffff         1
+  0xf3ce      0       0x82ce        1            1        0xffffff         1
+  0xc000      0       0x8000        1            1        0xffffff         1
   0xc002      0       0xc002        1            0        0xffffff         1
   0xc148      0       0xc148        1            0        0xffffff         1
 
