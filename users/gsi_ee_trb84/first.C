@@ -103,10 +103,11 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
       //  tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
       //}
 
-      for (unsigned j=0; j<33; j++) {
+      for (unsigned j=10; j<33; j++) {
         tdc->SetRefChannel(j, 1, 0xffff, 10000,  -40., 40.);
       }
 
+      tdc->SetRefChannel(6, 0, 0xffff, 10000,  -100.,100.);
       //tdc->SetRefChannel(0, 0, 0x1202, 10000,  -20., 20.);
       //tdc->SetRefChannel(4, 2, 0xffff, 10000,  -20., 20.);
       //tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -10., 10.);

@@ -5,6 +5,11 @@ use Data::Dumper;
 
 my $dirich_concentrator_address = $ARGV[0];
 
+unless ($ARGV[0]) {
+  print "usage: dirich_scan_backplane.pl <DiRICH-Concentrator-TrbNet-Address>\n";
+  exit;
+}
+
 my $c;
 
 #($dirich_concentrator_address) = $dirich_concentrator_address =~ /0x([\w\d]+)/;

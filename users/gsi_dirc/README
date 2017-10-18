@@ -1,5 +1,5 @@
 #to start deamon
-TRB3_SERVER=trb056 ~/trbsoft/trbnettools/binlocal/trbnetd -i 56
+TRB3_SERVER=trb056 ~/trbsoft/trbnettools/bin/trbnetd -i 56
 
 #set environment
 export DAQOPSERVER=localhost:56

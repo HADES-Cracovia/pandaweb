@@ -10,7 +10,8 @@ my $dirich_power_module_offset = 0xd580;
 
 my @res; my $res; my $rh_res;
 
-my @dirich_powerbit_mapping = (1, 23, 17, 24, 18, 26, 20, 25, 19, 28, 22, 27,21);
+#my @dirich_powerbit_mapping = (1, 23, 17, 24, 18, 26, 20, 25, 19, 28, 22, 27,21);
+my @dirich_powerbit_mapping = (1, 17 .. 28);
 
 my $dirich_concentrator_address = $ARGV[0];
 my $position = $ARGV[1];
