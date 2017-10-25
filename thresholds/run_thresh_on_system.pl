@@ -20,6 +20,7 @@ my $opt_polarity = 0;
 my $opt_32channel = 0;
 my $opt_finetune = false;
 my $opt_sequential = false;
+my $mode = "padiwa";
 my $opt_verb;
 my $tool = "./thresholds_automatic.pl";
 #my $tool = "./thresholds_automatic_jan.pl";
@@ -33,10 +34,16 @@ GetOptions ('h|help'        => \$opt_help,
             'f|finetune'    => \$opt_finetune,
             's|sequential'    => \$opt_sequential,
             't|tool=s'      => \$tool,
+            'm|mode=s'      => \$mode,
             'v|verb'        => \$opt_verb);
 
 
 my $endpoints = get_ranges(\@opt_endpoints);
+
+if ($mode eq "dirich2") {
+  @opt_chains=(0);
+}
+
 my $chains    = get_ranges(\@opt_chains);
 
 if( $opt_help ) {
@@ -45,8 +52,8 @@ if( $opt_help ) {
 }
 
 
-#print Dumper $endpoints;
-#print Dumper $chains;
+print Dumper $endpoints;
+print Dumper $chains;
 
 if($opt_32channel == 1) {
     $opt_32channel="--32channel";
@@ -72,7 +79,7 @@ my %pids;
 foreach my $endpoint (@$endpoints) {
   foreach my $chain (@$chains) {
     my $endpoint = sprintf("0x%04x", $endpoint);
-    $command = "$tool -e $endpoint -o $opt_offset -c $chain -p $opt_polarity $opt_32channel $opt_finetune";
+    $command = "$tool --endpoint $endpoint --offset $opt_offset --chain $chain --polarity $opt_polarity --mode=$mode $opt_32channel $opt_finetune";
     print "command: $command\n";
 
     if($opt_sequential) {

@@ -30,7 +30,7 @@ my $USE_LOCK = 0;
 
 my $hitregister = 0xc001;
 
-my @valid_interval = (0x5000, 0xc000);
+my @valid_interval = (0x4000, 0xc000);
 my $interval_step = ($valid_interval[1] - $valid_interval[0])/2;
 my $start_value = int ( ($valid_interval[1] + $valid_interval[0])/2 );
 
@@ -123,13 +123,13 @@ $logger->info($startup_str);
 
 trb_init_ports() or die trb_strerror();
 
-my @current_thresh = ($start_value) x 16;
-my @best_thresh = (0) x 16;
-my @hit_diff = (0) x 16;
-my @crossed_thresh = (0) x 16;
-my @interval_step = ($interval_step) x 16;
+my @current_thresh = ($start_value) x 32;
+my @best_thresh = (0) x 32;
+my @hit_diff = (0) x 32;
+my @crossed_thresh = (0) x 32;
+my @interval_step = ($interval_step) x 32;
 
-if (defined $opt_skip && $opt_skip < 15) {
+if (defined $opt_skip && $opt_skip < 32) {
   $best_thresh[$opt_skip] = 0x7000;
 }
 
@@ -152,11 +152,12 @@ my $old_rh_res;
 my $outermost_channel_loop_counter = 0;
 
 #set default values
-my @zero_array = (0) x 16;
+my @zero_array = ($mode eq "dirich2") ? (0) x 32  : (0) x 16 ;
+
 write_thresholds($mode, $chain, \@zero_array);
 
 if($channel_by_channel == true) {
-    $outermost_channel_loop_counter = 15;
+    $outermost_channel_loop_counter = ($mode eq "dirich2") ? 31 : 15 ;
 }
 
 my @outermost_channel_loop = (0);
@@ -198,7 +199,7 @@ while ($number_of_steps < $number_of_iterations ||
     #print Dumper $rh_res;
     #print Dumper $old_rh_res;
 
-    my @iterate_loop = (0..15);
+    my @iterate_loop = ($mode eq "dirich2") ? (0 .. 31) : (0 .. 15);
     if($channel_by_channel) {
 	@iterate_loop = ($current_channel_outer_loop);
     }
@@ -275,12 +276,12 @@ while ($number_of_steps < $number_of_iterations ||
 map { $_-= ($offset * $default_direction) } @best_thresh;
 write_thresholds($mode, $chain, \@best_thresh, $channel_to_set);
 
-my $uid;
+my $uid = 0;
 foreach my $i (reverse (0 .. 3)) {
   #print "send command: $endpoint , i: $i\n";
   # read uids
-  $rh_res = Dmon::PadiwaSendCmd(0x10000000 | $i * 0x10000, $endpoint, $chain);
-  $uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
+  #$rh_res = Dmon::PadiwaSendCmd(0x10000000 | $i * 0x10000, $endpoint, $chain);
+  #$uid .= sprintf("%04x", $rh_res->{$endpoint} &0xffff);
   #print $uid;
 }
 
@@ -289,7 +290,7 @@ my $str;
 #$logger_data->info(sprintf "endpoint: %04x, chain: %02d, uid: $uid", $endpoint, $chain);
 #$logger_data->info("\t".time);
 
-my @range = (0 .. 15);
+my @range = ($mode eq "dirich2") ? (0 .. 31) : (0 .. 15);
 
 if($channel_by_channel) {
     @range = ($current_channel_outer_loop .. $current_channel_outer_loop);
@@ -334,7 +335,8 @@ sub read_thresholds {
 my $rh_res;
 #    $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
-  foreach my $current_channel (0 .. 15) {
+  my @range = ($mode eq "dirich2") ? (0 .. 31) : (0 .. 15);
+  foreach my $current_channel (@range) {
 
     my $command;
     my $fixed_bits;
@@ -382,10 +384,11 @@ sub write_thresholds {
   }
   ### old and wrong way #my $rh_res = trb_register_write($endpoint,0xd410, 1 << $chain);
 
-  my @range = (0 .. 15);
-  if (defined $channel_to_set && $channel_to_set <16 ) {
-      @range = ($channel_to_set .. $channel_to_set);
-      #print "range: \n";
+  my @range = ($mode eq "dirich2") ? (0 .. 31) : (0 .. 15);
+
+  if (defined $channel_to_set && $channel_to_set <32 ) {
+    @range = ($channel_to_set .. $channel_to_set);
+    #print "range: \n";
   }
 
   #print Dumper \@range;
@@ -407,13 +410,24 @@ sub write_thresholds {
       $channel_shift = 16;
     }
     elsif ($mode eq "dirich2") {
-      $fixed_bits = 0x00800000;
+      $fixed_bits = 0x8 << 20;
       $shift_bits = 0;
       $channel_shift = 24;
     }
 
     $command = $fixed_bits | ($current_channel << $channel_shift) | ($ra_thresh->[$current_channel] << $shift_bits);
-    Dmon::PadiwaSendCmd($command,$endpoint, $chain);
+
+    if ($mode eq "dirich2") {
+      if ($current_channel<16) {
+        Dmon::PadiwaSendCmd($command,$endpoint, 0);
+      } else {
+        Dmon::PadiwaSendCmd($command,$endpoint, 1);
+      }
+
+    } elsif ($mode eq "padiwa") {
+      Dmon::PadiwaSendCmd($command,$endpoint, $chain);
+    }
+
   }
 
   #sleep 10 if($current_channel == 15 && $chain==1);
@@ -421,7 +435,6 @@ sub write_thresholds {
   if($USE_LOCK) {
       $share->unlock();
   }
-      
 }
 
 sub send_command {

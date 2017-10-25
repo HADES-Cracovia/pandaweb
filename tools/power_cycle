@@ -13,7 +13,7 @@ my $ra_setup = [ { host => "wiznet02:5000",
 		   ##idn => "HAMEG,HMP4040,021527872,HW50020001/SW2.41",
                    idn => "HAMEG,HMP4040,103161,HW50020001/SW2.51",
 		   channels => [ 'clock', 'TDB', 'TBD', 'dirich'],
-		   commands => {status => 'OUTPUT:STATE?', off => 'OUTPUT:SEL OFF', on => 'OUTPUT:SEL ON'}
+		   commands => {status => 'OUTPUT:STATE?', off => 'OUTPUT:SEL OFF', on => 'OUTPUT:SEL ON', select_channel => 'INST OUT4'}
 		 },
 		 { host => "wiznet03:5000",
 		   idn => "RIGOL TECHNOLOGIES,DP712,DP7B182500302,00.01.02",
@@ -58,6 +58,9 @@ sub main {
 
   my $current_status = write_and_read($actual_setup->{commands}->{status});
   print "current status: $current_status\n";
+
+  print "select channel if appropriate for the device\n";
+  write_and_read($actual_setup->{commands}->{select_channel}) if (defined $actual_setup->{commands}->{select_channel});
 
   print "turn off power supply channel\n";
   write_and_read($actual_setup->{commands}->{off});
