@@ -16,9 +16,9 @@ my $value, my $longtext, my $status;
 
 
 while(1) {
-  my $errors = 0;
+  my $errors = Dmon::OK;
   my $max = 0; my $min = 1E9; my $sum = 0;
-  my $r = trb_register_read(0xff7f,0x83b3);
+  my $r = trb_register_read(0xff7f,0x83e2);
   if (defined $old) {
     foreach my $c (keys %{$r}) {
       next unless defined $r->{$c};
@@ -26,6 +26,7 @@ while(1) {
       if ($s < 0) {$s += 2**32;}
       if ($s > $max) {$max = $s;}
       if ($s < $min) {$min = $s;}
+      if($s > 80000000) {$errors = Dmon::WARN;}
       $sum += $s;
       }
 
@@ -34,7 +35,7 @@ while(1) {
     $value = Dmon::SciNotation($sum)."b/s";
     
     my $longtext = "Total Data rate ".Dmon::SciNotation($sum)."b/s<br>Maximum per board: ".Dmon::SciNotation($max)."b/s";
-    $status   = Dmon::OK;
+    $status   = $errors; #Dmon::OK;
     Dmon::WriteQALog($config{flog},"datarate",20,$status,$title,$value,$longtext);
     }
   $old = $r;  
