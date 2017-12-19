@@ -2,6 +2,7 @@
 use POSIX qw(SIGALRM SIGTERM sigaction);
 
 use lib "./include";
+use lib "./";
 use Digest::SHA::PurePerl qw(sha1_base64);
 
 

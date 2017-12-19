@@ -4,6 +4,8 @@ use warnings;
 use Data::Dumper;
 use Getopt::Long;
 
+use lib "./";
+
 # This method will execute the cts-command in monitoring mode.
 # If it failes, it is automatically respawned. The only way to
 # exit this function is by user interaction, e.g. by pressing

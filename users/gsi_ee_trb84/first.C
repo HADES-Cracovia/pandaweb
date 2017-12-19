@@ -34,7 +34,7 @@ void first()
    int cnt = (calmode && *calmode) ? atoi(calmode) : 100000;
    //cnt=100000;
    const char* caltrig = getenv("CALTRIG");
-   unsigned trig = (caltrig && *caltrig) ? atoi(caltrig) : 0x0;
+   unsigned trig = (caltrig && *caltrig) ? atoi(caltrig) : 0x1;
    const char* uset = getenv("USETEMP");
    unsigned use_temp = 0; // 0x80000000;
    if ((uset!=0) && (*uset!=0) && (strcmp(uset,"1")==0)) use_temp = 0x80000000;
@@ -53,8 +53,8 @@ void first()
    //   (1 << 0xD) - special 0XD trigger with internal pulser, used also for TOT calibration
    //    0x3FFF - all kinds of trigger types will be used for calibration (excluding 0xE and 0xF)
    //   0x80000000 in mask enables usage of temperature correction
-   //hld->ConfigureCalibration(calname, cnt, (1 << trig) | use_temp);
-   hld->ConfigureCalibration(calname, 100000, 1);
+   hld->ConfigureCalibration(calname, cnt, (1 << trig) | use_temp);
+   //hld->ConfigureCalibration(calname, 100000, 1);
 
    // only accept trigger type 0x1 when storing file
    // new hadaq::HldFilter(0x1);
@@ -99,13 +99,13 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
       tdc->SetUseLastHit(false);
 
       //tdc->SetStoreEnabled();
-      //for (unsigned nch=1; nch<tdc->NumChannels(); nch++) {
-      //  tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
-      //}
-
-      for (unsigned j=10; j<33; j++) {
-        tdc->SetRefChannel(j, 1, 0xffff, 10000,  -40., 40.);
+      for (unsigned nch=1; nch<tdc->NumChannels(); nch++) {
+        tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
       }
+
+      //      for (unsigned j=10; j<33; j++) {
+      //  tdc->SetRefChannel(j, 1, 0xffff, 10000,  -40., 40.);
+      //}
 
       tdc->SetRefChannel(6, 0, 0xffff, 10000,  -100.,100.);
       //tdc->SetRefChannel(0, 0, 0x1202, 10000,  -20., 20.);
