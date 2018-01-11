@@ -3,43 +3,43 @@
 
 void first()
 {
-   //base::ProcMgr::instance()->SetRawAnalysis(true);
+  // base::ProcMgr::instance()->SetRawAnalysis(true);
    base::ProcMgr::instance()->SetTriggeredAnalysis(true);
 
    // all new instances get this value
    base::ProcMgr::instance()->SetHistFilling(4);
 
    // configure bubbles
-   //hadaq::TdcProcessor::SetBubbleMode(3, 18);
+   //hadaq::TdcProcessor::SetBubbleMode(0, 18);
 
-   // this limits used for linear calibrations when nothing else is available
-   hadaq::TdcMessage::SetFineLimits(81, 464);
+   // this limits used for liner calibrations when nothing else is available
+   hadaq::TdcMessage::SetFineLimits(20, 491);
 
    // default channel numbers and edges mask
    hadaq::TrbProcessor::SetDefaults(33, 2);
 
    // [min..max] range for TDC ids
-   hadaq::TrbProcessor::SetTDCRange(0x1200, 0x15FF);
+   hadaq::TrbProcessor::SetTDCRange(0x0800, 0x12FF);
 
    // [min..max] range for HUB ids
-   hadaq::TrbProcessor::SetHUBRange(0x8000, 0x8fff);
+   hadaq::TrbProcessor::SetHUBRange(0x8000, 0xc002);
 
    // when first argument true - TRB/TDC will be created on-the-fly
    // second parameter is function name, called after elements are created
    hadaq::HldProcessor* hld = new hadaq::HldProcessor(true, "after_create");
 
    const char* calname = getenv("CALNAME");
-   if ((calname==0) || (*calname==0)) calname = "test_";
+   if ((calname==0) || (*calname==0)) calname = "calib_";
    const char* calmode = getenv("CALMODE");
-   int cnt = (calmode && *calmode) ? atoi(calmode) : 100000;
-   //cnt=100000;
+   int cnt = (calmode && *calmode) ? atoi(calmode) : 10000;
+   //#cnt=10000;
    const char* caltrig = getenv("CALTRIG");
-   unsigned trig = (caltrig && *caltrig) ? atoi(caltrig) : 0x1;
+   unsigned trig = (caltrig && *caltrig) ? atoi(caltrig) : 0xd;
    const char* uset = getenv("USETEMP");
    unsigned use_temp = 0; // 0x80000000;
    if ((uset!=0) && (*uset!=0) && (strcmp(uset,"1")==0)) use_temp = 0x80000000;
 
-   printf("TDC CALIBRATION MODE %d\n", cnt);
+   printf("TDC CALIBRATION MODE: %d, cal trigger: %d\n", cnt, trig);
 
    //printf("HLD configure calibration calfile:%s  cnt:%d trig:%X temp:%X\n", calname, cnt, trig, use_temp);
 
@@ -53,8 +53,7 @@ void first()
    //   (1 << 0xD) - special 0XD trigger with internal pulser, used also for TOT calibration
    //    0x3FFF - all kinds of trigger types will be used for calibration (excluding 0xE and 0xF)
    //   0x80000000 in mask enables usage of temperature correction
-   hld->ConfigureCalibration(calname, cnt, (1 << trig) | use_temp);
-   //hld->ConfigureCalibration(calname, 100000, 1);
+   hld->ConfigureCalibration(calname, cnt, (1 << trig) );
 
    // only accept trigger type 0x1 when storing file
    // new hadaq::HldFilter(0x1);
@@ -66,12 +65,12 @@ void first()
    // 1 - std::vector<hadaq::TdcMessageExt> - includes original TDC message
    // 2 - std::vector<hadaq::MessageFloat>  - compact form, without channel 0, stamp as float (relative to ch0)
    // 3 - std::vector<hadaq::MessageDouble> - compact form, with channel 0, absolute time stamp as double
-   base::ProcMgr::instance()->SetStoreKind(0);
+   base::ProcMgr::instance()->SetStoreKind(2);
 
 
    // when configured as output in DABC, one specifies:
    // <OutputPort name="Output2" url="stream://file.root?maxsize=5000&kind=3"/>
-
+   printf("test\n");
 
 }
 
@@ -96,26 +95,19 @@ extern "C" void after_create(hadaq::HldProcessor* hld)
 
       printf("Configure %s!\n", tdc->GetName());
 
-      tdc->SetUseLastHit(false);
+      // tdc->SetUseLastHit(true);
 
-      //tdc->SetStoreEnabled();
-      for (unsigned nch=1; nch<tdc->NumChannels(); nch++) {
-        tdc->SetRefChannel(nch, nch-1, 0xffff, 10000,  -90., 90.);
-      }
+      // tdc->SetStoreEnabled();
+      //      for (unsigned nch=10;nch<tdc->NumChannels();nch++)
+      //  tdc->SetRefChannel(nch, nch-1, 0xffff, 20000,  -100., 100.);
 
-      //      for (unsigned j=10; j<33; j++) {
-      //  tdc->SetRefChannel(j, 1, 0xffff, 10000,  -40., 40.);
-      //}
 
-      tdc->SetRefChannel(6, 0, 0xffff, 10000,  -100.,100.);
-      //tdc->SetRefChannel(0, 0, 0x1202, 10000,  -20., 20.);
-      //tdc->SetRefChannel(4, 2, 0xffff, 10000,  -20., 20.);
-      //tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -10., 10.);
+      tdc->SetRefChannel(8, 6, 0xffff, 20000,  -100., 100.);
+      tdc->SetRefChannel(6, 1, 0x0840, 20000,  -100., 100.);
+      //tdc->SetRefChannel(10, 8, 0xffff, 20000,  -1000., 1000.);
 
-      //      tdc->SetRefChannel(6, 2 , 0xffff, 20000,  -10., 10.);
-      //tdc->SetRefChannel(4, 2 , 0xffff, 20000,  -10., 10.);
-      //tdc->SetRefChannel(7, 6 , 0xffff, 20000,  -10., 10.);
-      
+      //tdc->SetRefChannel(1, tdc->NumChannels() -1 , 0xffff, 20000,  -100., 100.);
+
       
    }
 }

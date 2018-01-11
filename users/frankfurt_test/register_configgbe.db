@@ -20,6 +20,7 @@
   0xc000      0       0xc000        1            1        0xffffff         1
   0xc002      0       0xc002        1            0        0xffffff         1
   0xc148      0       0xc148        1            0        0xffffff         1
+  0x83cc      0       0x83cc        1            0        0xffffff         1
 
   
 

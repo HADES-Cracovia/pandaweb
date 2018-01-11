@@ -4,9 +4,9 @@
    use warnings;
    use strict;
 
-
+use lib "./";
 use lib "./include";
-   
+
 # Trb/Cts IO
  #  use TrbSim;    included in connectToCTS if required
 #   use TrbNet;    #included in connectToCTS if required

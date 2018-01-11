@@ -31,8 +31,6 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
     
     my $boards   = trb_read_uid(0xffff);
     my $temp     = trb_register_read(0xffff,0);
-    my $sfpDat1  = trb_register_read(0xffff,0xd201);
-    my $sfpDat2  = trb_register_read(0xffff,0xd202);  
     my $ctime    = trb_register_read(0xffff,0x40);
     my $inclLow  = trb_register_read(0xffff,0x41);
     my $hardware = trb_register_read(0xffff,0x42);
@@ -193,7 +191,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
           if ($inclHigh->{$addr} & 0x800) { $feat .= "\nUART";}
           if ($inclHigh->{$addr}>>12&0xF) {
             $feat .= "\nInput monitor:";
-            my $d = trb_register_read($addr,0xcf8f);
+            my $d = trb_register_read($addr,0xdf8f) // trb_register_read($addr,0xdf8f);
             $feat .= " ".($d->{$addr}>>8&0x1F)." inputs";
             $feat .= ", single Fifo" if     $d->{$addr}&0x8000;
             $feat .= ", indiv. Fifos" unless $d->{$addr}&0x8000;
@@ -203,7 +201,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
             my $value = $inclHigh->{$addr}>>16&0xF;  
             if($value==1) {$feat .="\nTrigger Module: simple or";}
             if($value==2) {$feat .="\nTrigger Module: edge detect";}
-            my $d = trb_register_read($addr,0xcf27);
+            my $d = trb_register_read($addr,0xdf31) // trb_register_read($addr,0xcf27);
             $feat .= sprintf(", %i inputs, %i outputs",($d->{$addr}&0x3F),($d->{$addr}>>8&0xF));
           }
           my $value = $inclHigh->{$addr}>>20&0xF; 
@@ -214,99 +212,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
             if ($value==4) {$feat .="\nClock: external 200 MHz";}
             if ($value==5) {$feat .="\nClock: external 120 MHz";}
       }
-      
-#       # SFP Optical Transceiver Rx Power Readbacks
-#       my $SFP1Rx = "-";
-#       my $SFP2Rx = "-";
-#       my $SFP3Rx = "-";
-#       my $SFP4Rx = "-";
-#       my $SFP5Rx = "-";
-#       my $SFP6Rx = "-";
-#       my $SFP7Rx = "-";
-#       my $SFP8Rx = "-";
-#       
-#       if ( ($btype eq "TRB3 central") || ($btype eq "Hub AddOn") ) {
-#           $SFP1Rx = "NA";
-#           my $val1 = ($sfpDat1->{$addr} & 0x000000FF);
-#           if ($val1 != 254) {
-#             $val1 = int(($val1 * 1.6) + 0.5);
-#             if ($val1 < 150) {
-#                 $SFP1Rx = "<font color = 'red'>$val1 uW</font>";
-#             } else {
-#                 $SFP1Rx = "$val1 uW";
-#             }
-#           }
-#           $SFP2Rx = "NA";
-#           my $val2 = ($sfpDat1->{$addr} >>  8) & 0x000000FF;
-#           if ($val2 != 254) {
-#             $val2 = int(($val2 * 1.6) + 0.5);
-#               if ($val2 < 150) {
-#                 $SFP2Rx = "<font color = 'red'>$val2 uW</font>";
-#             } else {
-#                 $SFP2Rx = "$val2 uW";
-#             }
-#           }
-#           $SFP3Rx = "NA";
-#           my $val3 = ($sfpDat1->{$addr} >> 16) & 0x000000FF;
-#           if ($val3 != 254) {
-#             $val3 = int(($val3 * 1.6) + 0.5);
-#             if ($val3 < 150) {
-#                 $SFP3Rx = "<font color = 'red'>$val3 uW</font>";
-#             } else {
-#                 $SFP3Rx = "$val3 uW";
-#             }
-#           }
-#           $SFP4Rx = "NA";
-#           my $val4 = ($sfpDat1->{$addr} >> 24);
-#           if ($val4 != 254) {
-#             $val4 = int(($val4 * 1.6) + 0.5);
-#             if ($val4 < 150) {
-#                 $SFP4Rx = "<font color = 'red'>$val4 uW</font>";
-#             } else {
-#                 $SFP4Rx = "$val4 uW";
-#             }
-#           }
-#           $SFP5Rx = "NA";
-#           my $val5 = ($sfpDat2->{$addr} & 0x000000FF);
-#           if ($val5 != 254) {
-#             $val5 = int(($val5 * 1.6) + 0.5);
-#             if ($val5 < 150) {
-#                 $SFP5Rx = "<font color = 'red'>$val5 uW</font>";
-#             } else {
-#                 $SFP5Rx = "$val5 uW";
-#             }
-#           }
-#           $SFP6Rx = "NA";
-#           my $val6 = ($sfpDat2->{$addr} >>  8) & 0x000000FF;
-#           if ($val6 != 254) {
-#             $val6 = int(($val6 * 1.6) + 0.5);
-#             if ($val6 < 150) {
-#                 $SFP6Rx = "<font color = 'red'>$val6 uW</font>";
-#             } else {
-#                 $SFP6Rx = "$val6 uW";
-#             }
-#           }
-#           $SFP7Rx = "NA";
-#           my $val7 = ($sfpDat2->{$addr} >> 16) & 0x000000FF;
-#           if ($val7 != 254) {
-#             $val7 = int(($val7 * 1.6) + 0.5);
-#             if ($val7 < 150) {
-#                 $SFP7Rx = "<font color = 'red'>$val7 uW</font>";
-#             } else {
-#                 $SFP7Rx = "$val7 uW";
-#             }
-#           }
-#           $SFP8Rx = "NA";
-#           my $val8 = ($sfpDat2->{$addr} >> 24);
-#           if ($val8 != 254) {
-#             $val8 = int(($val8 * 1.6) + 0.5);
-#             if ($val8 < 150) {
-#                 $SFP8Rx = "<font color = 'red'>$val8 uW</font>";
-#             } else {
-#                 $SFP8Rx = "$val8 uW";
-#             }
-#           }
-#       }
+
       my $serial = GetSerial($uids->{$addr},$hardware->{$addr}>>24&0xff);
       my $mac = '';
          $mac = GetMac($uids->{$addr}) if $feat =~ /GbE/;
