@@ -169,59 +169,6 @@ sub flash_is_busy {
     return (($b->{$endpoint} >> 2) & 0x1);
 }
 
-if ($execute eq "temp") {
-  die("not implemented");
-  my $b = sendcmd(0x10040000);
-  foreach my $e (sort keys %$b) {
-    printf("0x%04x\t%d\t%2.1f\n",$e,$chain,($b->{$e}&0xfff)/16);
-  }
-}
-
-if ($execute eq "resettemp") {
-  die("not implemented");
-  sendcmd(0x10800001);
-  usleep(100000);
-  sendcmd(0x10800000);
-}
-
-
-if ($execute eq "uid" || defined $time) {
-  my $ids;
-  for (my $i = 0; $i <= 3; $i++) {
-    my $b = sendcmd( (0x10+$i)<<$REGNR );
-    #print "uid: send done\n";
-    #exit;
-    foreach my $e (sort keys %$b) {
-      $ids->{$e}->{$i} = $b->{$e}&0xffff;
-    }
-  }
-  foreach my $e (sort keys %$ids) {
-    printf("0x%04x\t%d\t0x%04x%04x%04x%04x\n",
-           $e, $chain, $ids->{$e}->{3}, $ids->{$e}->{2}, $ids->{$e}->{1}, $ids->{$e}->{0} );
-  }
-}
-
-if ($execute eq "dac" && defined $ARGV[4]) {
-  die("not implemented");
-  #my $b = sendcmd(0x00300000+$ARGV[3]*0x10000+($value&0xffff));
-  print "Wrote PWM settings.\n";
-}
-
-if ($execute eq "pwm") {
-  die "the command pwm needs an --channel option." if (!defined $channel);
-  if(!defined $data) {
-    my $b = sendcmd($channel<<$REGNR | $READ);
-    foreach my $e (sort keys %$b) {
-      printf("endpoint: 0x%04x  chain: %d  channel: %d  raw: 0x%04x  voltage: %4.2f mV\n",
-             $e, $chain, $channel, $b->{$e}&0xffff, ($b->{$e}&0xffff)*$ref_voltage/65536 );
-    }
-
-  }
-  else {
-    my $b = sendcmd($channel<<$REGNR | $WRITE | ($data&0xffff));
-  }
-}
-
 
 sub check_std_io {
   (my $command, my $register) = @_;
@@ -252,6 +199,59 @@ check_std_io("dischargehighz",       0x29);
 check_std_io("dischargedelayinvert", 0x2a);
 check_std_io("dischargedelayselect", 0x2b);
 
+
+if ($execute eq "temp") {
+  die("not implemented");
+  my $b = sendcmd(0x10040000);
+  foreach my $e (sort keys %$b) {
+    printf("0x%04x\t%d\t%2.1f\n",$e,$chain,($b->{$e}&0xfff)/16);
+  }
+}
+
+if ($execute eq "resettemp") {
+  die("not implemented");
+  sendcmd(0x10800001);
+  usleep(100000);
+  sendcmd(0x10800000);
+}
+
+if ($execute eq "uid" || defined $time) {
+  die("not implemented");
+  my $ids;
+  for (my $i = 0; $i <= 3; $i++) {
+    my $b = sendcmd( (0x60+$i)<<$REGNR );
+    foreach my $e (sort keys %$b) {
+      $ids->{$e}->{$i} = $b->{$e}&0xffff;
+    }
+  }
+  foreach my $e (sort keys %$ids) {
+    printf("endpoint: 0x%04x  chain: %d  raw: 0x%04x%04x%04x%04x\n",
+           $e, $chain, $ids->{$e}->{3}, $ids->{$e}->{2}, $ids->{$e}->{1}, $ids->{$e}->{0} );
+  }
+}
+
+if ($execute eq "dac" && defined $ARGV[4]) {
+  die("not implemented");
+  #my $b = sendcmd(0x00300000+$ARGV[3]*0x10000+($value&0xffff));
+  print "Wrote PWM settings.\n";
+}
+
+if ($execute eq "pwm") {
+  die "the command pwm needs an --channel option." if (!defined $channel);
+  if(!defined $data) {
+    my $b = sendcmd($channel<<$REGNR | $READ);
+    foreach my $e (sort keys %$b) {
+      printf("endpoint: 0x%04x  chain: %d  channel: %d  raw: 0x%04x  voltage: %4.2f mV\n",
+             $e, $chain, $channel, $b->{$e}&0xffff, ($b->{$e}&0xffff)*$ref_voltage/65536 );
+    }
+
+  }
+  else {
+    my $b = sendcmd($channel<<$REGNR | $WRITE | ($data&0xffff));
+  }
+}
+
+
 if ($execute eq "ledoff") {
   my $b = sendcmd(0x22<<$REGNR | $WRITE | 0);
 }
@@ -261,7 +261,7 @@ if ($execute eq "counter" && defined $ARGV[3]) {
   my $b = sendcmd(0x22000000+(($mask&0x1f)<< 16));
   my $c = sendcmd(0x23000000+(($mask&0x1f)<< 16));
   foreach my $e (sort keys %$b) {
-    printf("0x%04x\t%d\t%8x\n",$e,$chain,($b->{$e}&0xffff)+($c->{$e}&0xff)*2**16);
+    printf("endpoint: 0x%04x  chain: %d  counter: %8x\n",$e,$chain,($b->{$e}&0xffff)+($c->{$e}&0xff)*2**16);
   }
 }
 
@@ -269,9 +269,8 @@ if ($execute eq "counter" && defined $ARGV[3]) {
 if ($execute eq "readreg" || $execute eq "rr" ) {
   if (!defined $register) {
     print "for the command readreg an option --register|r is missing.\n";
-    usage;
+    exit;
   }
-
   my $b = sendcmd($register<<$REGNR | $READ);
   foreach my $e (sort keys %$b) {
     printf("0x%x\n", ($b->{$e}) & 0xffff);
@@ -279,10 +278,15 @@ if ($execute eq "readreg" || $execute eq "rr" ) {
 }
 
 if ($execute eq "writereg" | $execute eq "wr") {
+  if (!defined $register) {
+    print "for the command writereg an option --register|r is missing.\n";
+    exit;
+  }
   if (!defined $data) {
     print "for the command writereg an option --data|d is missing.\n";
-    usage;
+    exit;
   }
+  #print "write: "; printf "reg: %x, data: %x\n",$register, $data;
   my $b = sendcmd($register<<$REGNR | $WRITE | ($data & 0xffff) );
 }
 
@@ -296,7 +300,7 @@ if ($execute eq "time") {
   }
   foreach my $e (sort keys %$ids) {
     printf("endpoint: 0x%04x  chain: %d  version: 0x%02x  raw: 0x%04x%04x  %s\n", 
-           $e, $chain, $ids->{$e}->{2}, $ids->{$e}->{1}, $ids->{$e}->{0}, 
+           $e, $chain, $ids->{$e}->{2}, $ids->{$e}->{1}, $ids->{$e}->{0},
            time2str('%Y-%m-%d %H:%M', ( ($ids->{$e}->{1})<<16  | ($ids->{$e}->{0}) )) );
   }
 }
@@ -322,7 +326,6 @@ if ($execute eq "ram") {
   printf("\n");
 }
 
-###################################################################################################
 if (defined $flashcmd) {
   #my $c = 0x50800000 + (($mask&0xe)<< 12) + ($value&0x1fff);
   if (!defined $flashaddress) {
@@ -333,7 +336,6 @@ if (defined $flashcmd) {
   printf("Sent flash command $flashcmd\n");
 }
 
-###################################################################################################
 if (defined $enablecfgflash) {
   die "--enableccfgflash can only be 0 or 1\n" unless ($enablecfgflash == 0 || $enablecfgflash == 1);
   my $c = 0x5C<<$REGNR | $WRITE | $enablecfgflash;
@@ -342,7 +344,7 @@ if (defined $enablecfgflash) {
   printf("$str cfgflash.\n");
 }
 
-###################################################################################################
+
 if (defined $dumpcfgflash) {
   for (my $p = 0; $p<5760; $p++) { #5758
     sendcmd(0x50<<$REGNR | $WRITE | $p);      # read page $p
@@ -357,7 +359,6 @@ if (defined $dumpcfgflash) {
     printf(STDERR "\r%d / 5760",$p) if(!($p%10));
   }
 }
-###################################################################################################
 
 if ($execute eq "erasecfgflash") {
   while (flash_is_busy()) {
@@ -401,7 +402,7 @@ if ($execute eq "writecfgflash") {
 if ($execute eq "fifo" || $execute eq "ffarr") {
   my $b = sendcmd(0x200f0000);
   foreach my $e (sort keys %$b) {
-    printf("0x%04x\t%d\t0x%04x\n",$e,$chain,$b->{$e}&0xffff);
+    printf("endpoint: 0x%04x  chain: %d  fifo: 0x%04x\n",$e,$chain,$b->{$e}&0xffff);
   }
 }
 
