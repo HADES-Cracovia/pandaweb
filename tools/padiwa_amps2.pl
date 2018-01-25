@@ -30,6 +30,12 @@ my $flashcmd;
 my $flashaddress;
 my $enablecfgflash;
 my $dumpcfgflash;
+my $erasecfgflash;
+my $writecfgflash;
+my $dumpuserflash;
+my $writeuserflash;
+my $rr;
+my $wr;
 
 my $time;
 
@@ -51,7 +57,14 @@ my $result = GetOptions (
                          "flashaddress=s"   => \$flashaddress,
                          "enablecfgflash=i" => \$enablecfgflash,
                          "dumpcfgflash"     => \$dumpcfgflash,
+                         "erasecfgflash"    => \$erasecfgflash,
+                         "writecfgflash"    => \$writecfgflash,
+                         "dumpuserflash"    => \$dumpuserflash,
+                         "writeuserflash"   => \$writeuserflash,
+                         "eraseuserflash"   => \$eraseuserflash,
                          "time"             => \$time,
+                         "readreg|rr=s"     => \$rr,
+                         "writereg|wr=s"    => \$wr
                         );
 
 sub conv_input_string_to_number {
@@ -143,6 +156,9 @@ $ref_voltage    = &conv_input_string_to_number($ref_voltage,    "ref_voltage")  
 $flashcmd       = &conv_input_string_to_number($flashcmd,       "flashcmd")       if (defined $flashcmd);
 $flashaddress   = &conv_input_string_to_number($flashaddress,   "flashaddress")   if (defined $flashaddress);
 $enablecfgflash = &conv_input_string_to_number($enablecfgflash, "enablecfgflash") if (defined $enablecfgflash);
+$rr             = &conv_input_string_to_number($rr,             "readreg")        if (defined $rr);
+$wr             = &conv_input_string_to_number($wr,             "writereg")       if (defined $wr);
+
 
 #print "execute: $execute\n";
 #exit;
@@ -266,22 +282,24 @@ if ($execute eq "counter" && defined $ARGV[3]) {
 }
 
 
-if ($execute eq "readreg" || $execute eq "rr" ) {
-  if (!defined $register) {
-    print "for the command readreg an option --register|r is missing.\n";
+if ($execute eq "readreg" || $execute eq "rr" || defined($rr)) {
+  if (!defined $register && !defined $rr) {
+    print "for the command readreg an option --register|r or --rr is missing.\n";
     exit;
   }
+  if (!defined($register)) {$register=$rr;}
   my $b = sendcmd($register<<$REGNR | $READ);
   foreach my $e (sort keys %$b) {
     printf("0x%x\n", ($b->{$e}) & 0xffff);
   }
 }
 
-if ($execute eq "writereg" | $execute eq "wr") {
-  if (!defined $register) {
-    print "for the command writereg an option --register|r is missing.\n";
+if ($execute eq "writereg" | $execute eq "wr" || defined($wr)) {
+  if (!defined $register && !defined $wr) {
+    print "for the command writereg an option --register|r or --wr is missing.\n";
     exit;
   }
+  if (!defined($register)) {$register=$wr;}
   if (!defined $data) {
     print "for the command writereg an option --data|d is missing.\n";
     exit;
@@ -336,7 +354,7 @@ if (defined $flashcmd) {
   printf("Sent flash command $flashcmd\n");
 }
 
-if (defined $enablecfgflash) {
+if ($execute eq "enableccfgflash" | defined $enablecfgflash) {
   die "--enableccfgflash can only be 0 or 1\n" unless ($enablecfgflash == 0 || $enablecfgflash == 1);
   my $c = 0x5C<<$REGNR | $WRITE | $enablecfgflash;
   my $b = sendcmd($c);
@@ -345,7 +363,7 @@ if (defined $enablecfgflash) {
 }
 
 
-if (defined $dumpcfgflash) {
+if ($execute eq "dumpccfgflash" | defined $dumpcfgflash) {
   for (my $p = 0; $p<5760; $p++) { #5758
     sendcmd(0x50<<$REGNR | $WRITE | $p);      # read page $p
     printf("0x%04x:\t",$p);
@@ -360,7 +378,7 @@ if (defined $dumpcfgflash) {
   }
 }
 
-if ($execute eq "erasecfgflash") {
+if ($execute eq "erasecfgflash" | defined $erasecfgflash) {
   while (flash_is_busy()) {
     printf(" busy - try again\n");
     usleep(300000);
@@ -369,7 +387,7 @@ if ($execute eq "erasecfgflash") {
   printf("Sent Erase command.\n");
 }
 
-if ($execute eq "writecfgflash") {
+if ($execute eq "writecfgflash" | defined $writecfgflash) {
   if (!defined $filename) {
     print "for the command writecfgflash an option --filename is missing.\n";
     #usage;
@@ -398,6 +416,61 @@ if ($execute eq "writecfgflash") {
     printf(STDERR "\r%d / 5760",$p) if(!($p%10));
   }
 }
+
+sub eraseuserflash {
+    while (flash_is_busy()) {
+	printf(" busy - try again\n");
+	usleep(300000);
+    }
+    sendcmd(0x50<<$REGNR | $WRITE | 0xFC00);
+    printf("Sent Erase command.\n");
+    while (flash_is_busy()) {
+        printf(" busy - try again\n");
+        usleep(300000);
+    }
+}
+
+if ($execute eq "eraseuserflash" | defined $eraseuserflash) {
+    eraseuserflash();
+}
+
+if ($execute eq "writeuserflash" | defined $writeuserflash) {
+    if (!defined $filename) {
+	print "for the command writeuserflash an option --filename is missing.\n";
+	#usage;                                                                                                                                             
+    }
+    eraseuserflash();
+    open(INF, $filename) or die "Couldn't read file : $!\n";
+    my $p = 0x1C00;
+    while (my $s = <INF>) {
+        my @t = split(' ',$s);
+        my @a;
+        for (my $i=0;$i<16;$i++) {
+            push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 24));
+        }
+        sendcmd16(@a);
+        sendcmd(0x50804000 + $p);
+	
+        $p++;
+    }
+}
+
+if ($execute eq "dumpuserflash" | defined $dumpuserflash) {
+    for (my $p = 0x1c00; $p < 0x1c10; $p++) {                                                                                                                                  
+        sendcmd(0x50800000 + $p);
+        printf("0x%04x:\t",$p);
+        for (my $i=0;$i<16;$i++) {
+            my $b = sendcmd(0x40000000 + ($i << 24));
+            foreach my $e (sort keys %$b) {
+                printf(" %02x ",$b->{$e}&0xff);
+            }
+        }
+        printf("\n");
+        ##printf(STDERR "\r%d / 5760",$p) if(!($p%10));
+    }
+}
+
+
 
 if ($execute eq "fifo" || $execute eq "ffarr") {
   my $b = sendcmd(0x200f0000);
