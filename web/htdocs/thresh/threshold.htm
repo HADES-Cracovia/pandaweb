@@ -15,7 +15,7 @@
 <tr><td><u>B</u>oard<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fccc">
 <tr><td>DAC-Chain<td><select onChange="setValues()"  id="form_chain" name="chain"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15</select>
 <tr><td>Channel<td><select onChange="setValues()" id="form_channel" name="channel"><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9<option>10<option>11<option>12<option>13<option>14<option>15<option>16<option>17<option>18<option>19<option>20<option>21<option>22<option>23<option>24<option>25<option>26<option>27<option>28<option>29<option>30<option>31</select>
-<tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI<option value="0">on-board 0xa000<option value="2">DiRICH2</select>
+<tr><td>Board Type<td><select onChange="setValues()" id="form_type" name="chain"><option value='3'>LTC242x DAC<option value='8' selected>Padiwa SPI<option value='9' selected>Padiwa SPI (new)<option value="0">on-board 0xa000<option value="2">DiRICH2</select>
 <tr><td><u>U</u>pdate Interval (ms)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="500">
 <tr><td><u>R</u>eference (mV)<td><input onKeypress="catchEnter(event)" onChange="setValues()" type="text" id="form_ref" name="reference" maxlength="4" value="3330">
 <tr><td>DiRich2 Flash:<td><input type="button" value="Store" onClick="FlashStore()"><input type="button" value="Load" onClick="FlashLoad()">
@@ -83,6 +83,10 @@ function update(bar,scale) {
     }
   else if(type == 2) {
     command = (0x8 << 20) + ((chan%16+16) << 24) + (total); 
+    command = command.toString(16);
+    }
+  else if(type == 9) {
+    command = (0x8 << 20) + ((chan%16) << 24) + (total); 
     command = command.toString(16);
     }
   else {
@@ -177,6 +181,11 @@ function setValues() {
   document.activeElement.blur();
   if(type == 8) {
     cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+(((chan << 16)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
+    document.getElementById("timeget").style.background = "#a55";
+    getdata(cmdstring,anaret2);
+    }
+  else if(type == 9) {
+    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+((((chan%16) << 24)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<chain)+"-1";
     document.getElementById("timeget").style.background = "#a55";
     getdata(cmdstring,anaret2);
     }
