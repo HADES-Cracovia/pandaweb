@@ -117,7 +117,7 @@ commands:
  dischargeoverride      Set discharge signal if disabled. options: \$data
  dischargehighz         Set discharge signal to highZ. options: \$data
  dischargedelayinvert   Invert signal used for delay generation. options: \$data
- dischargedelayiselect  options: \$data, 4 bits
+ dischargedelayselect   options: \$data, 4 bits
  inputenable            read inputenable register. If option \"data\" given: write input enable bits
                         bits: 0: enable, 1: disable
  counter                input signal counter. options: \$channel
@@ -217,11 +217,11 @@ check_std_io("dischargedelayselect", 0x2b);
 
 
 if ($execute eq "temp") {
-  die("not implemented");
-  my $b = sendcmd(0x10040000);
-  foreach my $e (sort keys %$b) {
-    printf("0x%04x\t%d\t%2.1f\n",$e,$chain,($b->{$e}&0xfff)/16);
-  }
+    my $register=0x14;
+    my $b = sendcmd($register<<$REGNR | $READ);
+    foreach my $e (sort keys %$b) {
+	printf("enpoint: 0x%04x  chain: %d  temp: %2.1f\n",$e,$chain,($b->{$e}&0xfff)/16);
+    }
 }
 
 if ($execute eq "resettemp") {
@@ -232,17 +232,16 @@ if ($execute eq "resettemp") {
 }
 
 if ($execute eq "uid" || defined $time) {
-  die("not implemented");
   my $ids;
   for (my $i = 0; $i <= 3; $i++) {
-    my $b = sendcmd( (0x60+$i)<<$REGNR );
+    my $b = sendcmd( (0x10+$i)<<$REGNR );
     foreach my $e (sort keys %$b) {
       $ids->{$e}->{$i} = $b->{$e}&0xffff;
     }
   }
   foreach my $e (sort keys %$ids) {
     printf("endpoint: 0x%04x  chain: %d  raw: 0x%04x%04x%04x%04x\n",
-           $e, $chain, $ids->{$e}->{3}, $ids->{$e}->{2}, $ids->{$e}->{1}, $ids->{$e}->{0} );
+           $e, $chain, $ids->{$e}->{0}, $ids->{$e}->{1}, $ids->{$e}->{2}, $ids->{$e}->{3} );
   }
 }
 
@@ -443,14 +442,16 @@ if ($execute eq "writeuserflash" | defined $writeuserflash) {
     open(INF, $filename) or die "Couldn't read file : $!\n";
     my $p = 0x1C00;
     while (my $s = <INF>) {
+	next unless($s =~ /^0x\w\w\w\w:/);
         my @t = split(' ',$s);
+	#print "t:"; print Dumper \@t;
         my @a;
         for (my $i=0;$i<16;$i++) {
             push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 24));
         }
+	#print "a: "; print Dumper \@a;
         sendcmd16(@a);
         sendcmd(0x50804000 + $p);
-	
         $p++;
     }
 }
