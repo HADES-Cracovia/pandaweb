@@ -36,6 +36,8 @@ my $dumpuserflash;
 my $writeuserflash;
 my $rr;
 my $wr;
+my $range;
+my $memtoflash;
 
 my $time;
 
@@ -59,12 +61,14 @@ my $result = GetOptions (
                          "dumpcfgflash"     => \$dumpcfgflash,
                          "erasecfgflash"    => \$erasecfgflash,
                          "writecfgflash"    => \$writecfgflash,
-                         "dumpuserflash"    => \$dumpuserflash,
-                         "writeuserflash"   => \$writeuserflash,
+                         "dumpuserflash:s"  => \$dumpuserflash,
+                         "writeuserflash:s" => \$writeuserflash,
                          "eraseuserflash"   => \$eraseuserflash,
+                         "memtoflash=s"     => \$memtoflash,
+                         "range=s"          => \$range,
                          "time"             => \$time,
-                         "readreg|rr=s"     => \$rr,
-                         "writereg|wr=s"    => \$wr
+                         "readreg|rr:s"     => \$rr,
+                         "writereg|wr:s"    => \$wr
                         );
 
 sub conv_input_string_to_number {
@@ -104,11 +108,13 @@ examples: padiwa_amps2.pl -e 0x1212 -c 0 -x time                       # reads t
           padiwa_amps2.pl --endpoint=0x1212 --chain=0 -x dischargedelayinvert         # reads the dischargedelayinvert register
           padiwa_amps2.pl -e 0x1212 -c 0 --enablecfgflash=1            # enables the access to the config-flash
           padiwa_amps2.pl --endpoint=0x1212 --chain=0 --dumpcfgflash > flash_dump.txt
+          
+          Some of the commands can also be used directly, i.e. '-rr=0x12' instead of '-x=rr -register=0x12'
 
 commands:
  uid                    read unique ID, no options
  time                   read compile time. no options
- temp                   read temperature, no optionsy
+ temp                   read temperature, no options
  resettemp              resets the 1-wire logic
  dac                    set LTC-DAC data. options: \$channel, \$data
  pwm                    set PWM data. options: \$channel, \$data
@@ -135,6 +141,11 @@ commands:
  erasecfgflash          erases the config flash
  dumpcfgflash           Dump content of configuration flash. Pipe output to file
  writecfgflash          Write content of configuration flash. options: \$filename
+ eraseuserflash         erases the user flash
+ dumpuserflas           Dump content of user flash. Pipe output to file
+ writecfgflash          Write content of user flash. options: \$filename
+ memtoflash             Saves memory content in the flash so that it is restored after boot
+                        options: -range , format like '0x00..0x0F,0x23'
  fifo                   Read a byte from the test fifo (if present, no options)
  writereg|wr            Write to a register
  readreg|rr             Read a register
@@ -343,85 +354,127 @@ if ($execute eq "ram") {
   printf("\n");
 }
 
+###############################################################################
+
 if (defined $flashcmd) {
-  #my $c = 0x50800000 + (($mask&0xe)<< 12) + ($value&0x1fff);
-  if (!defined $flashaddress) {
-    $flashaddress=0;
-  }
-  my $c = 0x50<<$REGNR | $WRITE | (($flashcmd&0xe)<< 12)  + ($flashaddress&0x1fff);
-  my $b = sendcmd($c);
-  printf("Sent flash command $flashcmd\n");
+    if (!defined $flashaddress) {
+	$flashaddress=0;
+    }
+    #my $c = 0x50<<$REGNR | $WRITE | (($flashcmd&0xe)<< 12)  + ($flashaddress&0x1fff);
+    my $b = sendcmd(0x5C<<$REGNR | $READ);
+    sendcmd(0x5C<<$REGNR | $WRITE | ($b->{$endpoint}&0x1) | 0x100); ##new 16 bit scheme
+    sendcmd(0x51<<$REGNR | $WRITE | $flashcmd&0xe); 
+    sendcmd(0x50<<$REGNR | $WRITE | $flashaddress&0xffff);
+    #printf("Sent flash command $flashcmd\n");
+}
+
+###############################################################################
+
+sub enableccfgflash {
+    sendcmd(0x5C<<$REGNR | $WRITE | 0x101);
+}
+
+sub enableuserflash {
+    sendcmd(0x5C<<$REGNR | $WRITE | 0x100);
 }
 
 if ($execute eq "enableccfgflash" | defined $enablecfgflash) {
-  die "--enableccfgflash can only be 0 or 1\n" unless ($enablecfgflash == 0 || $enablecfgflash == 1);
-  my $c = 0x5C<<$REGNR | $WRITE | $enablecfgflash;
-  my $b = sendcmd($c);
-  my $str = ($enablecfgflash) ? "enabled" : "disabled";
-  printf("$str cfgflash.\n");
-}
-
-
-if ($execute eq "dumpccfgflash" | defined $dumpcfgflash) {
-  for (my $p = 0; $p<5760; $p++) { #5758
-    sendcmd(0x50<<$REGNR | $WRITE | $p);      # read page $p
-    printf("0x%04x:\t",$p);
-    for (my $i=0;$i<16;$i++) {
-      my $b = sendcmd( (0x40+$i)<<$REGNR | $READ );
-      foreach my $e (sort keys %$b) {
-        printf(" %02x ",$b->{$e}&0xff);
-      }
+    die "--enableccfgflash can only be 0 or 1\n" unless ($enablecfgflash == 0 || $enablecfgflash == 1);
+    if ($enablecfgflash eq 1) {
+	enableccfgflash();
+    } else {
+	enableuserflash();
     }
-    printf("\n");
-    printf(STDERR "\r%d / 5760",$p) if(!($p%10));
-  }
+    my $str = ($enablecfgflash) ? "enabled" : "disabled";
+    printf("$str cfgflash.\n");
 }
 
-if ($execute eq "erasecfgflash" | defined $erasecfgflash) {
-  while (flash_is_busy()) {
-    printf(" busy - try again\n");
-    usleep(300000);
-  }
-  sendcmd(0x50<<$REGNR | $WRITE | 0xE000);
-  printf("Sent Erase command.\n");
-}
+###############################################################################
 
-if ($execute eq "writecfgflash" | defined $writecfgflash) {
-  if (!defined $filename) {
-    print "for the command writecfgflash an option --filename is missing.\n";
-    #usage;
-  }
-  open(INF, $filename) or die "Couldn't read file : $!\n";
-  while (flash_is_busy()) {
-    printf(" busy - try again\n");
-    usleep(300000);
-  }
-  my $p = 0;
-  while (my $s = <INF>) {
-    my @t = split(' ',$s);
-    my @a;
-    for (my $i=0;$i<16;$i++) {
-      if ($p eq 0x167e && $i eq 11) {
-        # adds the magic 09 the last page of the config flash
-        push(@a,0x40800000 + (0x09) + ($i << 16));
-      } else {
-        push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 16));
-      }
+if ($execute eq "dumpcfgflash" | defined $dumpcfgflash) {
+    enableccfgflash();
+    for (my $p = 0; $p<0x23ff; $p++) {
+	sendcmd(0x51<<$REGNR | $WRITE | 0x0);
+	sendcmd(0x50<<$REGNR | $WRITE | $p);      # read page $p
+	printf("0x%04x:\t",$p);
+	for (my $i=0;$i<16;$i++) {
+	    my $b = sendcmd( (0x40+$i)<<$REGNR | $READ );
+	    foreach my $e (sort keys %$b) {
+		printf(" %02x ",$b->{$e}&0xff);
+	    }
+	}
+	printf("\n");
+	printf(STDERR "\r%d",$p) if(!($p%10));
     }
-    sendcmd16(@a);
-    sendcmd(0x50804000 + $p);
-
-    $p++;
-    printf(STDERR "\r%d / 5760",$p) if(!($p%10));
-  }
 }
 
-sub eraseuserflash {
+sub erasecfgflash {
+    enableccfgflash();
     while (flash_is_busy()) {
 	printf(" busy - try again\n");
 	usleep(300000);
     }
-    sendcmd(0x50<<$REGNR | $WRITE | 0xFC00);
+    sendcmd(0x51<<$REGNR | $WRITE | 0xE);
+    sendcmd(0x50<<$REGNR | $WRITE | 0x0);
+    printf("Sent Erase command.\n");
+}
+
+if ($execute eq "erasecfgflash" | defined $erasecfgflash) {
+    erasecfgflash();
+}
+
+if ($execute eq "writecfgflash" | defined $writecfgflash) {
+    if (!defined($filename)) {$filename=$writecfgflash;}
+    if (!defined $filename) {
+        die "for the command writecfgflash an option or --filename is missing.\n";
+    }
+    if (length($filename)==0) {
+        die "for the command writecfgflash an option or --filename is missing.\n";
+    }
+    open(INF, $filename) or die "Couldn't read file : $!\n";
+    erasecfgflash();
+    while (flash_is_busy()) {
+	printf(" busy - try again\n");
+	usleep(300000);
+    }
+    my $p = 0;
+    while (my $s = <INF>) {
+	my @t = split(' ',$s);
+	my @a;
+	for (my $i=0;$i<16;$i++) {
+	    push(@a,0x40<<$REGNR | $i << $REGNR | $WRITE | (hex($t[$i+1]) & 0xff));
+	}
+	sendcmd16(@a);
+	sendcmd(0x51<<$REGNR | $WRITE | 0x4);
+	sendcmd(0x50<<$REGNR | $WRITE | $p);
+	
+	$p++;
+	printf(STDERR "\r%d ",$p) if(!($p%10));
+    }
+    my @a;
+    for (my $i=0;$i<16;$i++) {
+	if ($i eq 11) {
+	    # adds the magic 09 the last page of the config flash   
+	    push(@a,0x40<<$REGNR | $i << $REGNR | $WRITE | 0x09);
+	} else {
+	    push(@a,0x40<<$REGNR | $i << $REGNR | $WRITE | 0x0);
+	}
+    }
+    sendcmd16(@a);
+    sendcmd(0x51<<$REGNR | $WRITE | 0x4);
+    sendcmd(0x50<<$REGNR | $WRITE | 0x23fc);    
+}
+
+###############################################################################
+
+sub eraseuserflash {
+    enableuserflash();
+    while (flash_is_busy()) {
+	printf(" busy - try again\n");
+	usleep(300000);
+    }
+    sendcmd(0x51<<$REGNR | $WRITE | 0xE);
+    sendcmd(0x50<<$REGNR | $WRITE | 0x0);
     printf("Sent Erase command.\n");
     while (flash_is_busy()) {
         printf(" busy - try again\n");
@@ -434,43 +487,122 @@ if ($execute eq "eraseuserflash" | defined $eraseuserflash) {
 }
 
 if ($execute eq "writeuserflash" | defined $writeuserflash) {
+    if (!defined($filename)) {$filename=$writeuserflash;}
     if (!defined $filename) {
-	print "for the command writeuserflash an option --filename is missing.\n";
-	#usage;                                                                                                                                             
+	die "for the command writeuserflash an option or --filename is missing.\n";
+	
+    }
+    if (length($filename)==0) {
+        die "for the command writeuserflash an option or --filename is missing.\n";
     }
     eraseuserflash();
     open(INF, $filename) or die "Couldn't read file : $!\n";
-    my $p = 0x1C00;
+    my $p;
     while (my $s = <INF>) {
 	next unless($s =~ /^0x\w\w\w\w:/);
         my @t = split(' ',$s);
 	#print "t:"; print Dumper \@t;
         my @a;
         for (my $i=0;$i<16;$i++) {
-            push(@a,0x40800000 + (hex($t[$i+1]) & 0xff) + ($i << 24));
+            push(@a,0x40<<$REGNR | $i << $REGNR | $WRITE | (hex($t[$i+1]) & 0xff));
         }
 	#print "a: "; print Dumper \@a;
         sendcmd16(@a);
-        sendcmd(0x50804000 + $p);
-        $p++;
+	$p = $t[0];
+	if ($p =~ /^0x/) {
+	    $p =~ s/[:]$//;
+	    sendcmd(0x51<<$REGNR | $WRITE | 0x4);
+	    sendcmd(0x50<<$REGNR | $WRITE | (hex($p) & 0xffff));
+	}
     }
 }
 
 if ($execute eq "dumpuserflash" | defined $dumpuserflash) {
-    for (my $p = 0x1c00; $p < 0x1c10; $p++) {                                                                                                                                  
-        sendcmd(0x50800000 + $p);
+    if (!defined($range)) { 
+	if (defined($dumpuserflash)) {
+	    if(length($dumpuserflash)>0) {
+		$range=$dumpuserflash;
+	    } else {
+		$range="0x1c00..0x1c0F"
+	    }
+	}
+	if (!defined($dumpuserflash)) {$range="0x00..0x0F"}
+    }
+
+    enableuserflash();
+    my @q = (eval $range);
+    
+    foreach my $p (@q) {
+	#for (my $p = 0x1c00; $p < 0x1c10; $p++) {
+	sendcmd(0x51<<$REGNR | $WRITE | 0x0);
+	sendcmd(0x50<<$REGNR | $WRITE | $p);
         printf("0x%04x:\t",$p);
         for (my $i=0;$i<16;$i++) {
-            my $b = sendcmd(0x40000000 + ($i << 24));
+            my $b = sendcmd((0x40<<$REGNR) | ($i << $REGNR));
             foreach my $e (sort keys %$b) {
                 printf(" %02x ",$b->{$e}&0xff);
             }
         }
         printf("\n");
-        ##printf(STDERR "\r%d / 5760",$p) if(!($p%10));
     }
 }
 
+if ($execute eq "memtoflash" || defined($memtoflash)) {
+    if (!defined $range && !defined $memtoflash) {
+	print "for the command memtoflash an option --range is missing.\n";
+	exit;
+    }
+    if (!defined($range)) {$range=$memtoflash;}
+    eraseuserflash();
+    my @q = (eval $range); 
+    my $max  = scalar(@q);
+    my $page = 0x0;
+    my $c = 0;
+    my @a;
+    for (my $i=0;$i<$max;$i++) {
+	#write version at first byte
+	push(@a,0x40<<$REGNR | $c << 24 | $WRITE | 0x1);
+	$c++;
+	#write register at next byte
+	push(@a,0x40<<$REGNR | $c << 24 | $WRITE | ($q[$i]));
+	$c++;
+	my $b = sendcmd($q[$i]<<$REGNR | $READ);
+	#write register content at next 2 bytes
+	push(@a,0x40<<$REGNR | $c << 24 | $WRITE | (($b->{$endpoint} & 0xff00) >> 8));
+	$c++;
+	push(@a,0x40<<$REGNR | $c << 24 | $WRITE | ($b->{$endpoint} & 0xff));
+        $c++;
+	if ($c eq 16) {
+	    $c=0;
+	    sendcmd16(@a);
+	    while (flash_is_busy()) {
+		#printf(" busy - try again\n");
+		usleep(300000);
+	    }
+	    sendcmd(0x51<<$REGNR | $WRITE | 0x4);
+	    sendcmd(0x50<<$REGNR | $WRITE | $page);
+	    $page++;
+	    @a = ();
+	}
+    }
+    if ($c > 0) {
+	for (my $i=$c;$i<16;$i++) {
+	    #padding
+	    push(@a,0x40<<$REGNR | $c << 24 | $WRITE);
+	    $c++;
+	}
+        sendcmd16(@a);
+	while (flash_is_busy()) {
+            #printf(" busy - try again\n");                                                                                       
+	    usleep(300000);
+	}
+	sendcmd(0x51<<$REGNR | $WRITE | 0x4);
+	sendcmd(0x50<<$REGNR | $WRITE | $page);
+    }
+#    foreach my $e (@a) {
+#	printf(" %02x \n", $e);
+#    }
+}
 
 
 if ($execute eq "fifo" || $execute eq "ffarr") {
