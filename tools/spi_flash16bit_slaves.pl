@@ -40,6 +40,8 @@ my $range;
 my $memtoflash;
 
 my $time;
+my $uid;
+my $temp;
 
 my $READ  = 0x0<<20; # bits to set for a read command
 my $WRITE = 0x8<<20; # bits to set for a write command
@@ -67,6 +69,8 @@ my $result = GetOptions (
                          "memtoflash=s"     => \$memtoflash,
                          "range=s"          => \$range,
                          "time"             => \$time,
+                         "uid"              => \$uid,
+                         "temp"             => \$temp,
                          "readreg|rr:s"     => \$rr,
                          "writereg|wr:s"    => \$wr
                         );
@@ -99,15 +103,15 @@ sub conv_input_string_to_number {
 
 sub usage {
   print <<EOF;
-usage: padiwa_amps2.pl <--endpoint|e=0xYYYY> <--chain|c=N> [--register=number] [--data=number]
+usage: spi_flash16bit_slaves.pl <--endpoint|e=0xYYYY> <--chain|c=N> [--register=number] [--data=number]
 
-examples: padiwa_amps2.pl -e 0x1212 -c 0 -x time                       # reads the compile time of 0x1212, chain 0
-          padiwa_amps2.pl -e 0x1212 -c 0 -x pwm --channel=1            # reads the threshold setting of channel 1
-          padiwa_amps2.pl -e=0x1212 -c=0 -x=inputenable --data=0xa55a  # disables some channels
-          padiwa_amps2.pl --endpoint=0x1212 --chain=0 -x dischargedelayinvert -d 0xff # sets the dischargedelayinvert bits
-          padiwa_amps2.pl --endpoint=0x1212 --chain=0 -x dischargedelayinvert         # reads the dischargedelayinvert register
-          padiwa_amps2.pl -e 0x1212 -c 0 --enablecfgflash=1            # enables the access to the config-flash
-          padiwa_amps2.pl --endpoint=0x1212 --chain=0 --dumpcfgflash > flash_dump.txt
+examples: spi_flash16bit_slaves.pl -e 0x1212 -c 0 -x time                       # reads the compile time of 0x1212, chain 0
+          spi_flash16bit_slaves.pl -e 0x1212 -c 0 -x pwm --channel=1            # reads the threshold setting of channel 1
+          spi_flash16bit_slaves.pl -e=0x1212 -c=0 -x=inputenable --data=0xa55a  # disables some channels
+          spi_flash16bit_slaves.pl --endpoint=0x1212 --chain=0 -x dischargedelayinvert -d 0xff # sets the dischargedelayinvert bits
+          spi_flash16bit_slaves.pl --endpoint=0x1212 --chain=0 -x dischargedelayinvert         # reads the dischargedelayinvert register
+          spi_flash16bit_slaves.pl -e 0x1212 -c 0 --enablecfgflash=1            # enables the access to the config-flash
+          spi_flash16bit_slaves.pl --endpoint=0x1212 --chain=0 --dumpcfgflash > flash_dump.txt
           
           Some of the commands can also be used directly, i.e. '-rr=0x12' instead of '-x=rr -register=0x12'
 
@@ -227,7 +231,7 @@ check_std_io("dischargedelayinvert", 0x2a);
 check_std_io("dischargedelayselect", 0x2b);
 
 
-if ($execute eq "temp") {
+if ($execute eq "temp" || defined $temp) {
     my $register=0x14;
     my $b = sendcmd($register<<$REGNR | $READ);
     foreach my $e (sort keys %$b) {
@@ -237,12 +241,12 @@ if ($execute eq "temp") {
 
 if ($execute eq "resettemp") {
   die("not implemented");
-  sendcmd(0x10800001);
-  usleep(100000);
-  sendcmd(0x10800000);
+#  sendcmd(0x10800001);
+#  usleep(100000);
+#  sendcmd(0x10800000);
 }
 
-if ($execute eq "uid" || defined $time) {
+if ($execute eq "uid" || defined $uid) {
   my $ids;
   for (my $i = 0; $i <= 3; $i++) {
     my $b = sendcmd( (0x10+$i)<<$REGNR );
@@ -258,8 +262,8 @@ if ($execute eq "uid" || defined $time) {
 
 if ($execute eq "dac" && defined $ARGV[4]) {
   die("not implemented");
-  #my $b = sendcmd(0x00300000+$ARGV[3]*0x10000+($value&0xffff));
-  print "Wrote PWM settings.\n";
+# my $b = sendcmd(0x00300000+$ARGV[3]*0x10000+($value&0xffff));
+# print "Wrote PWM settings.\n";
 }
 
 if ($execute eq "pwm") {
@@ -284,11 +288,11 @@ if ($execute eq "ledoff") {
 
 if ($execute eq "counter" && defined $ARGV[3]) {
   die("not implemented");
-  my $b = sendcmd(0x22000000+(($mask&0x1f)<< 16));
-  my $c = sendcmd(0x23000000+(($mask&0x1f)<< 16));
-  foreach my $e (sort keys %$b) {
-    printf("endpoint: 0x%04x  chain: %d  counter: %8x\n",$e,$chain,($b->{$e}&0xffff)+($c->{$e}&0xff)*2**16);
-  }
+#  my $b = sendcmd(0x22000000+(($mask&0x1f)<< 16));
+#  my $c = sendcmd(0x23000000+(($mask&0x1f)<< 16));
+#  foreach my $e (sort keys %$b) {
+#    printf("endpoint: 0x%04x  chain: %d  counter: %8x\n",$e,$chain,($b->{$e}&0xffff)+($c->{$e}&0xff)*2**16);
+#  }
 }
 
 
@@ -318,7 +322,7 @@ if ($execute eq "writereg" | $execute eq "wr" || defined($wr)) {
   my $b = sendcmd($register<<$REGNR | $WRITE | ($data & 0xffff) );
 }
 
-if ($execute eq "time") {
+if ($execute eq "time" || defined($time)) {
   my $ids;
   for (my $i = 0; $i <= 2; $i++) {
     my $b = sendcmd( (0x30+$i)<<$REGNR | $READ );
@@ -335,23 +339,23 @@ if ($execute eq "time") {
 
 if ($execute eq "ram" && defined $ARGV[18]) {
   die("not implemented");
-  my @a;
-  for (my $i=0;$i<16;$i++) {
-    push(@a,0x40800000+hex($ARGV[3+$i])+($i << 16));
-  }
-  sendcmd16(@a);
-  printf("Wrote RAM\n");
+#  my @a;
+#  for (my $i=0;$i<16;$i++) {
+#    push(@a,0x40800000+hex($ARGV[3+$i])+($i << 16));
+#  }
+#  sendcmd16(@a);
+#  printf("Wrote RAM\n");
 }
 
 if ($execute eq "ram") {
   die("not implemented");
-  for (my $i=0;$i<16;$i++) {
-    my $b = sendcmd(0x40000000 + ($i << 16));
-    foreach my $e (sort keys %$b) {
-      printf(" %02x ",$b->{$e}&0xff);
-    }
-  }
-  printf("\n");
+#  for (my $i=0;$i<16;$i++) {
+#    my $b = sendcmd(0x40000000 + ($i << 16));
+#    foreach my $e (sort keys %$b) {
+#      printf(" %02x ",$b->{$e}&0xff);
+#    }
+#  }
+#  printf("\n");
 }
 
 ###############################################################################
@@ -446,8 +450,10 @@ if ($execute eq "writecfgflash" | defined $writecfgflash) {
     my $version = $b->{$endpoint};
     if (($version & 0xFF00) eq 0x100) {
 	printf("Dirich2 threshold FGPA detected.\n");
-    } else {
+    } elsif (($version & 0xFF00) eq 0x200) {
 	printf("Padiwa amps2 detected.\n");
+    } else {
+	die "No valid SPI slave detected";
     }
 
     erasecfgflash();
