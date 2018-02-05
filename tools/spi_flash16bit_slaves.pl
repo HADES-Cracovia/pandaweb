@@ -38,6 +38,7 @@ my $rr;
 my $wr;
 my $range;
 my $memtoflash;
+my $pwm;
 
 my $time;
 my $uid;
@@ -56,6 +57,7 @@ my $result = GetOptions (
                          "r|register=s"     => \$register,
                          "v|ref_voltage=s"  => \$ref_voltage,
                          "d|data=s"         => \$data,
+                         "pwm:s"            => \$pwm,
                          "f|filename=s"     => \$filename,
                          "flashcmd=s"       => \$flashcmd,
                          "flashaddress=s"   => \$flashaddress,
@@ -266,19 +268,22 @@ if ($execute eq "dac" && defined $ARGV[4]) {
 # print "Wrote PWM settings.\n";
 }
 
-if ($execute eq "pwm") {
-  die "the command pwm needs an --channel option." if (!defined $channel);
-  if(!defined $data) {
-    my $b = sendcmd($channel<<$REGNR | $READ);
-    foreach my $e (sort keys %$b) {
-      printf("endpoint: 0x%04x  chain: %d  channel: %d  raw: 0x%04x  voltage: %4.2f mV\n",
-             $e, $chain, $channel, $b->{$e}&0xffff, ($b->{$e}&0xffff)*$ref_voltage/65536 );
+if ($execute eq "pwm" || defined($pwm)) {
+    if (!defined $channel && defined($pwm)) {
+	$channel = $pwm;
     }
-
-  }
-  else {
-    my $b = sendcmd($channel<<$REGNR | $WRITE | ($data&0xffff));
-  }
+    die "the command pwm needs an --channel option." if (!defined $channel);
+    if(!defined $data) {
+	my $b = sendcmd($channel<<$REGNR | $READ);
+	foreach my $e (sort keys %$b) {
+	    printf("endpoint: 0x%04x  chain: %d  channel: %d  raw: 0x%04x  voltage: %4.2f mV\n",
+		   $e, $chain, $channel, $b->{$e}&0xffff, ($b->{$e}&0xffff)*$ref_voltage/65536 );
+	}
+	
+    }
+    else {
+	my $b = sendcmd($channel<<$REGNR | $WRITE | ($data&0xffff));
+    }
 }
 
 
