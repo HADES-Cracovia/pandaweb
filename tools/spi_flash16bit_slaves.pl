@@ -556,7 +556,7 @@ if ($execute eq "dumpuserflash" | defined $dumpuserflash) {
 	    if(length($dumpuserflash)>0) {
 		$range=$dumpuserflash;
 	    } else {
-		$range="0x1c00..0x1c0F"
+		$range="0x00..0x0F"
 	    }
 	}
 	if (!defined($dumpuserflash)) {$range="0x00..0x0F"}
