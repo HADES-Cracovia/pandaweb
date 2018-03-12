@@ -159,7 +159,7 @@ if($ENV{'QUERY_STRING'} =~ /getmap/) {
                 $feat .= "with multi-packet"          if ($inclLow->{$addr} & 0x400000);
             }
           }
-          $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0x7)." SFPs";  
+          $feat .= "\nHub: ".(($inclLow->{$addr}>>24)&0xf)." SFPs";  
         }
       if($table == 2) {
           if($inclLow->{$addr}&0x8000) {  # ||1 just because this not implemented yet in the test design..
