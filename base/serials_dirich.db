@@ -46,5 +46,15 @@
 0401    0xa0000007124d3e28
 0411    0xba00000712a35628
 0421
-0501    0x5b00000a522ed228 # dirich3
-0511    0x6c00000a5232f628 # dirich3
+0501	0xe000000a52311328 # dirich3  untested
+0521	0x1d00000a52420428 # dirich3  untested
+0521	# not working  -> short circuit
+0541	0x2b00000a52745428 # dirich3  untested
+0551	0xf600000a52631328 # dirich3  untested
+0561	0x8f00000a525b7328 # dirich3  untested
+0571	0xc800000a525eec28 # dirich3  untested
+0581	# not working -> Tombstone?
+0591	0x6900000a52741528 # dirich3  untested
+0601    0x5b00000a522ed228 # dirich3
+0611    0x6c00000a5232f628 # dirich3
+
