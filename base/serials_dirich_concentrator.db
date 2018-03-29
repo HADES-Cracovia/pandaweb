@@ -24,9 +24,9 @@
    0270      0x2f00000a52510428   
    0280      0x4500000a52566f28
    0290      0x7c00000a52570e28
-   0300	     0x7200000a52512128
+   0300	     0x7200000a52512128  # not working -> only 7 out of 12 endpoints reached ; different Led Codes on DiRICHs
    0310      0x1a00000a52085828
-   0320      0x8100000a52349028
+   0320      0x8100000a52349028  # not working -> no endpoint found   -> DiRICHs: Orange LED on
    0330      0xab00000a51d89328
    0340      0x4500000a51e8b728
    0350      0xfd00000a529def28
@@ -43,7 +43,7 @@
    0460      0x7500000a51fdf228
    0470      0xde00000a525f5828
    0480      0x9100000a51d7fa28
-   0490      0x2c00000a523f1128
+   0490      0x2c00000a523f1128  # not working -> 11 endpoints reached ; JDR1 not reached; ./dirich_power_switch_serdes_polarity.txt did not help
    0500      0xde00000a51ef1e28
    0510      0x7200000a52545c28
    0520      0x7500000a51e0ce28
