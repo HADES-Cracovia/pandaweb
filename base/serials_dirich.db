@@ -48,7 +48,7 @@
 0421
 0501	0xe000000a52311328 # dirich3  untested
 0521	0x1d00000a52420428 # dirich3  untested
-0521	# not working  -> short circuit
+0531	# not working  -> short circuit
 0541	0x2b00000a52745428 # dirich3  untested
 0551	0xf600000a52631328 # dirich3  untested
 0561	0x8f00000a525b7328 # dirich3  untested
@@ -57,6 +57,21 @@
 0591	0x6900000a52741528 # dirich3  untested
 0601    0x5b00000a522ed228 # dirich3
 0611    0x6c00000a5232f628 # dirich3
+1421	0x5600000a48b0b928 # dirich3  untested
+1431	0xc300000a48e4dd28 # dirich3  untested
+1441	0x3c00000a5204e828 # dirich3  untested 
+1451	0xfe00000a52462928 # dirich3  untested
+1461	0xf700000a5205dd28 # dirich3  untested
+1471	0x8d00000a48b65b28 # dirich3  untested
+1481	0x9a00000a48b55828 # dirich3  untested
+1491	0x9e00000a52222b28 # dirich3  untested
+1501	0x3300000a48f73828 # dirich3  untested
+1511	0xc000000a48b6e628 # dirich3  untested
+1531	0x2b00000a48b6e328 # dirich3  untested
+1541	ox2b00000a52229d28 # dirich3  untested
+1571	0x0a00000a48b56428 # dirich3  untested
 1591    0x5f00000a49dfb228 # dirich3  untested
 1601    0x4600000a493fd228 # dirich3  untested
+1611    0x4700000a49769028 # dirich3  untested
+1621	0x5700000a48b66a28 # dirich3  untested
 1631    0x1f00000a493fd128 # dirich3  untested
