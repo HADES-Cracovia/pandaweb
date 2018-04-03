@@ -67,6 +67,7 @@
 1491	0x9e00000a52222b28 # dirich3  untested
 1501	0x3300000a48f73828 # dirich3  untested
 1511	0xc000000a48b6e628 # dirich3  untested
+1521	0x5600000a48b6ef28 # dirich3  untested
 1531	0x2b00000a48b6e328 # dirich3  untested
 1541	ox2b00000a52229d28 # dirich3  untested
 1571	0x0a00000a48b56428 # dirich3  untested
@@ -75,3 +76,12 @@
 1611    0x4700000a49769028 # dirich3  untested
 1621	0x5700000a48b66a28 # dirich3  untested
 1631    0x1f00000a493fd128 # dirich3  untested
+1641	0xc100000a493fc628 # dirich3  untested
+1651	0x6e00000a493aca28 # dirich3  untested
+1661	0xfe00000a495f9628 # dirich3  untested
+1671	0x5300000a495eed28 # dirich3  untested
+1681	0xd200000a493ab528 # dirich3  untested
+1691	0xb400000a495f9b28 # dirich3  untested
+1701	0x9e00000a495ef428 # dirich3  untested
+1711	0x2a00000a493abe28 # dirich3  untested
+1721	0x0000000a48e2eb28 # dirich3  untested
