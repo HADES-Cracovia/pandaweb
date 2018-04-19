@@ -24,8 +24,9 @@ fi
 
 
 echo "reset"
-./trbreset_loop.pl
-sleep 1;
+trbcmd reset
+#./trbreset_loop.pl
+#sleep 1;
 
 ##################################################
 ## Set addresses
