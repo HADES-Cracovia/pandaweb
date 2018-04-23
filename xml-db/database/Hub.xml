@@ -152,14 +152,14 @@
               address="0000"  repeat="16" purpose="status" >
       <description>Packet counter on the IPU channel for each individual port</description>
       <field  name="IpuPacketCount"
-            start="0"   bits="32"   purpose="status"  format="integer">
+            start="0"   bits="32"   purpose="status"  format="integer" rate="true">
       </field>
     </register>
     <register name="SlowControlCount"
               address="0010"  repeat="16" purpose="status" >
       <description>Packet counter on the slow control channel for each individual port</description>
       <field  name="SlowControlCount"
-            start="0"   bits="32"   purpose="status"  format="integer">
+            start="0"   bits="32"   purpose="status"  format="integer" rate="true">
       </field>
     </register>
     <register name="ErrorBitsPorts"
@@ -182,14 +182,14 @@
               address="0030"  repeat="16" purpose="status" >
       <description>Total busy time on Lvl1 channel for each individual port</description>
       <field  name="InclusiveBusy"
-            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns">
+            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns" rate="true">
       </field>
     </register>   
     <register name="ExclusiveBusy"
               address="0040"  repeat="16" purpose="status" >
       <description>Busy time on Lvl1 channel for each individual port, counts only if only this one port is busy and others are idle</description>
       <field  name="ExclusiveBusy"
-            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns" >
+            start="0"   bits="32"   purpose="status"  format="integer" scale="10" unit="ns"  rate="true">
       </field>
     </register>   
     
