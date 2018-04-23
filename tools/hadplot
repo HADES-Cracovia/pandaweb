@@ -832,8 +832,8 @@ sub genhist {
   while(1) {
     my $a, my $s, my $t;
     my $val = 0 , my $time;
-    plot_storage_reset($storearr{0});
-    plot_write($plotstr);
+    plot_storage_reset($storearr{0}) if $storearr{0}->{"iteration"} % $storearr{0}->{"downscale"} == 0;
+    plot_write($plotstr) if $storearr{0}->{"iteration"} % $storearr{0}->{"downscale"} == 0;
     for(my $i = 0; $i<scalar(@{$address});$i++) {
       $val = 0;
       my $c = trb_registertime_read($address->[$i], $register->[$i]) or sleep 1 and print "Error\n" and next;
