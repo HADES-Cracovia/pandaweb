@@ -8,7 +8,7 @@ use Data::Dumper;
 use lib "/home/hadaq/trbsoft/daqtools/dmon/code";
 use Dmon;
 
-my $dirich = 0x1229;
+my $dirich = 0x1234;
 
 $dirich = $ARGV[0];
 
@@ -26,7 +26,7 @@ my $monitor = 0xc001;
 my $first_channel = 0;
 my $last_channel = 31;
 
-my $default_threshold = 0x3000;
+my $default_threshold = 0x6000;
 
 #my $absolute_max_threshold = 0x8000;
 my $absolute_min_threshold = 0x1000;
@@ -49,16 +49,24 @@ my $channel_shift = 24;
 my $command;
 my $chain=0;
 
+my $READ  = 0x0<<20; # bits to set for a read command
+my $WRITE = 0x8<<20; # bits to set for a write command
+my $REGNR = 24; # number of bits to shift for the register number
 
 
 for my $channel (0 .. 31) {
   $chain = ($channel <16) ? 0 : 1;
-  $command = $fixed_bits | ($channel << $channel_shift) | ($default_threshold << $shift_bits);
+  #($channel<<$REGNR | $WRITE | ($data&0xffff));
+  # sendcmd($channel<<$REGNR | $WRITE | ($data&0xffff));
+  #$command = $fixed_bits | ((0x10| ($channel&0xf)) << $channel_shift) | (($default_threshold+$channel) << $shift_bits);
+  $command = ($channel&0xf)<<$REGNR | $WRITE | ($default_threshold&0xffff);
+  #print "$command\n";
   Dmon::PadiwaSendCmd($command,$dirich, $chain);
+  usleep(10E3);
   #trb_register_write($dirich, $throffset + $channel , $default_threshold);
   #$rh_res = trb_register_read($dirich, $throffset + $channel);
 }
-
+#exit;
 usleep (1E5);
 
 my $boundaries = {};
@@ -68,14 +76,16 @@ for my $channel ($first_channel .. $last_channel) {
 
     my $hit_zero_diff_flag = 0;
 
-    my $lower_threshold = 0x6a80;
-    my $upper_threshold = 0xd000;
-    my $reasonable_upper_threshold = 0x8000;
+    my $lower_threshold = 0x6f80;
+    my $upper_threshold = 0x9000;
+    my $reasonable_upper_threshold = 0x7800;
     my $thresh_increment = 0x8;
 
   THRESH_LOOP:    for (my $thresh = $lower_threshold ; $thresh <= $upper_threshold; $thresh += $thresh_increment) {
       $chain = ($channel <16) ? 0 : 1;
-      $command = $fixed_bits | ($channel << $channel_shift) | ($thresh << $shift_bits);
+      #$command = $fixed_bits | ( (0x10|($channel&0xf)) << $channel_shift) | ($thresh << $shift_bits);
+      $command = ($channel & 0xf)<<$REGNR | $WRITE | ($thresh&0xffff);
+      #print "chain: $chain\n";
       Dmon::PadiwaSendCmd($command,$dirich, $chain);
       ##trb_register_write($dirich, $throffset + $channel , $thresh);
       undef $rh_res;
@@ -92,7 +102,7 @@ for my $channel ($first_channel .. $last_channel) {
         }
 
       my $diff = $hits[1] - $hits[0];
-      #printf "cur thresh: %.4x diff: $diff\n",$thresh ;
+      #printf "channel: $channel: cur thresh: %.4x diff: $diff\n",$thresh ;
       #sleep 0.2;
       $hit_zero_diff_flag = 1 if($diff == 0);
 
@@ -129,7 +139,7 @@ for my $channel ($first_channel .. $last_channel) {
 	  last THRESH_LOOP;
       }
 
-    }
+    } # THRESH_LOOP
 
     if ( ! exists $boundaries->{$channel}->{'upper'}) {
       $boundaries->{$channel}->{'upper'} = $upper_threshold;
@@ -137,7 +147,8 @@ for my $channel ($first_channel .. $last_channel) {
     }
 
     $chain = ($channel <16) ? 0 : 1;
-    $command = $fixed_bits | ($channel << $channel_shift) | ($default_threshold << $shift_bits);
+    #$command = $fixed_bits | ( (0x10|($channel&0xf)) << $channel_shift) | ($default_threshold << $shift_bits);
+    $command = ($channel & 0xf)<<$REGNR | $WRITE | ($default_threshold&0xffff);
     Dmon::PadiwaSendCmd($command,$dirich, $chain);
     #trb_register_write($dirich, $throffset + $channel , $default_threshold);
 }

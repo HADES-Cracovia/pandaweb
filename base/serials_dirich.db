@@ -261,7 +261,7 @@
 3351	0x3800000a49380728 # dirich3  untested
 3361	0xe300000a4938b328 # dirich3  untested
 3381	0xf200000a4938ae28 # dirich3  untested
-3391	0xba00000a48bbef28 # dirich3  untested
+3391	0xba00000a48bbef28 # dirich3  tested
 3401	0xef00000a48859a28 # dirich3  untested
 3411	0xfb00000a497b5a28 # dirich3  untested machxo3 programming failed (ID)
 3421	0xbf00000a49c34828 # dirich3  untested
@@ -299,7 +299,7 @@
 3741	0x9400000a49ec3728 # dirich3  untested
 3751	0xfb00000a49aaf028 # dirich3  untested
 3761	0xd200000a49ec5028 # dirich3  untested
-3771	0xe300000a48ae1828 # dirich3  untested
+3771	0xe300000a48ae1828 # dirich3  tested
 3781	# failed programming
 3791	0x6400000a48ae0c28 # dirich3  untested
 3801	0xa900000a488f0728 # dirich3  untested
@@ -419,7 +419,7 @@
 6111	0x2c00000a491dcf28 # dirich3  untested
 6121	0x5900000a491bd928 # dirich3  untested
 6131	0x0400000a48da8728 # dirich3  untested
-6141	0xe000000a49673d28 # dirich3  untested machox3 failed programming (ID)
+6141	0xe000000a49673d28 # dirich3  untested
 6151	0x0b00000a49673828 # dirich3  untested
 6161	0xeb00000a49ddb328 # dirich3  untested
 6171	0xd200000a49ddcb28 # dirich3  untested machxo3 failed programming (ID)
