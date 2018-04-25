@@ -392,25 +392,52 @@
 4761	0x2700000a48e04028 # dirich3  untested
 4771	0x7e00000a48b3f728 # dirich3  untested
 4791	0x0400000a48b40428 # dirich3  untested
+4861	0xb100000a48b1cf28 # dirich3  untested
+5041	0xe800000a4895a328 # dirich3  untested
+5311	0x7f00000a49a08828 # dirich3  untested
+5351	0x4700000a49237228 # dirich3  untested
+5511	0x0f00000a49817928 # dirich3  untested
 5521	0xf400000a49ed5528 # dirich3  untested
 5561	0xc200000a494cef28 # dirich3  untested
+5641	0xa700000a48da9c28 # dirich3  untested
+5651	# no link
+5661    ## config. set up fail
+5671	0x6c00000a48af5928 # dirich3  untested
+5681	0x8300000a48da9328 # dirich3  untested
+5691	0x3700000a49a7d928 # dirich3  untested
+5701	0x0000000a49a7d828 # dirich3  untested
+5711	0x7e00000a49db7a28 # dirich3  untested
+5721	## not working: short cut 
+5731	0x3400000a49db7728 # dirich3  untested
+5741	## not working
 5751	# failed power connection
 5761	0xba00000a4906ac28 # dirich3  untested
 5771	0x2c00000a4906a528 # dirich3  untested
+5781	0x7200000a498feb28 # dirich3  untested
+5791	0xd800000a49828c28 # dirich3  untested
+5801	0xdb00000a4990a128 # dirich3  untested
+5811	0xe900000a49900328 # dirich3  untested
+5821	0x0f00000a491c6928 # dirich3  untested
+5831	0x5d00000a48b06328 # dirich3  untested
+5841	0x3800000a494ec528 # dirich3  untested
 5851	0x7600000a4912dd28 # dirich3  untested
 5861	0x5100000a49124428 # dirich3  untested
 5871	0x7500000a49124b28 # dirich3  untested
+5881	0xd800000a4906c428 # dirich3  untested
+5891	0xd600000a4906bd28 # dirich3  untested
+5901	0xe800000a4992b428 # dirich3  untested
 5911	0x4200000a49551328 # dirich3  untested
 5921	0x6800000a49dc9828 # dirich3  untested
 5941	0x6d00000a4992b328 # dirich3  untested
 5951	0x4c00000a49dc9728 # dirich3  untested
 5961	0x7500000a49563928 # dirich3  untested
+5971	0x5600000a4955ad28 # dirich3  untested
 5981	0x5400000a498ff728 # dirich3  untested
 5991	0xac00000a498ffc28 # dirich3  untested
 6001	0xd100000a4955b928 # dirich3  untested
 6011	0x5400000a4955be28 # dirich3  untested
 6021	0xa700000a49b76c28 # dirich3  untested
-6031	# failed to program DONE bit
+6031	# short cut -> goes into current Limit
 6041	0x2200000a49b67228 # dirich3  untested
 6051	0x2a00000a49ec5b28 # dirich3  untested
 6061	0x0600000a49b67d28 # dirich3  untested
