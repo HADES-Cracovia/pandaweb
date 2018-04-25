@@ -1,0 +1,18 @@
+# addresses_dirich.db 
+# maps trbnet-addresses to serial number + FPGA number
+
+# Address #  S/N  #  FPGA
+
+0x1201 	    0551     1
+0x1202 	    0541     1
+0x1203 	    0571     1
+0x1204 	    0561     1
+0x1205 	    0541     1
+0x1206 	    0591     1
+0x1207 	    1601     1
+0x1208 	    1631     1
+0x1209 	    1591     1
+#0x1210	    
+#0x1211
+#0x1212
+
