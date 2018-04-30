@@ -90,7 +90,7 @@
 
   <group name="Trigger" purpose="config" address="0000" size="256" mode="rw" continuous="false">
     <description>Registers of the trigger generation logic</description>  
-    <group name="TriggerGeneration" purpose="config" address="0000" size="4" repeat="8" continuous="false">
+    <group name="TriggerGeneration" purpose="config" address="0000" size="3" continuous="true">
       <register name="TriggerEnable1" address="0000"  mode="rw" >
         <description>Enables individual inputs 0 - 31 for trigger generation. If enabled, the input adds to the common or</description>
         <field  name="TriggerEnable" start="0" bits="32" format="bitmask" noflag="true" />
@@ -152,8 +152,8 @@
     <register name="Coincidence" address="0040" mode="rw" repeat="16">
       <description>Coincidence Logic</description>
       <field  name="Enable" start="31"   bits="1" format="bitmask" />
-      <field  name="Input1" start="0"   bits="5" format="unsigned" noflag="true" />
-      <field  name="Input2" start="8"   bits="5" format="unsigned" noflag="true" />
+      <field  name="Input1" start="0"   bits="6" format="unsigned" noflag="true" />
+      <field  name="Input2" start="8"   bits="6" format="unsigned" noflag="true" />
     </register>       
     
     <register name="OutputSelect" address="0034" mode="r" >
