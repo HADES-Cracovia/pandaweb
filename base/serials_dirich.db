@@ -392,16 +392,19 @@
 4761	0x2700000a48e04028 # dirich3  untested
 4771	0x7e00000a48b3f728 # dirich3  untested
 4791	0x0400000a48b40428 # dirich3  untested
+4851	0xc300000a48f77f28 # dirich3  untested
 4861	0xb100000a48b1cf28 # dirich3  untested
+4871	0x9b00000a491c7328 # dirich3  untested
 5041	0xe800000a4895a328 # dirich3  untested
 5311	0x7f00000a49a08828 # dirich3  untested
 5351	0x4700000a49237228 # dirich3  untested
 5511	0x0f00000a49817928 # dirich3  untested
+5381	0xd500000a499e4628 # dirich3  untested machxo3 not programmable -> ID 
 5521	0xf400000a49ed5528 # dirich3  untested
 5561	0xc200000a494cef28 # dirich3  untested
 5641	0xa700000a48da9c28 # dirich3  untested
 5651	# no link
-5661    ## config. set up fail
+5661    0x6f00000a48b3ea28 # dirich3  untested machxo3 not programmable -> ID
 5671	0x6c00000a48af5928 # dirich3  untested
 5681	0x8300000a48da9328 # dirich3  untested
 5691	0x3700000a49a7d928 # dirich3  untested
@@ -428,6 +431,7 @@
 5901	0xe800000a4992b428 # dirich3  untested
 5911	0x4200000a49551328 # dirich3  untested
 5921	0x6800000a49dc9828 # dirich3  untested
+5931	0x3d00000a4884fe28 # dirich3  untested
 5941	0x6d00000a4992b328 # dirich3  untested
 5951	0x4c00000a49dc9728 # dirich3  untested
 5961	0x7500000a49563928 # dirich3  untested
@@ -442,6 +446,7 @@
 6051	0x2a00000a49ec5b28 # dirich3  untested
 6061	0x0600000a49b67d28 # dirich3  untested
 6071	0xaf00000a49ec5c28 # dirich3  untested
+6081	0xe600000a491c7f28 # dirich3  untested
 6091	0xc900000a491be528 # dirich3  untested
 6101	0xb000000a491c8028 # dirich3  untested
 6111	0x2c00000a491dcf28 # dirich3  untested
@@ -453,13 +458,21 @@
 6171	0xd200000a49ddcb28 # dirich3  untested machxo3 failed programming (ID)
 6181	0x1300000a49ddb828 # dirich3  untested machxo3 failed programming (ID)
 6191	0x9d00000a49673128 # dirich3  untested
+6201	0xb300000a49dc2c28 # dirich3  untested
 6211	0x2600000a49923b28 # dirich3  untested
 6221	0xa200000a49db7e28 # dirich3  untested
+6231	0x1a00000a49db2728 # dirich3  untested
+6241	0x8a00000a49db1b28 # dirich3  untested
+6251	0xa300000a49923c28 # dirich3  untested
 6261	0xc600000a4992e428 # dirich3  untested
 6271	0x4300000a4992e328 # dirich3  untested
+6281	0x7200000a4992d728 # dirich3  untested
+6291	0x5600000a4992d828 # dirich3  untested
+6301	0x0000000a49818528 # dirich3  untested
 6311	0xeb00000a49818028 # dirich3  untested
 6321	0xdd00000a48adfb28 # dirich3  untested
 6331	0x9a00000a4920d828 # dirich3  untested
+6341	0xc300000a4920db28 # dirich3  untested
 6351	0xb400000a48b35e28 # dirich3  untested
 6361	0x0a00000a4920e428 # dirich3  untested
 6371	0x5300000a4920e728 # dirich3  untested
@@ -472,10 +485,32 @@
 6471	0xc300000a49858128 # dirich3  untested
 6481	0x7000000a49453828 # dirich3  untested
 6491	0xce00000a48f3f428 # dirich3  untested
+6501	0x3700000a496a5628 # dirich3  untested
 6511	0x6200000a496a3f28 # dirich3  untested
+6521	0x9800000a492c6728 # dirich3  untested
 6531	0x1100000a496a4a28 # dirich3  untested
+6541	0x2600000a496a4b28 # dirich3  untested
+6551	0x9500000a492ade28 # dirich3  untested
+6561	0x5600000a48e02628 # dirich3  untested
+6571	0x4300000a48e01d28 # dirich3  untested
+6581	0xc600000a48e01a28 # dirich3  untested
 6591	# failed power connection
 6611	0x1b00000a48e5e628 # dirich3  untested
+6621	0x4d00000a4912b628 # dirich3  untested
+6631	0x6100000a49261328 # dirich3  untested
+6641	0x9900000a49261828 # dirich3  untested
+6651	# failed power connection
+6661	0xa700000a4906db28 # dirich3  untested
+6671	0xda00000a48924e28 # dirich3  untested
+6681	0x5a00000a48805128 # dirich3  untested
+6691	0xfa00000a49b74928 # dirich3  untested
+6701	0xed00000a49b76128 # dirich3  untested
+6711	0xdc00000a49b75528 # dirich3  untested
+6721	0xda00000a49b76028 # dirich3  untested
+6731	0x0500000a49f0ab28 # dirich3  untested
+6741	0x3400000a49f09f28 # dirich3  untested
+6771	0x4900000a49f09328 # dirich3  untested
+6781	0x2200000a48924528 # dirich3  untested
 6791	0xe900000a49e3bc28 # dirich3  untested
 6801	0xad00000a49e3c828 # dirich3  untested
 6811	0x9a00000a49e3c928 # dirich3  untested
@@ -492,5 +527,36 @@
 6921	0xfd00000a49dc0728 # dirich3  untested
 6931	0xe700000a49924828 # dirich3  untested
 6941	0x3800000a49d6a828 # dirich3  untested
+6951	0xe300000a493b9828 # dirich3  untested
 6961	0x9c00000a493b8728 # dirich3  untested
+6971	0x1900000a493b8028 # dirich3  untested
+6991	0x2200000a49111a28 # dirich3  untested
 7001	0x9200000a49110f28 # dirich3  untested
+7011	0x1400000a4912b528 # dirich3  untested
+7021	0x4100000a48ff0028 # dirich3  untested
+7031	# No Connection to Combiner -> SERDES problem?
+7041	0xdc00000a4906e228 # dirich3  untested
+7061	0x9100000a49074628 # dirich3  untested 
+7071	0xab00000a494d4428 # dirich3  untested
+7081	0xee00000a499e2d28 # dirich3  untested
+7091	0x7800000a499e2428 # dirich3  untested
+7101	0xff00000a499e3028 # dirich3  untseted
+7111	0x5000000a4912c128 # dirich3  untested
+7121	# No Link to Combiner -> Orange LED always on
+7131	0x2200000a48d63728 # dirich3  untested
+7141	0x4200000a49135328 # dirich3  untested
+7151	0x0800000a49135e28 # dirich3  untested
+7161	0xbd00000a4912f128 # dirich3  untested
+7171	0xc000000a4912fd28 # dirich3  untested
+7181	0x1e00000a49260c28 # dirich3  untested
+7191	0xe400000a4912f228 # dirich3  untested
+7201	0xaa00000a4912d928 # dirich3  untested
+7211	0xe900000a49ae1f28 # dirich3  untested
+7221	0xbc00000a49e3d528 # dirich3  untested
+7231	0x8d00000a49e3e128 # dirich3  untested
+7241	0xf000000a49e3ed28 # dirich3  untested
+7251	0xc700000a49e3ec28 # dirich3  untested
+7261	0xa800000a497b0628 # dirich3  untested
+7271	0x7f00000a49313428 # dirich3  untested
+7281	0x8c00000a497b0928 # dirich3  untested
+
