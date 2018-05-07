@@ -91,18 +91,21 @@
   <group name="Trigger" purpose="config" address="0000" size="256" mode="rw" continuous="false">
     <description>Registers of the trigger generation logic</description>  
     <group name="TriggerGeneration" purpose="config" address="0000" size="4" repeat="8" continuous="false">
-      <register name="TriggerEnable1" address="0000"  mode="rw" >
-        <description>Enables individual inputs 0 - 31 for trigger generation. If enabled, the input adds to the common or</description>
-        <field  name="TriggerEnable" start="0" bits="32" format="bitmask" noflag="true" />
+      <register name="TriggerEnable1" address="0000"  mode="rw">
+        <description>Enables individual inputs 0 - 31 for trigger generation. If enabled, the input adds to the common or of 
+output #slice</description>
+        <field  name="TriggerEnable1" start="0" bits="32" format="bitmask" noflag="true" />
       </register>
-      <register name="TriggerEnable2" address="0001"  mode="rw" >
-        <description>Enables individual inputs 63 - 32 for trigger generation. If enabled, the input adds to the common or</description>
+      <register name="TriggerEnable2" address="0001"  mode="rw">
+        <description>Enables individual inputs 32-63 for trigger generation. If enabled, the input adds to the common or of 
+output #slice</description>
         <field  name="TriggerEnable2" start="0" bits="32" format="bitmask" noflag="true" />
       </register>
-      <register name="TriggerEnable3" address="0002"  mode="rw" >
-        <description>Enables individual inputs 95 - 64 for trigger generation. If enabled, the input adds to the common or</description>
+      <register name="TriggerEnable3" address="0002"  mode="rw">
+        <description>Enables individual inputs 64-95 for trigger generation. If enabled, the input adds to the common or of 
+output #slice</description>
         <field  name="TriggerEnable3" start="0" bits="32" format="bitmask" noflag="true" />
-      </register>      
+      </register>
     </group>
       
 
@@ -152,8 +155,8 @@
     <register name="Coincidence" address="0040" mode="rw" repeat="16">
       <description>Coincidence Logic</description>
       <field  name="Enable" start="31"   bits="1" format="bitmask" />
-      <field  name="Input1" start="0"   bits="5" format="unsigned" noflag="true" />
-      <field  name="Input2" start="8"   bits="5" format="unsigned" noflag="true" />
+      <field  name="Input1" start="0"   bits="6" format="unsigned" noflag="true" />
+      <field  name="Input2" start="8"   bits="6" format="unsigned" noflag="true" />
     </register>       
     
     <register name="OutputSelect" address="0034" mode="r" >

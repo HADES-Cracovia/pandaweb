@@ -224,7 +224,7 @@ const char voltages[8][8]={"5V in  ","5V     ","3.5V in","3.3V   ","1.6V in","1.
     </register> 
     <register name="Words" address="000b">
       <description>Number of words given to data handler</description>
-      <field name="Words" start="0" bits="24" format="unsigned" />
+      <field name="Words" start="0" bits="24" format="unsigned" rate="1"/>
     </register> 
     <register name="TriggersInvalid" address="000c">
       <description>Number of invalid triggers received</description>
