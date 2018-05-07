@@ -38,6 +38,20 @@ function getdataprint(command,dId,async,time,callback) {
       //if(cb)
       if(document.getElementById(destId)){
         document.getElementById(destId).innerHTML  = xmlhttp.responseText;  
+        if(document.getElementById("fold") && document.getElementById("fold").checked) {
+           t = document.getElementsByClassName('queryresult');
+           for (var i=0; i<t.length; i++) {
+            if(!isNotFolded[i]) { 
+              t[i].classList.add("folded");
+              isNotFolded[i] = 0;
+              }
+            t[i].number = i;  
+            t[i].onclick = function() {
+              this.classList.toggle("folded");
+              isNotFolded[this.number] = 1 - isNotFolded[this.number];
+              }  
+            }
+          }
 //         t = document.getElementsByClassName('sortable');
 //         for (var i=0; i<t.length; i++) {       
 //           sorttable.makeSortable(t[i]);
