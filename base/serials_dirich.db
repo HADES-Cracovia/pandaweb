@@ -81,7 +81,7 @@
 1511	0xc000000a48b6e628 # dirich3  untested
 1521	0x5600000a48b6ef28 # dirich3  untested
 1531	0x2b00000a48b6e328 # dirich3  untested
-1541	ox2b00000a52229d28 # dirich3  untested
+1541	0x2b00000a52229d28 # dirich3  untested
 1571	0x0a00000a48b56428 # dirich3  untested
 1591    0x5f00000a49dfb228 # dirich3  untested
 1601    0x4600000a493fd228 # dirich3  untested
@@ -336,7 +336,7 @@
 4111	0xb500000a494aea28 # dirich3  untested
 4121	0xd400000a494b0d28 # dirich3  untested
 4131	0xda00000a494b7428 # dirich3  untested
-4141	ox4a00000a488a3328 # dirich3  untested
+4141	0x4a00000a488a3328 # dirich3  untested
 4151	0xf400000a4880a528 # dirich3  untested
 4161	# No Link -> Couldn't flash ECP5
 4171	0x7d00000a488a3228 # dirich3  untested
