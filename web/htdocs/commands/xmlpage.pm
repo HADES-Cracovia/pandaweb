@@ -25,6 +25,7 @@ sub initPage {
   my ($cmdMod,$cmdAddr,$cmdReg) = split('-',$setup[$active]->{cmd});
   my $israte  = $setup[$active]->{rate};
   my $iscache = $setup[$active]->{cache};
+  my $isfold  = $setup[$active]->{fold};
   
   $getscript = $page->{getscript};
   if(!defined $getscript) {
@@ -58,7 +59,7 @@ if($setup[$active]->{generic} == 1) {
   print qq|
   <div class="checkbox"><input type="text" id="target" title="Enter any valid command in the form Module-Address-Name" 
   value="$cmd" onChange="settarget()" onLoad="settarget()"
-  style="width:150px;text-align:left"></div>
+  style="width:250px;text-align:left"></div>
   |;
   }
 
@@ -80,6 +81,8 @@ print qq|
     <label for="rate">Rates</label></div>
 <div class="checkbox"|.($setup[$active]->{nocache}?'style="display:none"':"").qq|><input type="checkbox" onChange="settarget()" value="1" id="cache" title="Use caching of data to reduce load on DAQ network" $iscache>
     <label for="cache">Use Cache</label></div>
+<div class="checkbox"><input type="checkbox" value="0" id="fold" title="Fold table on large pages" $isfold>
+    <label for="cache">Fold Tables</label></div>
 <div class="checkbox"><input type="button" class="stdbutton" onClick="refresh(-1);" value="Refresh"></div>
 </div>
 <div id="content"></div>|;
@@ -106,6 +109,9 @@ sub printJavaScripts {
 ####### javascript function land ################
 
   print qq|
+<script language="javascript"> 
+   var isNotFolded = new Array();
+</script>   
 <script language="javascript" src="../scripts/scriptsnew.js"></script>
 <script language="javascript" src="../scripts/xmlpage.js"></script>
 <script language="javascript">
@@ -114,8 +120,9 @@ sub printJavaScripts {
   var command="|.$setup[$n]->{cmd}.qq|";
   var currentpage = $active;
   var Timeoutvar;
-  
 
+
+  isNotFolded[1] = 1;
   setTimeout('eatCookies()',100);
 //   setTimeout('document.getElementById("period").value = period;',300);
   setTimeout('document.getElementById("content").addEventListener("click",editsetting,0)',400);

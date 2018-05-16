@@ -293,3 +293,11 @@ table#server-details pre {
 .smallboxes input {
   width:40px;
   }
+
+.folded tbody {
+  display : none;
+}  
+
+.folded thead tr{
+  height:50px;
+  }  
