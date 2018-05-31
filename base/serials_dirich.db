@@ -470,25 +470,41 @@
 4861	0xb100000a48b1cf28 # dirich3  untested
 4871	0x9b00000a491c7328 # dirich3  untested
 5041	0xe800000a4895a328 # dirich3  untested
+5171	0x0e00000a49278d28 # dirich3  untested
 5181    0x6b00000a488fe228
+5191	0x8900000a49279928 # dirich3  untested
+5201	0xc300000a49279428 # dirich3  untested
+5211	0xf700000a48c44128 # dirich3  untested
+5221	0x7800000a49dd1928 # dirich3  untested
 5241    0x0700000a49dd0628
+5261	0xfd00000a49dd1e28 # dirich3  untested
+5271	0xff00000a49dd0d28 # dirich3  untested
 5281    0x7b00000a49a0ae28
+5291	0x7800000a49a12128 # dirich3  untested
 5301    0x5000000a49a05d28
 5311	0x7f00000a49a08828 # dirich3  untested
+5321	0xac00000a49a07028 # dirich3  untested
 5341    0xb500000a499e3d28
 5351	0x4700000a49237228 # dirich3  untested
+5361	0x7000000a49237328 # dirich3  untested
 5371    0x0b00000a49263728
 5381	0xd500000a499e4628 # dirich3  untested machxo3 not programmable -> ID 
 5391    0xf100000a499e4928
 5401    0x8f00000a49562128
 5411    0x3f00000a49563428
+5421	0x2900000a4955b228 # dirich3  untested
+5431	0xb200000a49ad2428 # dirich3  untested
 5441    0x7100000a49ddd028
 5451    0xf200000a49562d28
 5481    0xac00000a4992c028
+5491	0xd100000a4992cc28 # dirich3  untested
 5501    0x9d00000a49549828
 5511	0x0f00000a49817928 # dirich3  untested
 5521	0xf400000a49ed5528 # dirich3  untested
 5561	0xc200000a494cef28 # dirich3  untested
+5581	0x5d00000a48da8428 # dirich3  untested
+5611	0x0000000a491bda28 # dirich3  untested
+5631	0xad00000a499dc228 # dirich3  untested
 5641	0xa700000a48da9c28 # dirich3  untested
 5651	# no link
 5661    0x6f00000a48b3ea28 # dirich3  untested machxo3 not programmable -> ID
@@ -770,10 +786,66 @@
 8451	0x8300000a48cc4c28 # dirich3  untested
 8461	0x6900000a4949c528 # dirich3  untested
 8471	0x2800000a492c7228 # dirich3  untested # machxo3 programming failed
-8481	0xec00000a4949c228 # dirich3  untested # machxo3 programming failed
+8481	0xec00000a4949c228 # dirich3  untested
 8491	0xe600000a49260728 # dirich3  untested
 8501	0x8c00000a492cd928 # dirich3  untested
 8511	0xc400000a499e5b28 # dirich3  untested
+10381	0x5300000a49d52228 # dirich3  untested
+10391	0x1b00000a49d36a28 # dirich3  untested
+10401	0x5700000a49d35228 # dirich3  untested
+10411	0xbb00000a49f4a328 # dirich3  untested
+10421	0x2800000a49d51b28 # dirich3  untested
+10431	0x8c00000a49f4a228 # dirich3  untested
+10441	0x1e00000a49a9a728 # dirich3  untested
+10451	0x7600000a49a99028 # dirich3  untested
+10461	0x4200000a49e4a428 # dirich3  untested
+10471	0x8e00000a49a99b28 # dirich3  untested
+10481	0x3a00000a49a9a828 # dirich3  untested
+10491	0x0b00000a49a99c28 # dirich3  untested
+10501	0x1b00000a49e4a728 # dirich3  untested
+10511	# power connection broken
+10521	0x2000000a49aa4428 # dirich3  untested
+10531	0x9c00000a49e4b328 # dirich3  untested
+10541	0xae00000a49d3dc28 # dirich3  untested
+10551	0x8d00000a49e4ae28 # dirich3  untested
+10561	0xf000000a49e4a228 # dirich3  untested
+10571	0xc200000a49d3cd28 # dirich3  untested
+10581	0x4500000a49d3d928 # dirich3  untested
+10591	0xd300000a49d3d028 # dirich3  untested
+10601	0x9d00000a49d5ad28 # dirich3  untested
+10611	0x1800000a49d5aa28 # dirich3  untested
+10621	0x8500000a49776c28 # dirich3  untested
+10631	0x3100000a49775f28 # dirich3  untested
+10641	0xf800000a49776028 # dirich3  untested
+10651	0xce00000a4895bf28 # dirich3  untested
+10661	0x3100000a48950428 # dirich3  untested
+10671	0xf800000a490e2528 # dirich3  untested
+10681	0xdd00000a49e00028 # dirich3  untested
+10691	0x4900000a4955c928 # dirich3  untested
+10701	0x4a00000a49555f28 # dirich3  untested
+10711	0xdd00000a4955d328 # dirich3  untested
+10721	0xc000000a49d58828 # dirich3  untested
+10731	0xd200000a49d35528 # dirich3  untested
+10741	0xc500000a49562c28 # dirich3  untested
+10751	0xed00000a490e1e28 # dirich3  untested
+10761	0xdc00000a49555628 # dirich3  untested
+10771	# no power connection
+10781	0x8a00000a49d58528 # dirich3  untested
+10791	0xdc00000a490e2a28 # dirich3  untested
+10801	0xc400000a49d5ae28 # dirich3  untested
+10811	0x3100000a4918c528 # dirich3  untested
+10821	0xd100000a490ec528 # dirich3  untested
+10831	0x6800000a4918c628 # dirich3  untested
+10841	0x2a00000a49d35e28 # dirich3  untested
+10851	0x5300000a49134e28 # dirich3  untested
+10861	# no power connection 
+10871	0x8f00000a49d52628 # dirich3  untested
+10881	0x6a00000a48dcd328 # dirich3  untested
+10891	# no power connection
+10901	0x2900000a48de2528 # dirich3  untested
+10911	0x5600000a490ed128 # dirich3  untested
+10921	0xfa00000a48dfc428 # dirich3  untested
+10931	0x4700000a490ecc28 # dirich3  untested
 10941	0xb700000a49854428 # dirich3  untested
 10951	0x0e00000a49b34c28 # dirich3  untested
 10961	0x3000000a49855028 # dirich3  untested
@@ -874,3 +946,11 @@
 11911	0x5e00000a4917c528 # dirich3  untested
 11921	0xc900000a49418028 # dirich3  untested
 11931	0xe000000a49182e28 # dirich3  untested
+11941	0x6700000a49417428 # dirich3  untested
+11951	0x9800000a49c92b28 # dirich3  untested
+11961	0xd100000a49c9b028 # dirich3  untested
+11971	0x1400000a48ff6928 # dirich3  untested
+11981	0xd200000a49c92628 # dirich3  untested
+11991	0xe700000a49f34c28 # dirich3  untested
+12001	0xe600000a49bc5828 # dirich3  untested
+
