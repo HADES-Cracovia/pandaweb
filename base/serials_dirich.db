@@ -845,6 +845,34 @@
 8491	0xe600000a49260728 # dirich3  untested
 8501	0x8c00000a492cd928 # dirich3  untested
 8511	0xc400000a499e5b28 # dirich3  untested
+8521	0x9d00000a499e5828 # dirich3  untested
+8531	0xb300000a49b7d228 # dirich3  untested
+8541	0xe900000a49e18e28 # dirich3  untested
+8551	0x4300000a499e4f28 # dirich3  untested
+8561	0x0a00000a49936128 # dirich3  untested
+8571	0xb300000a4988d728 # dirich3  untested
+8581	0x9500000a4988cb28 # dirich3  untested
+8591	0xb500000a4988e228 # dirich3  untested
+8601	0xa000000a498f9628 # dirich3  untested
+8611	0x7a00000a498fa728 # dirich3  untested
+8621	0x6b00000a498fba28 # dirich3  untested
+8631	0xec00000a498fae28 # dirich3  untested
+8641	0xea00000a498f9b28 # dirich3  untested
+8651	# failed:  OTP is set
+8661	# configuration error
+8671	# failed: OTP is set
+8681	0xee00000a49674428 # dirich3  untested
+8691	0x4600000a49678528 # dirich3  untested
+8701	0xda00000a4966ca28 # dirich3  untested
+8711	0xaf00000a498f6a28 # dirich3  untested
+8721	0x8b00000a49e1e628 # dirich3  untested
+8731	0x2b00000a491c6628 # dirich3  untested
+8741	0x8b00000a498f6528 # dirich3  untested
+8751	0x5500000a49e1f128 # dirich3  untested
+8761	0x9200000a49828128 # dirich3  untested
+8771	# configuration fail
+8781	0x5500000a49561028 # dirich3  untested
+8791	0xa500000a49828028 # dirich3  untested
 8801	0xd600000a499dfb28 # dirich3  untested
 8811	0x8a00000a48f86328 # dirich3  untested
 8821	0x5200000a48abf528 # dirich3  untested
@@ -855,6 +883,9 @@
 8871	0x2600000a49965f28 # dirich3  untested
 8881	0xd100000a498ff028 # dirich3  untested
 8891	0xea00000a494eb828 # dirich3  untested
+8901	0xb000000a48c91628 # dirich3  untested
+8911	#configuration set up fail
+8921	0x7900000a48b06c28 # dirich3  untested
 8931	0xd100000a488fa828 # dirich3  untested
 8941	0x7300000a48b9e228 # dirich3  untested
 8951	0xe000000a488f9c28 # dirich3  untested
