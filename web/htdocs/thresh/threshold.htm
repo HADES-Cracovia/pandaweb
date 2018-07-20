@@ -82,7 +82,7 @@ function update(bar,scale) {
     command = total.toString(16);
     }
   else if(type == 2) {
-    command = (0x8 << 20) + ((chan%16+16) << 24) + (total); 
+    command = (0x8 << 20) + ((chan%16) << 24) + (total); 
     command = command.toString(16);
     }
   else if(type == 9) {
@@ -190,7 +190,7 @@ function setValues() {
     getdata(cmdstring,anaret2);
     }
   else if(type == 2) {
-    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+((((chan%16+16) << 24)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<(Math.floor(chan/16)))+"-1";
+    cmdstring = "../commands/spiexec.pl?"+board+"-d400-"+((((chan%16) << 24)).toString(16))+"-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-"+(1<<(Math.floor(chan/16)))+"-1";
     document.getElementById("timeget").style.background = "#a55";
     getdata(cmdstring,anaret2);
     }

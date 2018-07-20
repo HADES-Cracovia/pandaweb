@@ -29,7 +29,7 @@ $split = 1 unless $split;
 if($amount != 1) {
   if ($split <= 1) {
     my $hits = trb_register_read_mem($board,$addr,0,$amount);
-    foreach my $b (sort keys %$hits) {
+    foreach my $b (sort {$a <=> $b} keys %$hits) {
       printf ("%04x",$b);
       for(my $c =0; $c < $amount; $c++) {
         printf(" %d",$hits->{$b}->[$c]);
@@ -49,7 +49,7 @@ if($amount != 1) {
 #      print Dumper  %{$hits[$i]};
 #       print ($board." ".($addr+$i*$chunk)." ".($amount/$split)."\n");
       } while(++$i < $split);
-    foreach my $b (sort keys %{$hits[0]}) {
+    foreach my $b (sort {$a <=> $b} keys %{$hits[0]}) {
       printf ("%04x",$b);
       for(my $i = 0; $i < scalar @hits; $i++) {
         for(my $c =0; $c < $chunk; $c++) {
@@ -64,7 +64,7 @@ if($amount != 1) {
   }
 else {
   my $hits = trb_register_read($board,$addr);
-  foreach my $b (sort keys %$hits) {
+  foreach my $b (sort {$a <=> $b} keys %$hits) {
     printf ("%04x",$b);
     printf(" %d",$hits->{$b});
     print "&";

@@ -216,7 +216,7 @@
 2151	0x4c00000a48e3ca28 # dirich3  untested
 2161	0x3f00000a48dda328 # dirich3  untested
 2171	0xf700000a48dd1928 # dirich3  untested
-2181	0cd900000a48dd4928 # dirich3  untested
+2181	0xd900000a48dd4928 # dirich3  untested
 2191	0x8e00000a49251b28 # dirich3  untested
 2201	0xd200000a49078228 # dirich3  untested
 2211	0xf800000a49b47128 # dirich3  untested
@@ -811,7 +811,7 @@
 8151	0x6500000a49072728 # dirich3  untested
 8161	0xc400000a48f3ab28 # dirich3  untested
 8171	0xd000000a4945b528 # dirich3  untested
-8181	0cc800000a494ae628 # dirich3  untested
+8181	0xc800000a494ae628 # dirich3  untested
 8191	0xec00000a494ae928 # dirich3  untested
 8201	0x5000000a49e61d28 # dirich3  untested
 8211	0x4600000a492a2628 # dirich3  untested
@@ -957,7 +957,7 @@
 10971	0x1f00000a49b35128 # dirich3  untested
 10981	0x9800000a49b34528 # dirich3  untested
 10991	0xfd00000a49854928 # dirich3  untested
-11001	0c6700000a49183a28 # dirich3  untested
+11001	0x6700000a49183a28 # dirich3  untested
 11011	0xe200000a49183d28 # dirich3  untested
 11021	0xbd00000a49178c28 # dirich3  untested
 11031	0x7000000a49179528 # dirich3  untested

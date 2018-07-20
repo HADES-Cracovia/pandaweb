@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+my $path = '';
 if ($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i) {
     print "HTTP/1.0 200 OK\n";
     print "Content-type: text/html\r\n\r\n";
@@ -8,6 +9,7 @@ else {
     use lib '..';
     use if (!($ENV{'SERVER_SOFTWARE'} =~ /HTTPi/i)), apacheEnv;
     print "Content-type: text/html\n\n";
+    $path = "/home/hadaq/trbsoft/daqtools/base/";
 }
 
 use CGI ':standard';
@@ -302,14 +304,15 @@ sub GetSerial {
   if($type == 0x95) { $file = 'trb3sc'; }
   if($type == 0x96) { $file = 'dirich'; }
   if($type == 0x97) { $file = 'dirich_concentrator'; }
+  if($type == 0x23 && -e "/home/hadaq/trbsoft/daq/mdc/serials_oep.db"  ) {$file = "/home/hadaq/trbsoft/daq/mdc/serials_oep.db";}
   return '-' unless $file;
   
-  $file = "../base/serials_$file.db";
+  $file = $path."../base/serials_$file.db" if $type >= 0x30;
   my $c = sprintf("grep %08x $file",$id);
   my $o = qx($c);
 
   my @p = split(' ',$o);
-  $p[0] = substr($p[0],0,-1);
+  $p[0] = substr($p[0],0,-1) if $type >= 0x30;
   $p[0] =~ s/^0+//;
   return $p[0];
   }

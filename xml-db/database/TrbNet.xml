@@ -85,7 +85,7 @@
       <field name="RetransmitRecv" start="16" bits="8" format="integer" invertflag="true" rate="1" >
         <description>Number of retransmit requests received</description>
       </field>
-      <field name="RetransmitSent" start="16" bits="8" format="integer" invertflag="true" rate="1" >
+      <field name="RetransmitSent" start="24" bits="8" format="integer" invertflag="true" rate="1" >
         <description>Number of retransmit requests sent</description>
       </field>
     </register>
