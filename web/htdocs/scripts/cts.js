@@ -147,7 +147,7 @@ var CTS = new Class({
    writeRegisters: function(values) {
       var arrValues = [];
       Object.each(values, function(v,r) {arrValues.push(r); arrValues.push(v)});
-      var myUrl = 'cts.pl?write,' + encodeURIComponent( arrValues.join(',') );
+      var myUrl = '/cts/cts.pl?write,' + encodeURIComponent( arrValues.join(',') );
       (new Request.JSON({
          url: myUrl,
          onSuccess: function(json, text) {

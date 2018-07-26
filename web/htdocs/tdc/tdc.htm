@@ -137,21 +137,16 @@ function update(data) {
     o += "<tr><th>"+(i-1+0xc000).toString(16)+"<th>"+(i-1);
     for(j=0;j<b.length-1;j++) {
       if(isShown[j]) {
-        enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
-//        if(showhitrate == 0 && enabled == 0 && i != 1) 
-//          val = 0x0;
-//        else {
-          if(differences) {
-            val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
-            if (val < 0) {
-              val += 0x80000000;
-              }
+        if(differences) {
+          val = (c[j][i] & 0x7FFFFFFF)- ((oldvalues[j][i]||0) & 0x7FFFFFFF);
+          if (val < 0) {
+            val += 0x80000000;
             }
-          else {
-            val = c[j][i] & 0x7FFFFFFF;
-            }
-//          }
-        if(showstatus && enabled)
+          }
+        else {
+          val = c[j][i] & 0x7FFFFFFF;
+          }
+        if(showstatus)
           o += "<td title="+tooltipstatus+" class=\""+((c[j][i] &0x80000000)?"over":"under")+"\">";
         else
           o += "<td>";
