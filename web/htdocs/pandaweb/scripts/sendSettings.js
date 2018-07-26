@@ -284,7 +284,7 @@ return binaryString;
 }
 
 
-function getdata(command,callback) {
+/*function getdata(command,callback) {
   var xmlhttp = null;
   var cb = null;
   xmlhttp=new XMLHttpRequest();
@@ -299,7 +299,7 @@ function getdata(command,callback) {
   xmlhttp.open("GET",command,true);
   xmlhttp.send(null);
   }
-  
+*/
 function resetAsic(){
  var cmdWordToSend = "";
   for (var xx = 1 ; xx<= numberOfTdc; xx++) {//tdc iteration

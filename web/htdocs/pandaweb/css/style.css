@@ -189,12 +189,11 @@ input {
     display: block;
 }
 .submit{
-    background-color: #222;
+    _background-color: #222;
     padding: 0 5px;
     height: 24px;
     text-decoration: none;
     color: #fff;
-    float: right;
     border: 0;
     outline: none;
 }

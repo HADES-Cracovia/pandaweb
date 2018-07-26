@@ -1,7 +1,7 @@
 function panel()
 {
     this.amount;
-    this.a_cable_conn = 4;
+    this.a_cable_conn = 3;
     this.a_asic = 2;
     this.create_panel();
     this.params_board = '';
@@ -44,7 +44,7 @@ panel.prototype.create_plyta = function(i) {
     this.n_plyta = i;
     var name = 'TDC ' + tdcAddr[i-1];//'Plyta '+i;
     //html = '<div class="c_plyta"><div class="section-title">Plyta-'+this.n_plyta+'</div>';
-    html = '<div class="c_plyta"><div class="section-title">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
+    html = '<div class="col-sm-12 card"><div class="card-header">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
     html += this.create_cable_conns();
     html += '</div>';
     return html;
@@ -52,11 +52,10 @@ panel.prototype.create_plyta = function(i) {
 
 panel.prototype.create_cable_conns = function() {
     var html = '';
-    html += '<div class="c_group">';
+    html += '<div class="card-body">';
     for (var i= 1; i <= this.a_cable_conn; i++) {
         html += this.create_cable_conn(i);
     }
-    html += '<div class="clear"></div>';
     html += '</div>';
     return html;
 };
@@ -64,7 +63,7 @@ panel.prototype.create_cable_conns = function() {
 panel.prototype.create_cable_conn = function(i) {
     this.n_cable_conn = i;
     var html = '';
-    html += '<div class="fleft c_conn">';
+    html += '<div class="col-sm-4">';
     html += '<label class="checkbox-box">'+this.get_input('cable');
     html += '<span class="label-span">Cable conn-'+this.n_cable_conn+'</span></label>';
     html += this.create_asics();
@@ -98,11 +97,11 @@ panel.prototype.create_asics = function() {
 panel.prototype.create_asic = function(i) {
     this.n_asic = i;
     var html = '';
-    html += '<span class="c_asic">'+this.get_input('asic');
+    html += '<span class="col-sm-6">'+this.get_input('asic');
     html += 'Asic-'+this.n_asic+'</span>';
 
     if (this.sep %2 == 0) {
-        this.params_board += '<div class="table-params-row fleft">';
+        this.params_board += '<div class="row">';
     }
     this.params_board += this.create_board_params();
     if (this.sep %2 != 0) {
@@ -119,7 +118,7 @@ panel.prototype.create_board_params = function() {
     var asic = 'asic'+id;
     
     this.temp_id = this.n_plyta+this.n_cable_conn+this.n_asic;
-    html = '<div id="table_asic_'+id+'" class="conf" style="'+(this.checkAll ? '' : 'display:none')+'">';
+    html = '<div id="table_asic_'+id+'" class="conf col-ms-6" style="'+(this.checkAll ? '' : 'display:none')+'">';
     html += '<table class="configuration_tabel">';
     html += '<tr><td colspan="3" class="table_title"><b>TDC-'+tdcAddr[this.n_plyta-1]+' Cable-'+this.n_cable_conn+' Asic-'+this.n_asic+'</b></td></tr>';
     html += '<tr><td>Amplification  [mV/fC] </td><td colspan="2"><select id="AMPLI_'+asic+'" name="AMPLI_'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>0.67</option><option>1</option><option>2</option><option>4</option></select></td></tr>';
@@ -129,18 +128,18 @@ panel.prototype.create_board_params = function() {
     html += '<tr><td>TC2C<sub>2-0</sub> [pF]</td><td colspan="2"><select id="TC2C_P'+asic+'" name="TC2C_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>1.65</option><option>1.5</option><option>1.35</option><option>1.2</option><option>1.05</option><option>0.9</option><option>0.75</option><option>0.6</option></select></td></tr>';
     html += '<tr><td>TC2R<sub>2-0</sub> [k&#937]</td><td colspan="2"><select id="TC2R_P'+asic+'" name="id="TC2R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>26</option><option>23</option><option>20</option><option>17</option><option>14</option><option>11</option><option>8</option><option>5</option></select></td></tr>';
     html += '<tr class="separator"><td colspan="3">&nbsp</td></tr>';
-    html += '<tr><td>Threshold (Baseline divide Baseline + 256 mV)</td>';
+    html += '<tr><td>Threshold</td>';
     html += '<td><input id="bar'+id+'0" name="b'+id+'0" onchange="update(jQuery(this), value)" type="range" min="0" max="254" step="1" value="0"></td>';
-    html += '<td><output class="w-10" for="bar'+id+'0" id="bar'+id+'0value">0</output></td></tr>';
+    html += '<td><output class="w-10" for="bar'+id+'0" id="bar'+id+'0value">0</output> <span>mV</span></td></tr>';
            
-    html += '<tr><td>Base line channel 1</td><td><input id="bar'+id+'1" name ="b'+id+'1" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output></td></tr>';
-    html += '<tr><td>Base line channel 2</td><td><input id="bar'+id+'2" name ="b'+id+'2" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output></td></tr>';
-    html += '<tr><td>Base line channel 3</td><td><input id="bar'+id+'3" name ="b'+id+'3" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output></td></tr>';
-    html += '<tr><td>Base line channel 4</td><td><input id="bar'+id+'4" name ="b'+id+'4" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output></td></tr>';
-    html += '<tr><td>Base line channel 5</td><td><input id="bar'+id+'5" name ="b'+id+'5" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output></td></tr>';    
-    html += '<tr><td>Base line channel 6</td><td><input id="bar'+id+'6" name ="b'+id+'6" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output></td></tr>';
-    html += '<tr><td>Base line channel 7</td><td><input id="bar'+id+'7" name ="b'+id+'7" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output></td></tr>';     
-    html += '<tr><td>Base line channel 8</td><td><input id="bar'+id+'8" name ="b'+id+'8" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="1" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output></td></tr>';
+    html += '<tr><td>Base line channel 1</td><td><input id="bar'+id+'1" name ="b'+id+'1" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 2</td><td><input id="bar'+id+'2" name ="b'+id+'2" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 3</td><td><input id="bar'+id+'3" name ="b'+id+'3" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 4</td><td><input id="bar'+id+'4" name ="b'+id+'4" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 5</td><td><input id="bar'+id+'5" name ="b'+id+'5" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output> <span>mV</span></td></tr>';    
+    html += '<tr><td>Base line channel 6</td><td><input id="bar'+id+'6" name ="b'+id+'6" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 7</td><td><input id="bar'+id+'7" name ="b'+id+'7" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output> <span>mV</span></td></tr>';     
+    html += '<tr><td>Base line channel 8</td><td><input id="bar'+id+'8" name ="b'+id+'8" onchange="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output> <span>mV</span></td></tr>';
 
     html += '<tr><td id="total" colspan="3">&nbsp;</td></tr>';
     html += '<tr><td id="cmd" colspan="3">&nbsp;</td></tr>';
@@ -183,12 +182,9 @@ function update(handler, value) {
         form.temp_value[asicNum]["bar_"+bar] = value;
         var applyToAll = jQuery("#checkbox2").prop("checked");
         if (applyToAll && (form.applyToAllId == asicNum)) {
-            console.log("Updated to all");
             setToAll(bar, value);
         }
     }, 250) );
-    console.log('data updated');
-    console.log(form.temp_value);
 }
 
 function setToAll(barId, value) {
@@ -232,8 +228,6 @@ panel.prototype.add_form_value = function(id) {
    temp_id = id;
    var temp_value = this.get_form_value(temp_id);
    form.temp_value[temp_id] = temp_value;  
-   console.log("add_form_value");
-   console.log(form.temp_value);
 };
 
 panel.prototype.del_form_value = function(id) {
@@ -256,9 +250,10 @@ function createPanel() {
 }
 var count_scrol = 0;
 $(document).ready(function(){
-    $( document ).on( 'click', '.input_cable_conn', function () { // Cable conn
+    $( document ).on( 'change', '.input_cable_conn', function () { // Cable conn
         var _this = $(this);
         var val = _this.val();
+
         if(_this.prop( "checked" )) {
             _this.parent().parent().find('.row-asic').show();
             var asic1 = val+'1';
@@ -274,7 +269,7 @@ $(document).ready(function(){
         }
     });
     
-    $(document).on('click', '.asic-table', function() { // Asic
+    $(document).on('change', '.asic-table', function() { // Asic
         var _this = $(this);
         var id = _this.prop('id');
         if(_this.prop( "checked" )) {
@@ -286,7 +281,7 @@ $(document).ready(function(){
         }
     });
 
-    $(document).on('click', '#checkbox1', function() {
+    $(document).on('change', '#checkbox1', function() {
         var _this = $(this);
         var hide = true;
         if(_this.prop( "checked" )) {

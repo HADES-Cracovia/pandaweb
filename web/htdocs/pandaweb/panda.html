@@ -19,78 +19,83 @@
     </script>
     <script src="scripts/FileSaver.min.js" type="text/javascript">
     </script>
+    <script src="scripts/trbnet_loader.js" type="text/javascript">
+    </script>
+    <script src="../tools/scripts.js" type="text/javascript">
+    </script>
     <!--<script type="application/ecmascript" src="FileSaver.js"></script>-->
     <title>
         Threshold settings
     </title>
     </head>
-    <div class="content">
+    <body>
+    <div class="content container">
         <h2 class="header">
             Threshold Settings 
             <sub>
-                ver 3.1
+                ver 3.2
             </sub>
         </h2>
-        <form acion="" id="form_board">
+        <div id="form_board">
             <fieldset>
-                <table class="form">
+                <table class="form table">
                     <tr>
-                        <th colspan="8" class="section-title">
+                        <th colspan="5" class="col-md-12 section-title">
                             Configuration
                         </th>
                     </tr>
                     <tr>
-                        <td width="6%">
+                        <td class="col-md-1">
                             TDC addr:
                         </td>
-                        <td width="6%" style="padding:0 20px 0 5px;">
+                        <td class="col-md-5">
                             <input type="text" id="tdcAddrForm" value="e000,e001" tabindex="1">
                         </td>
-                        <td width="12%" style="padding:0 5px 0 20px;">
+                        <td class="col-md-1">
                             Configuration file:
                         </td>
-                        <td width="6%">
+                        <td class="col-md-5">
                             <input type="file" id="fileinput" value="load">
-                        </td>
-                        <td width="20%">
                         </td>
                     </tr>
                     <tr>
                         <td>
                             Log console:
                         </td>
-                        <td style="padding:0 20px 0 5px;">
+                        <td colspan="2">
                             <textarea name="log1" id="log1" cols="40" rows="5" readonly value=""></textarea>
                         </td>
+                        <td>
+                            <button type="button" onClick="javascript:document.getElementById('log1').value = ''" value="OK" class="submit btn btn-warning">
+                                clear
+                           </button>
+                       </td>
                     </tr>
                     <tr>
                         <td>
                         </td>
-                        <td style="padding:0 20px 0 5px;">
-                            <button type="button" onClick="createPanel()" value="OK" class="submit">
+                        <td>
+                           <button type="button" onClick="loadSettingsFromTrbnet()" value="OK" class="submit btn btn-info">
+                                load from TrbNet
+                           </button>
+                           <button type="button" onClick="createPanel()" value="OK" class="submit btn btn-info">
                                 create
                             </button>
-                        </td>
-                        <td>
-                            <button type="button" onClick="saveSettings()" value="OK" class="submit">
+                            <button type="button" onClick="saveSettings()" value="OK" class="submit btn btn-success">
                                 save settings as
                             </button>
-                        </td>
-                        <td style="padding:0 200px 0 5px;">
-                            <button type="button" onClick="resetAsic()" value="OK" class="submit">
+                            <button type="button" onClick="resetAsic()" value="OK" class="submit btn btn-danger">
                                 Reset
                             </button>
                         </td>
                         <td>
-                            <button type="button" onClick="preSend()" value="OK" class="submit">
+                            <button type="button" onClick="preSend()" value="OK" class="submit btn btn-success">
                                 <small>send settings to ASICs</small>
                             </button>
                         </td>
                         <td class="select-all">
                             <input type="checkbox" name="option1" id="checkbox1" value="checkAll"onclick="selectAll()">
                             Select all
-                        </td>
-                        <td class="select-all">
                             <input type="checkbox" name="option2" id="checkbox2" value="applyToAll">
                             Apply to all
                         </td>
@@ -98,7 +103,7 @@
                     <tr>
                         <td>
                         </td>
-                        <td>
+                        <td colspan="4">
                             <div id="time_div">
                             </div>
                         </td>
@@ -113,7 +118,7 @@
                 <div id="params">
                 </div>
             </fieldset>
-        </form>
+        </div>
     </div>
     
 <!-- Modal - pop up window with progress bar -->
