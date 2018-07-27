@@ -188,7 +188,7 @@ function converter(index, word_length){
     return binaryString;
 }
 
-//this function divides number by 2 and converts its decimal value saved in string 
+//this function divides number by 2 and converts its decimal value saved in string
 // returns its binary form stored in bits which qty. is indicated by bitNum
 function divConvertToBinary(n, bitNum) {
     var binaryString;
@@ -213,7 +213,7 @@ function convertToBinary(input, bitNum) {
         for (var j=0; j<upperLimit; j++) {
             binaryString = "0" + binaryString;
         }
-    } 
+    }
     return binaryString;
 }
 

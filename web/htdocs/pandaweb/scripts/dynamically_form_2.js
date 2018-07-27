@@ -313,4 +313,13 @@ $(document).ready(function(){
     });
 });
 
-// form.temp_value zawiera zapisan� tablic� z ustawieniami, suwaki s� zapisywane tam dopiero po przesuni�ciu konkretnego suwaka.
+function enable_card(id, en = true) {
+    $('#cable_conn_'+id).attr('checked', en);
+    $('#cable_conn_'+id).change();
+}
+
+function enable_asic(id, en = true) {
+    enable_card(id.substring(0,2), en);
+    $('#asic_'+id).attr('checked', en);
+    $('#asic_'+id).change();
+}
