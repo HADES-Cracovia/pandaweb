@@ -1,167 +1,112 @@
 <!-- comment -->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link href="css/style.css" rel="stylesheet" type="text/css" />
-    <script src="scripts/jquery-1.11.1.min.js">
-    </script>
-    <script src="scripts/bootstrap.min.js">
-    </script>
-    <!--<script type="text/javascript" src="./../scripts/scripts.js"></script>-->
-    <script src="scripts/dynamically_form_2.js" type="text/javascript">
-    </script>
-    <script src="scripts/config_scripts.js" type="text/javascript">
-    </script>
-    <script src="scripts/sendSettings.js" type="text/javascript">
-    </script>
-    <script src="scripts/FileSaver.js" type="text/javascript">
-    </script>
-    <script src="scripts/FileSaver.min.js" type="text/javascript">
-    </script>
-    <script src="scripts/trbnet_loader.js" type="text/javascript">
-    </script>
-    <script src="../tools/scripts.js" type="text/javascript">
-    </script>
-    <!--<script type="application/ecmascript" src="FileSaver.js"></script>-->
-    <title>
-        Threshold settings
-    </title>
-    </head>
-    <body>
-    <div class="content container">
-        <h2 class="header">
-            Threshold Settings 
-            <sub>
-                ver 3.2
-            </sub>
-        </h2>
-        <div id="form_board">
-            <fieldset>
-                <table class="form table">
-                    <tr>
-                        <th colspan="5" class="col-md-12 section-title">
-                            Configuration
-                        </th>
-                    </tr>
-                    <tr>
-                        <td class="col-md-1">
-                            TDC addr:
-                        </td>
-                        <td class="col-md-5">
-                            <input type="text" id="tdcAddrForm" value="e000,e001" tabindex="1">
-                        </td>
-                        <td class="col-md-1">
-                            Configuration file:
-                        </td>
-                        <td class="col-md-5">
-                            <input type="file" id="fileinput" value="load">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Log console:
-                        </td>
-                        <td colspan="2">
-                            <textarea name="log1" id="log1" cols="40" rows="5" readonly value=""></textarea>
-                        </td>
-                        <td>
-                            <button type="button" onClick="javascript:document.getElementById('log1').value = ''" value="OK" class="submit btn btn-warning">
-                                clear
-                           </button>
-                       </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        </td>
-                        <td>
-                           <button type="button" onClick="loadSettingsFromTrbnet()" value="OK" class="submit btn btn-info">
-                                load from TrbNet
-                           </button>
-                           <button type="button" onClick="createPanel()" value="OK" class="submit btn btn-info">
-                                create
-                            </button>
-                            <button type="button" onClick="saveSettings()" value="OK" class="submit btn btn-success">
-                                save settings as
-                            </button>
-                            <button type="button" onClick="resetAsic()" value="OK" class="submit btn btn-danger">
-                                Reset
-                            </button>
-                        </td>
-                        <td>
-                            <button type="button" onClick="preSend()" value="OK" class="submit btn btn-success">
-                                <small>send settings to ASICs</small>
-                            </button>
-                        </td>
-                        <td class="select-all">
-                            <input type="checkbox" name="option1" id="checkbox1" value="checkAll" onclick="selectAll()">
-                            Select all
-                            <input type="checkbox" name="option2" id="checkbox2" value="applyToAll">
-                            Apply to all
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        </td>
-                        <td colspan="4">
-                            <div id="time_div">
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </fieldset>
-            <fieldset>
-                <div id="board_panel" style="display:none">
-                </div>
-            </fieldset>
-            <fieldset>
-                <div id="params">
-                </div>
-            </fieldset>
-        </div>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link href="css/style.css" rel="stylesheet" type="text/css" />
+  <script src="scripts/jquery-1.11.3.min.js"></script>
+  <script src="scripts/bootstrap.min.js"></script>
+  <script src="scripts/dynamically_form_2.js" type="text/javascript"></script>
+  <script src="scripts/config_scripts.js" type="text/javascript"></script>
+  <script src="scripts/sendSettings.js" type="text/javascript"></script>
+  <script src="scripts/FileSaver.js" type="text/javascript"></script>
+  <script src="scripts/FileSaver.min.js" type="text/javascript"></script>
+  <script src="scripts/trbnet_loader.js" type="text/javascript"></script>
+  <script src="../tools/scripts.js" type="text/javascript"></script>
+  <title>Pasttrec - Threshold settings</title>
+</head>
+<body>
+  <div class="content container">
+    <h2 class="header">Threshold Settings<sub>ver 4.0</sub></h2>
+    <div id="form_board">
+      <fieldset>
+        <table class="form table">
+          <tr>
+            <th colspan="2" class="col-md-9 section-title">Configuration</th>
+            <th colspan="2" class="col-md-1">Log console</td>
+            <th rowspan="4" class="col-md-2"><textarea name="log1" id="log1" cols="25" rows="9" readonly value=""></textarea></td>
+          </tr>
+          <tr>
+            <td class="col-md-2">TDC addr:</td>
+            <td><input type="text" id="tdcAddrForm" value="e000,e001" tabindex="1"></td>
+            <td>
+              <button type="button" onClick="javascript:document.getElementById('log1').value = ''" value="OK" class="btn btn-sm btn-warning">
+                Clear</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Configuration file:</td>
+            <td colspan="2">
+              <div class="form-check form-check-inline">
+                <input type="file" id="fileinput" value="load">
+                <span style="width: 20pt;"></span>
+                <button type="button" onClick="saveSettings()" value="OK" class="btn btn-sm btn-primary">
+                  Save settings as</button>
+              </form>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="3">
+              <div class="form-check form-check-inline">
+                <button type="button" onClick="loadSettingsFromTrbnet()" value="OK" class="btn btn-sm btn-info">
+                  Load from TrbNet</button>
+                <span style="width: 5pt;"></span>
+                <button type="button" onClick="createPanel()" value="OK" class="btn btn-sm btn-info">
+                  Create</button>
+                <span style="width: 5pt;"></span>
+                <button type="button" onClick="resetAsic()" value="OK" class="btn btn-sm btn-danger">
+                  Reset</button>
+                <span style="width: 5pt;"></span>
+                <button type="button" onClick="preSend()" value="OK" class="btn btn-sm btn-success">
+                  Send settings to ASICs</button>
+                <span style="width: 20pt;"></span>
+                <input class="form-check-input" type="checkbox" name="option1" id="checkbox1" value="checkAll" onclick="selectAll()" />
+                <label class="form-check-label" for="checkbox1">Select all</label>
+                <span style="width: 15pt;"></span>
+                <input class="form-check-input" type="checkbox" name="option2" id="checkbox2" value="applyToAll" />
+                <label class="form-check-label" for="checkbox2">Apply to all</label>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+      <fieldset>
+        <div id="board_panel" style="display:none"></div>
+      </fieldset>
+      <fieldset>
+        <div id="params"></div>
+      </fieldset>
     </div>
-    
-<!-- Modal - pop up window with progress bar -->
+  </div>
+
+  <!-- Modal - pop up window with progress bar -->
   <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog">
-    
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
+          <h5 class="modal-title">PASTTREC configuration progress</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">PASTTREC configuration in progress</h4>
         </div>
         <div class="modal-body">
-          <p>Some text in the modal.</p>
+          <div class="progress">
+            <div id="progress-bar" class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" width="100%">
+              Wait for finish
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button id="js-button-close" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
-      
     </div>
-  </div>    
+  </div>
   <button type="button" id="js-button-open" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" style="display:none">Open Modal</button>
-    
-    <script>
-        document.getElementById('fileinput').addEventListener('change', loadConfigurationFile, false);
 
-        function run_perl() {
-            var XMLHttp;
-            if (navigator.appName == "Microsoft Internet Explorer") {
-                XMLHttp = new ActiveXObject("Microsoft.XMLHTTP");
-            } else {
-                XMLHttp = new XMLHttpRequest();
-            }
-            XMLHttp.open("GET", "cgi-bin/simple_ajax.pl", true);
-            XMLHttp.onreadystatechange = function() {
-                if (XMLHttp.readyState == 4) {
-                    document.getElementById('time_div').innerHTML = XMLHttp.responseText;
-                }
-            }
-            XMLHttp.send(null);
-        }
-    </script>
-    </body>
-
+  <script>
+  document.getElementById('fileinput').addEventListener('change', loadConfigurationFile, false);
+  </script>
+</body>
 </html>

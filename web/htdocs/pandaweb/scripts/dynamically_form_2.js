@@ -44,7 +44,7 @@ panel.prototype.create_plyta = function(i) {
     this.n_plyta = i;
     var name = 'TDC ' + tdcAddr[i-1];//'Plyta '+i;
     //html = '<div class="c_plyta"><div class="section-title">Plyta-'+this.n_plyta+'</div>';
-    html = '<div class="col-sm-12 card"><div class="card-header">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
+    html = '<div class="c_plyta"><div class="section-title">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
     html += this.create_cable_conns();
     html += '</div>';
     return html;
@@ -52,23 +52,25 @@ panel.prototype.create_plyta = function(i) {
 
 panel.prototype.create_cable_conns = function() {
     var html = '';
-    html += '<div class="card-body">';
+    html += '<form><div class="row">';
     for (var i= 1; i <= this.a_cable_conn; i++) {
+        html += '<div class="col-sm-4">';
         html += this.create_cable_conn(i);
+        html += '</div>';
     }
-    html += '</div>';
+    html += '</div></form>';
     return html;
 };
 
 panel.prototype.create_cable_conn = function(i) {
     this.n_cable_conn = i;
     var html = '';
-    html += '<div class="col-sm-4">';
-    html += '<label class="checkbox-box">'+this.get_input('cable');
-    html += '<span class="label-span">Cable conn-'+this.n_cable_conn+'</span></label>';
+    html += '<div class="row"><div class="col-3">';
+    html += this.get_input('cable');
+    html += '</div><div class="col-9">';
     html += this.create_asics();
+    html += '</div></div>';
 
-    html += '</div>';
     return html;
 };
 panel.prototype.get_input = function(type) {
@@ -76,29 +78,35 @@ panel.prototype.get_input = function(type) {
     if (this.checkAll) {
         checked = 'checked';
     }
-    
+
+    var html = '<div class="form-check form-check-inline">';
     if (type == 'cable') {
-        return '<input type="checkbox" '+checked+' class="input_cable_conn" name="cable_conn_'+this.n_plyta+'" id="cable_conn_'+this.n_plyta+this.n_cable_conn+'" value="asic_'+this.n_plyta+''+this.n_cable_conn+'" class="input1">';
+        html += '<input type="checkbox" '+checked+' class="input_cable_conn form-check-input" name="cable_conn_'+this.n_plyta+'" id="cable_conn_'+this.n_plyta+this.n_cable_conn+'" value="asic_'+this.n_plyta+''+this.n_cable_conn+'" />';
+        html += '<label class="form-check-label" for="cable_conn_'+this.n_plyta+this.n_cable_conn+'">Cable-'+this.n_cable_conn+'</label></div>';
     }
     if (type == 'asic') {
-        return '<input type="checkbox" '+checked+' name="asic_'+this.n_plyta+''+this.n_cable_conn+'" id="asic_'+this.n_plyta+''+this.n_cable_conn+this.n_asic+'" class="input1 asic-table">';
+        html += '<input type="checkbox" '+checked+' class="asic-table form-check-input" name="asic_'+this.n_plyta+''+this.n_cable_conn+'" id="asic_'+this.n_plyta+''+this.n_cable_conn+this.n_asic+'" />';
+        html += '<label class="form-check-label" for="asic_'+this.n_plyta+''+this.n_cable_conn+'">Asic-'+this.n_asic+'</label></div>';
     }
+
+    return html;
 };
 panel.prototype.create_asics = function() {
     
     var html = '';
-    html += '<div class="row row-asic" style="'+(this.checkAll ? '' : 'display:none')+'">';
+    html += '<div class="row-asic row border-info" style="'+(this.checkAll ? '' : 'display:none')+'">';
     for (var i=1; i <= this.a_asic; i++) {
-       html += this.create_asic(i);
+       html += '<div class="col bg-light">' + this.create_asic(i) + '</div>';
     }
+    html += '<div class="col-2"></div>';
+
     html += '</div>';
     return html;
 };
 panel.prototype.create_asic = function(i) {
     this.n_asic = i;
     var html = '';
-    html += '<span class="col-sm-6">'+this.get_input('asic');
-    html += 'Asic-'+this.n_asic+'</span>';
+    html += this.get_input('asic');
 
     if (this.sep %2 == 0) {
         this.params_board += '<div class="row">';
@@ -255,7 +263,7 @@ $(document).ready(function(){
         var val = _this.val();
 
         if(_this.prop( "checked" )) {
-            _this.parent().parent().find('.row-asic').show();
+            _this.parent().parent().next().find('.row-asic').show();
             var asic1 = val+'1';
             var asic2 = val+'2';
             if ($('#'+asic1).prop("checked"))
@@ -263,7 +271,7 @@ $(document).ready(function(){
             if ($('#'+asic2).prop("checked"))
                 $('#table_'+asic2).show();
         } else {
-            _this.parent().parent().find('.row-asic').hide(); 
+            _this.parent().parent().next().find('.row-asic').hide();
             $('#table_'+val+'1').hide();
             $('#table_'+val+'2').hide();
         }

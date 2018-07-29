@@ -47,7 +47,7 @@ function prepareData(ignoreSelection) {
     var h = d.getHours();
     var m = d.getMinutes();
     var s = d.getSeconds();
-    textarea.value+= "DONE!=========time: "+ h + ":" + m + ":" + s + "\n\n";
+    textarea.value+= "EXPORT DONE! == time: "+ h + ":" + m + ":" + s + "\n\n";
     textarea.scrollTop = textarea.scrollHeight;
     return cmdWordToSendTable_local;
 }
@@ -62,18 +62,16 @@ function send() {
         dataReadyFlag = 1;
         //creating progress bar
         $( "#js-button-open" ).trigger( "click" );
-        jQuery('.modal-body').html(progress());
     }
 
     if( i_send < cmdWordToSendTable.length){
         getdata("./../commands/put.pl?"+cmdWordToSendTable[i_send],send_cb);
 
         var currentPercent = Number(((100 / cmdWordToSendTable.length)  * (i_send+1)).toFixed(1));
-            jQuery('#progress-bar-1').css('width', currentPercent + "%");
-            jQuery('#progress-bar-1').html(currentPercent+'% Complete (success)');
-        jQuery('.modal-footer').html(  (cmdWordToSendTable[i_send].replace('-',' ')).replace('-',' '));
+//         jQuery('#progress-bar').html(currentPercent+'% Complete');
+        jQuery('#progress-bar').css('width', currentPercent+'%').attr('aria-valuenow', currentPercent);
+        jQuery('.modal-footer').html((cmdWordToSendTable[i_send].replace('-',' ')).replace('-',' '));
         i_send++;
-
     }
 }
 
