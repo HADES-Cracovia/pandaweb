@@ -44,7 +44,7 @@ panel.prototype.create_plyta = function(i) {
     this.n_plyta = i;
     var name = 'TDC ' + tdcAddr[i-1];//'Plyta '+i;
     //html = '<div class="c_plyta"><div class="section-title">Plyta-'+this.n_plyta+'</div>';
-    html = '<div class="c_plyta"><div class="section-title">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
+    html = '<div class="c_plyta"><div class="section-title font-weight-bold">TDC-'+tdcAddr[this.n_plyta-1]+'</div>';
     html += this.create_cable_conns();
     html += '</div>';
     return html;
@@ -65,9 +65,9 @@ panel.prototype.create_cable_conns = function() {
 panel.prototype.create_cable_conn = function(i) {
     this.n_cable_conn = i;
     var html = '';
-    html += '<div class="row"><div class="col-3">';
+    html += '<div class="row"><div class="col-4">';
     html += this.get_input('cable');
-    html += '</div><div class="col-9">';
+    html += '</div><div class="col-8">';
     html += this.create_asics();
     html += '</div></div>';
 
@@ -128,7 +128,7 @@ panel.prototype.create_board_params = function() {
     this.temp_id = this.n_plyta+this.n_cable_conn+this.n_asic;
     html = '<div id="table_asic_'+id+'" class="conf col-ms-12" style="'+(this.checkAll ? '' : 'display:none')+'">';
     html += '<table class="configuration_tabel">';
-    html += '<tr><th colspan="4" class="table_title"><b>TDC-'+tdcAddr[this.n_plyta-1]+' Cable-'+this.n_cable_conn+' Asic-'+this.n_asic+'</b></th></tr>';
+    html += '<tr><th colspan="4" class="table-dark" style="padding-left: 5pt;"><b>TDC-'+tdcAddr[this.n_plyta-1]+' Cable-'+this.n_cable_conn+' Asic-'+this.n_asic+'</b></th></tr>';
     html += '<tr><td>Amplification  [mV/fC] </td><td><select id="AMPLI_'+asic+'" name="AMPLI_'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>0.67</option><option>1</option><option>2</option><option>4</option></select></td>';
 
     html += '<td>Peaking time [ns] </td><td><select id="PEAK_P'+asic+'" name="PEAK_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>35</option><option>20</option><option>15</option><option>10</option></select></td></tr>';
