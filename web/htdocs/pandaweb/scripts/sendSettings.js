@@ -40,7 +40,6 @@ function prepareData(ignoreSelection) {
             }
         }
     }
-    console.log('data parsed');
     //getting current hour and time so we now that settings were send and at what hour.
     var textarea = document.getElementById('log1');
     var d = new Date();

@@ -65,7 +65,7 @@ function no_data() {
     data_ready = true;
 }
 
-function loadSettingsFromTrbnet() {
+function preparePanels() {
     createPanel();
 
     jQuery("#board_panel").find(".input_cable_conn").each(function() {
@@ -77,7 +77,10 @@ function loadSettingsFromTrbnet() {
             $(this).attr("checked", true);
             $(this).change();
             });
+}
 
+function loadSettingsFromTrbnet() {
+    preparePanels();
     prepareDataLoad();
 };
 

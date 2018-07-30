@@ -4,6 +4,11 @@ var numberOfTdc = 2;
 function loadConfigurationFile(evt) {
     //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0];
+
+    if (f && endsWith(f['name'], '.json')) {
+        import_json(f);
+    }
+    else
     if (f) {
         var r = new FileReader();
         r.onload = function(e) {
@@ -135,7 +140,43 @@ function selectAll(){//Dagmara: zaznaczenie wszystkich cable conn i asic po wybr
 
 }
 
-function saveSettings(){
+Date.prototype.yyyymmdd_hhmmss = function() {
+    var mm = this.getMonth() + 1; // getMonth() is zero-based
+    var dd = this.getDate();
+
+    var HH = this.getHours();
+    var MM = this.getMinutes();
+    var SS = this.getSeconds();
+
+    return [this.getFullYear(), mm.toString().length===2 ? '' : '0', mm, dd.toString().length===2 ? '' : '0', dd, '_', HH.toString().length===2 ? '' : '0', HH, MM.toString().length===2 ? '' : '0', MM, SS.toString().length===2 ? '' : '0', SS].join(''); // padding
+};
+
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+function saveSettings() {
+    var date = new Date();
+    var nowString = date.yyyymmdd_hhmmss();
+
+    var do_json = false;
+
+    var fn = prompt("Define your file name (txt or json).", "ui_"+nowString+".json");
+    if (fn) {
+        if (endsWith(fn, '.json'))
+            do_json = true;
+    } else {
+        return;
+    }
+
+    if (do_json) {
+        var o = export_json();
+        var json_o = JSON.stringify(o, null, 2);
+        var blob_json = new Blob([json_o], {type: "text/plain;charset=utf-8"});
+        saveAs(blob_json, fn);
+        return;
+    }
+
     //we add whole configuration into one string table which is later saved
     var stringTable = ["CONFIGURATION FILE FOR PANDA FE\n","=============================================\n"];
     stringTable.push("Explanation: In this file consecutive settings for ASIC are saved. \"settings for TCA\" means settings for\n");
@@ -150,7 +191,7 @@ function saveSettings(){
     //adding information about TDC addresses values -take from text field
     stringTable.push(document.getElementById("tdcAddrForm").value+"\n");
     for (var xx = 1 ; xx<= numberOfTdc; xx++) {
-        for(var yy=1 ; yy <= 4 ; yy++){
+        for(var yy=1 ; yy <= 3 ; yy++){
             for (var zz=1; zz<=2 ; zz++ ) {
                 var currentId = ''+xx+yy+zz;
                 stringTable.push("settings for "+currentId+"\n");

@@ -177,6 +177,7 @@ input {
 .table_title{
     background: none repeat scroll 0 0 #333;
     color: #eef;
+    padding-left: 5pt;
 }
 .configuration_tabel td {
     padding: 2px 10px;
