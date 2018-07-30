@@ -134,12 +134,21 @@ input {
 .fright{
     float: right;
 }
-.row{
 
+#board_panel {
+  margin: -10px 10px 10px 10px;
+  padding: 5px 0px 5px 0px;
+  border-top: 1px solid gray;
+/*   border-bottom: 1px solid gray; */
 }
+
+#params {
+  margin: 0px 10px 0px 10px;
+}
+
 .conf{
-    float:left;
-    width:45%;
+/*     float:left; */
+    width: 50%;
 }
 .hide {
     display:none;
@@ -157,10 +166,12 @@ input {
     height:0px;
 }
 .configuration_tabel{
+    width: 95%;
+    margin: 0px auto;
     background: none repeat scroll 0 0 #f0f0f8;
     border: 1px solid #ccc;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding: 0;
 }
 .table_title{

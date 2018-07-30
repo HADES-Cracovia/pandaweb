@@ -126,32 +126,33 @@ panel.prototype.create_board_params = function() {
     var asic = 'asic'+id;
     
     this.temp_id = this.n_plyta+this.n_cable_conn+this.n_asic;
-    html = '<div id="table_asic_'+id+'" class="conf col-ms-6" style="'+(this.checkAll ? '' : 'display:none')+'">';
+    html = '<div id="table_asic_'+id+'" class="conf col-ms-12" style="'+(this.checkAll ? '' : 'display:none')+'">';
     html += '<table class="configuration_tabel">';
-    html += '<tr><td colspan="3" class="table_title"><b>TDC-'+tdcAddr[this.n_plyta-1]+' Cable-'+this.n_cable_conn+' Asic-'+this.n_asic+'</b></td></tr>';
-    html += '<tr><td>Amplification  [mV/fC] </td><td colspan="2"><select id="AMPLI_'+asic+'" name="AMPLI_'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>0.67</option><option>1</option><option>2</option><option>4</option></select></td></tr>';
-    html += '<tr><td>Peaking time [ns] </td><td colspan="2"><select id="PEAK_P'+asic+'" name="PEAK_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>35</option><option>20</option><option>15</option><option>10</option></select></td></tr>';
-    html += '<tr><td>TC1C<sub>2-0</sub> [pF]</td><td colspan="2"><select id="TC1C_P'+asic+'" name="TC1C_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>16.5</option><option>15</option><option>13.5</option><option>12</option><option>10.5</option><option>9</option><option>7.5</option><option>6</option></select></td></tr>';
-    html += '<tr><td>TC1R<sub>2-0</sub> [k&#937]</td><td colspan="2"><select id="TC1R_P'+asic+'" name="TC1R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>31</option><option>27</option><option>23</option><option>19</option><option>15</option><option>11</option><option>7</option><option>3</option></select></td></tr>';
-    html += '<tr><td>TC2C<sub>2-0</sub> [pF]</td><td colspan="2"><select id="TC2C_P'+asic+'" name="TC2C_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>1.65</option><option>1.5</option><option>1.35</option><option>1.2</option><option>1.05</option><option>0.9</option><option>0.75</option><option>0.6</option></select></td></tr>';
-    html += '<tr><td>TC2R<sub>2-0</sub> [k&#937]</td><td colspan="2"><select id="TC2R_P'+asic+'" name="id="TC2R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>26</option><option>23</option><option>20</option><option>17</option><option>14</option><option>11</option><option>8</option><option>5</option></select></td></tr>';
-    html += '<tr class="separator"><td colspan="3">&nbsp</td></tr>';
+    html += '<tr><th colspan="4" class="table_title"><b>TDC-'+tdcAddr[this.n_plyta-1]+' Cable-'+this.n_cable_conn+' Asic-'+this.n_asic+'</b></th></tr>';
+    html += '<tr><td>Amplification  [mV/fC] </td><td><select id="AMPLI_'+asic+'" name="AMPLI_'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>0.67</option><option>1</option><option>2</option><option>4</option></select></td>';
+
+    html += '<td>Peaking time [ns] </td><td><select id="PEAK_P'+asic+'" name="PEAK_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>35</option><option>20</option><option>15</option><option>10</option></select></td></tr>';
+
+    html += '<tr><td>TC1C<sub>2-0</sub> [pF]</td><td><select id="TC1C_P'+asic+'" name="TC1C_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>16.5</option><option>15</option><option>13.5</option><option>12</option><option>10.5</option><option>9</option><option>7.5</option><option>6</option></select></td>';
+    html += '<td>TC2C<sub>2-0</sub> [pF]</td><td><select id="TC2C_P'+asic+'" name="TC2C_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>1.65</option><option>1.5</option><option>1.35</option><option>1.2</option><option>1.05</option><option>0.9</option><option>0.75</option><option>0.6</option></select></td></tr>';
+
+    html += '<tr><td>TC1R<sub>2-0</sub> [k&#937]</td><td><select id="TC1R_P'+asic+'" name="TC1R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>31</option><option>27</option><option>23</option><option>19</option><option>15</option><option>11</option><option>7</option><option>3</option></select></td>';
+
+    html += '<td>TC2R<sub>2-0</sub> [k&#937]</td><td><select id="TC2R_P'+asic+'" name="id="TC2R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>26</option><option>23</option><option>20</option><option>17</option><option>14</option><option>11</option><option>8</option><option>5</option></select></td></tr>';
+
     html += '<tr><td>Threshold</td>';
-    html += '<td><input id="bar'+id+'0" name="b'+id+'0" oninput="update(jQuery(this), value)" type="range" min="0" max="254" step="1" value="0"></td>';
+    html += '<td colspan="2"><input id="bar'+id+'0" name="b'+id+'0" oninput="update(jQuery(this), value)" type="range" min="0" max="254" step="1" value="0"></td>';
     html += '<td><output class="w-10" for="bar'+id+'0" id="bar'+id+'0value">0</output> <span>mV</span></td></tr>';
 
-    html += '<tr><td>Base line channel 1</td><td><input id="bar'+id+'1" name ="b'+id+'1" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 2</td><td><input id="bar'+id+'2" name ="b'+id+'2" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 3</td><td><input id="bar'+id+'3" name ="b'+id+'3" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 4</td><td><input id="bar'+id+'4" name ="b'+id+'4" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 5</td><td><input id="bar'+id+'5" name ="b'+id+'5" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 6</td><td><input id="bar'+id+'6" name ="b'+id+'6" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 7</td><td><input id="bar'+id+'7" name ="b'+id+'7" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 8</td><td><input id="bar'+id+'8" name ="b'+id+'8" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 1</td><td colspan="2"><input id="bar'+id+'1" name ="b'+id+'1" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 2</td><td colspan="2"><input id="bar'+id+'2" name ="b'+id+'2" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 3</td><td colspan="2"><input id="bar'+id+'3" name ="b'+id+'3" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 4</td><td colspan="2"><input id="bar'+id+'4" name ="b'+id+'4" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 5</td><td colspan="2"><input id="bar'+id+'5" name ="b'+id+'5" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 6</td><td colspan="2"><input id="bar'+id+'6" name ="b'+id+'6" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 7</td><td colspan="2"><input id="bar'+id+'7" name ="b'+id+'7" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 8</td><td colspan="2"><input id="bar'+id+'8" name ="b'+id+'8" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output> <span>mV</span></td></tr>';
 
-    html += '<tr><td id="total" colspan="3">&nbsp;</td></tr>';
-    html += '<tr><td id="cmd" colspan="3">&nbsp;</td></tr>';
-    html += '<tr><td id="err" colspan="3">&nbsp;</td></tr>';    
     html += '</table>';
     html += '</div>';
     

@@ -140,8 +140,12 @@ function send_and_read(queue) {
         data_ready = false;
         getdata('../commands/get.pl?'+cmdWordToRead, read_and_update, queue);
 
-        var currentPercent = Number(((100 / ql)  * (ql - l + 2)).toFixed(1));
-        //jQuery('#progress-bar').html(currentPercent+'% Complete');
+        var currentPercent = calc_progress(ql - l + 2, ql);
+        if ((ql - l + 2) == 1)
+          jQuery('#progress-bar').html('Wait for finish');
+        else if (currentPercent == "100")
+          jQuery('#progress-bar').html('Finished');
+//         jQuery('#progress-bar').html(currentPercent+'% Complete');
         jQuery('#progress-bar').css('width', currentPercent+'%').attr('aria-valuenow', currentPercent);
         jQuery('.modal-footer').html((cmdWordToSend.replace('-',' ')).replace('-',' '));
     }

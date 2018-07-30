@@ -56,6 +56,9 @@ function send_cb() {
     send();
 }
 
+function calc_progress(current, total) {
+  return Number(((100 / total)  * current).toFixed(1));
+}
 function send() {
     if (dataReadyFlag == 0) {
         cmdWordToSendTable = prepareData(false);
@@ -67,7 +70,11 @@ function send() {
     if( i_send < cmdWordToSendTable.length){
         getdata("./../commands/put.pl?"+cmdWordToSendTable[i_send],send_cb);
 
-        var currentPercent = Number(((100 / cmdWordToSendTable.length)  * (i_send+1)).toFixed(1));
+        var currentPercent = calc_progress(i_send+1, cmdWordToSendTable.length);
+        if (i_send == 0)
+          jQuery('#progress-bar').html('Wait for finish');
+        else if (currentPercent == "100")
+          jQuery('#progress-bar').html('Finished');
 //         jQuery('#progress-bar').html(currentPercent+'% Complete');
         jQuery('#progress-bar').css('width', currentPercent+'%').attr('aria-valuenow', currentPercent);
         jQuery('.modal-footer').html((cmdWordToSendTable[i_send].replace('-',' ')).replace('-',' '));
