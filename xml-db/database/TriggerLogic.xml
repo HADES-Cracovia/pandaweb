@@ -1,0 +1,111 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<TrbNetEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="../schema/TrbNetEntity.xsd"
+              name="TriggerLogic"
+              address="e000"
+              >
+  <description> Test </description>
+  <group name="RegisterEntries" address="0000" purpose="config" mode="rw" >
+         
+    
+    
+    
+    
+    <register name="Enable" address="0000" >
+      <description>Enable the Channels</description>
+        <field name="Enable" start="0" bits="32" format="bitmask"  >
+          <description>Enable the first 32 Channels</description>
+        </field>
+    </register>
+    
+    <register name="Invert" address="0004" >
+      <description>Enable the Channels</description>
+        <field name="Invert" start="0" bits="32" format="bitmask"  >
+          <description>Enable the Inverter</description>
+        </field>
+    </register>
+    
+    <register name="Edgedetect" address="0008" >
+      <description>Enable the Channels</description>
+        <field name="Edgedetect" start="0" bits="32" format="bitmask"  >
+          <description>Enable Edgedetect</description>
+        </field>
+    </register>
+    
+    
+   <!--                                  DELAY                                                      --> 
+    <register name="DelayEnbl" address="000C" >
+      <description>Enable the Channels</description>
+      <field name="DelayReg" start="0" bits="32" format="bitmask"  >
+      <description>Enable the Delay</description>
+      </field>
+    </register>
+    
+    <register name="DelayTimes" address="0100" repeat="32">
+      <description>Delay time on Bits 7 downto 0</description>
+      <field name="DelayTimes" start="0" bits="32" format="unsigned"  >
+      <description>Set the Delay time</description>
+      </field>
+    </register> 
+    
+    
+    
+  <!--                                STRETCHER                                                      -->
+<!--     <register name="StretchEnbl" address="0010" > -->
+<!--       <description>Enable the Channels</description> -->
+<!--         <field name="StretchReg" start="0" bits="32" format="bitmask"  > -->
+<!--           <description>Enable the Stretcher</description> -->
+<!--         </field> -->
+<!--     </register> -->
+ 
+    <register name="StretchDetails" address="0200" repeat="32">
+      <description>Delay time on Bits 7 downto 0</description>
+        <field name="StretchType" start="16" bits="2" format="unsigned">                  <!-- ENUM! einsetzen statt unsigned -->
+          <description>Set the Stretchtype</description>
+        </field>
+        <field name="StretchTime" start="0" bits="10" format="unsigned">
+          <description>Set the Stretch time</description>
+        </field>
+    </register> 
+    
+    
+    
+    
+    <!--                                COINCIDENCE                                                      -->
+    <register name="CoinDetails" address="0300" repeat="32">
+      <description>Delay time on Bits 7 downto 0</description>
+        <field name="CoinChannel1" start="0" bits="8" format="unsigned"  >
+          <description>Choose the Channel for Coincidence</description>
+        </field>
+        <field name="Enable1" start="8" bits="1" format="bitmask"  >
+          <description>Enable the Coincidence</description>
+        </field>
+        <field name="Veto1" start="12" bits="1" format="bitmask"  >
+          <description>Is this a Veto Signal</description>
+        </field>
+        <field name="CoinChannel2" start="16" bits="8" format="unsigned"  >
+          <description>Choose the Channel for Coincidence</description>
+        </field>
+        <field name="Enable2" start="24" bits="1" format="bitmask"  >
+          <description>Enable the Coincidence</description>
+        </field>
+        <field name="Veto2" start="28" bits="1" format="bitmask"  >
+          <description>Is this a Veto Signal</description>
+        </field>
+    </register> 
+    
+<!--                                MERGE                                                      -->
+    <register name="Merge" address="0018" repeat="8">
+      <description>Choose the Channels to be merged</description>
+      <field name="MergeOutputs" start="0" bits="32" format="bitmask"  >
+          <description>Enable the Merges</description>
+        </field>
+      
+      
+    </register>  
+      
+  </group>
+    
+  
+  
+  </TrbNetEntity>
