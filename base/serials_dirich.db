@@ -718,6 +718,7 @@
 7021	0x4100000a48ff0028 # dirich3  untested
 7031	# No Connection to Combiner -> SERDES problem?
 7041	0xdc00000a4906e228 # dirich3  untested
+7051	0xa800000a4949b628 # dirich3  untested
 7061	0x9100000a49074628 # dirich3  untested 
 7071	0xab00000a494d4428 # dirich3  untested
 7081	0xee00000a499e2d28 # dirich3  untested
@@ -742,6 +743,7 @@
 7271	0x7f00000a49313428 # dirich3  untested
 7281	0x8c00000a497b0928 # dirich3  untested
 7291	0x0900000a497b0e28 # dirich3  untested
+7301	# failed link
 7311	0x4500000a497b3628 # dirich3  untested
 7321	0x2400000a48c81528 # dirich3  untested
 7331	0x4c00000a48c82228 # dirich3  untested
@@ -887,7 +889,7 @@
 8741	0x8b00000a498f6528 # dirich3  untested
 8751	0x5500000a49e1f128 # dirich3  untested
 8761	0x9200000a49828128 # dirich3  untested
-8771	# configuration fail
+8771	0xb800000a49524428 # configuration fail
 8781	0x5500000a49561028 # dirich3  untested
 8791	0xa500000a49828028 # dirich3  untested
 8801	0xd600000a499dfb28 # dirich3  untested
@@ -901,7 +903,7 @@
 8881	0xd100000a498ff028 # dirich3  untested
 8891	0xea00000a494eb828 # dirich3  untested
 8901	0xb000000a48c91628 # dirich3  untested
-8911	#configuration set up fail
+8911	0xda00000a48d63c28 #configuration set up fail
 8921	0x7900000a48b06c28 # dirich3  untested
 8931	0xd100000a488fa828 # dirich3  untested
 8941	0x7300000a48b9e228 # dirich3  untested
@@ -912,6 +914,30 @@
 8991	# no power signal
 9001	0xbb00000a48f85728 # dirich3  untested
 9011	0x4b00000a49dc2728 # dirich3  untested
+9021	0xcb00000a497ca428 # dirich3  untested
+9031	0xf400000a48ac0228 # dirich3  untested
+9041	0x1300000a518b7e28 # dirich3  untested
+9051	# failed link
+9061	# failed link
+9071	# failed link
+9081	0xac00000a4931cc28 # dirich3  untested
+9091	0x9000000a48b35128 # dirich3  untested
+9101	0x9100000a498fa228 # dirich3  untested
+9111	0xb200000a48f71928 # dirich3  untested
+9121	0xd600000a4907a428 # dirich3  untested
+9131	# failed link
+9141	0xbd00000a48f86228 # dirich3  untested
+9151	# failed link
+9161	# failed link
+9171	0x9c00000a4941e928 # dirich3  untested
+9181	0x2000000a49966a28 # dirich3  untested
+9191	0xbf00000a48e45428 # dirich3  untested
+9201	0x9100000a4949ce28 # dirich3  untested
+9211	# failed link
+9221	# failed power conenction
+9231	0x7100000a49e0e728 # dirich3  untested
+9241	# failed link
+9251	# failed link
 10381	0x5300000a49d52228 # dirich3  untested
 10391	0x1b00000a49d36a28 # dirich3  untested
 10401	0x5700000a49d35228 # dirich3  untested

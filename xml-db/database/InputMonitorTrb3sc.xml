@@ -170,7 +170,10 @@ output #slice</description>
       <field  name="SimpleCoinOutput" start="0" bits="8" format="bitmask" noflag="true" mode="rw">
          <description>Outputs to add the simple coincidence signal to</description>
       </field>
-    </register>          
+      <field  name="EdgeDetectOutput" start="24" bits="8" format="bitmask" noflag="true" mode="rw">
+         <description>Use edge detect for all inputs associated with this output</description>
+      </field>
+      </register>          
    </group>  
   
 </TrbNetEntity>

@@ -104,10 +104,13 @@
         <description>The trigger release is only sent after writing of data is completed.</description>
       </field>
     </register>    
-    <register name="DisableBuffers" address="0114"  purpose="config">
+    <register name="BufferControl" address="0114"  purpose="config">
       <description>Disable individual readout buffers</description>
       <field name="DisableBuffers" start="0" bits="16" format="bitmask" mode="rw" >
         <description>Each internal data buffer can be disabled individually by settings its corresponding bit in this mask.</description>
+      </field>
+      <field name="MinEventSize" start="16" bits="8" format="unsigned" mode="rw" >
+        <description>Minimum event size - if event size is below this limit, all event data is discarded.</description>
       </field>
     </register>    
 
