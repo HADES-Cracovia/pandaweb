@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link href="../layout/styles.css" rel="stylesheet" type="text/css"/>
+<script src="../scripts/scripts.js" type="text/javascript"></script>
+<title>TDC Calibration Registers</title>
+</head>
+<body>
+
+
+<h2><a href="../">TDC Calibration Limits</a></h2>
+<div>
+  <form acion="" style="float: left;margin-right:30px;"> 
+    <table class="form"><tr class="head"><th colspan=4 >Configuration
+      <tr title="4-digit hex board address for data query"><td>Board
+          <td><input onChange="setValues()" type="text" id="form_board" name="board" maxlength="4" value="fe52">
+      <tr title="list of 4-digit hex addresses of boards to show"><td>Filter
+          <td><input onChange="setValues()" type="text" id="form_filter" name="filter"  value="" >
+      <tr title="Number of TDC channels to show"><td># of Channels
+          <td><input onChange="setValues()" type="text" id="form_channels" name="channels" maxlength="3" value="32">
+      <tr title="Update interval in milliseconds, separate for first and second table"><td>Update Interval (ms)
+          <td><input onChange="setValues()" type="text" id="form_rate" name="rate" maxlength="5" value="2000">
+              <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
+      <tr title="Minimal Statistic to generate new set of Calibration">
+          <td>Set statistics Limit
+          <td><input onChange="setLimit_ctrl(this)" type="text" id="form_statLimit_ctrl" name="statLimit_ctrl" maxlength="8" value="100000">
+          
+      <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
+    </table>
+  </form>
+
+</div>
+
+<div style="float:left"><table class="content" id="content"><tr><th>Channel<th>Value</table></div>
+<div style="float:left"><table class="content" id="contentctrl"><tr class="head"><th>Combiner<th>Statistic Limit</table></div>
+
+<script language="javascript">
+var updaterate  = document.getElementById("form_rate").value;
+var updaterate2  = document.getElementById("form_rate2").value;
+var filter      = document.getElementById("form_filter").value;
+var board       = document.getElementById("form_board").value;
+var channels    = document.getElementById("form_channels").value;
+
+var oldvalues = {};
+
+var updateTask;
+var updateCtrlRegsTask;
+var enableGroup = new Array();
+for(i=0;i<1000;i++) enableGroup[i] = new Array();
+
+function settimers(time1,time2) {
+
+  if(time1 != -1) {
+    if(!time1) time1 = updaterate;
+    clearTimeout(updateTask);
+    updateTask = setTimeout("getdata('../commands/get.pl?"+board+"-e020-"+496+"',update)",time1);
+    }
+    
+  if(time2 != -1) {
+    if(!time2) time2 = updaterate2;
+    clearTimeout(updateCtrlRegsTask);
+    updateCtrlRegsTask = setTimeout("getdata('../commands/get.pl?"+board+"-e000-2',updatectrlregs)",time2);
+    
+    }  
+  }
+
+
+function setLimit_ctrl(e) {
+   var board = document.getElementById("form_board").value;
+   var reg = 0xe001;
+   var value = e.value;
+   getdata("../commands/put.pl?"+board+"-"+reg.toString(16)+"-"+(value*1.).toString(16),0);
+   //settimers(200,-1);
+  }  
+
+
+function update(data) {
+  if(!document.getElementById("content").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  var fpga = new Array();
+  var fpga_cnt = new Array();
+  var num_fpgas=0;
+  var isShown = new Array();
+  o = "<tr class=\"head\"><th>Combiner";
+   
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    
+    if(!oldvalues[j]) oldvalues[j] = c[j];
+    
+    var cnt = 0;
+    for (k=1;k<17;k++){
+      if (c[j][k] != 0) {
+        cnt++;
+        num_fpgas++;
+      }
+      fpga.push(c[j][k]);
+    }
+    fpga_cnt[j] = cnt; //number of connected fpgas of each combiner
+    
+     o += "<th colspan=\"" + cnt*2+"\" style=\"text-align: center\">"+ c[j][0];
+    }
+  o += "<tr class=\"head\"><th>FPGA";  
+  for(j=0;j<num_fpgas;j++){
+    var fpga_hex = parseInt(fpga[j]).toString(16);
+    if(filter == "" || filter.indexOf(fpga_hex) != -1){
+      isShown[j] = 1;
+    } else {
+      isShown[j] = 0;
+    }
+    if (isShown[j]){
+      o+= "<th colspan=\"2\" style=\"text-align: center\">";
+      //var fpga_str = sprintf("%s",fpga[j]);
+      o+= fpga_hex;
+    }
+
+  }
+  o += "<tr class=\"head\"><th>Channel";//Min/Max
+  for(j=0;j<num_fpgas;j++){
+    if (isShown[j]) o+= "<th style=\"text-align: center\">Min.<th style=\"text-align: center\">Max.";
+  }
+  
+  o += "<tr><th>0";
+  for(j=0;j<b.length-1;j++) { //loop over all Backplanes/combiner
+    for (i=0;i<fpga_cnt[j];i++){
+      if(isShown[i]) { 
+        // enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
+        var min = c[j][17+i] & 0x000003FF;
+        var max = (c[j][17+i] >> 10) & 0x000003FF;
+        o += "<td>";
+        o += (min);
+        o += "<td>";
+        o += (max);
+      }
+    }
+  }
+  for(i = 1; i <= channels; i++) {
+    if( i<=32) o += "<tr><th>"+(i);
+    for(j=0;j<b.length-1;j++) {
+      for (k=0;k<fpga_cnt[j];k++){
+        if(isShown[k]) {
+          // enabled = (enableGroup[j][Math.floor((i-2)/32)]&1<<(i-2)%32)?"checked":"";
+          var min =  c[j][32+32*k+i] & 0x000003FF;
+          var max = (c[j][32+32*k+i] >> 10) & 0x000003FF;
+
+          o += "<td>";
+          o += (min);
+          o += "<td>";
+          o += (max);
+        }
+      }
+    }
+  }
+  
+  document.getElementById("content").innerHTML  = o;
+  settimers(0,-1);
+  delete isShown;
+  }
+  
+function setValues() {
+  
+  updaterate  = document.getElementById("form_rate").value;
+  updaterate2 = document.getElementById("form_rate2").value;
+  board       = document.getElementById("form_board").value;
+  filter      = document.getElementById("form_filter").value;
+  channels    = document.getElementById("form_channels").value;
+  settimers(200,50);
+  }
+
+
+ 
+function updatectrlregs(data) {
+  if(!document.getElementById("contentctrl").innerHTML) return;
+  var b = data.split("&");
+  var c = {};
+  var 
+  o = "<tr class=\"head\"><th>Combiner<th>Statistic Limit<th>CalibStatus";
+
+  for(j=0;j<b.length-1;j++) {
+    c[j] = b[j].split(" ");
+    o += "<tr><th>"+c[0][0]+"</th><td>"+c[0][2]+"</td>";
+    
+    if (c[0][1]=== "1") {
+      o +="<td style=\"background-color:#cfc;\" >active";
+    } else {
+      o +="<td style=\"background-color:#fcc;\" >stoped";
+    }
+    o += "</td></tr>";
+  }
+ 
+  document.getElementById("contentctrl").innerHTML  = o;
+  settimers(-1,0);
+  delete isShown;
+}
+  
+settimers(200,50);
+  
+</script>
+</body></html>
