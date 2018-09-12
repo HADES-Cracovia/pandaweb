@@ -134,7 +134,7 @@
 1321	0xf000000a49dfc328 # dirich3  untested
 1331	0xc100000a49f50628 # dirich3  untested
 1341	0x5300000a48b56728 # dirich3  untested
-1351	# not working --> short circuit
+1351	0x6600000a49dfca28 # dirich3  untested
 1361	0xd800000a49dfa628 # dirich3  untested
 1371	0x5200000a52132c28 # dirich3  untested
 1381	0xbe00000a52020928 # dirich3  untested
@@ -171,7 +171,7 @@
 1701	0x9e00000a495ef428 # dirich3  untested
 1711	0x2a00000a493abe28 # dirich3  untested
 1721	0x0000000a48e2eb28 # dirich3  untested
-1731	# not working -> short circuit
+1731	0x9600000a493bd828 # dirich3  untested
 1741	0x4800000a493bcf28 # dirich3  untested
 1751	0xcf00000a493bdb28 # dirich3  untested
 1761	0x8500000a48e2ec28 # dirich3  untested
@@ -726,7 +726,7 @@
 7271	0x7f00000a49313428 # dirich3  untested
 7281	0x8c00000a497b0928 # dirich3  untested
 7291	0x0900000a497b0e28 # dirich3  untested
-7301	# failed link
+7301	0xc000000a497b3128 # dirich3  untested
 7311	0x4500000a497b3628 # dirich3  untested
 7321	0x2400000a48c81528 # dirich3  untested
 7331	0x4c00000a48c82228 # dirich3  untested
@@ -861,7 +861,7 @@
 8631	0xec00000a498fae28 # dirich3  untested
 8641	0xea00000a498f9b28 # dirich3  untested
 8651	# failed:  OTP is set
-8661	# configuration error
+8661	0xad00000a49678028 # configuration error(machxo3)
 8671	# failed: OTP is set
 8681	0xee00000a49674428 # dirich3  untested
 8691	0x4600000a49678528 # dirich3  untested
@@ -894,33 +894,37 @@
 8961	# no signal: failed verify ID ( ribbon cable) 
 8971	0x5800000a49b7d728 # dirich3  untested
 8981	0xd000000a48ac0d28 # dirich3  untested
-8991	# no power signal
+8991	# high current draw; no Link
 9001	0xbb00000a48f85728 # dirich3  untested
 9011	0x4b00000a49dc2728 # dirich3  untested
 9021	0xcb00000a497ca428 # dirich3  untested
 9031	0xf400000a48ac0228 # dirich3  untested
 9041	0x1300000a518b7e28 # dirich3  untested
-9051	# failed link
-9061	# failed link
-9071	# failed link
+9051	0xac00000a48f1ae28 # dirich3  untested
+9061	0x3f00000a520cb628 # dirich3  untested
+9071	0xbc00000a49069928 # dirich3  untested
 9081	0xac00000a4931cc28 # dirich3  untested
 9091	0x9000000a48b35128 # dirich3  untested
 9101	0x9100000a498fa228 # dirich3  untested
 9111	0xb200000a48f71928 # dirich3  untested
 9121	0xd600000a4907a428 # dirich3  untested
-9131	# failed link
+9131	0x6500000a5242ab28 # dirich3  untested
 9141	0xbd00000a48f86228 # dirich3  untested
-9151	# failed link
-9161	# failed link
+9151	0xfc00000a497ca528 # dirich3  untested
+9161	0x2d00000a52375c28 # dirich3  untested
 9171	0x9c00000a4941e928 # dirich3  untested
 9181	0x2000000a49966a28 # dirich3  untested
 9191	0xbf00000a48e45428 # dirich3  untested
 9201	0x9100000a4949ce28 # dirich3  untested
-9211	# failed link
+9211	0xa200000a49603328 # dirich3  untested
 9221	# failed power conenction
 9231	0x7100000a49e0e728 # dirich3  untested
-9241	# failed link
-9251	# failed link
+9241	0xdd00000a494eb928 # dirich3  untested MACHXo3 not programmed -> JTAG prob.
+9251	0x8900000a48dfb128 # dirich3  untested
+10331   0x0600000a49897828 # dirich3  untested
+10341   0x6100000a49bc4c28 # dirich3  untested
+10361   0xf700000a49bc4528 # dirich3  untested
+10371   0x7000000a49bc5128 # dirich3  untested
 10381	0x5300000a49d52228 # dirich3  untested
 10391	0x1b00000a49d36a28 # dirich3  untested
 10401	0x5700000a49d35228 # dirich3  untested
@@ -934,7 +938,7 @@
 10481	0x3a00000a49a9a828 # dirich3  untested
 10491	0x0b00000a49a99c28 # dirich3  untested
 10501	0x1b00000a49e4a728 # dirich3  untested
-10511	# power Flap broken
+10511	0x7500000a49e4a528 # dirich3  untested
 10521	0x2000000a49aa4428 # dirich3  untested
 10531	0x9c00000a49e4b328 # dirich3  untested
 10541	0xae00000a49d3dc28 # dirich3  untested
@@ -1010,7 +1014,7 @@
 11241	0xfc00000a48dee828 # dirich3  untested
 11251	0x2600000a48dceb28 # dirich3  untested
 11261	0x6c00000a48dce628 # dirich3  untested
-11271 	# no power signal
+11271 	# no Link (after programming)
 11281	0xfc00000a48dcda28 # dirich3  untested
 11291	0xfd00000a491c3d28 # dirich3  untested
 11301	0xe100000a48b22e28 # dirich3  untested
