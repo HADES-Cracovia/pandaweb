@@ -24,7 +24,7 @@
               <input onChange="setValues()" type="text" id="form_rate2" name="rate2" maxlength="5" value="5000">
       <tr title="Minimal Statistic to generate new set of Calibration">
           <td>Set statistics Limit
-          <td><input onChange="setLimit_ctrl(this)" type="text" id="form_statLimit_ctrl" name="statLimit_ctrl" maxlength="8" value="100000">
+          <td><input onChange="setLimit_ctrl(this)" type="text" id="form_statLimit_ctrl" name="statLimit_ctrl" maxlength="8" value="100000">   
           
       <tr><td><td title="Just for your convenience, you actually don't need this button..."><input type="button" onClick="setValues()" value="OK">
     </table>
@@ -176,23 +176,83 @@ function updatectrlregs(data) {
   var b = data.split("&");
   var c = {};
   var 
-  o = "<tr class=\"head\"><th>Combiner<th>Statistic Limit<th>CalibStatus";
+  o = "<tr class=\"head\" ><th>Combiner<th style=\"text-align: center\">Statistic Limit<th style=\"text-align: center\">CalibStatus<th style=\"text-align: center\">calibrate<th>Trigger type <th> generate Limits";
+          
 
   for(j=0;j<b.length-1;j++) {
     c[j] = b[j].split(" ");
     o += "<tr><th>"+c[0][0]+"</th><td>"+c[0][2]+"</td>";
-    
-    if (c[0][1]=== "1") {
-      o +="<td style=\"background-color:#cfc;\" >active";
+    var control   = c[0][1];
+    var DoCal     = control & 0x1;
+    var StopLimit = (control >> 4) & 0x1;
+    var Trigger   = (control >> 8) & 0xf;
+    //alert(Trigger);
+    if (DoCal=== 1) {
+      o +="<td style=\"background-color:#cfc;text-align:center;\" >active</td><td style=\"background-color:#cfc;\">";
+      o +="<center><input type=\"button\" onclick=\"activate("+c[0][0]+",0)\" value=\"stop\" title=\"Evene if stoped, new limits are generated\"></center>";
     } else {
-      o +="<td style=\"background-color:#fcc;\" >stoped";
+      o +="<td style=\"background-color:#fcc;text-align:center;\" >stoped</td><td style=\"background-color:#fcc;\">";
+      o +="<center><input type=\"button\" onclick=\"activate("+c[0][0]+",1)\" value=\"start\" ></center>";
     }
-    o += "</td></tr>";
+    o += "</td>"
+    if (StopLimit=== 0) {
+      o += "<td style=\"background-color:#cfc;\" ><select id=\"Trig_Type_Sel\" onchange=\"Trigger_Type_select("+c[0][0]+",0xe000)\">";
+    } else {
+      o += "<td style=\"background-color:#fcc;\" ><select id=\"Trig_Type_Sel\" onchange=\"Trigger_Type_select("+c[0][0]+",0xe000)\">";
+    }
+      if (Trigger === 0) {
+        o += "<option value=\"0x0\" selected>All</option>";
+      } else {
+        o += "<option value=\"0x0\" >All</option>";
+      }
+      if (Trigger === 1) {
+        o += "<option value=\"0x1\" selected>0x1</option>";
+      } else {
+        o += "<option value=\"0x1\" >0x1</option>";
+      }
+      if (Trigger === 13) {
+        o += "<option value=\"0xd\" selected>0xd</option>";
+      } else {
+        o += "<option value=\"0xd\" >0xd</option>";
+      }
+      o += "</select></td>";
+    if (StopLimit=== 0) {
+      o += "<td style=\"background-color:#cfc;\" ><center><input type=\"button\" onclick=\"setStopLimit("+c[0][0]+",0xe000,1)\" value=\"stop\" ></center></td> ";
+    } else {
+      o += "<td style=\"background-color:#fcc;\" ><center><input type=\"button\" onclick=\"setStopLimit("+c[0][0]+",0xe000,0)\" value=\"start\" ></center></td> ";
+    }
+    o += "</tr>";
   }
- 
+ //setBitRange("+c[0][0]+",e000,1)
   document.getElementById("contentctrl").innerHTML  = o;
   settimers(-1,0);
   delete isShown;
+}
+
+
+function Trigger_Type_select(board,reg){
+  var sel = document.getElementById("Trig_Type_Sel").value;
+  setBitRange(board,reg,parseInt(sel));
+}
+
+function setBitRange(board,reg,value){
+ if (value < 16 ) {
+   getdata("../commands/putbitrange.pl?"+board+"-"+reg.toString(16)+"-00000F00-00000"+value.toString(16)+"00",0)
+ }
+}
+
+function setStopLimit(board,reg,val){
+  var op    = val?"set":"clr";
+  var value = "10";
+  getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-0"+value,0)
+
+}
+
+function activate(board,val){
+//alert(board+" "+val);
+var op  = val?"set":"clr";
+var reg = 0xe000;
+ getdata("../commands/putbit.pl?"+board+"-"+reg.toString(16)+"-"+op+"-1",0);
 }
   
 settimers(200,50);
