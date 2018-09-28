@@ -919,7 +919,7 @@
 9041	0x1300000a518b7e28 # dirich3  untested
 9051	# failed link
 9061	# failed link
-9071	# failed link
+9071	0xbc00000a49069928 # dirich3 untested, was failed link, now it works
 9081	0xac00000a4931cc28 # dirich3  untested
 9091	0x9000000a48b35128 # dirich3  untested
 9101	0x9100000a498fa228 # dirich3  untested
@@ -927,7 +927,7 @@
 9121	0xd600000a4907a428 # dirich3  untested
 9131	# failed link
 9141	0xbd00000a48f86228 # dirich3  untested
-9151	# failed link
+9151	0xfc00000a497ca528 # dirich3  untested, was failed link, now it works
 9161	# failed link
 9171	0x9c00000a4941e928 # dirich3  untested
 9181	0x2000000a49966a28 # dirich3  untested
