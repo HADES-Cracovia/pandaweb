@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+
+#use lib '/home/hadaq/trbsoft/daqtools/perllibs/';
 use warnings;
 use FileHandle;
 use Time::HiRes qw( usleep );
@@ -148,7 +150,7 @@ commands:
  dumpcfgflash           Dump content of configuration flash. Pipe output to file
  writecfgflash          Write content of configuration flash. options: \$filename
  eraseuserflash         erases the user flash
- dumpuserflas           Dump content of user flash. Pipe output to file
+ dumpuserflash          Dump content of user flash. Pipe output to file
  writecfgflash          Write content of user flash. options: \$filename
  memtoflash             Saves memory content in the flash so that it is restored after boot
                         options: -range , format like '0x00..0x0F,0x23'
