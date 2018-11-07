@@ -191,7 +191,7 @@
                start="0" bits="1"  mode="r"  purpose="status"  format="boolean" >
           <description>JTAG has been started</description>
         </field>
-        <field name="JtagLastSuccesful"
+        <field name="JtagLastSuccessful"
                start="4" bits="1"  mode="r"  purpose="status"  format="boolean" >
           <description>Last JTAG run was successful</description>
         </field>
