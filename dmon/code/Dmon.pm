@@ -309,7 +309,7 @@ sub PadiwaSendCmd {
     if (trb_strerror() ne "No Error") {
       usleep 3E4;
       if($errcnt >= 12) {
-        return "SPI still blocked\n";
+        return {error => "SPI still blocked\n"};
         }
       elsif($errcnt++ >= 10) {
         trb_register_read($board,0xd412);

@@ -134,7 +134,7 @@
 1321	0xf000000a49dfc328 # dirich3  untested
 1331	0xc100000a49f50628 # dirich3  untested
 1341	0x5300000a48b56728 # dirich3  untested
-1351	# not working --> short circuit
+1351	0x6600000a49dfca28 # dirich3  untested
 1361	0xd800000a49dfa628 # dirich3  untested
 1371	0x5200000a52132c28 # dirich3  untested
 1381	0xbe00000a52020928 # dirich3  untested
@@ -171,7 +171,7 @@
 1701	0x9e00000a495ef428 # dirich3  untested
 1711	0x2a00000a493abe28 # dirich3  untested
 1721	0x0000000a48e2eb28 # dirich3  untested
-1731	# not working -> short circuit
+1731	0x9600000a493bd828 # dirich3  untested
 1741	0x4800000a493bcf28 # dirich3  untested
 1751	0xcf00000a493bdb28 # dirich3  untested
 1761	0x8500000a48e2ec28 # dirich3  untested
@@ -336,7 +336,9 @@
 3361	0xe300000a4938b328 # dirich3  untested
 3381	0xf200000a4938ae28 # dirich3  untested
 3391	0xba00000a48bbef28 # dirich3  tested
-3401	0xef00000a48859a28 # dirich3  untested
+
+
+3401	0xef00000a48859a28 # dirich3  tested
 3411	0xfb00000a497b5a28 # dirich3  untested machxo3 programming failed (ID)
 3421	0xbf00000a49c34828 # dirich3  untested
 3431	0x8d00000a48b57028 # dirich3  untested
@@ -350,10 +352,23 @@
 3511	0x2700000a49857828 # dirich3  untested
 3521	0x7a00000a49855d28 # dirich3  untested
 3531	0x6d00000a49857528 # dirich3  untested
-3541	0x8300000a49084a28 # dirich3  untested
+3541    0x8300000a49084a28 # dirich3  tested
 3551	0x2c00000a4907bc28 # dirich3  untested
 3561	0x2200000a4907c528 # dirich3  untested
-3571	0x1400000a49785228 # dirich3  untested
+3571    0x1400000a49785228 # dirich3  tested
+3581    0xe500000a49278828 # dirich3  tested
+3591    0x7300000a49091428 # dirich3  tested
+3601    0xb800000a488f1a28 # dirich3  untested
+3631	0x3f00000a488f0e28 # dirich3  untested
+3611	0x2e00000a488f1328 # dirich3  untested
+3621    0xcb00000a48925328 # dirich3  untested
+3641    0x5000000a48919e28 # dirich3  untested
+3661    0x9800000a49789c28 # dirich3  untested
+3671    0x7500000a4978ac28 # dirich3  untested
+3681    0x0200000a4978ff28 # dirich3  untested
+
+
+
 3581	0xe500000a49278828 # dirich3  untested
 3591	0x7300000a49091428 # dirich3  untested
 3601	0xb800000a488f1a28 # dirich3  untested
@@ -365,6 +380,8 @@
 3661	0x9800000a49789c28 # dirich3  untested 
 3671	0x7500000a4978ac28 # dirich3  untested
 3681	0x0200000a4978ff28 # dirich3  untested
+
+
 3691	0x4d00000a496aea28 # dirich3  untested
 3701	0x6100000a49790b28 # dirich3  untested
 3711	0x0c00000a49a58028 # dirich3  untested
@@ -701,6 +718,7 @@
 7021	0x4100000a48ff0028 # dirich3  untested
 7031	# No Connection to Combiner -> SERDES problem?
 7041	0xdc00000a4906e228 # dirich3  untested
+7051	0xa800000a4949b628 # dirich3  untested
 7061	0x9100000a49074628 # dirich3  untested 
 7071	0xab00000a494d4428 # dirich3  untested
 7081	0xee00000a499e2d28 # dirich3  untested
@@ -725,6 +743,7 @@
 7271	0x7f00000a49313428 # dirich3  untested
 7281	0x8c00000a497b0928 # dirich3  untested
 7291	0x0900000a497b0e28 # dirich3  untested
+7301	0xc000000a497b3128 # dirich3  untested
 7311	0x4500000a497b3628 # dirich3  untested
 7321	0x2400000a48c81528 # dirich3  untested
 7331	0x4c00000a48c82228 # dirich3  untested
@@ -859,7 +878,7 @@
 8631	0xec00000a498fae28 # dirich3  untested
 8641	0xea00000a498f9b28 # dirich3  untested
 8651	# failed:  OTP is set
-8661	# configuration error
+8661	0xad00000a49678028 # configuration error(machxo3)
 8671	# failed: OTP is set
 8681	0xee00000a49674428 # dirich3  untested
 8691	0x4600000a49678528 # dirich3  untested
@@ -870,7 +889,7 @@
 8741	0x8b00000a498f6528 # dirich3  untested
 8751	0x5500000a49e1f128 # dirich3  untested
 8761	0x9200000a49828128 # dirich3  untested
-8771	# configuration fail
+8771	0xb800000a49524428 # configuration fail
 8781	0x5500000a49561028 # dirich3  untested
 8791	0xa500000a49828028 # dirich3  untested
 8801	0xd600000a499dfb28 # dirich3  untested
@@ -884,7 +903,7 @@
 8881	0xd100000a498ff028 # dirich3  untested
 8891	0xea00000a494eb828 # dirich3  untested
 8901	0xb000000a48c91628 # dirich3  untested
-8911	#configuration set up fail
+8911	0xda00000a48d63c28 #configuration set up fail
 8921	0x7900000a48b06c28 # dirich3  untested
 8931	0xd100000a488fa828 # dirich3  untested
 8941	0x7300000a48b9e228 # dirich3  untested
@@ -892,9 +911,38 @@
 8961	# no signal: failed verify ID ( ribbon cable) 
 8971	0x5800000a49b7d728 # dirich3  untested
 8981	0xd000000a48ac0d28 # dirich3  untested
-8991	# no power signal
+8991	# high current draw; no Link
 9001	0xbb00000a48f85728 # dirich3  untested
 9011	0x4b00000a49dc2728 # dirich3  untested
+9021	0xcb00000a497ca428 # dirich3  untested
+9031	0xf400000a48ac0228 # dirich3  untested
+9041	0x1300000a518b7e28 # dirich3  untested
+9051	# failed link
+9061	# failed link
+9071	0xbc00000a49069928 # dirich3 untested, was failed link, now it works
+9081	0xac00000a4931cc28 # dirich3  untested
+9091	0x9000000a48b35128 # dirich3  untested
+9101	0x9100000a498fa228 # dirich3  untested
+9111	0xb200000a48f71928 # dirich3  untested
+9121	0xd600000a4907a428 # dirich3  untested
+9131	0x6500000a5242ab28 # dirich3  untested
+9141	0xbd00000a48f86228 # dirich3  untested
+
+9151	0xfc00000a497ca528 # dirich3  untested, was failed link, now it works
+9161	0x2d00000a52375c28 # dirich3  failed link
+9171	0x9c00000a4941e928 # dirich3  untested
+9181	0x2000000a49966a28 # dirich3  untested
+9191	0xbf00000a48e45428 # dirich3  untested
+9201	0x9100000a4949ce28 # dirich3  untested
+9211	0xa200000a49603328 # dirich3  untested
+9221	# failed power conenction
+9231	0x7100000a49e0e728 # dirich3  untested
+9241	0xdd00000a494eb928 # dirich3  untested MACHXo3 not programmed -> JTAG prob.
+9251	0x8900000a48dfb128 # dirich3  untested
+10331   0x0600000a49897828 # dirich3  untested
+10341   0x6100000a49bc4c28 # dirich3  untested
+10361   0xf700000a49bc4528 # dirich3  untested
+10371   0x7000000a49bc5128 # dirich3  untested
 10381	0x5300000a49d52228 # dirich3  untested
 10391	0x1b00000a49d36a28 # dirich3  untested
 10401	0x5700000a49d35228 # dirich3  untested
@@ -908,7 +956,7 @@
 10481	0x3a00000a49a9a828 # dirich3  untested
 10491	0x0b00000a49a99c28 # dirich3  untested
 10501	0x1b00000a49e4a728 # dirich3  untested
-10511	# power Flap broken
+10511	0x7500000a49e4a528 # dirich3  untested
 10521	0x2000000a49aa4428 # dirich3  untested
 10531	0x9c00000a49e4b328 # dirich3  untested
 10541	0xae00000a49d3dc28 # dirich3  untested
@@ -984,7 +1032,7 @@
 11241	0xfc00000a48dee828 # dirich3  untested
 11251	0x2600000a48dceb28 # dirich3  untested
 11261	0x6c00000a48dce628 # dirich3  untested
-11271 	# no power signal
+11271 	# no Link (after programming)
 11281	0xfc00000a48dcda28 # dirich3  untested
 11291	0xfd00000a491c3d28 # dirich3  untested
 11301	0xe100000a48b22e28 # dirich3  untested
