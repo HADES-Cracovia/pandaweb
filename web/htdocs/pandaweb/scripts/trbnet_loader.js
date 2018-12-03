@@ -19,20 +19,20 @@ function read_and_update(val, opt) {
 
     switch(reg) {
         case 0:
-            var peaking = v & 0x3;
-            var gain = (v & 0xc) >> 2;
-            document.getElementById("AMPLI_asic"+cid).selectedIndex = 3-gain;
+            var peaking = 3 - ( v & 0x3 );
+            var gain = 3 - ( (v & 0xc) >> 2 );
+            document.getElementById("AMPLI_asic"+cid).selectedIndex = gain;
             document.getElementById("PEAK_Pasic"+cid).selectedIndex = peaking;
             break;
         case 1:
-            var tc1r = v & 0x7;
-            var tc1c = (v & 0x38) >> 3;
+            var tc1r = 7 - ( v & 0x7 );
+            var tc1c = 7 - ( (v & 0x38) >> 3 );
             document.getElementById("TC1C_Pasic"+cid).selectedIndex = tc1c;
             document.getElementById("TC1R_Pasic"+cid).selectedIndex = tc1r;
             break;
         case 2:
-            var tc2r = v & 0x7;
-            var tc2c = (v & 0x38) >> 3;
+            var tc2r = 7 - ( v & 0x7 );
+            var tc2c = 7 - ( (v & 0x38) >> 3 );
             document.getElementById("TC2C_Pasic"+cid).selectedIndex = tc2c;
             document.getElementById("TC2R_Pasic"+cid).selectedIndex = tc2r;
             break;
@@ -136,7 +136,7 @@ function send_and_read(queue) {
 
         cmdWordToSend = p[0]+"-"+"a000-"+"0x"+p[1];
 
-        var cb;  
+        var cb;
         getdata("../commands/put.pl?"+cmdWordToSend, cb);
         var cmdWordToRead = p[0]+"-"+"a000";
 

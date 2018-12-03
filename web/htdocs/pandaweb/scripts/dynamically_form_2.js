@@ -141,17 +141,17 @@ panel.prototype.create_board_params = function() {
     html += '<td>TC2R<sub>2-0</sub> [k&#937]</td><td><select id="TC2R_P'+asic+'" name="id="TC2R_P'+asic+'" onChange="setAsicValues(this)" data-id="asic_'+id+'"><option>26</option><option>23</option><option>20</option><option>17</option><option>14</option><option>11</option><option>8</option><option>5</option></select></td></tr>';
 
     html += '<tr><td>Threshold</td>';
-    html += '<td colspan="2"><input id="bar'+id+'0" name="b'+id+'0" oninput="update(jQuery(this), value)" type="range" min="0" max="254" step="1" value="0"></td>';
-    html += '<td><output class="w-10" for="bar'+id+'0" id="bar'+id+'0value">0</output> <span>mV</span></td></tr>';
+    html += '<td colspan="2"><input id="bar'+id+'0" name="b'+id+'0" oninput="update(jQuery(this), value)" type="range" min="0" max="254" step="2" value="0"></td>';
+    html += '<td><output class="w-10" for="bar'+id+'0" id="bar'+id+'0value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'0" id="bar'+id+'0bin">0</output></td></tr>';
 
-    html += '<tr><td>Base line channel 1</td><td colspan="2"><input id="bar'+id+'1" name ="b'+id+'1" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 2</td><td colspan="2"><input id="bar'+id+'2" name ="b'+id+'2" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 3</td><td colspan="2"><input id="bar'+id+'3" name ="b'+id+'3" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 4</td><td colspan="2"><input id="bar'+id+'4" name ="b'+id+'4" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 5</td><td colspan="2"><input id="bar'+id+'5" name ="b'+id+'5" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 6</td><td colspan="2"><input id="bar'+id+'6" name ="b'+id+'6" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 7</td><td colspan="2"><input id="bar'+id+'7" name ="b'+id+'7" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output> <span>mV</span></td></tr>';
-    html += '<tr><td>Base line channel 8</td><td colspan="2"><input id="bar'+id+'8" name ="b'+id+'8" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output> <span>mV</span></td></tr>';
+    html += '<tr><td>Base line channel 1</td><td colspan="2"><input id="bar'+id+'1" name ="b'+id+'1" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'1" id="bar'+id+'1value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'1bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 2</td><td colspan="2"><input id="bar'+id+'2" name ="b'+id+'2" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'2" id="bar'+id+'2value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'2bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 3</td><td colspan="2"><input id="bar'+id+'3" name ="b'+id+'3" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'3" id="bar'+id+'3value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'3bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 4</td><td colspan="2"><input id="bar'+id+'4" name ="b'+id+'4" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'4" id="bar'+id+'4value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'4bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 5</td><td colspan="2"><input id="bar'+id+'5" name ="b'+id+'5" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'5" id="bar'+id+'5value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'5bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 6</td><td colspan="2"><input id="bar'+id+'6" name ="b'+id+'6" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'6" id="bar'+id+'6value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'6bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 7</td><td colspan="2"><input id="bar'+id+'7" name ="b'+id+'7" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'7" id="bar'+id+'7value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'7bin">0</output></td></tr>';
+    html += '<tr><td>Base line channel 8</td><td colspan="2"><input id="bar'+id+'8" name ="b'+id+'8" oninput="update(jQuery(this), value)" type="range" min="-31" max="31" step="2" value="0"></td><td><output class="w-10" for="bar'+id+'8" id="bar'+id+'8value">0</output> <span>mV</span> | <output class="w-10" for="bar'+id+'8" id="bar'+id+'8bin">0</output></td></tr>';
 
     html += '</table>';
     html += '</div>';
@@ -184,6 +184,12 @@ function update(handler, value) {
     jQuery("#"+id+"value").val(value);
     var num = id.toString().substring(3,6);
     var bar = id.toString().substring(6,7);
+
+    var bin_value = (parseInt(value) + 31)/2;
+    if (bar == "0")
+        bin_value = parseInt(value)/2;
+
+    jQuery("#"+id+"bin").val(bin_value);
 
     clearTimeout( $.data( this, "changed" ) );
     $.data( this, "changed", setTimeout(function() {
